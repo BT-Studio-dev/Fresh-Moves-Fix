@@ -217,6 +217,7 @@
       ];
       return P;
     }
+    const NORMALS = [[0, 0, 1], [0, 0, -1], [-1, 0, 0], [1, 0, 0], [0, 1, 0], [0, -1, 0]]; // front, back, right, left, top, bottom
     const PIV = { head: [0, 24, 0], body: [0, 24, 0], ra: [-5, 22, 0], la: [5, 22, 0], rl: [-2, 12, 0], ll: [2, 12, 0] };
     function angles() { // [rotX, rotZ] per part
       const A = { head: [0, 0], body: [0, 0], ra: [0, 0], la: [0, 0], rl: [0, 0], ll: [0, 0] };
@@ -264,7 +265,7 @@
             [u + dp + w, v, w, dp, (i, j) => [cx + (-w / 2 + i) * sx, top - h * sy2, cz + (-dp / 2 + j) * sz]],       // bottom
           ];
         };
-        const F = faces(inf), F0 = vox ? faces(0.02) : null;
+        const F = faces(inf);
         for (let fi = 0; fi < 6; fi++) {
           const [fu, fv, cols, rows, fn] = F[fi];
           // corners of the whole face, to drop faces that look away (not for the thin see-through layer)
@@ -275,7 +276,7 @@
           const C = cols + 1, grid = [], base = [];
           for (let jj = 0; jj <= rows; jj++) for (let ii = 0; ii <= cols; ii++) {
             grid.push(pt(name, ...fn(ii, jj)));
-            if (vox) base.push(pt(name, ...F0[fi][4](ii, jj)));
+            if (vox) { const q = fn(ii, jj), nrm = NORMALS[fi]; base.push(pt(name, q[0] - nrm[0] * inf, q[1] - nrm[1] * inf, q[2] - nrm[2] * inf)); } // straight down to the skin
           }
           const shade = cross > 0 ? (fi < 2 ? 1 : fi < 4 ? 0.82 : fi === 4 ? 1 : 0.6) : 0.7;
           const solid = (ii, jj) => ii >= 0 && jj >= 0 && ii < cols && jj < rows && d[((fv + jj) * 64 + fu + ii) * 4 + 3] > 0;
@@ -290,6 +291,10 @@
               for (let m = 0; m < 4; m++) {
                 if (solid(ii + nb[m][0], jj + nb[m][1])) continue;
                 const p1 = grid[k[m]], p2 = grid[k[(m + 1) % 4]], q2 = base[k[(m + 1) % 4]], q1 = base[k[m]];
+                // walls that look away from you are not drawn
+                let area = (p2[0] - p1[0]) * (q1[1] - p1[1]) - (p2[1] - p1[1]) * (q1[0] - p1[0]);
+                if (fi === 5) area = -area;
+                if (area >= 0) continue;
                 quads.push([zq(p1, p2, q2, q1), p1, p2, q2, q1, col(o, m % 2 ? 0.72 : 0.86)]);
               }
             }
@@ -322,6 +327,7 @@
     cv.addEventListener("wheel", wheel, { passive: false });
     cv.style.touchAction = "none"; cv.style.cursor = "grab";
     self.loadSkin = (canvas, opt) => { img = canvas.getContext("2d").getImageData(0, 0, 64, 64); slim = !!opt && opt.model === "slim"; };
+    self.view = (y, p) => { yaw = y; pitch = p; };
     self.render = () => { try { draw(); } catch (e) {} };
     self.dispose = () => { dead = true; cancelAnimationFrame(raf); cv.removeEventListener("pointerdown", down); cv.removeEventListener("pointermove", move); cv.removeEventListener("pointerup", up); cv.removeEventListener("pointercancel", up); cv.removeEventListener("wheel", wheel); };
     raf = requestAnimationFrame(frame);
