@@ -24,6 +24,18 @@ On Minecraft 1.21.9 and newer use EMF 3.0.12 or newer, otherwise armour does not
 
 None of the model changes have been tested in-game yet.
 
+## Website
+
+https://fresh-moves-fix.vercel.app
+
+The site is in `website/`. It is generated from this repository (`docs/`, `VERSION`, `build.py`):
+
+```
+cd website
+npm install
+npm run build   # writes website/public
+```
+
 ## Build
 
 `python3 build.py` checks the pack files and writes the installable zips to `dist/`:
