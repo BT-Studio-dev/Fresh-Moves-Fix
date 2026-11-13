@@ -3,6 +3,7 @@
 ## Guides
 
 - [All guides (wiki home)](docs/Home.md)
+- [All releases and Minecraft versions](docs/Versions.md)
 
 ## Changes from the original pack
 
