@@ -3,7 +3,7 @@
 // simply opens the link the normal way.
 (function () {
   if (!window.fetch || !window.DOMParser || !history.pushState) return;
-  var KEEP = /(^|\/)(nav|music|i18n|tip)\.js(\?|$)/; // already running; must not be loaded twice
+  var KEEP = /(^|\/)(nav|music|i18n)\.js(\?|$)/; // already running; must not be loaded twice
   var busy = false;
 
   function runScripts(list, i) {

@@ -124,7 +124,6 @@ ${body}
 <script src="${up}i18n.js"></script>
 <script src="${up}music.js"></script>
 <script src="${up}nav.js"></script>
-<script src="${up}tip.js"></script>
 </body>
 </html>
 `;
@@ -143,7 +142,6 @@ fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
 fs.copyFileSync(path.join(here, "nav.js"), path.join(out, "nav.js"));
-fs.copyFileSync(path.join(here, "tip.js"), path.join(out, "tip.js"));
 // flag pictures for the language list (flag-icons, MIT), so no flag emoji are needed
 fs.mkdirSync(path.join(out, "flags"), { recursive: true });
 for (const f of ["us", "eg", "de", "es", "fr", "it", "br", "ru", "pl", "ua", "tr", "cn", "jp"])
