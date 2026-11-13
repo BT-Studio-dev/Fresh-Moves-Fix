@@ -329,6 +329,7 @@ write("editor/index.html", page({
           <option value="wave">Waving</option>
         </select></label>
         <label><input type="checkbox" id="spin"> Spin</label>
+        <label title="Shows the second skin layer (hat, jacket, sleeves) as little 3D blocks, like the 3D Skin Layers mod"><input type="checkbox" id="layers3d"> 3D skin layers</label>
         <label>Zoom <input type="range" id="zoom" min="0.6" max="2.4" step="0.05" value="0.9"></label>
       </p>
       <p class="ehint">${ICON.info} Drag to turn the model, scroll to zoom. The preview shows the skin only; the blinking happens in-game.</p>

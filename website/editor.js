@@ -203,7 +203,7 @@
   function SoftViewer(cv) {
     const g = cv.getContext("2d");
     let img = null, slim = false, yaw = -0.5, pitch = 0.15, raf = 0, last = 0, t = 0, dead = false, drag = null;
-    const self = this; self.soft = true; self.autoRotate = false; self.zoom = 0.9; self.pose = "idle";
+    const self = this; self.soft = true; self.autoRotate = false; self.zoom = 0.9; self.pose = "idle"; self.layers3d = false;
     // box: uv corner, size (w,h,d), centre, pivot name, inflate
     function parts() {
       const aw = slim ? 3 : 4, ax = slim ? 5.5 : 6;
@@ -247,32 +247,52 @@
         const f = 90 / (90 - z4);                                 // a little perspective
         return [W / 2 + x3 * f * sc, H / 2 - y4 * f * sc, z4];
       };
-      for (const [name, u, v, w, h, dp, cx, cyy, cz, inf] of parts()) {
-        const sx = (w + 2 * inf) / w, sy2 = (h + 2 * inf) / h, sz = (dp + 2 * inf) / dp, top = cyy + h / 2 * sy2;
+      const col = (o, k) => "rgba(" + Math.round(d[o] * k) + "," + Math.round(d[o + 1] * k) + "," + Math.round(d[o + 2] * k) + "," + (d[o + 3] / 255) + ")";
+      const zq = (a, b, c, e) => (a[2] + b[2] + c[2] + e[2]) / 4;
+      for (const [name, u, v, w, h, dp, cx, cyy, cz, inf0] of parts()) {
+        const vox = self.layers3d && inf0 > 0;          // 3D skin layers: the second layer becomes little blocks
+        const inf = vox ? (name === "head" ? 0.7 : 0.55) : inf0;
         // each face: texture corner, columns, rows, and a function texel corner (i,j) -> model point
-        const F = [
-          [u + dp, v + dp, w, h, (i, j) => [cx + (-w / 2 + i) * sx, top - j * sy2, cz + dp / 2 * sz]],               // front
-          [u + 2 * dp + w, v + dp, w, h, (i, j) => [cx + (w / 2 - i) * sx, top - j * sy2, cz - dp / 2 * sz]],       // back
-          [u, v + dp, dp, h, (i, j) => [cx - w / 2 * sx, top - j * sy2, cz + (-dp / 2 + i) * sz]],                  // player's right
-          [u + dp + w, v + dp, dp, h, (i, j) => [cx + w / 2 * sx, top - j * sy2, cz + (dp / 2 - i) * sz]],          // player's left
-          [u + dp, v, w, dp, (i, j) => [cx + (-w / 2 + i) * sx, top, cz + (-dp / 2 + j) * sz]],                     // top
-          [u + dp + w, v, w, dp, (i, j) => [cx + (-w / 2 + i) * sx, top - h * sy2, cz + (-dp / 2 + j) * sz]],       // bottom
-        ];
+        const faces = (n) => {
+          const sx = (w + 2 * n) / w, sy2 = (h + 2 * n) / h, sz = (dp + 2 * n) / dp, top = cyy + h / 2 * sy2;
+          return [
+            [u + dp, v + dp, w, h, (i, j) => [cx + (-w / 2 + i) * sx, top - j * sy2, cz + dp / 2 * sz]],               // front
+            [u + 2 * dp + w, v + dp, w, h, (i, j) => [cx + (w / 2 - i) * sx, top - j * sy2, cz - dp / 2 * sz]],       // back
+            [u, v + dp, dp, h, (i, j) => [cx - w / 2 * sx, top - j * sy2, cz + (-dp / 2 + i) * sz]],                  // player's right
+            [u + dp + w, v + dp, dp, h, (i, j) => [cx + w / 2 * sx, top - j * sy2, cz + (dp / 2 - i) * sz]],          // player's left
+            [u + dp, v, w, dp, (i, j) => [cx + (-w / 2 + i) * sx, top, cz + (-dp / 2 + j) * sz]],                     // top
+            [u + dp + w, v, w, dp, (i, j) => [cx + (-w / 2 + i) * sx, top - h * sy2, cz + (-dp / 2 + j) * sz]],       // bottom
+          ];
+        };
+        const F = faces(inf), F0 = vox ? faces(0.02) : null;
         for (let fi = 0; fi < 6; fi++) {
           const [fu, fv, cols, rows, fn] = F[fi];
-          // corners of the whole face, to drop faces that look away (only for the solid inner layer)
+          // corners of the whole face, to drop faces that look away (not for the thin see-through layer)
           const c00 = pt(name, ...fn(0, 0)), c10 = pt(name, ...fn(cols, 0)), c01 = pt(name, ...fn(0, rows));
           let cross = (c10[0] - c00[0]) * (c01[1] - c00[1]) - (c10[1] - c00[1]) * (c01[0] - c00[0]);
           if (fi === 5) cross = -cross; // the bottom is seen from below
-          if (!inf && cross <= 0) continue;
-          const grid = [];
-          for (let j = 0; j <= rows; j++) for (let i = 0; i <= cols; i++) grid.push(pt(name, ...fn(i, j)));
+          if (!inf0 && cross <= 0) continue;
+          const C = cols + 1, grid = [], base = [];
+          for (let jj = 0; jj <= rows; jj++) for (let ii = 0; ii <= cols; ii++) {
+            grid.push(pt(name, ...fn(ii, jj)));
+            if (vox) base.push(pt(name, ...F0[fi][4](ii, jj)));
+          }
           const shade = cross > 0 ? (fi < 2 ? 1 : fi < 4 ? 0.82 : fi === 4 ? 1 : 0.6) : 0.7;
-          for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
-            const o = ((fv + j) * 64 + fu + i) * 4, al = d[o + 3];
-            if (!al) continue;
-            const a = grid[j * (cols + 1) + i], b = grid[j * (cols + 1) + i + 1], c = grid[(j + 1) * (cols + 1) + i + 1], e = grid[(j + 1) * (cols + 1) + i];
-            quads.push([(a[2] + b[2] + c[2] + e[2]) / 4, a, b, c, e, "rgba(" + Math.round(d[o] * shade) + "," + Math.round(d[o + 1] * shade) + "," + Math.round(d[o + 2] * shade) + "," + (al / 255) + ")"]);
+          const solid = (ii, jj) => ii >= 0 && jj >= 0 && ii < cols && jj < rows && d[((fv + jj) * 64 + fu + ii) * 4 + 3] > 0;
+          for (let jj = 0; jj < rows; jj++) for (let ii = 0; ii < cols; ii++) {
+            const o = ((fv + jj) * 64 + fu + ii) * 4;
+            if (!d[o + 3]) continue;
+            const k = [jj * C + ii, jj * C + ii + 1, (jj + 1) * C + ii + 1, (jj + 1) * C + ii];
+            const a = grid[k[0]], b = grid[k[1]], c = grid[k[2]], e = grid[k[3]];
+            if (!vox || cross > 0) quads.push([zq(a, b, c, e), a, b, c, e, col(o, shade)]);
+            if (vox) { // walls of the little block where the pixel next to it is empty
+              const nb = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+              for (let m = 0; m < 4; m++) {
+                if (solid(ii + nb[m][0], jj + nb[m][1])) continue;
+                const p1 = grid[k[m]], p2 = grid[k[(m + 1) % 4]], q2 = base[k[(m + 1) % 4]], q1 = base[k[m]];
+                quads.push([zq(p1, p2, q2, q1), p1, p2, q2, q1, col(o, m % 2 ? 0.72 : 0.86)]);
+              }
+            }
           }
         }
       }
@@ -318,17 +338,14 @@
   function fresh3d() { // a canvas that failed once cannot be used again
     const old = $("view3d"), cv = document.createElement("canvas");
     cv.id = "view3d"; cv.width = old.width; cv.height = old.height; old.replaceWith(cv);
-    cv.addEventListener("webglcontextlost", () => { if (viewer) fail3d(new Error("the browser stopped the 3D picture")); });
+    cv.addEventListener("webglcontextlost", (ev) => { if (viewer && !viewer.soft && ev.target === $("view3d")) fail3d(new Error("the browser stopped the 3D picture")); });
   }
   function fail3d(e) {
     try { if (viewer) viewer.dispose(); } catch (x) {}
     failed3d = true; viewer = null;
     const reason = why3d(e);
     try { // simple 3D that needs no WebGL
-      fresh3d();
-      viewer = new SoftViewer($("view3d"));
-      viewer.autoRotate = $("spin").checked; viewer.zoom = Number($("zoom").value); setAnim();
-      $("wrap3d").style.display = "";
+      startSoft();
       $("msg3d").textContent = "3D preview on (simple mode).";
       $("why3d").hidden = false; $("why3dtext").textContent = "Simple 3D mode. " + reason;
       $("why3dmore").textContent = "The simple mode shows the same skin, only less smooth.";
@@ -348,8 +365,18 @@
     $("wrap3d").style.display = ""; $("why3d").hidden = true;
     $("msg3d").textContent = "3D preview on.";
   }
+  // the simple viewer on purpose: it can show the second skin layer as 3D blocks
+  function startSoft() {
+    fresh3d();
+    viewer = new SoftViewer($("view3d"));
+    viewer.autoRotate = $("spin").checked; viewer.zoom = Number($("zoom").value); viewer.layers3d = $("layers3d").checked; setAnim();
+    $("wrap3d").style.display = "";
+  }
   function init3d() {
     if (viewer || failed3d) return;
+    if ($("layers3d").checked) {
+      try { startSoft(); $("why3d").hidden = true; $("msg3d").textContent = "3D preview on (3D skin layers)."; return; } catch (e) { viewer = null; }
+    }
     try {
       if (!window.skinview3d) throw new Error("library not loaded");
       start3d();
@@ -364,7 +391,15 @@
     sc.src = "../skinview3d.bundle.js?r=" + Date.now(); sc.onload = sc.onerror = go; document.body.appendChild(sc);
   }
   $("retry3d").addEventListener("click", retry3d);
-  $("view3d").addEventListener("webglcontextlost", () => { if (viewer) fail3d(new Error("the browser stopped the 3D picture")); });
+  $("layers3d").addEventListener("change", () => {
+    try { localStorage.setItem("fmf-layers3d", $("layers3d").checked ? "on" : "off"); } catch (e) {}
+    if (viewer && viewer.soft && failed3d) { viewer.layers3d = $("layers3d").checked; return; } // no WebGL: stay in the simple viewer
+    try { if (viewer) { const r = viewer.renderer; viewer.dispose(); if (r && r.forceContextLoss) r.forceContextLoss(); } } catch (e) {}
+    viewer = null; failed3d = false; fresh3d();
+    if (current) update3d(current); else init3d();
+  });
+  try { $("layers3d").checked = localStorage.getItem("fmf-layers3d") === "on"; } catch (e) {}
+  $("view3d").addEventListener("webglcontextlost", (ev) => { if (viewer && !viewer.soft && ev.target === $("view3d")) fail3d(new Error("the browser stopped the 3D picture")); });
   function setAnim() {
     if (!viewer) return;
     if (viewer.soft) { viewer.pose = $("anim").value; return; }
