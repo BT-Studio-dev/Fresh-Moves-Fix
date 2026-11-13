@@ -165,6 +165,8 @@ ${cards(eyes)}
 // the two default skins are embedded in the page, so the editor needs no extra requests
 const skinData = (p) => "data:image/png;base64," + fs.readFileSync(path.join(root, "assets/minecraft/textures/entity/player", p)).toString("base64");
 fs.copyFileSync(path.join(here, "editor.js"), path.join(out, "editor.js"));
+// 3D preview library (skinview3d, MIT licence), served from this site
+fs.copyFileSync(path.join(here, "node_modules/skinview3d/bundles/skinview3d.bundle.js"), path.join(out, "skinview3d.bundle.js"));
 write("editor/index.html", page({
   title: "Skin eye editor - Fresh Moves Fix",
   active: "editor",
@@ -212,18 +214,36 @@ write("editor/index.html", page({
   </div>
 
   <div class="panel">
+    <h3>3D preview</h3>
+    <div id="wrap3d">
+      <canvas id="view3d" width="420" height="520"></canvas>
+      <p class="row ctl">
+        <label>Pose <select id="anim">
+          <option value="idle" selected>Standing</option>
+          <option value="walk">Walking</option>
+          <option value="run">Running</option>
+          <option value="wave">Waving</option>
+        </select></label>
+        <label><input type="checkbox" id="spin"> Spin</label>
+        <label>Zoom <input type="range" id="zoom" min="0.6" max="2.4" step="0.05" value="0.9"></label>
+      </p>
+      <small>Drag to turn the model, scroll to zoom. The preview shows the skin only; the blinking happens in-game.</small>
+    </div>
+    <p id="msg3d" class="status"></p>
     <h3>Face</h3>
     <canvas id="face" width="256" height="256"></canvas>
     <h3>Added pixels (top-left of the skin file)</h3>
     <canvas id="top" width="480" height="96"></canvas>
-    <h3>Whole skin</h3>
-    <canvas id="full" width="384" height="384"></canvas>
+    <details id="flat"><summary>Whole skin file (flat)</summary>
+      <canvas id="full" width="384" height="384"></canvas>
+    </details>
   </div>
 </div>
 
 <h2>How it works</h2>
 <p>The eyes must be two pixels wide and sit in the usual place: one pixel in from each side of the face. Choose the row where your skin's eyes are. The editor copies those eye pixels, plus an eyelid colour, into an unused corner of the skin file (outlined in green). The pack reads that corner to animate the eyes. Other eye shapes (1 pixel wide, 3 wide, eyebrows, eyelashes) are not supported here yet; see the <a href="../guides/">guides</a>.</p>
 </article></div>
+<script src="../skinview3d.bundle.js"></script>
 <script src="../editor.js"></script>`,
 }));
 

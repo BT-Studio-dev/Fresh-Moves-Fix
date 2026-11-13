@@ -108,6 +108,42 @@
     }
   }
 
+  // ---- 3D preview (skinview3d). Falls back to the flat skin when WebGL is not available. ----
+  let viewer = null, failed3d = false;
+  const tex = document.createElement("canvas"); tex.width = tex.height = 64;
+  function init3d() {
+    if (viewer || failed3d) return;
+    try {
+      if (!window.skinview3d) throw new Error("library not loaded");
+      const cv = $("view3d");
+      viewer = new skinview3d.SkinViewer({ canvas: cv, width: cv.width, height: cv.height, zoom: Number($("zoom").value) });
+      viewer.autoRotate = false;
+      setAnim();
+      $("msg3d").textContent = "3D preview on.";
+    } catch (e) {
+      failed3d = true; viewer = null;
+      $("wrap3d").style.display = "none";
+      $("flat").open = true;
+      $("msg3d").textContent = "3D preview is not available in this browser; showing the flat skin instead.";
+    }
+  }
+  function setAnim() {
+    if (!viewer) return;
+    const A = { idle: skinview3d.IdleAnimation, walk: skinview3d.WalkingAnimation, run: skinview3d.RunningAnimation, wave: skinview3d.WaveAnimation }[$("anim").value];
+    viewer.animation = A ? new A() : null;
+  }
+  function update3d(data) {
+    init3d();
+    if (!viewer) return;
+    try {
+      tex.getContext("2d").putImageData(data, 0, 0);
+      viewer.loadSkin(tex, { model: "auto-detect" });
+    } catch (e) { $("msg3d").textContent = "3D preview could not show this skin."; }
+  }
+  $("anim").addEventListener("change", setAnim);
+  $("spin").addEventListener("change", () => { if (viewer) viewer.autoRotate = $("spin").checked; });
+  $("zoom").addEventListener("input", () => { if (viewer) viewer.zoom = Number($("zoom").value); });
+
   let current = null;
   function render() {
     if (!loaded) return;
@@ -116,6 +152,7 @@
     draw($("face"), out, 8, 8, 8, 8);
     draw($("top"), out, 0, 0, 40, 8, c);
     draw($("full"), out, 0, 0, 64, 64, c);
+    update3d(out);
     $("save").disabled = false;
   }
 

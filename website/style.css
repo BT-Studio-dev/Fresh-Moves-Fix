@@ -148,6 +148,13 @@ button.btn:disabled { opacity: .5; cursor: default; }
 .status.bad { color: #ff8a7a; }
 @media (max-width: 700px) { .ed { grid-template-columns: 1fr; } }
 
+#view3d { width: 100%; max-width: 420px; height: auto; aspect-ratio: 420 / 520; margin: 0 auto; background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--accent) 16%, var(--bg)), var(--bg)); cursor: grab; touch-action: none; image-rendering: auto; }
+#view3d:active { cursor: grabbing; }
+.ed .ctl { margin-top: 10px; gap: 10px 16px; }
+.ed .ctl input[type="range"] { vertical-align: middle; width: 110px; accent-color: var(--accent); }
+.ed details { margin-top: 14px; }
+.ed summary { cursor: pointer; color: var(--muted); margin-bottom: 8px; }
+
 /* themed scrollbar */
 html { scrollbar-width: thin; scrollbar-color: var(--scroll-thumb) var(--bg); }
 ::-webkit-scrollbar { width: 12px; height: 12px; }
