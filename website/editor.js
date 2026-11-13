@@ -322,7 +322,7 @@
 
   function readFile(f) {
     if (!f) return;
-    $("filename").textContent = f.name;
+    $("filename").textContent = f.name; $("filename").className = "has";
     const r = new FileReader();
     r.onload = () => loadImage(r.result, f.name);
     r.readAsDataURL(f);

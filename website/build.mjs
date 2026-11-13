@@ -59,6 +59,9 @@ function page({ title, body, depth = 0, description = "", active = "" }) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f1412" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4f6f5" media="(prefers-color-scheme: light)">
+<meta name="mobile-web-app-capable" content="yes">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description || "Fresh Moves Fix - player animation resource pack for Minecraft")}">
 <meta property="og:title" content="${esc(title)}">

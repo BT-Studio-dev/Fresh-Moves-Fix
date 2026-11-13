@@ -327,3 +327,35 @@ a.tool:hover, a.tool:focus-visible { border-color: var(--accent); transform: tra
 .tool .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
 .tool .tags i { font-style: normal; font-size: 13px; font-weight: 600; padding: 3px 12px; border-radius: 999px; background: #5b8fd9; color: #0d1420; }
 .tool .tags i.g { background: #6fdc6f; }
+
+/* phones (Chrome on Android and others): nothing wider than the screen, bigger touch targets */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+article, .card, .tool { overflow-wrap: break-word; }
+pre { overflow-x: auto; max-width: 100%; }
+.ed > *, .set > *, .cards > *, .tools > *, .guide-nav > *, .themes > * { min-width: 0; }
+video, canvas, iframe { max-width: 100%; }
+header.top nav { scrollbar-width: none; }
+header.top nav::-webkit-scrollbar { display: none; }
+@media (max-width: 560px) {
+  .wrap, .bar { padding-left: 14px; padding-right: 14px; }
+  header.top .brand span { font-size: 16px; }
+  header.top nav a { padding: 10px 12px; }
+  .hero { padding: 28px 0 24px; gap: 18px; }
+  .hero > img { width: 96px; height: 96px; }
+  .hero .txt { min-width: 0; flex-basis: 100%; }
+  .hero p { font-size: 16px; }
+  .hero .btn { display: flex; justify-content: center; margin: 0 0 10px; }
+  .tools, .cards { grid-template-columns: 1fr; }
+  .versions { grid-template-columns: repeat(2, 1fr); }
+  .guide-cta .btn { flex: 1 1 100%; justify-content: center; text-align: center; }
+  footer .cols { grid-template-columns: 1fr 1fr; gap: 20px; }
+  .set .mrow input[type="range"], .ed .ctl input[type="range"] { width: 100%; max-width: none; margin: 8px 0 0; display: block; }
+}
+@media (hover: none) {
+  /* touch screens: no "drop a file" hint, larger things to tap, no hover lift that stays after a tap */
+  #filename:not(.has) { display: none; }
+  .set .menu .tab, .langs .lang, .ed .dd-btn, .ed .dd-opt { min-height: 44px; }
+  .ed .sw { width: 56px; height: 40px; }
+  a.card.go:hover, a.card.feat:hover, a.tool:hover { transform: none; }
+  header.top .snd { width: 42px; height: 42px; }
+}
