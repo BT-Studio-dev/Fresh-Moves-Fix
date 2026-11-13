@@ -254,7 +254,7 @@ write("editor/index.html", page({
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <h1>${ICON.eye} Skin eye editor</h1>
 <p>Adds the extra pixels that make the eyes blink and move, then lets you download the skin. Everything happens in your browser; the skin is not uploaded anywhere.</p>
-<div class="note"><strong>Not tested in-game.</strong> Some eye shapes are less certain than others (see "How it works" below). Keep a copy of your original skin.</div>
+<div class="note"><strong>Not tested in-game.</strong> Some eye shapes are less certain than others (see "How it works" below). Keep a copy of your original skin. <a href="#test">How to test it in the game</a></div>
 
 <div class="ed">
   <div class="ed-col">
@@ -354,6 +354,18 @@ write("editor/index.html", page({
   </details>
   </div>
 </div>
+
+<h2 id="test">${ICON.info} How to test it in the game</h2>
+<p>The website cannot test in Minecraft for you. This takes about ten minutes (Minecraft Java Edition):</p>
+<ol class="steps">
+  <li><strong>Download the skin.</strong> Press "Download skin (.png)" in card 4. Keep your old skin file as a copy.</li>
+  <li><strong>Put the skin on your account.</strong> Open the Minecraft Launcher, go to "Skins", "New skin", "Browse", choose the downloaded file, pick Wide or Slim arms, then "Save &amp; Use".</li>
+  <li><strong>Install the two mods.</strong> You need a mod loader (Fabric or NeoForge) plus <a href="https://modrinth.com/mod/entity-model-features" rel="noopener">Entity Model Features</a> and <a href="https://modrinth.com/mod/entitytexturefeatures" rel="noopener">Entity Texture Features</a> for your Minecraft version. Put both files in the "mods" folder.</li>
+  <li><strong>Add the pack.</strong> <a href="../#download">Download the pack</a>, put the zip in the "resourcepacks" folder, then in the game: Options, Resource Packs, move the pack to the right, Done.</li>
+  <li><strong>Look at yourself.</strong> Open a world and press F5 twice to see your face from the front.</li>
+  <li><strong>Check the eyes.</strong> Wait a few seconds: the eyes should blink. Turn your head left and right: with 2 wide or 3 wide eyes the pupils should move.</li>
+</ol>
+<p><strong>If something is wrong:</strong> black eyes - see <a href="../guides/fix-black-eyes/">Fix Black Eyes</a>. Eyes do not blink - try another position in card 2 (the eyes must sit exactly where your skin has them) and download again. Nothing moves at all - the mods or the pack are not switched on.</p>
 
 <h2>${ICON.info} How it works</h2>
 <p>Choose the eye shape and the position that match the eyes on your skin. The editor writes an eyelid colour and, for eyes with pupils, the eye colours into an unused corner of the skin file (outlined in green). The pack reads that corner to animate the eyes.</p>

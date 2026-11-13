@@ -611,3 +611,7 @@ html[data-theme="glass"] { background: #0a1210; }
 .ed .why3d p { margin: 0 0 8px; }
 .ed .why3d svg { vertical-align: -3px; }
 [data-theme="glass"] .ed .why3d { background: rgba(0, 0, 0, .25); }
+
+/* editor: "How to test it in the game" */
+ol.steps { padding-inline-start: 1.3em; }
+ol.steps li { margin: 0 0 8px; }
