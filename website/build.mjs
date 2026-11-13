@@ -66,7 +66,8 @@ function page({ title, body, depth = 0, description = "", active = "" }) {
 <meta name="twitter:card" content="summary_large_image">
 <script>(function(){var t="system";try{t=localStorage.getItem("fmf-theme")||"system"}catch(e){}
 if(t==="system")t=window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
-document.documentElement.setAttribute("data-theme",t)})()</script>
+document.documentElement.setAttribute("data-theme",t);
+try{if(localStorage.getItem("fmf-cursor")==="off")document.documentElement.setAttribute("data-cursor","off")}catch(e){}})()</script>
 <link rel="icon" href="${up}pack.png">
 <link rel="stylesheet" href="${up}style.css">
 </head>
@@ -364,9 +365,18 @@ write("settings/index.html", page({
       ${themeCard("dark", "Dark", "#0f1412", "#18201c", "#2a3630", "#9aa8a0")}
       ${themeCard("oled", "OLED", "#000000", "#0d0f0e", "#222826", "#98a39d")}
     </div>
+    <h2>${ICON.hand} Mouse pointer</h2>
+    <p>A pixel-style pointer on this website: white, and green over things you can click. It is saved in this browser only.</p>
+    <p class="mrow"><label><input type="checkbox" id="curon"> Use the pixel mouse pointer</label> <span class="curdemo"><span class="a"></span><span class="b"></span></span></p>
   </div>
 </div>
 </article></div>
+<script>(function(){
+  var cb=document.getElementById("curon"), off=false; try{off=localStorage.getItem("fmf-cursor")==="off"}catch(e){}
+  cb.checked=!off;
+  cb.addEventListener("change",function(){ try{localStorage.setItem("fmf-cursor",cb.checked?"on":"off")}catch(e){}
+    if(cb.checked) document.documentElement.removeAttribute("data-cursor"); else document.documentElement.setAttribute("data-cursor","off"); });
+})()</script>
 <script>(function(){
   var key="fmf-theme", cur="system"; try{cur=localStorage.getItem(key)||"system"}catch(e){}
   function apply(t){ var r=t; if(t==="system") r=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"; document.documentElement.setAttribute("data-theme",r); }
