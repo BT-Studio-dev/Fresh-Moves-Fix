@@ -32,6 +32,9 @@ function page({ title, body, depth = 0, description = "" }) {
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:image" content="https://fresh-moves-fix.vercel.app/banner.png">
 <meta name="twitter:card" content="summary_large_image">
+<script>(function(){var t="system";try{t=localStorage.getItem("fmf-theme")||"system"}catch(e){}
+if(t==="system")t=window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
+document.documentElement.setAttribute("data-theme",t)})()</script>
 <link rel="icon" href="${up}pack.png">
 <link rel="stylesheet" href="${up}style.css">
 </head>
@@ -43,6 +46,7 @@ function page({ title, body, depth = 0, description = "" }) {
     <a href="${up}#download">Download</a>
     <a href="${up}guides/">Guides</a>
     <a href="${up}editor/">Eye editor</a>
+    <a href="${up}settings/">Settings</a>
     <a href="${REPO}">GitHub</a>
   </nav>
 </div></header>
@@ -192,6 +196,38 @@ write("editor/index.html", page({
 <p>The eyes must be two pixels wide and sit in the usual place: one pixel in from each side of the face. Choose the row where your skin's eyes are. The editor copies those eye pixels, plus an eyelid colour, into an unused corner of the skin file (outlined in green). The pack reads that corner to animate the eyes. Other eye shapes (1 pixel wide, 3 wide, eyebrows, eyelashes) are not supported here yet; see the <a href="../guides/">guides</a>.</p>
 </article></div>
 <script src="../editor.js"></script>`,
+}));
+
+// ---------- settings ----------
+const themeCard = (id, name, pb, pp, pl, pt) => `<label><span class="pv" style="--pb:${pb};--pp:${pp};--pl:${pl};--pt:${pt}"><i><b></b><u></u></i></span><span class="nm"><input type="radio" name="theme" value="${id}"> ${name}</span></label>`;
+write("settings/index.html", page({
+  title: "Settings - Fresh Moves Fix",
+  depth: 1,
+  body: `<div class="wrap"><article>
+<h1>Settings</h1>
+<div class="set">
+  <div class="menu"><small>DISPLAY</small><span>Appearance</span></div>
+  <div class="box">
+    <h2>Color theme</h2>
+    <p>Select your preferred color theme for this website. It is saved in this browser only.</p>
+    <div class="themes">
+      ${themeCard("system", "Sync with system", "linear-gradient(90deg,#f4f6f5 50%,#0f1412 50%)", "#18201c", "#2a3630", "#9aa8a0")}
+      ${themeCard("light", "Light", "#f4f6f5", "#ffffff", "#d5dcd8", "#17201b")}
+      ${themeCard("dark", "Dark", "#0f1412", "#18201c", "#2a3630", "#9aa8a0")}
+      ${themeCard("oled", "OLED", "#000000", "#0d0f0e", "#222826", "#98a39d")}
+    </div>
+  </div>
+</div>
+</article></div>
+<script>(function(){
+  var key="fmf-theme", cur="system"; try{cur=localStorage.getItem(key)||"system"}catch(e){}
+  function apply(t){ var r=t; if(t==="system") r=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"; document.documentElement.setAttribute("data-theme",r); }
+  document.querySelectorAll('input[name="theme"]').forEach(function(el){
+    el.checked = el.value===cur;
+    el.addEventListener("change",function(){ cur=el.value; try{localStorage.setItem(key,cur)}catch(e){} apply(cur); });
+  });
+  matchMedia("(prefers-color-scheme: light)").addEventListener("change",function(){ if(cur==="system") apply(cur); });
+})()</script>`,
 }));
 
 // ---------- home ----------
