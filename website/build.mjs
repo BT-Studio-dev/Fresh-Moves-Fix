@@ -80,7 +80,7 @@ document.documentElement.setAttribute("data-theme",t)})()</script>
     ${nav("home", up || "./", ICON.home + " Home")}
     ${nav("guides", up + "guides/", ICON.book + " Guides")}
     ${nav("editor", up + "editor/", ICON.eye + " Eye editor")}
-    ${nav("title", up + "title/", ICON.tag + " Title maker")}
+    ${nav("title", up + "title/", ICON.tag + " Title")}
     ${nav("settings", up + "settings/", ICON.gear + " Settings")}
     <a rel="noopener" href="${REPO}">${ICON.code} GitHub</a>
   </nav>
@@ -111,7 +111,7 @@ ${body}
     <div><h4>${ICON.eye} Skins</h4>
       <a href="${up}guides/">${ICON.book} Eye guides</a>
       <a href="${up}editor/">${ICON.eye} Eye editor</a>
-      <a href="${up}title/">${ICON.tag} Title maker</a>
+      <a href="${up}title/">${ICON.tag} Title</a>
       <a href="${up}guides/fix-black-eyes/">${ICON.wrench} Fix black eyes</a>
     </div>
     <div><h4>${ICON.wrench} Required mods</h4>
@@ -148,7 +148,6 @@ fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
 fs.copyFileSync(path.join(here, "nav.js"), path.join(out, "nav.js"));
-fs.copyFileSync(path.join(here, "title.js"), path.join(out, "title.js"));
 // flag pictures for the language list (flag-icons, MIT), so no flag emoji are needed
 fs.mkdirSync(path.join(out, "flags"), { recursive: true });
 for (const f of ["us", "eg", "de", "es", "fr", "it", "br", "ru", "pl", "ua", "tr", "cn", "jp"])
@@ -335,64 +334,21 @@ write("editor/index.html", page({
 }));
 
 // ---------- settings ----------
-// ---- Minecraft-style title maker ----
-const styleChips = (name, def) => [["stone", "Stone", "#b8b8b8"], ["grass", "Green", "#4cc878"], ["gold", "Gold", "#f0c040"], ["diamond", "Diamond", "#5fd0d8"], ["redstone", "Red", "#e0503c"], ["netherite", "Dark", "#453f42"]]
-  .map(([id, label, col]) => `<label class="chip"><input type="radio" name="${name}" value="${id}"${id === def ? " checked" : ""}><i style="background:${col}"></i>${label}</label>`).join("");
+// ---- Minecraft title: the real Blockbench web app, shown inside the page ----
+const BB = "https://web.blockbench.net/?plugins=minecraft_title_generator";
 write("title/index.html", page({
-  title: "Minecraft title maker - Fresh Moves Fix",
+  title: "Minecraft title - Fresh Moves Fix",
   active: "title",
-  description: "Type a text and get a blocky Minecraft-style title picture to download.",
+  description: "Make a Minecraft title or paint a skin with the real Blockbench web app, right on this page.",
   depth: 1,
   body: `<div class="wrap"><article class="editor">
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
-<h1>${ICON.tag} Minecraft title maker</h1>
-<p>Type a text and get a Minecraft-style title made of 3D blocks. Turn it to the angle you like and download it as a picture with a see-through background. Everything happens in your browser.</p>
-<div class="note">This maker is drawn by this website and has one letter style; it saves pictures, not models. For title models with many fonts and textures, use <a rel="noopener" target="_blank" href="https://web.blockbench.net/">Blockbench</a> with the <a rel="noopener" target="_blank" href="https://github.com/ewanhowell5195/MinecraftTitleGenerator">Minecraft Title Generator</a> plugin by Ewan Howell.</div>
-
-<div class="ed" id="tt-form">
-  <div class="panel">
-    <h3>${ICON.tag} 1. Text</h3>
-    <textarea id="tt-text" rows="3" maxlength="120" spellcheck="false" aria-label="Title text">Fresh Moves Fix</textarea>
-    <p><small>Letters A to Z, numbers and ! ? . , : - + '. A new line starts a new row (up to 4).</small></p>
-    <h3>${ICON.brush} 2. Colour</h3>
-    <div class="chips">${styleChips("tt-style", "stone")}</div>
-    <p class="tt-sub">Second colour for</p>
-    <div class="chips">
-      <label class="chip"><input type="radio" name="tt-accent" value="none"> Nothing</label>
-      <label class="chip"><input type="radio" name="tt-accent" value="word" checked> The last word</label>
-      <label class="chip"><input type="radio" name="tt-accent" value="line"> The last row</label>
-    </div>
-    <div id="tt-second"><p class="tt-sub">Second colour</p><div class="chips">${styleChips("tt-style2", "grass")}</div></div>
-    <h3>${ICON.grid} 3. Look</h3>
-    <div class="chips">
-      <label class="chip"><input type="radio" name="tt-view" value="3d" checked> 3D blocks</label>
-      <label class="chip"><input type="radio" name="tt-view" value="flat"> Flat picture</label>
-    </div>
-    <p class="ctl"><label>Block size <input type="range" id="tt-size" min="2" max="8" step="1" value="4"></label> <b id="tt-sizeval"></b></p>
-    <div id="tt-3dopts">
-      <p class="ctl"><label>Thickness <input type="range" id="tt-thick" min="1" max="8" step="1" value="2"></label> <b id="tt-thickval"></b></p>
-      <p class="tt-sub">Angle (or drag the picture)</p>
-      <div class="chips">
-        <button class="chip" type="button" data-tt-angle="0,0.35">From below</button>
-        <button class="chip" type="button" data-tt-angle="0,-0.35">From above</button>
-        <button class="chip" type="button" data-tt-angle="0.2,0.3">Corner</button>
-        <button class="chip" type="button" data-tt-angle="0,0">Front</button>
-      </div>
-    </div>
-    <p id="tt-flatopts"><label><input type="checkbox" id="tt-depth" checked> 3D edge under the letters</label></p>
-    <p><label><input type="checkbox" id="tt-cracks" checked> Small dark specks (stone look)</label></p>
-    <h3>${ICON.down} 4. Save</h3>
-    <p><button class="btn" id="tt-save" type="button" disabled>${ICON.down} Download title (.png)</button></p>
-    <p class="status" id="tt-msg"></p>
-  </div>
-  <div class="panel">
-    <h3>${ICON.eye} Preview</h3>
-    <div class="tt-stage"><canvas id="tt-cv" width="320" height="80"></canvas></div>
-    <p><small>The checker pattern is only the preview background; the downloaded picture is see-through there.</small></p>
-  </div>
-</div>
+<h1>${ICON.tag} Minecraft title</h1>
+<p>This is the real <b>Blockbench</b> web app, shown inside this page. Press <b>New</b>, then <b>Minecraft Title</b> to make a title, or <b>Minecraft Skin</b> to paint a skin.</p>
+<p><a class="btn" rel="noopener" target="_blank" href="${BB}">${ICON.right} Open Blockbench in a new tab</a></p>
+<div class="note">If the box below stays empty, or "Minecraft Title" is missing from the New list, use the button above. In Blockbench you can also add it by hand: File &rarr; Plugins &rarr; Available &rarr; "Minecraft Title Generator" &rarr; Install. Blockbench is made by JannisX11 and the Title Generator plugin by Ewan Howell; they are not part of Fresh Moves Fix.</div>
 </article></div>
-<script src="../title.js"></script>`,
+<div class="bb-frame"><iframe src="${BB}" title="Blockbench" loading="lazy" allow="clipboard-read; clipboard-write; fullscreen" allowfullscreen></iframe></div>`,
 }));
 
 const themeCard = (id, name, pb, pp, pl, pt) => `<label><span class="pv" style="--pb:${pb};--pp:${pp};--pl:${pl};--pt:${pt}"><i><b></b><u></u></i></span><span class="nm"><input type="radio" name="theme" value="${id}"> ${name}</span></label>`;
@@ -511,8 +467,8 @@ write("index.html", page({
       <span class="tags"><i class="g">Minecraft</i><i>Skin</i><i>Eyes</i></span>
     </a>
     <a class="tool" href="title/">
-      <span class="tool-head"><span class="tool-ic t">T</span><span><b>Minecraft Title</b><small>by Fresh Moves Fix</small></span></span>
-      <span class="tool-text">Type a text and download a blocky Minecraft-style title picture.</span>
+      <span class="tool-head"><span class="tool-ic t">T</span><span><b>Minecraft Title</b><small>Blockbench + Title Generator</small></span></span>
+      <span class="tool-text">Make a real 3D Minecraft title in Blockbench, right on this website.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Title</i><i>Logo</i></span>
     </a>
   </div>
