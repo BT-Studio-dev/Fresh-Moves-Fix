@@ -31,7 +31,7 @@ None of the model changes have been tested in-game yet.
 
 https://fresh-moves-fix.vercel.app
 
-It includes a skin eye editor (https://fresh-moves-fix.vercel.app/editor/) that adds the eye pixels (2 wide, derp, 3 wide and simple eyes) to a skin and downloads the result, with a 3D preview (uses the MIT-licensed skinview3d library).
+It includes a skin eye editor (https://fresh-moves-fix.vercel.app/editor/) that adds the eye pixels (2 wide, derp, 3 wide and simple eyes) to a skin and downloads the result, with a 3D preview (uses the MIT-licensed skinview3d library). Flag pictures in the language list come from flag-icons (MIT).
 
 The site is in `website/`. It is generated from this repository (`docs/`, `VERSION`, `build.py`):
 

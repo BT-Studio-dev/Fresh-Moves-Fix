@@ -247,3 +247,12 @@ a.card.go i { font-style: normal; font-size: 20px; color: var(--muted); }
 a.card.go:hover, a.card.go:focus-visible { border-color: var(--accent); color: var(--accent); outline: none; transform: translateY(-1px); }
 a.card.go:hover i { color: var(--accent); }
 a.card.go:active { transform: none; }
+
+/* inline SVG icons and flag pictures */
+.ic { vertical-align: -3px; flex: none; }
+header.top .snd { display: inline-grid; place-content: center; padding: 0; }
+header.top .get .ic { margin-inline-end: 4px; }
+a.card.go .ic { color: var(--muted); }
+a.card.go:hover .ic { color: var(--accent); }
+.ed .pk-head button { display: inline-grid; place-content: center; }
+.langs .lang .flag { width: 28px; height: 21px; border-radius: 3px; object-fit: cover; box-shadow: 0 0 0 1px var(--line); flex: none; }

@@ -20,6 +20,15 @@ const versions = [...read("build.py").match(/VERSIONS = \{([\s\S]*?)\}/)[1].matc
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const slug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
+// Icons are drawn as inline SVG, so they look the same in every browser (no emoji or symbol fonts needed).
+const svg = (d, extra = "") => `<svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${extra}>${d}</svg>`;
+const ICON = {
+  music: svg('<path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>'),
+  down: svg('<path d="M12 4v13"/><path d="M6 12l6 6 6-6"/><path d="M5 21h14"/>'),
+  up: svg('<path d="M12 20V7"/><path d="M6 12l6-6 6 6"/><path d="M5 3h14"/>'),
+  right: svg('<path d="M9 5l7 7-7 7"/>'),
+  close: svg('<path d="M6 6l12 12"/><path d="M18 6L6 18"/>'),
+};
 function page({ title, body, depth = 0, description = "", active = "" }) {
   const up = "../".repeat(depth);
   const nav = (id, href, label) => `<a${id === active ? ' class="on"' : ""} href="${href}">${label}</a>`;
@@ -49,8 +58,8 @@ document.documentElement.setAttribute("data-theme",t)})()</script>
     ${nav("settings", up + "settings/", "Settings")}
     <a rel="noopener" href="${REPO}">GitHub</a>
   </nav>
-  <button type="button" class="snd" data-music-toggle aria-pressed="false" aria-label="Music" title="Music: off">&#9835;</button>
-  <a class="get" href="${up}#download"><span>↓</span> Download</a>
+  <button type="button" class="snd" data-music-toggle aria-pressed="false" aria-label="Music" title="Music: off">${ICON.music}</button>
+  <a class="get" href="${up}#download">${ICON.down} Download</a>
 </div></header>
 ${body}
 <footer><div class="bar">
@@ -103,6 +112,10 @@ fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
 fs.copyFileSync(path.join(here, "nav.js"), path.join(out, "nav.js"));
+// flag pictures for the language list (flag-icons, MIT), so no flag emoji are needed
+fs.mkdirSync(path.join(out, "flags"), { recursive: true });
+for (const f of ["us", "eg", "de", "es", "fr", "it", "br", "ru", "pl", "ua", "tr", "cn", "jp"])
+  fs.copyFileSync(path.join(here, `node_modules/flag-icons/flags/4x3/${f}.svg`), path.join(out, "flags", `${f}.svg`));
 fs.copyFileSync(path.join(root, "docs/images/banner.png"), path.join(out, "banner.png"));
 
 // ---------- guides (from docs/*.md) ----------
@@ -144,7 +157,7 @@ ${renderDoc(md)}
 const fixes = docs.filter((d) => d.name.startsWith("Fix"));
 const eyes = docs.filter((d) => !d.name.startsWith("Fix"));
 const cards = (list) => `<div class="cards">${list.map((d) =>
-  `<a class="card go" href="${d.slug}/"><span>${esc(d.name)}</span><i aria-hidden="true">&rsaquo;</i></a>`).join("")}</div>`;
+  `<a class="card go" href="${d.slug}/"><span>${esc(d.name)}</span>${ICON.right}</a>`).join("")}</div>`;
 
 write("guides/index.html", page({
   title: "Guides - Fresh Moves Fix",
@@ -190,7 +203,7 @@ write("editor/index.html", page({
     <h3>1. Skin</h3>
     <label class="drop" id="drop">
       <input type="file" id="file" accept="image/png" class="vh">
-      <span class="drop-ic" aria-hidden="true">&uarr;</span>
+      <span class="drop-ic">${ICON.up}</span>
       <span><b>Choose your skin file</b><br><small id="filename">or drop the .png here</small></span>
     </label>
     <p>or start from
@@ -218,7 +231,7 @@ write("editor/index.html", page({
       <small>Off: the eyes already drawn on your skin are used and the face is not changed.</small></p>
 
     <div class="picker" id="picker" hidden>
-      <div class="pk-head"><b id="pk-title">Colour</b><button type="button" id="pk-close" aria-label="Close">&times;</button></div>
+      <div class="pk-head"><b id="pk-title">Colour</b><button type="button" id="pk-close" aria-label="Close">${ICON.close}</button></div>
       <canvas id="pk-sv" width="220" height="130"></canvas>
       <input type="range" id="pk-hue" min="0" max="360" value="0" aria-label="Hue">
       <div class="pk-row"><span class="pk-now" id="pk-now"></span><input type="text" id="pk-hex" maxlength="7" spellcheck="false" aria-label="Hex colour"></div>
@@ -293,7 +306,7 @@ write("settings/index.html", page({
     <p>A calm background tune, made by your browser (no music files). It is off until you turn it on, and saved in this browser only.</p>
     <p class="mrow"><label><input type="checkbox" data-music-check> Play music</label></p>
     <p class="mrow"><label>Volume <input type="range" min="0" max="100" value="40" data-music-volume></label></p>
-    <p><small>You can also use the &#9835; button at the top of every page. The music keeps playing while you move between pages of this site.</small></p>
+    <p><small>You can also use the music button at the top of every page. The music keeps playing while you move between pages of this site.</small></p>
   </div>
   <div class="box" id="tab-language" hidden>
     <h2>Language</h2>
@@ -327,15 +340,17 @@ write("settings/index.html", page({
   function show(id){ tabs.forEach(function(t){ var on=t.getAttribute("data-tab")===id; t.classList.toggle("on",on); document.getElementById("tab-"+t.getAttribute("data-tab")).hidden=!on; }); }
   tabs.forEach(function(t){ t.addEventListener("click",function(){ var id=t.getAttribute("data-tab"); show(id); try{history.replaceState(null,"","#"+id)}catch(e){} }); });
   if(location.hash==="#language") show("language"); if(location.hash==="#music") show("music");
+  var FLAG={en:"us",ar:"eg",de:"de",es:"es",fr:"fr",it:"it",pt:"br",ru:"ru",pl:"pl",uk:"ua",tr:"tr",zh:"cn",ja:"jp"};
   var box=document.getElementById("langs"), api=window.fmfI18n; if(!api) return;
   api.langs.forEach(function(l){
     var lab=document.createElement("label"); lab.className="lang"+(api.get()===l[0]?" on":"");
     var code=document.createElement("span"); code.className="code"; code.textContent=l[0].toUpperCase();
+    var fl=document.createElement("img"); fl.className="flag"; fl.alt=""; fl.width=28; fl.height=21; fl.src="../flags/"+FLAG[l[0]]+".svg"; fl.onerror=function(){ fl.replaceWith(code); };
     var name=document.createElement("b"); name.textContent=l[1]; name.setAttribute("translate","no");
     var en=document.createElement("small"); en.textContent=l[1]===l[2]?"":l[2];
     var inp=document.createElement("input"); inp.type="radio"; inp.name="lang"; inp.value=l[0]; inp.checked=api.get()===l[0];
     inp.addEventListener("change",function(){ api.set(l[0]); box.querySelectorAll(".lang").forEach(function(x){x.classList.remove("on")}); lab.classList.add("on"); });
-    lab.appendChild(code); lab.appendChild(name); lab.appendChild(en); lab.appendChild(inp); box.appendChild(lab);
+    lab.appendChild(FLAG[l[0]]?fl:code); lab.appendChild(name); lab.appendChild(en); lab.appendChild(inp); box.appendChild(lab);
   });
 }
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",go); else go();})()</script>`,

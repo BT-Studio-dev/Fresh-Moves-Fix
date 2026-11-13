@@ -6,6 +6,7 @@
     "build": "node build.mjs"
   },
   "dependencies": {
+    "flag-icons": "^7.6.0",
     "marked": "^14.1.4",
     "skinview3d": "^3.4.2"
   }
