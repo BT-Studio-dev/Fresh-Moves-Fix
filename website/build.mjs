@@ -500,6 +500,21 @@ const versionLinks = groups.map((g) => {
   </a>`;
 }).join("\n");
 
+// "Page not found" page. Vercel shows 404.html for every address that does not exist,
+// at any depth, so all its links are made to start from the top of the site (<base href="/">).
+write("404.html", page({
+  title: "Page not found - Fresh Moves Fix",
+  active: "",
+  description: "This page does not exist.",
+  depth: 0,
+  body: `<div class="wrap"><article class="nf">
+  <p class="nf-code">404</p>
+  <h1>Page not found</h1>
+  <p>This address does not exist on the site. It may have been moved, or the link was typed wrong.</p>
+  <p class="nf-go"><a class="btn" href="./">${ICON.home} Home</a> <a class="btn ghost" href="editor/">${ICON.eye} Eye editor</a> <a class="btn ghost" href="guides/">${ICON.book} Guides</a> <a class="btn ghost" href="./#download">${ICON.down} Download</a></p>
+</article></div>`,
+}).replace("<head>", '<head>\n<base href="/">'));
+
 write("index.html", page({
   title: "Fresh Moves Fix - player animations for Minecraft",
   active: "home",

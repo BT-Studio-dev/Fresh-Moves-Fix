@@ -626,3 +626,9 @@ header.top nav { min-width: 0; overflow-x: auto; }
   header.top .snd-wrap { margin-inline-start: auto; }
 }
 @media (max-width: 1140px) { header.top .get { margin-left: 0; } }
+
+/* "Page not found" page */
+.nf { text-align: center; padding: 56px 0 72px; }
+.nf-code { font-size: clamp(72px, 18vw, 150px); font-weight: 900; line-height: 1; margin: 0; color: var(--accent); letter-spacing: 2px; }
+.nf h1 { margin: 8px 0 10px; }
+.nf-go { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 22px; }
