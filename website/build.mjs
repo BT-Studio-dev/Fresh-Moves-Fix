@@ -138,6 +138,7 @@ function write(rel, html) {
 fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 fs.copyFileSync(path.join(root, "pack.png"), path.join(out, "pack.png"));
+fs.copyFileSync(path.join(here, "title.png"), path.join(out, "title.png"));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
@@ -417,7 +418,7 @@ write("index.html", page({
 <div class="hero">
   <img src="pack.png" alt="Fresh Moves Fix pack icon">
   <div class="txt">
-    <h1>Fresh Moves Fix</h1>
+    <h1 class="mc-title"><img src="title.png" width="1304" height="130" alt="Fresh Moves Fix"></h1>
     <p>Smoother, more expressive player animations and animated eyes for Minecraft. A fork of Fresh Moves with small fixes and builds for Minecraft ${versions[0].mc} to ${versions[versions.length - 1].mc}.</p>
     <a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">${ICON.down} Download ${esc(version)}</a>
     <a class="btn ghost" href="editor/">${ICON.eye} Skin eye editor</a>

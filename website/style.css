@@ -307,3 +307,7 @@ header.top .snd-more { display: flex; align-items: center; gap: 8px; color: var(
 header.top .snd-more:hover { color: var(--accent); }
 @media (hover: none) { header.top .snd-card { display: none !important; } }
 
+
+/* Minecraft-style title picture on the home page */
+.hero h1.mc-title { margin: 0 0 16px; line-height: 0; }
+.hero h1.mc-title img { width: 100%; max-width: 600px; height: auto; border-radius: 0; box-shadow: none; filter: drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
