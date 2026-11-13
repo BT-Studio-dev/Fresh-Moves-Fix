@@ -95,8 +95,10 @@
   function paint() {
     document.querySelectorAll("[data-music-toggle]").forEach(function (b) {
       b.setAttribute("aria-pressed", String(on)); b.classList.toggle("on", on);
-      b.title = on ? "Music: on" : "Music: off";
+      b.removeAttribute("title"); // the card under the button shows this instead
+      b.setAttribute("aria-label", on ? "Music: on" : "Music: off");
     });
+    document.querySelectorAll("[data-music-state]").forEach(function (e) { e.textContent = on ? "Music: on" : "Music: off"; });
     document.querySelectorAll("[data-music-check]").forEach(function (c) { c.checked = on; });
     document.querySelectorAll("[data-music-volume]").forEach(function (r) { r.value = vol; });
   }

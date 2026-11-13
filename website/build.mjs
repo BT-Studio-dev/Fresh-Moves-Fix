@@ -80,7 +80,15 @@ document.documentElement.setAttribute("data-theme",t)})()</script>
     ${nav("settings", up + "settings/", ICON.gear + " Settings")}
     <a rel="noopener" href="${REPO}">${ICON.code} GitHub</a>
   </nav>
-  <button type="button" class="snd" data-music-toggle aria-pressed="false" aria-label="Music" title="Music: off">${ICON.music}</button>
+  <span class="snd-wrap">
+    <button type="button" class="snd" data-music-toggle aria-pressed="false" aria-label="Music">${ICON.music}</button>
+    <span class="snd-card"><span class="snd-box">
+      <span class="snd-head">${ICON.music} <b data-music-state>Music: off</b> <i data-music-time>0:00 / 3:34</i></span>
+      <label class="snd-line"><input type="checkbox" data-music-check> Play music</label>
+      <label class="snd-line">Volume <input type="range" min="0" max="100" value="40" data-music-volume></label>
+      <a class="snd-more" href="${up}settings/#music">${ICON.gear} Music settings</a>
+    </span></span>
+  </span>
   <a class="get" href="${up}#download">${ICON.down} Download</a>
 </div></header>
 ${body}

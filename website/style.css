@@ -291,3 +291,18 @@ article a .ic { vertical-align: -4px; }
 .video-card .video-head svg { color: var(--accent); }
 .video-card video { display: block; width: 100%; max-height: 70vh; background: #000; }
 .video-card figcaption { padding: 10px 14px; color: var(--muted); font-size: 14px; }
+
+/* card under the music button (mouse over, or keyboard focus) */
+header.top .snd-wrap { position: relative; flex: none; display: inline-flex; }
+header.top .snd-card { display: none; position: absolute; top: 100%; inset-inline-end: -8px; padding-top: 10px; z-index: 60; }
+header.top .snd-wrap:hover .snd-card, header.top .snd-wrap:focus-within .snd-card { display: block; }
+header.top .snd-box { display: flex; flex-direction: column; gap: 10px; width: 240px; padding: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 12px 32px rgba(0,0,0,.35); color: var(--text); font-size: 14px; text-align: start; }
+header.top .snd-head { display: flex; align-items: center; gap: 8px; }
+header.top .snd-head svg { color: var(--accent); }
+header.top .snd-head i { font-style: normal; color: var(--muted); margin-inline-start: auto; font-variant-numeric: tabular-nums; }
+header.top .snd-line { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+header.top .snd-line input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; margin: 0; }
+header.top .snd-line input[type="range"] { accent-color: var(--accent); flex: 1; min-width: 0; }
+header.top .snd-more { display: flex; align-items: center; gap: 8px; color: var(--muted); text-decoration: none; font-weight: 600; padding-top: 10px; border-top: 1px solid var(--line); }
+header.top .snd-more:hover { color: var(--accent); }
+@media (hover: none) { header.top .snd-card { display: none !important; } }
