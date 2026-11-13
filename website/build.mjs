@@ -422,15 +422,20 @@ write("settings/index.html", page({
       ${themeCard("oled", "OLED", "#000000", "#0d0f0e", "#222826", "#98a39d")}
       ${themeCard("glass", "Glass", "radial-gradient(circle at 20% 20%,#2fae78 0,transparent 55%),radial-gradient(circle at 85% 80%,#3b6fd0 0,transparent 55%),#0a1210", "rgba(255,255,255,.16)", "rgba(255,255,255,.34)", "#eef6f1")}
     </div>
+    <p class="saved" id="theme-saved" role="status" hidden>${ICON.check || ""}<span></span></p>
   </div>
 </div>
 </article></div>
 <script>(function(){
   var key="fmf-theme", cur="system"; try{cur=localStorage.getItem(key)||"system"}catch(e){}
   function apply(t){ var r=t; if(t==="system") r=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"; document.documentElement.setAttribute("data-theme",r); }
+  var note=document.getElementById("theme-saved");
+  function told(el, ok){ if(!note) return; var name=(el.closest("label").textContent||"").trim();
+    note.querySelector("span").textContent = ok ? "Saved: " + name + ". It stays when you close the page." : "Could not save: this browser blocks saving. The theme lasts until you close the page.";
+    note.classList.toggle("bad", !ok); note.hidden=false; note.classList.remove("flash"); void note.offsetWidth; note.classList.add("flash"); }
   document.querySelectorAll('input[name="theme"]').forEach(function(el){
     el.checked = el.value===cur;
-    el.addEventListener("change",function(){ cur=el.value; try{localStorage.setItem(key,cur)}catch(e){} apply(cur); });
+    el.addEventListener("change",function(){ cur=el.value; var ok=true; try{localStorage.setItem(key,cur); ok=localStorage.getItem(key)===cur}catch(e){ok=false} apply(cur); told(el, ok); });
   });
   matchMedia("(prefers-color-scheme: light)").addEventListener("change",function(){ if(cur==="system") apply(cur); });
 })()</script>
