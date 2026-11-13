@@ -29,8 +29,13 @@ None of the model changes have been tested in-game yet.
 `python3 build.py` checks the pack files and writes the installable zips to `dist/`:
 
 - `Fresh-Moves-Fix.zip` - one zip for all versions (Minecraft picks the right files itself)
-- `Fresh-Moves-Fix-mc<version>.zip` - one zip per Minecraft version: 1.21.5, 1.21.6, 1.21.7, 1.21.8, 1.21.9, 1.21.10, 1.21.11, 26.1, 26.2, 26.3
+- `Fresh-Moves-Fix-mc<version>.zip` - one zip per Minecraft version, 1.20 to 26.3 (24 versions)
 
-`python3 build.py 26.3 1.21.5` builds only the listed versions. GitHub Actions runs the same build on every push and attaches the zips as an artifact.
+`python3 build.py 26.3 1.21.5` builds only the listed versions.
 
 The per-version zips carry the pack format number of that version so Minecraft does not show the "incompatible" warning. They have not been tested in-game.
+
+## Releases
+
+GitHub Actions runs the build on every push. On `main` it also publishes the zips as a GitHub release named after the `VERSION` file (tag `v<VERSION>`).
+To publish a new release, change the text in `VERSION` (for example `3.1-fix2`) and merge to `main`. If the release already exists, its zips are replaced.
