@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Build the resource pack zip: checks the pack files, then writes dist/<name>.zip.
 
-Usage: python3 build.py [version]
+Usage:
+  python3 build.py              universal zip + one zip per supported Minecraft version
+  python3 build.py 26.3 1.21.5  only the zips for these Minecraft versions
 """
 import json
 import struct
@@ -60,23 +62,79 @@ def check():
     return folders
 
 
-def build(version):
-    folders = check()
+# Resource pack format of each supported Minecraft version.
+VERSIONS = {
+    "1.21.5": 55,
+    "1.21.6": 63,
+    "1.21.7": 64,
+    "1.21.8": 64,
+    "1.21.9": 69,
+    "1.21.10": 69,
+    "1.21.11": 75,
+    "26.1": 84,
+    "26.2": 88,
+    "26.3": 97,
+}
+
+
+def collect(folders):
+    """Map of zip path -> file for the given top-level files/folders."""
+    out = {}
+    for folder in folders:
+        base = ROOT / folder
+        if not base.exists():
+            continue
+        files = [base] if base.is_file() else sorted(p for p in base.rglob("*") if p.is_file())
+        for f in files:
+            out[f.relative_to(ROOT).as_posix()] = f
+    return out
+
+
+def write_zip(name, entries):
     out_dir = ROOT / "dist"
     out_dir.mkdir(exist_ok=True)
-    out = out_dir / (f"{NAME}-{version}.zip" if version else f"{NAME}.zip")
-    n = 0
+    out = out_dir / name
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
-        for folder in folders:
-            base = ROOT / folder
-            if not base.exists():
-                continue
-            files = [base] if base.is_file() else sorted(p for p in base.rglob("*") if p.is_file())
-            for f in files:
-                z.write(f, f.relative_to(ROOT).as_posix())
-                n += 1
-    print(f"Wrote {out.relative_to(ROOT)} ({n} files, {out.stat().st_size // 1024} KB)")
+        for arc, src in entries.items():
+            if isinstance(src, Path):
+                z.write(src, arc)
+            else:
+                z.writestr(arc, src)
+    print(f"Wrote dist/{name} ({len(entries)} files, {out.stat().st_size // 1024} KB)")
+
+
+def build_universal(folders):
+    """One zip for every version; Minecraft picks the overlay folders itself."""
+    write_zip(f"{NAME}.zip", collect(folders))
+
+
+def build_version(mc):
+    """A zip for one Minecraft version: matching overlays are merged into assets/."""
+    fmt = VERSIONS[mc]
+    meta = json.loads((ROOT / "pack.mcmeta").read_text(encoding="utf-8"))
+    entries = collect(INCLUDE)
+    for e in meta.get("overlays", {}).get("entries", []):
+        lo, hi = e["formats"]
+        if lo <= fmt <= hi:
+            prefix = e["directory"] + "/"
+            for arc, f in collect([e["directory"]]).items():
+                entries[arc[len(prefix):]] = f
+    pack = {"pack_format": fmt}
+    if fmt >= 65:  # 1.21.9+ reads min_format / max_format
+        pack["min_format"] = fmt
+        pack["max_format"] = fmt
+    pack["description"] = f"\u00a7a\u2611 With Animated Eyes \u00a7b\n\u2756 For Minecraft {mc}"
+    entries["pack.mcmeta"] = json.dumps({"pack": pack}, indent=4, ensure_ascii=False) + "\n"
+    write_zip(f"{NAME}-mc{mc}.zip", entries)
 
 
 if __name__ == "__main__":
-    build(sys.argv[1] if len(sys.argv) > 1 else "")
+    wanted = sys.argv[1:]
+    unknown = [v for v in wanted if v not in VERSIONS]
+    if unknown:
+        fail(f"unknown Minecraft version(s): {', '.join(unknown)}. Known: {', '.join(VERSIONS)}")
+    folders = check()
+    if not wanted:
+        build_universal(folders)
+    for mc in wanted or VERSIONS:
+        build_version(mc)
