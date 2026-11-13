@@ -144,6 +144,7 @@ fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 fs.copyFileSync(path.join(root, "pack.png"), path.join(out, "pack.png"));
 fs.copyFileSync(path.join(here, "title.png"), path.join(out, "title.png"));
+for (const f of ["icon-skin.png", "icon-title.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
@@ -466,12 +467,12 @@ write("index.html", page({
   <h2>${ICON.brush} Create</h2>
   <div class="tools">
     <a class="tool" href="editor/">
-      <span class="tool-head"><span class="tool-ic">${ICON.person}</span><span><b>Minecraft Skin</b><small>by Fresh Moves Fix</small></span></span>
+      <span class="tool-head"><img class="tool-img" src="icon-skin.png" alt="" width="48" height="48"><span><b>Minecraft Skin</b><small>by Fresh Moves Fix</small></span></span>
       <span class="tool-text">Add blinking, moving eyes to your skin and see it in 3D.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Skin</i><i>Eyes</i></span>
     </a>
     <a class="tool" href="title/">
-      <span class="tool-head"><span class="tool-ic t">T</span><span><b>Minecraft Title</b><small>Blockbench + Title Generator</small></span></span>
+      <span class="tool-head"><img class="tool-img" src="icon-title.png" alt="" width="48" height="48"><span><b>Minecraft Title</b><small>Blockbench + Title Generator</small></span></span>
       <span class="tool-text">Make a real 3D Minecraft title in Blockbench, right on this website.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Title</i><i>Logo</i></span>
     </a>
