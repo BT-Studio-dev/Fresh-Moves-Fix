@@ -240,3 +240,10 @@ header.top .snd.on { background: var(--accent); border-color: var(--accent); col
 .set .menu .tab + small { margin-top: 10px; }
 .set .mrow { color: var(--text) !important; }
 .set .mrow input[type="range"] { vertical-align: middle; margin-inline-start: 8px; accent-color: var(--accent); width: 180px; max-width: 60%; }
+
+/* whole card is the link */
+a.card.go { display: flex; justify-content: space-between; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-weight: 600; cursor: pointer; transition: border-color .12s, transform .12s, background .12s; }
+a.card.go i { font-style: normal; font-size: 20px; color: var(--muted); }
+a.card.go:hover, a.card.go:focus-visible { border-color: var(--accent); color: var(--accent); outline: none; transform: translateY(-1px); }
+a.card.go:hover i { color: var(--accent); }
+a.card.go:active { transform: none; }

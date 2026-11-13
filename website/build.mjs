@@ -142,7 +142,7 @@ ${renderDoc(md)}
 const fixes = docs.filter((d) => d.name.startsWith("Fix"));
 const eyes = docs.filter((d) => !d.name.startsWith("Fix"));
 const cards = (list) => `<div class="cards">${list.map((d) =>
-  `<div class="card"><a class="title" href="${d.slug}/">${esc(d.name)}</a></div>`).join("")}</div>`;
+  `<a class="card go" href="${d.slug}/"><span>${esc(d.name)}</span><i aria-hidden="true">&rsaquo;</i></a>`).join("")}</div>`;
 
 write("guides/index.html", page({
   title: "Guides - Fresh Moves Fix",
