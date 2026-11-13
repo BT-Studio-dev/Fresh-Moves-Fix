@@ -1,0 +1,21 @@
+Fresh Moves Fix - player animation resource pack
+
+REQUIRED MODS
+You need the LATEST versions of these two mods to use this pack.
+They are client-side mods, available for Fabric, Forge and NeoForge.
+
+  Entity Model Features (EMF)   v2.0.2 or newer
+  https://modrinth.com/mod/entity-model-features
+
+  Entity Texture Features (ETF) v6.0.1 or newer
+  https://modrinth.com/mod/entitytexturefeatures
+
+On Minecraft 1.21.9 and newer use EMF 3.0.12 or newer, otherwise armour
+does not follow the animations.
+
+INSTALL
+1. Install EMF and ETF.
+2. Put this zip (do not unzip it) in the "resourcepacks" folder.
+3. In Minecraft: Options > Resource Packs, move the pack to the right, Done.
+
+Based on Fresh Moves by IthanMendoza (CC0).
