@@ -57,4 +57,4 @@ The per-version zips carry the pack format number of that version so Minecraft d
 ## Releases
 
 GitHub Actions runs the build on every push. On `main` it also publishes the zips as a GitHub release named after the `VERSION` file (tag `v<VERSION>`).
-To publish a new release, change the text in `VERSION` (for example `3.1-fix2`) and merge to `main`. If the release already exists, its zips are replaced.
+To publish a new release, change the text in `VERSION` (for example `3.1-fix4`) and merge to `main`. If the release already exists, its zips are replaced. A release can also be built from a branch: start the workflow by hand (Actions > Build pack > Run workflow) or put `[release]` in the commit message.
