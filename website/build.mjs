@@ -187,23 +187,16 @@ write("editor/index.html", page({
       <button type="button" class="btn ghost small" data-skin="${skinData("slim/alex.png")}">Alex</button></p>
 
     <h3>2. Eyes</h3>
-    <p class="row">
-      <label><input type="radio" name="type" value="2x1" checked> 2 wide, 1 tall</label>
-      <label><input type="radio" name="type" value="2x2"> 2 wide, 2 tall</label>
-    </p>
-    <p><label>Height on the face
-      <select id="pos">
-        <option value="top">Top</option>
-        <option value="upper" selected>Upper middle (Steve, Alex)</option>
-        <option value="lower">Lower middle</option>
-        <option value="bottom">Bottom</option>
-      </select></label></p>
+    <p><label>Eye shape
+      <select id="type"></select></label></p>
+    <p><label>Position on the face
+      <select id="pos"></select></label></p>
 
     <h3>3. Colours</h3>
     <p class="row"><label>Eyelid <input type="color" id="lid" value="#9b6349"></label></p>
     <p class="row">
-      <label>Eye white <input type="color" id="white" value="#ffffff"></label>
-      <label>Pupil <input type="color" id="pupil" value="#523d89"></label>
+      <label id="whitewrap">Eye white <input type="color" id="white" value="#ffffff"></label>
+      <label><span id="pupilname">Pupil</span> <input type="color" id="pupil" value="#523d89"></label>
     </p>
     <p><label><input type="checkbox" id="custom"> Paint these eye colours on the face</label><br>
       <small>Off: the eyes already drawn on your skin are used and the face is not changed.</small></p>
@@ -241,7 +234,14 @@ write("editor/index.html", page({
 </div>
 
 <h2>How it works</h2>
-<p>The eyes must be two pixels wide and sit in the usual place: one pixel in from each side of the face. Choose the row where your skin's eyes are. The editor copies those eye pixels, plus an eyelid colour, into an unused corner of the skin file (outlined in green). The pack reads that corner to animate the eyes. Other eye shapes (1 pixel wide, 3 wide, eyebrows, eyelashes) are not supported here yet; see the <a href="../guides/">guides</a>.</p>
+<p>Choose the eye shape and the position that match the eyes on your skin. The editor writes an eyelid colour and, for eyes with pupils, the eye colours into an unused corner of the skin file (outlined in green). The pack reads that corner to animate the eyes.</p>
+<ul>
+<li><b>2 wide</b> (1, 2 or 3 tall): the eyes sit one pixel in from each side of the face; the pupils move and the eyes blink.</li>
+<li><b>Derp</b>: like 2 wide, 1 tall, with cross-eyed pupils.</li>
+<li><b>3 wide (enderman)</b>: the eyes touch the sides of the face.</li>
+<li><b>Simple</b> (1 wide): no moving pupil, the eyes only blink.</li>
+</ul>
+<p>The positions of 2 wide 1 tall and 2 wide 2 tall come from the example skins in the pack. The other shapes were worked out from the pack's model file and are less certain; the derp layout is the least certain. Eyebrows, eyelashes and fox eyes are not in the editor yet; see the <a href="../guides/">guides</a>.</p>
 </article></div>
 <script src="../skinview3d.bundle.js"></script>
 <script src="../editor.js"></script>`,
