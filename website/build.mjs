@@ -327,10 +327,11 @@ write("editor/index.html", page({
   <section class="panel ecard">
     <h3 class="ehead"><span class="tool-ic">${ICON.grid}</span><span><b>Added pixels</b><small>Top-left corner of the skin file</small></span></h3>
     <canvas id="top" width="480" height="96"></canvas>
-    <details id="flat"><summary>Whole skin file (flat)</summary>
-      <canvas id="full" width="384" height="384"></canvas>
-    </details>
   </section>
+  <details id="flat" class="panel ecard">
+    <summary class="ehead"><span class="tool-ic">${ICON.grid}</span><span><b>Whole skin file</b><small>The flat picture that gets downloaded</small></span><span class="chev">${ICON.down}</span></summary>
+    <canvas id="full" width="384" height="384"></canvas>
+  </details>
   </div>
 </div>
 

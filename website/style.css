@@ -405,3 +405,17 @@ header.top nav::-webkit-scrollbar { display: none; }
 .ed .ecard canvas { border-radius: 10px; }
 .ed .ecard #view3d { width: 100%; }
 .ed .ecard details { margin-top: 12px; }
+
+/* editor: "Whole skin file" as a card that opens */
+.ed details.ecard { margin-top: 0; }
+.ed details.ecard > summary.ehead { display: flex; align-items: center; gap: 12px; margin: 0; cursor: pointer; list-style: none; color: var(--text); font-size: 18px; border-radius: 10px; }
+.ed details.ecard > summary.ehead::-webkit-details-marker { display: none; }
+.ed details.ecard > summary.ehead:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.ed summary.ehead .tool-ic { width: 44px; height: 44px; }
+.ed summary.ehead .tool-ic .ic { width: 24px; height: 24px; margin: 0; }
+.ed summary.ehead > span:nth-child(2) { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.ed summary.ehead b { font-weight: 600; line-height: 1.2; }
+.ed summary.ehead small { font-size: 13px; color: var(--muted); }
+.ed summary.ehead .chev { flex: none; color: var(--muted); display: grid; place-content: center; transition: transform .15s; }
+.ed details[open] > summary.ehead .chev { transform: rotate(180deg); }
+.ed details.ecard[open] > summary.ehead { margin-bottom: 14px; }
