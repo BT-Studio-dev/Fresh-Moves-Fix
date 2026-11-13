@@ -17,4 +17,6 @@ stays in the vanilla pose while the body is animated. This is fixed in the mod, 
 
 ## Guides
 
+- [All guides (wiki home)](docs/Home.md)
 - [Fix Black Eyes](docs/Fix-Black-Eyes.md)
+- [Fix Moving 1st Person Hand](docs/Fix-Moving-1st-Person-Hand.md)
