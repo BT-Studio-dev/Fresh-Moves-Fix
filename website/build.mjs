@@ -331,7 +331,8 @@ write("settings/index.html", page({
     <button type="button" class="tab" data-tab="music">${ICON.music} Music</button></div>
   <div class="box" id="tab-music" hidden>
     <h2>${ICON.music} Music</h2>
-    <p>A calm background tune, made by your browser (no music files). It is off until you turn it on, and saved in this browser only.</p>
+    <p>A calm background song, 3 minutes 34 seconds long, made by your browser (no music files). It repeats when it ends. It is off until you turn it on, and saved in this browser only.</p>
+    <p class="mrow">${ICON.music} <b data-music-time>0:00 / 3:34</b></p>
     <p class="mrow"><label><input type="checkbox" data-music-check> Play music</label></p>
     <p class="mrow"><label>Volume <input type="range" min="0" max="100" value="40" data-music-volume></label></p>
     <p><small>You can also use the music button at the top of every page. The music keeps playing while you move between pages of this site.</small></p>
