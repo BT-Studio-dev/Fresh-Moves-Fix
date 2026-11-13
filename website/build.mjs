@@ -161,6 +161,7 @@ write("index.html", page({
     <div class="card"><h3>Player animations</h3><p>Reworked walking, sprinting, sneaking, swimming, crawling and sleeping, in the style of Fresh Animations.</p></div>
     <div class="card"><h3>Animated eyes</h3><p>Eyes blink and look around when your skin has the marker pixels described in the guides.</p></div>
     <div class="card"><h3>Changes in this fork</h3><p>Eyes stay closed while sleeping and after death, and the second skin layer no longer moves twice on 1.21.2+.</p></div>
+    <div class="card"><h3>Wave emote</h3><p>Stand still, sneak and look straight up, and your right arm waves.</p></div>
   </div>
 </section>
 
