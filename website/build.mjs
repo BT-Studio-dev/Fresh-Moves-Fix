@@ -436,6 +436,21 @@ write("index.html", page({
     <a class="card feat" href="editor/"><h3>${ICON.hand} Wave emote</h3><p>Stand still, sneak and look straight up, and your right arm waves.</p><span class="more">3D preview ${ICON.right}</span></a>
   </div>
 </section>
+<section>
+  <h2>${ICON.brush} Create</h2>
+  <div class="tools">
+    <a class="tool" href="editor/">
+      <span class="tool-head"><span class="tool-ic">${ICON.person}</span><span><b>Minecraft Skin</b><small>by Fresh Moves Fix</small></span></span>
+      <span class="tool-text">Add blinking, moving eyes to your skin and see it in 3D.</span>
+      <span class="tags"><i class="g">Minecraft</i><i>Skin</i><i>Eyes</i></span>
+    </a>
+    <a class="tool" rel="noopener" target="_blank" href="https://github.com/ewanhowell5195/MinecraftTitleGenerator">
+      <span class="tool-head"><span class="tool-ic t">T</span><span><b>Minecraft Title Generator</b><small>by Ewan Howell</small></span></span>
+      <span class="tool-text">Create Minecraft-styled title models! A plugin for Blockbench; opens its page on GitHub.</span>
+      <span class="tags"><i class="g">Minecraft</i><i>Title</i><i>Logo</i></span>
+    </a>
+  </div>
+</section>
 
 <section>
   <h2>${ICON.wrench} Requirements</h2>

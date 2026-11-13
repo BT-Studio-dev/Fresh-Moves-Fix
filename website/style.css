@@ -311,3 +311,19 @@ header.top .snd-more:hover { color: var(--accent); }
 /* Minecraft-style title picture on the home page */
 .hero h1.mc-title { margin: 0 0 16px; line-height: 0; }
 .hero h1.mc-title img { width: 100%; max-width: 600px; height: auto; border-radius: 0; box-shadow: none; filter: drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
+
+/* "Create" tool cards on the home page: icon, name, author, text, tags */
+.tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+a.tool { display: flex; flex-direction: column; gap: 12px; padding: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; color: var(--text); text-decoration: none; transition: border-color .12s, transform .12s; }
+a.tool:hover, a.tool:focus-visible { border-color: var(--accent); transform: translateY(-1px); outline: none; }
+.tool-head { display: flex; align-items: center; gap: 12px; }
+.tool-head > span:last-child { display: flex; flex-direction: column; min-width: 0; }
+.tool-head b { font-size: 19px; font-weight: 600; line-height: 1.2; }
+.tool-head small { color: var(--muted); font-size: 13px; }
+.tool-ic { flex: none; width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); }
+.tool-ic .ic { width: 28px; height: 28px; }
+.tool-ic.t { background: linear-gradient(#f2a23a, #c8451f); color: #fff; font-weight: 900; font-size: 28px; font-family: ui-monospace, Menlo, Consolas, monospace; text-shadow: 0 2px 0 rgba(0,0,0,.35); }
+.tool-text { color: var(--text); font-size: 15px; }
+.tool .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+.tool .tags i { font-style: normal; font-size: 13px; font-weight: 600; padding: 3px 12px; border-radius: 999px; background: #5b8fd9; color: #0d1420; }
+.tool .tags i.g { background: #6fdc6f; }
