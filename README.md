@@ -14,3 +14,7 @@ stays in the vanilla pose while the body is animated. This is fixed in the mod, 
 
 - Update **EMF to 3.0.5 or newer** (3.0.12 or newer is recommended, it also removes the lag armour caused with animated players), and update ETF with it.
 - Do not put another pack that animates armour models (`*_armor.jem`, `helmet.jem`, `chestplate.jem`, ...) above this one: EMF skips the pose copy for armour models that have their own animations.
+
+## Guides
+
+- [Fix Black Eyes](docs/Fix-Black-Eyes.md)
