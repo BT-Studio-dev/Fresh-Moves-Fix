@@ -28,6 +28,14 @@ const ICON = {
   up: svg('<path d="M12 20V7"/><path d="M6 12l6-6 6 6"/><path d="M5 3h14"/>'),
   right: svg('<path d="M9 5l7 7-7 7"/>'),
   close: svg('<path d="M6 6l12 12"/><path d="M18 6L6 18"/>'),
+  play: svg('<circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l6-3.5z"/>'),
+  globe: svg('<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c3 3 3 15 0 18c-3-3-3-15 0-18z"/>'),
+  brush: svg('<path d="M20 4l-9 9"/><path d="M11 13c-2-1-5 0-5 3 0 2-2 3-3 3 3 2 9 1 9-4z"/>'),
+  smile: svg('<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8.5 10h.01M15.5 10h.01"/><path d="M9 15h6"/>'),
+  grid: svg('<rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 9.300h16M4 14.700h16M9.300 4v16M14.700 4v16"/>'),
+  info: svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7.500h.01"/>'),
+  left: svg('<path d="M15 5l-7 7 7 7"/>'),
+  person: svg('<circle cx="12" cy="6" r="3"/><path d="M8 21v-9h8v9"/><path d="M5 12h3M16 12h3"/>'),
   home: svg('<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>'),
   book: svg('<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21a2 2 0 0 1 2-2h13"/>'),
   eye: svg('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>'),
@@ -144,26 +152,32 @@ const bySource = new Map(docs.map((d) => [d.file, d]));
 
 function renderDoc(md) {
   // bare GitHub attachment links are videos: turn them into readable links
-  md = md.replace(/^(https:\/\/github\.com\/\S+\/assets\/\S+)\s*$/gm, "[▶ Watch the video]($1)");
+  md = md.replace(/^(https:\/\/github\.com\/\S+\/assets\/\S+)\s*$/gm, "[%%PLAY%% Watch the video]($1)");
   let html = marked.parse(md);
   // links between docs -> links between pages
   html = html.replace(/href="<?([^"]+?\.md)>?"/g, (m, target) => {
     const d = bySource.get(decodeURIComponent(target));
     return d ? `href="../${d.slug}/"` : m;
   });
+  html = html.replace(/%%PLAY%%/g, ICON.play);
   return html.replace(/<a href="http/g, '<a rel="noopener" href="http').replace(/<img /g, '<img loading="lazy" ');
 }
 
-for (const d of docs) {
+for (const [i, d] of docs.entries()) {
   const md = fs.readFileSync(path.join(docsDir, d.file), "utf8").replace(/^# .*\n/, "");
   write(`guides/${d.slug}/index.html`, page({
     title: `${d.name} - Fresh Moves Fix`,
     active: "guides",
     depth: 2,
     body: `<div class="wrap"><article>
-<div class="crumb"><a href="../../">Home</a> / <a href="../">Guides</a></div>
-<h1>${esc(d.name)}</h1>
+<div class="crumb"><a href="../../">${ICON.home} Home</a> ${ICON.right} <a href="../">${ICON.book} Guides</a></div>
+<h1>${d.name.startsWith("Fix") ? ICON.wrench : ICON.eye} ${esc(d.name)}</h1>
 ${renderDoc(md)}
+<div class="guide-nav">
+  ${docs[i - 1] ? `<a class="card go back" href="../${docs[i - 1].slug}/">${ICON.left}<span>${esc(docs[i - 1].name)}</span></a>` : "<span></span>"}
+  ${docs[i + 1] ? `<a class="card go" href="../${docs[i + 1].slug}/"><span>${esc(docs[i + 1].name)}</span>${ICON.right}</a>` : "<span></span>"}
+</div>
+<p class="guide-cta"><a class="btn" href="../../editor/">${ICON.eye} Open the eye editor</a> <a class="btn ghost" href="../">${ICON.book} All guides</a></p>
 </article></div>`,
   }));
 }
@@ -171,25 +185,25 @@ ${renderDoc(md)}
 const fixes = docs.filter((d) => d.name.startsWith("Fix"));
 const eyes = docs.filter((d) => !d.name.startsWith("Fix"));
 const cards = (list) => `<div class="cards">${list.map((d) =>
-  `<a class="card go" href="${d.slug}/"><span>${esc(d.name)}</span>${ICON.right}</a>`).join("")}</div>`;
+  `<a class="card go" href="${d.slug}/"><span>${d.name.startsWith("Fix") ? ICON.wrench : ICON.eye} ${esc(d.name)}</span>${ICON.right}</a>`).join("")}</div>`;
 
 write("guides/index.html", page({
   title: "Guides - Fresh Moves Fix",
   active: "guides",
   depth: 1,
   body: `<div class="wrap"><article>
-<div class="crumb"><a href="../">Home</a></div>
-<h1>Guides</h1>
-<h2>How to animate the eyes</h2>
+<div class="crumb"><a href="../">${ICON.home} Home</a></div>
+<h1>${ICON.book} Guides</h1>
+<h2>${ICON.list} How to animate the eyes</h2>
 <ol class="steps">
 <li>Get the skin you want to use (from your Minecraft account, NameMC, or any skin you like).</li>
 <li>Open it in a .png editor that supports transparency, such as Blockbench (free), GIMP or Photoshop.</li>
 <li>Add the extra pixels for your eye type and size, following the matching guide below. Leave the face itself untouched, so players without the pack see a normal skin.</li>
 <li>Save the skin and upload it in the Minecraft launcher or on your Minecraft account.</li>
 </ol>
-<h2>Fixes</h2>
+<h2>${ICON.wrench} Fixes</h2>
 ${cards(fixes)}
-<h2>Eye and eyebrow types</h2>
+<h2>${ICON.eye} Eye and eyebrow types</h2>
 ${cards(eyes)}
 <p style="margin-top:24px;color:var(--muted)">These guides are copied from the original Fresh Moves wiki. Images and videos are hosted on the original GitHub repository.</p>
 </article></div>`,
@@ -207,14 +221,14 @@ write("editor/index.html", page({
   description: "Add the animated-eye pixels for Fresh Moves to your Minecraft skin and download the result.",
   depth: 1,
   body: `<div class="wrap"><article class="editor">
-<div class="crumb"><a href="../">Home</a></div>
-<h1>Skin eye editor</h1>
+<div class="crumb"><a href="../">${ICON.home} Home</a></div>
+<h1>${ICON.eye} Skin eye editor</h1>
 <p>Adds the extra pixels that make the eyes blink and move, then lets you download the skin. Everything happens in your browser; the skin is not uploaded anywhere.</p>
-<div class="note"><strong>Not tested in-game.</strong> The pixel positions were copied from the example skins inside the pack. Keep a copy of your original skin.</div>
+<div class="note"><strong>Not tested in-game.</strong> Some eye shapes are less certain than others (see "How it works" below). Keep a copy of your original skin.</div>
 
 <div class="ed">
   <div class="panel">
-    <h3>1. Skin</h3>
+    <h3>${ICON.person} 1. Skin</h3>
     <label class="drop" id="drop">
       <input type="file" id="file" accept="image/png" class="vh">
       <span class="drop-ic">${ICON.up}</span>
@@ -229,13 +243,13 @@ write("editor/index.html", page({
       <label><input type="radio" name="fmt" id="fmtslim" value="slim"> Alex</label></p>
     <p><small>Steve = wide arms, Alex = slim arms. It is guessed from the skin when you load it; it only changes the 3D preview, not the file.</small></p>
 
-    <h3>2. Eyes</h3>
+    <h3>${ICON.eye} 2. Eyes</h3>
     <p><label>Eye shape
       <select id="type"></select></label></p>
     <p><label>Position on the face
       <select id="pos"></select></label></p>
 
-    <h3>3. Colours</h3>
+    <h3>${ICON.brush} 3. Colours</h3>
     <p class="row"><label>Eyelid <input type="hidden" id="lid" value="#9b6349"><button type="button" class="sw" data-for="lid" aria-label="Choose colour"></button></label></p>
     <p class="row">
       <label id="whitewrap">Eye white <input type="hidden" id="white" value="#ffffff"><button type="button" class="sw" data-for="white" aria-label="Choose colour"></button></label>
@@ -255,13 +269,13 @@ write("editor/index.html", page({
       <div class="pk-sws" id="pk-basic"></div>
     </div>
 
-    <h3>4. Save</h3>
-    <p><button type="button" class="btn" id="save" disabled>Download skin (.png)</button></p>
+    <h3>${ICON.down} 4. Save</h3>
+    <p><button type="button" class="btn" id="save" disabled>${ICON.down} Download skin (.png)</button></p>
     <p id="status" class="status"></p>
   </div>
 
   <div class="panel">
-    <h3>3D preview</h3>
+    <h3>${ICON.box} 3D preview</h3>
     <div id="wrap3d">
       <canvas id="view3d" width="420" height="520"></canvas>
       <p class="row ctl">
@@ -277,9 +291,9 @@ write("editor/index.html", page({
       <small>Drag to turn the model, scroll to zoom. The preview shows the skin only; the blinking happens in-game.</small>
     </div>
     <p id="msg3d" class="status"></p>
-    <h3>Face</h3>
+    <h3>${ICON.smile} Face</h3>
     <canvas id="face" width="256" height="256"></canvas>
-    <h3>Added pixels (top-left of the skin file)</h3>
+    <h3>${ICON.grid} Added pixels (top-left of the skin file)</h3>
     <canvas id="top" width="480" height="96"></canvas>
     <details id="flat"><summary>Whole skin file (flat)</summary>
       <canvas id="full" width="384" height="384"></canvas>
@@ -287,7 +301,7 @@ write("editor/index.html", page({
   </div>
 </div>
 
-<h2>How it works</h2>
+<h2>${ICON.info} How it works</h2>
 <p>Choose the eye shape and the position that match the eyes on your skin. The editor writes an eyelid colour and, for eyes with pupils, the eye colours into an unused corner of the skin file (outlined in green). The pack reads that corner to animate the eyes.</p>
 <ul>
 <li><b>2 wide</b> (1, 2 or 3 tall): the eyes sit one pixel in from each side of the face; the pupils move and the eyes blink.</li>
@@ -308,28 +322,28 @@ write("settings/index.html", page({
   active: "settings",
   depth: 1,
   body: `<div class="wrap"><article>
-<h1>Settings</h1>
+<h1>${ICON.gear} Settings</h1>
 <div class="set">
   <div class="menu"><small>DISPLAY</small>
-    <button type="button" class="tab on" data-tab="appearance">Appearance</button>
-    <button type="button" class="tab" data-tab="language">Language</button>
+    <button type="button" class="tab on" data-tab="appearance">${ICON.brush} Appearance</button>
+    <button type="button" class="tab" data-tab="language">${ICON.globe} Language</button>
     <small>SOUND</small>
-    <button type="button" class="tab" data-tab="music">Music</button></div>
+    <button type="button" class="tab" data-tab="music">${ICON.music} Music</button></div>
   <div class="box" id="tab-music" hidden>
-    <h2>Music</h2>
+    <h2>${ICON.music} Music</h2>
     <p>A calm background tune, made by your browser (no music files). It is off until you turn it on, and saved in this browser only.</p>
     <p class="mrow"><label><input type="checkbox" data-music-check> Play music</label></p>
     <p class="mrow"><label>Volume <input type="range" min="0" max="100" value="40" data-music-volume></label></p>
     <p><small>You can also use the music button at the top of every page. The music keeps playing while you move between pages of this site.</small></p>
   </div>
   <div class="box" id="tab-language" hidden>
-    <h2>Language</h2>
+    <h2>${ICON.globe} Language</h2>
     <div class="note">Only menus, buttons and the editor are translated. Guides and longer texts stay in English. The translations are machine-made and may contain mistakes.</div>
     <p>Choose your preferred language for the site.</p>
     <div class="langs" id="langs"></div>
   </div>
   <div class="box" id="tab-appearance">
-    <h2>Color theme</h2>
+    <h2>${ICON.brush} Color theme</h2>
     <p>Select your preferred color theme for this website. It is saved in this browser only.</p>
     <div class="themes">
       ${themeCard("system", "Sync with system", "linear-gradient(90deg,#f4f6f5 50%,#0f1412 50%)", "#18201c", "#2a3630", "#9aa8a0")}

@@ -268,3 +268,19 @@ a.card.feat h3 { color: var(--text); }
 a.card.feat .more { margin-top: auto; padding-top: 12px; color: var(--accent); font-weight: 600; font-size: 14px; }
 a.card.feat .more .ic { width: 15px; height: 15px; margin-inline-start: 2px; }
 a.card.feat:hover, a.card.feat:focus-visible { border-color: var(--accent); transform: translateY(-1px); outline: none; }
+
+/* new style on guides, editor and settings */
+h1 .ic { width: 30px; height: 30px; color: var(--accent); vertical-align: -4px; margin-inline-end: 8px; }
+.crumb { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.crumb a { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; text-decoration: none; color: var(--muted); font-size: 14px; }
+.crumb a:hover { border-color: var(--accent); color: var(--accent); }
+.crumb .ic { width: 14px; height: 14px; color: var(--muted); }
+.crumb a:hover .ic { color: var(--accent); }
+a.card.go span .ic { color: var(--accent); margin-inline-end: 8px; }
+.guide-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 32px 0 14px; }
+.guide-nav a.card.go.back { justify-content: flex-start; }
+.guide-cta { display: flex; gap: 10px; flex-wrap: wrap; }
+article a .ic { vertical-align: -4px; }
+.set .menu .tab .ic { margin-inline-end: 8px; width: 17px; height: 17px; }
+.ed .panel h3 .ic { margin-inline-end: 8px; }
+@media (max-width: 600px) { .guide-nav { grid-template-columns: 1fr; } }
