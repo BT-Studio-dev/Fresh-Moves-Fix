@@ -615,3 +615,14 @@ html[data-theme="glass"] { background: #0a1210; }
 /* editor: "How to test it in the game" */
 ol.steps { padding-inline-start: 1.3em; }
 ol.steps li { margin: 0 0 8px; }
+
+/* top bar: the icon and the Download button must never be cut off.
+   Below 1140px the menu moves to its own row instead of pushing things off the screen. */
+.brand, .brand img { flex: none; }
+header.top nav { min-width: 0; overflow-x: auto; }
+@media (max-width: 1140px) {
+  header.top .bar { height: auto; flex-wrap: wrap; padding-top: 10px; padding-bottom: 8px; gap: 6px 12px; }
+  header.top nav { order: 3; width: 100%; margin: 0; }
+  header.top .snd-wrap { margin-inline-start: auto; }
+}
+@media (max-width: 1140px) { header.top .get { margin-left: 0; } }
