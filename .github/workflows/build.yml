@@ -23,7 +23,8 @@ jobs:
           name: Fresh-Moves-Fix
           path: dist/*.zip
       - name: Publish release
-        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        # on main, or when the workflow is started by hand (Actions > Build pack > Run workflow)
+        if: (github.ref == 'refs/heads/main' && github.event_name != 'pull_request') || github.event_name == 'workflow_dispatch'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -35,6 +36,6 @@ jobs:
             gh release create "$TAG" dist/*.zip \
               --target "$GITHUB_SHA" \
               --title "Fresh Moves Fix $VERSION" \
-              --prerelease \
+              --latest \
               --notes-file .github/release-notes.md
           fi
