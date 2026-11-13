@@ -360,7 +360,7 @@
     wrap.appendChild(btn); wrap.appendChild(list);
     sel.classList.add("vh"); sel.tabIndex = -1; sel.after(wrap);
     const m = {
-      close() { list.hidden = true; btn.setAttribute("aria-expanded", "false"); },
+      close() { list.hidden = true; btn.setAttribute("aria-expanded", "false"); raise(); },
       sync() {
         const opts = Array.from(sel.options);
         const cur = opts.find((o) => o.value === sel.value) || opts[0];
@@ -381,7 +381,7 @@
     };
     btn.addEventListener("click", (e) => {
       e.preventDefault();
-      const open = list.hidden; closeMenus(m); list.hidden = !open; btn.setAttribute("aria-expanded", String(open));
+      const open = list.hidden; closeMenus(m); list.hidden = !open; btn.setAttribute("aria-expanded", String(open)); raise();
       if (open) { const on = list.querySelector(".on"); if (on) on.focus(); }
     });
     wrap.addEventListener("keydown", (e) => {
@@ -394,6 +394,10 @@
       }
     });
     menus.push(m); m.close(); m.sync();
+  }
+  // the card with an open list comes in front of the cards after it
+  function raise() {
+    document.querySelectorAll(".ed .panel").forEach((p) => p.classList.toggle("dd-open", !!p.querySelector('.dd-btn[aria-expanded="true"]')));
   }
   function syncMenus() { menus.forEach((m) => m.sync()); }
   document.addEventListener("fmf-lang", () => setTimeout(syncMenus, 0));
