@@ -186,6 +186,11 @@ write("editor/index.html", page({
       <button type="button" class="btn ghost small" id="steve" data-skin="${skinData("wide/steve.png")}">Steve</button>
       <button type="button" class="btn ghost small" data-skin="${skinData("slim/alex.png")}">Alex</button></p>
 
+    <p class="row">Format:
+      <label><input type="radio" name="fmt" id="fmtwide" value="default" checked> Steve</label>
+      <label><input type="radio" name="fmt" id="fmtslim" value="slim"> Alex</label></p>
+    <p><small>Steve = wide arms, Alex = slim arms. It is guessed from the skin when you load it; it only changes the 3D preview, not the file.</small></p>
+
     <h3>2. Eyes</h3>
     <p><label>Eye shape
       <select id="type"></select></label></p>

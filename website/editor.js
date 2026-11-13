@@ -82,6 +82,9 @@
       sctx.drawImage(img, 0, 0);
       original = sctx.getImageData(0, 0, 64, 64);
       loaded = true;
+      // slim (Alex) skins leave the last arm column empty
+      const slim = original.data[idx(54, 20) + 3] === 0;
+      $("fmtslim").checked = slim; $("fmtwide").checked = !slim;
       setStatus(`Loaded ${name}.`);
       pickDefaults();
       render();
@@ -185,9 +188,10 @@
     if (!viewer) return;
     try {
       tex.getContext("2d").putImageData(data, 0, 0);
-      viewer.loadSkin(tex, { model: "auto-detect" });
+      viewer.loadSkin(tex, { model: $("fmtslim").checked ? "slim" : "default" });
     } catch (e) { $("msg3d").textContent = "3D preview could not show this skin."; }
   }
+  ["fmtwide", "fmtslim"].forEach((id) => $(id).addEventListener("change", () => { if (current) update3d(current); }));
   $("anim").addEventListener("change", setAnim);
   $("spin").addEventListener("change", () => { if (viewer) viewer.autoRotate = $("spin").checked; });
   $("zoom").addEventListener("input", () => { if (viewer) viewer.zoom = Number($("zoom").value); });
