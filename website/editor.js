@@ -288,13 +288,66 @@
     $("save").disabled = false;
   }
 
-  $("file").addEventListener("change", (e) => {
-    const f = e.target.files[0];
+  function readFile(f) {
     if (!f) return;
+    $("filename").textContent = f.name;
     const r = new FileReader();
     r.onload = () => loadImage(r.result, f.name);
     r.readAsDataURL(f);
-  });
+  }
+  $("file").addEventListener("change", (e) => readFile(e.target.files[0]));
+  // dropping a file on the box works too, without the system file window
+  ["dragenter", "dragover"].forEach((t) => $("drop").addEventListener(t, (e) => { e.preventDefault(); $("drop").classList.add("over"); }));
+  ["dragleave", "drop"].forEach((t) => $("drop").addEventListener(t, (e) => { e.preventDefault(); $("drop").classList.remove("over"); }));
+  $("drop").addEventListener("drop", (e) => readFile(e.dataTransfer && e.dataTransfer.files[0]));
+
+  // ---- themed drop-down lists (replace the browser's own lists) ----
+  const menus = [];
+  function closeMenus(except) { menus.forEach((m) => { if (m !== except) m.close(); }); }
+  function enhance(sel) {
+    const wrap = document.createElement("span"); wrap.className = "dd";
+    const btn = document.createElement("button"); btn.type = "button"; btn.className = "dd-btn"; btn.setAttribute("aria-haspopup", "listbox");
+    const list = document.createElement("span"); list.className = "dd-list"; list.setAttribute("role", "listbox"); list.hidden = true;
+    wrap.appendChild(btn); wrap.appendChild(list);
+    sel.classList.add("vh"); sel.tabIndex = -1; sel.after(wrap);
+    const m = {
+      close() { list.hidden = true; btn.setAttribute("aria-expanded", "false"); },
+      sync() {
+        const opts = Array.from(sel.options);
+        const cur = opts.find((o) => o.value === sel.value) || opts[0];
+        btn.textContent = cur ? cur.textContent : "";
+        list.innerHTML = "";
+        for (const o of opts) {
+          const b = document.createElement("button");
+          b.type = "button"; b.className = "dd-opt" + (o === cur ? " on" : ""); b.textContent = o.textContent;
+          b.setAttribute("role", "option"); b.setAttribute("aria-selected", o === cur ? "true" : "false");
+          b.addEventListener("click", (e) => {
+            e.preventDefault(); m.close(); btn.focus();
+            if (sel.value !== o.value) { sel.value = o.value; sel.dispatchEvent(new Event("change")); sel.dispatchEvent(new Event("input")); }
+            syncMenus();
+          });
+          list.appendChild(b);
+        }
+      },
+    };
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const open = list.hidden; closeMenus(m); list.hidden = !open; btn.setAttribute("aria-expanded", String(open));
+      if (open) { const on = list.querySelector(".on"); if (on) on.focus(); }
+    });
+    wrap.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") { m.close(); btn.focus(); }
+      if ((e.key === "ArrowDown" || e.key === "ArrowUp") && !list.hidden) {
+        e.preventDefault();
+        const items = Array.from(list.children), i = items.indexOf(document.activeElement);
+        const n = items[Math.max(0, Math.min(items.length - 1, i + (e.key === "ArrowDown" ? 1 : -1)))];
+        if (n) n.focus();
+      }
+    });
+    menus.push(m); m.close(); m.sync();
+  }
+  function syncMenus() { menus.forEach((m) => m.sync()); }
+  document.addEventListener("click", (e) => { if (!(e.target.closest && e.target.closest(".dd"))) closeMenus(); });
   document.querySelectorAll("[data-skin]").forEach((b) =>
     b.addEventListener("click", () => loadImage(b.dataset.skin, b.textContent.trim())));
   for (const [key, t] of Object.entries(TYPES)) {
@@ -304,7 +357,8 @@
   }
   $("type").value = "2x1";
   fillPositions();
-  $("type").addEventListener("change", () => { fillPositions(); pickDefaults(); render(); });
+  $("type").addEventListener("change", () => { fillPositions(); syncMenus(); pickDefaults(); render(); });
+  ["type", "pos", "anim"].forEach((id) => enhance($(id)));
   $("pos").addEventListener("change", () => { pickDefaults(); render(); });
   $("custom").addEventListener("input", render);
 

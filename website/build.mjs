@@ -181,7 +181,11 @@ write("editor/index.html", page({
 <div class="ed">
   <div class="panel">
     <h3>1. Skin</h3>
-    <p><input type="file" id="file" accept="image/png"></p>
+    <label class="drop" id="drop">
+      <input type="file" id="file" accept="image/png" class="vh">
+      <span class="drop-ic" aria-hidden="true">&uarr;</span>
+      <span><b>Choose your skin file</b><br><small id="filename">or drop the .png here</small></span>
+    </label>
     <p>or start from
       <button type="button" class="btn ghost small" id="steve" data-skin="${skinData("wide/steve.png")}">Steve</button>
       <button type="button" class="btn ghost small" data-skin="${skinData("slim/alex.png")}">Alex</button></p>
