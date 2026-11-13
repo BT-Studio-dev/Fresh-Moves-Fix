@@ -42,6 +42,7 @@ function page({ title, body, depth = 0, description = "" }) {
   <nav>
     <a href="${up}#download">Download</a>
     <a href="${up}guides/">Guides</a>
+    <a href="${up}editor/">Eye editor</a>
     <a href="${REPO}">GitHub</a>
   </nav>
 </div></header>
@@ -128,6 +129,72 @@ ${cards(eyes)}
 </article></div>`,
 }));
 
+// ---------- skin eye editor ----------
+fs.mkdirSync(path.join(out, "skins"), { recursive: true });
+fs.copyFileSync(path.join(root, "assets/minecraft/textures/entity/player/wide/steve.png"), path.join(out, "skins/steve.png"));
+fs.copyFileSync(path.join(root, "assets/minecraft/textures/entity/player/slim/alex.png"), path.join(out, "skins/alex.png"));
+fs.copyFileSync(path.join(here, "editor.js"), path.join(out, "editor.js"));
+write("editor/index.html", page({
+  title: "Skin eye editor - Fresh Moves Fix",
+  description: "Add the animated-eye pixels for Fresh Moves to your Minecraft skin and download the result.",
+  depth: 1,
+  body: `<div class="wrap"><article class="editor">
+<div class="crumb"><a href="../">Home</a></div>
+<h1>Skin eye editor</h1>
+<p>Adds the extra pixels that make the eyes blink and move, then lets you download the skin. Everything happens in your browser; the skin is not uploaded anywhere.</p>
+<div class="note"><strong>Not tested in-game.</strong> The pixel positions were copied from the example skins inside the pack. Keep a copy of your original skin.</div>
+
+<div class="ed">
+  <div class="panel">
+    <h3>1. Skin</h3>
+    <p><input type="file" id="file" accept="image/png"></p>
+    <p>or start from
+      <button type="button" class="btn ghost small" data-skin="../skins/steve.png">Steve</button>
+      <button type="button" class="btn ghost small" data-skin="../skins/alex.png">Alex</button></p>
+
+    <h3>2. Eyes</h3>
+    <p class="row">
+      <label><input type="radio" name="type" value="2x1" checked> 2 wide, 1 tall</label>
+      <label><input type="radio" name="type" value="2x2"> 2 wide, 2 tall</label>
+    </p>
+    <p><label>Height on the face
+      <select id="pos">
+        <option value="top">Top</option>
+        <option value="upper" selected>Upper middle (Steve, Alex)</option>
+        <option value="lower">Lower middle</option>
+        <option value="bottom">Bottom</option>
+      </select></label></p>
+
+    <h3>3. Colours</h3>
+    <p class="row"><label>Eyelid <input type="color" id="lid" value="#9b6349"></label></p>
+    <p class="row">
+      <label>Eye white <input type="color" id="white" value="#ffffff"></label>
+      <label>Pupil <input type="color" id="pupil" value="#523d89"></label>
+    </p>
+    <p><label><input type="checkbox" id="custom"> Paint these eye colours on the face</label><br>
+      <small>Off: the eyes already drawn on your skin are used and the face is not changed.</small></p>
+
+    <h3>4. Save</h3>
+    <p><button type="button" class="btn" id="save" disabled>Download skin (.png)</button></p>
+    <p id="status" class="status"></p>
+  </div>
+
+  <div class="panel">
+    <h3>Face</h3>
+    <canvas id="face" width="256" height="256"></canvas>
+    <h3>Added pixels (top-left of the skin file)</h3>
+    <canvas id="top" width="480" height="96"></canvas>
+    <h3>Whole skin</h3>
+    <canvas id="full" width="384" height="384"></canvas>
+  </div>
+</div>
+
+<h2>How it works</h2>
+<p>The eyes must be two pixels wide and sit in the usual place: one pixel in from each side of the face. Choose the row where your skin's eyes are. The editor copies those eye pixels, plus an eyelid colour, into an unused corner of the skin file (outlined in green). The pack reads that corner to animate the eyes. Other eye shapes (1 pixel wide, 3 wide, eyebrows, eyelashes) are not supported here yet; see the <a href="../guides/">guides</a>.</p>
+</article></div>
+<script src="../editor.js"></script>`,
+}));
+
 // ---------- home ----------
 const groups = [];
 for (const v of versions) {
@@ -150,6 +217,7 @@ write("index.html", page({
     <h1>Fresh Moves Fix</h1>
     <p>Smoother, more expressive player animations and animated eyes for Minecraft. A fork of Fresh Moves with small fixes and builds for Minecraft ${versions[0].mc} to ${versions[versions.length - 1].mc}.</p>
     <a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">Download ${esc(version)}</a>
+    <a class="btn ghost" href="editor/">Skin eye editor</a>
     <a class="btn ghost" href="guides/">Eye guides</a>
   </div>
 </div>

@@ -77,3 +77,21 @@ footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 14px
   .hero h1 { font-size: 30px; }
   header.top nav a { margin-left: 12px; }
 }
+
+/* skin eye editor */
+.ed { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(260px, 1.2fr); gap: 18px; margin: 18px 0 28px; }
+.ed .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 6px 18px 18px; }
+.ed h3 { font-size: 16px; margin: 16px 0 8px; }
+.ed p { margin: 0 0 10px; }
+.ed .row { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
+.ed canvas { max-width: 100%; height: auto; image-rendering: pixelated; border: 1px solid var(--line); border-radius: 6px; display: block; }
+.ed select, .ed input[type="file"] { background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; max-width: 100%; font: inherit; }
+.ed input[type="color"] { vertical-align: middle; width: 44px; height: 30px; padding: 0; border: 1px solid var(--line); border-radius: 6px; background: none; }
+.ed small { color: var(--muted); }
+.btn.small { padding: 6px 12px; margin: 0 4px 0 4px; font-size: 14px; cursor: pointer; }
+button.btn { border: 0; font: inherit; font-weight: 700; cursor: pointer; }
+button.btn.ghost { border: 1px solid var(--line); }
+button.btn:disabled { opacity: .5; cursor: default; }
+.status { color: var(--accent); min-height: 1.6em; }
+.status.bad { color: #ff8a7a; }
+@media (max-width: 700px) { .ed { grid-template-columns: 1fr; } }

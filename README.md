@@ -31,6 +31,8 @@ None of the model changes have been tested in-game yet.
 
 https://fresh-moves-fix.vercel.app
 
+It includes a skin eye editor (https://fresh-moves-fix.vercel.app/editor/) that adds the 2x1 or 2x2 eye pixels to a skin and downloads the result.
+
 The site is in `website/`. It is generated from this repository (`docs/`, `VERSION`, `build.py`):
 
 ```
