@@ -223,7 +223,7 @@
     } catch (e) { $("msg3d").textContent = "3D preview could not show this skin."; }
   }
   ["fmtwide", "fmtslim"].forEach((id) => $(id).addEventListener("change", () => { if (current) update3d(current); }));
-  window.fmfCleanup = () => { try { if (viewer) viewer.dispose(); } catch (e) {} viewer = null; };
+  window.fmfCleanup = () => { try { if (viewer) viewer.dispose(); } catch (e) {} viewer = null; try { blobUrls.forEach((u) => URL.revokeObjectURL(u)); } catch (e) {} };
   $("anim").addEventListener("change", setAnim);
   $("spin").addEventListener("change", () => { if (viewer) viewer.autoRotate = $("spin").checked; });
   $("zoom").addEventListener("input", () => { if (viewer) viewer.zoom = Number($("zoom").value); });
@@ -395,6 +395,29 @@
   ["type", "pos", "anim"].forEach((id) => enhance($(id)));
   $("pos").addEventListener("change", () => { pickDefaults(); render(); });
   $("custom").addEventListener("input", render);
+
+  // the two status lines are links: they open the picture as a blob: address in a new tab
+  const blobUrls = [];
+  function openCanvas(c) {
+    try {
+      const bin = atob(c.toDataURL("image/png").split(",")[1]);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      const url = URL.createObjectURL(new Blob([bytes], { type: "image/png" }));
+      blobUrls.push(url);
+      window.open(url, "_blank", "noopener");
+    } catch (e) {}
+  }
+  function skinCanvas() {
+    const c = document.createElement("canvas"); c.width = c.height = 64;
+    c.getContext("2d").putImageData(current, 0, 0);
+    return c;
+  }
+  $("status").addEventListener("click", () => { if (current) openCanvas(skinCanvas()); });
+  $("msg3d").addEventListener("click", () => {
+    if (viewer) { try { viewer.render(); } catch (e) {} openCanvas($("view3d")); }
+    else if (current) openCanvas(skinCanvas());
+  });
 
   $("save").addEventListener("click", () => {
     if (!current) return;
