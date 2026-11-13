@@ -246,8 +246,9 @@ write("editor/index.html", page({
 <div class="note"><strong>Not tested in-game.</strong> Some eye shapes are less certain than others (see "How it works" below). Keep a copy of your original skin.</div>
 
 <div class="ed">
-  <div class="panel">
-    <h3>${ICON.person} 1. Skin</h3>
+  <div class="ed-col">
+  <section class="panel ecard">
+    <h3 class="ehead"><span class="tool-ic">${ICON.person}</span><span><b>1. Skin</b><small>Load your skin or start from Steve or Alex</small></span></h3>
     <label class="drop" id="drop">
       <input type="file" id="file" accept="image/png" class="vh">
       <span class="drop-ic">${ICON.up}</span>
@@ -262,13 +263,17 @@ write("editor/index.html", page({
       <label><input type="radio" name="fmt" id="fmtslim" value="slim"> Alex</label></p>
     <p><small>Steve = wide arms, Alex = slim arms. It is guessed from the skin when you load it; it only changes the 3D preview, not the file.</small></p>
 
-    <h3>${ICON.eye} 2. Eyes</h3>
+  </section>
+  <section class="panel ecard">
+    <h3 class="ehead"><span class="tool-ic">${ICON.eye}</span><span><b>2. Eyes</b><small>Shape and place of the eyes</small></span></h3>
     <p><label>Eye shape
       <select id="type"></select></label></p>
     <p><label>Position on the face
       <select id="pos"></select></label></p>
 
-    <h3>${ICON.brush} 3. Colours</h3>
+  </section>
+  <section class="panel ecard">
+    <h3 class="ehead"><span class="tool-ic">${ICON.brush}</span><span><b>3. Colours</b><small>Eyelid, eye white and pupil</small></span></h3>
     <p class="row"><label>Eyelid <input type="hidden" id="lid" value="#9b6349"><button type="button" class="sw" data-for="lid" aria-label="Choose colour"></button></label></p>
     <p class="row">
       <label id="whitewrap">Eye white <input type="hidden" id="white" value="#ffffff"><button type="button" class="sw" data-for="white" aria-label="Choose colour"></button></label>
@@ -288,13 +293,17 @@ write("editor/index.html", page({
       <div class="pk-sws" id="pk-basic"></div>
     </div>
 
-    <h3>${ICON.down} 4. Save</h3>
+  </section>
+  <section class="panel ecard">
+    <h3 class="ehead"><span class="tool-ic">${ICON.down}</span><span><b>4. Save</b><small>Download the finished skin</small></span></h3>
     <p><button type="button" class="btn" id="save" disabled>${ICON.down} Download skin (.png)</button></p>
     <p id="status" class="status"></p>
+  </section>
   </div>
 
-  <div class="panel">
-    <h3>${ICON.box} 3D preview</h3>
+  <div class="ed-col">
+  <section class="panel ecard">
+    <h3 class="ehead"><span class="tool-ic">${ICON.box}</span><span><b>3D preview</b><small>Drag to turn, scroll to zoom</small></span></h3>
     <div id="wrap3d">
       <canvas id="view3d" width="420" height="520"></canvas>
       <p class="row ctl">
@@ -310,13 +319,18 @@ write("editor/index.html", page({
       <small>Drag to turn the model, scroll to zoom. The preview shows the skin only; the blinking happens in-game.</small>
     </div>
     <p id="msg3d" class="status"></p>
-    <h3>${ICON.smile} Face</h3>
+  </section>
+  <section class="panel ecard">
+    <h3 class="ehead"><span class="tool-ic">${ICON.smile}</span><span><b>Face</b><small>How the eyes look on the skin</small></span></h3>
     <canvas id="face" width="256" height="256"></canvas>
-    <h3>${ICON.grid} Added pixels (top-left of the skin file)</h3>
+  </section>
+  <section class="panel ecard">
+    <h3 class="ehead"><span class="tool-ic">${ICON.grid}</span><span><b>Added pixels</b><small>Top-left corner of the skin file</small></span></h3>
     <canvas id="top" width="480" height="96"></canvas>
     <details id="flat"><summary>Whole skin file (flat)</summary>
       <canvas id="full" width="384" height="384"></canvas>
     </details>
+  </section>
   </div>
 </div>
 

@@ -388,3 +388,20 @@ header.top nav::-webkit-scrollbar { display: none; }
 @media (max-width: 560px) { .ver-ic { width: 28px; height: 28px; border-radius: 6px; } .ver-new { position: static; align-self: flex-start; } }
 
 .tool-img { flex: none; width: 48px; height: 48px; border-radius: 10px; image-rendering: pixelated; display: block; }
+
+/* editor: every step is its own card, like the Create cards */
+.ed { align-items: start; }
+.ed-col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.ed .panel.ecard { border-radius: 16px; padding: 16px; transition: border-color .12s; }
+.ed .panel.ecard:hover, .ed .panel.ecard:focus-within { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+.ed h3.ehead { display: flex; align-items: center; gap: 12px; margin: 0 0 14px; font-size: 18px; }
+.ed h3.ehead .tool-ic { width: 44px; height: 44px; }
+.ed h3.ehead .tool-ic .ic { width: 24px; height: 24px; margin: 0; }
+.ed h3.ehead > span:last-child { display: flex; flex-direction: column; min-width: 0; }
+.ed h3.ehead b { font-weight: 600; line-height: 1.2; }
+.ed h3.ehead small { font-size: 13px; font-weight: 400; color: var(--muted); }
+.ed .ecard > :last-child { margin-bottom: 0; }
+.ed .ecard .status:empty { display: none; }
+.ed .ecard canvas { border-radius: 10px; }
+.ed .ecard #view3d { width: 100%; }
+.ed .ecard details { margin-top: 12px; }
