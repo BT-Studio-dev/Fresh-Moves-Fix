@@ -381,3 +381,8 @@ header.top nav::-webkit-scrollbar { display: none; }
 .ver .tags .ic { width: 13px; height: 13px; }
 @media (max-width: 560px) { .versions { grid-template-columns: 1fr 1fr; } .ver .tool-ic { display: none; } }
 @media (hover: none) { .versions a.ver:hover { transform: none; } }
+
+.versions a.ver { position: relative; }
+.ver-ic { flex: none; width: 40px; height: 40px; border-radius: 8px; image-rendering: pixelated; display: block; }
+.ver-new { position: absolute; top: 10px; right: 10px; font-style: normal; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: #6fdc6f; color: #0d1420; }
+@media (max-width: 560px) { .ver-ic { width: 28px; height: 28px; border-radius: 6px; } .ver-new { position: static; align-self: flex-start; } }
