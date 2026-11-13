@@ -81,6 +81,7 @@ ${body}
   </div>
   <p class="legal">Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.</p>
 </div></footer>
+<script src="${up}i18n.js"></script>
 </body>
 </html>
 `;
@@ -96,6 +97,7 @@ fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 fs.copyFileSync(path.join(root, "pack.png"), path.join(out, "pack.png"));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
+fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(root, "docs/images/banner.png"), path.join(out, "banner.png"));
 
 // ---------- guides (from docs/*.md) ----------
@@ -276,8 +278,16 @@ write("settings/index.html", page({
   body: `<div class="wrap"><article>
 <h1>Settings</h1>
 <div class="set">
-  <div class="menu"><small>DISPLAY</small><span>Appearance</span></div>
-  <div class="box">
+  <div class="menu"><small>DISPLAY</small>
+    <button type="button" class="tab on" data-tab="appearance">Appearance</button>
+    <button type="button" class="tab" data-tab="language">Language</button></div>
+  <div class="box" id="tab-language" hidden>
+    <h2>Language</h2>
+    <div class="note">Only menus, buttons and the editor are translated. Guides and longer texts stay in English. The translations are machine-made and may contain mistakes.</div>
+    <p>Choose your preferred language for the site.</p>
+    <div class="langs" id="langs"></div>
+  </div>
+  <div class="box" id="tab-appearance">
     <h2>Color theme</h2>
     <p>Select your preferred color theme for this website. It is saved in this browser only.</p>
     <div class="themes">
@@ -297,7 +307,23 @@ write("settings/index.html", page({
     el.addEventListener("change",function(){ cur=el.value; try{localStorage.setItem(key,cur)}catch(e){} apply(cur); });
   });
   matchMedia("(prefers-color-scheme: light)").addEventListener("change",function(){ if(cur==="system") apply(cur); });
-})()</script>`,
+})()</script>
+<script>document.addEventListener("DOMContentLoaded",function(){
+  var tabs=document.querySelectorAll(".tab");
+  function show(id){ tabs.forEach(function(t){ var on=t.getAttribute("data-tab")===id; t.classList.toggle("on",on); document.getElementById("tab-"+t.getAttribute("data-tab")).hidden=!on; }); }
+  tabs.forEach(function(t){ t.addEventListener("click",function(){ var id=t.getAttribute("data-tab"); show(id); try{history.replaceState(null,"","#"+id)}catch(e){} }); });
+  if(location.hash==="#language") show("language");
+  var box=document.getElementById("langs"), api=window.fmfI18n; if(!api) return;
+  api.langs.forEach(function(l){
+    var lab=document.createElement("label"); lab.className="lang"+(api.get()===l[0]?" on":"");
+    var code=document.createElement("span"); code.className="code"; code.textContent=l[0].toUpperCase();
+    var name=document.createElement("b"); name.textContent=l[1]; name.setAttribute("translate","no");
+    var en=document.createElement("small"); en.textContent=l[1]===l[2]?"":l[2];
+    var inp=document.createElement("input"); inp.type="radio"; inp.name="lang"; inp.value=l[0]; inp.checked=api.get()===l[0];
+    inp.addEventListener("change",function(){ api.set(l[0]); box.querySelectorAll(".lang").forEach(function(x){x.classList.remove("on")}); lab.classList.add("on"); });
+    lab.appendChild(code); lab.appendChild(name); lab.appendChild(en); lab.appendChild(inp); box.appendChild(lab);
+  });
+});</script>`,
 }));
 
 // ---------- home ----------

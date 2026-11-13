@@ -218,3 +218,16 @@ input[type="checkbox"]:focus-visible, input[type="radio"]:focus-visible { outlin
 .ed .dd-opt { background: none; border: 0; color: var(--text); font: inherit; text-align: left; padding: 7px 10px; border-radius: 6px; cursor: pointer; }
 .ed .dd-opt:hover, .ed .dd-opt:focus-visible { background: var(--bg); outline: none; }
 .ed .dd-opt.on { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+
+/* settings: tabs and language list */
+.set .menu .tab { display: block; width: 100%; text-align: start; padding: 9px 12px; margin-top: 4px; border: 0; border-radius: 9px; font: inherit; font-weight: 700; color: var(--text); background: none; cursor: pointer; }
+.set .menu .tab:hover { background: var(--bg); }
+.set .menu .tab.on { color: var(--accent); background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.set .box .note { margin: 10px 0 14px; }
+.langs { display: flex; flex-direction: column; gap: 4px; }
+.langs .lang { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 1px solid transparent; border-radius: 10px; cursor: pointer; }
+.langs .lang:hover { background: var(--bg); }
+.langs .lang.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); }
+.langs .lang .code { font: 700 11px/1 monospace; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 4px 5px; min-width: 28px; text-align: center; }
+.langs .lang small { color: var(--muted); }
+.langs .lang input { margin-inline-start: auto; margin-inline-end: 0; }

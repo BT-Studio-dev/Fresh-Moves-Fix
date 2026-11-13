@@ -347,6 +347,8 @@
     menus.push(m); m.close(); m.sync();
   }
   function syncMenus() { menus.forEach((m) => m.sync()); }
+  document.addEventListener("fmf-lang", () => setTimeout(syncMenus, 0));
+  setTimeout(syncMenus, 0); // pick up translated option texts
   document.addEventListener("click", (e) => { if (!(e.target.closest && e.target.closest(".dd"))) closeMenus(); });
   document.querySelectorAll("[data-skin]").forEach((b) =>
     b.addEventListener("click", () => loadImage(b.dataset.skin, b.textContent.trim())));
