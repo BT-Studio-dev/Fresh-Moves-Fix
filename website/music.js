@@ -64,16 +64,22 @@
     paint();
   }
   function init() {
-    document.querySelectorAll("[data-music-toggle]").forEach(function (b) {
-      if (!AC) { b.hidden = true; return; }
-      b.addEventListener("click", function () { set(!on); });
+    // one set of listeners on the document, so they keep working when the page content is swapped
+    document.addEventListener("click", function (e) {
+      var b = e.target.closest && e.target.closest("[data-music-toggle]");
+      if (b) set(!on);
     });
-    document.querySelectorAll("[data-music-check]").forEach(function (c) { c.addEventListener("change", function () { set(c.checked); }); });
-    document.querySelectorAll("[data-music-volume]").forEach(function (r) {
-      r.addEventListener("input", function () { vol = Number(r.value); try { localStorage.setItem("fmf-volume", String(vol)); } catch (e) {} setGain(); });
+    document.addEventListener("change", function (e) {
+      if (e.target.matches && e.target.matches("[data-music-check]")) set(e.target.checked);
     });
+    document.addEventListener("input", function (e) {
+      if (!(e.target.matches && e.target.matches("[data-music-volume]"))) return;
+      vol = Number(e.target.value); try { localStorage.setItem("fmf-volume", String(vol)); } catch (err) {} setGain();
+    });
+    document.addEventListener("fmf-nav", paint);
+    if (!AC) document.querySelectorAll("[data-music-toggle]").forEach(function (b) { b.hidden = true; });
     paint();
-    // browsers only allow sound after a click or key press, so on a new page the music resumes on the first one
+    // browsers only allow sound after a click or key press, so after a full page load the music resumes on the first one
     if (on) {
       var kick = function () { if (on) start(); document.removeEventListener("pointerdown", kick); document.removeEventListener("keydown", kick); };
       document.addEventListener("pointerdown", kick); document.addEventListener("keydown", kick);

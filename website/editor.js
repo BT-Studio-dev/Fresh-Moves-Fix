@@ -192,6 +192,7 @@
     } catch (e) { $("msg3d").textContent = "3D preview could not show this skin."; }
   }
   ["fmtwide", "fmtslim"].forEach((id) => $(id).addEventListener("change", () => { if (current) update3d(current); }));
+  window.fmfCleanup = () => { try { if (viewer) viewer.dispose(); } catch (e) {} viewer = null; };
   $("anim").addEventListener("change", setAnim);
   $("spin").addEventListener("change", () => { if (viewer) viewer.autoRotate = $("spin").checked; });
   $("zoom").addEventListener("input", () => { if (viewer) viewer.zoom = Number($("zoom").value); });

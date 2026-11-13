@@ -84,6 +84,7 @@ ${body}
 </div></footer>
 <script src="${up}i18n.js"></script>
 <script src="${up}music.js"></script>
+<script src="${up}nav.js"></script>
 </body>
 </html>
 `;
@@ -101,6 +102,7 @@ fs.copyFileSync(path.join(root, "pack.png"), path.join(out, "pack.png"));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
+fs.copyFileSync(path.join(here, "nav.js"), path.join(out, "nav.js"));
 fs.copyFileSync(path.join(root, "docs/images/banner.png"), path.join(out, "banner.png"));
 
 // ---------- guides (from docs/*.md) ----------
@@ -291,7 +293,7 @@ write("settings/index.html", page({
     <p>A calm background tune, made by your browser (no music files). It is off until you turn it on, and saved in this browser only.</p>
     <p class="mrow"><label><input type="checkbox" data-music-check> Play music</label></p>
     <p class="mrow"><label>Volume <input type="range" min="0" max="100" value="40" data-music-volume></label></p>
-    <p><small>You can also use the &#9835; button at the top of every page. When you open another page, the music starts again after your first click.</small></p>
+    <p><small>You can also use the &#9835; button at the top of every page. The music keeps playing while you move between pages of this site.</small></p>
   </div>
   <div class="box" id="tab-language" hidden>
     <h2>Language</h2>
@@ -320,7 +322,7 @@ write("settings/index.html", page({
   });
   matchMedia("(prefers-color-scheme: light)").addEventListener("change",function(){ if(cur==="system") apply(cur); });
 })()</script>
-<script>document.addEventListener("DOMContentLoaded",function(){
+<script>(function(){function go(){
   var tabs=document.querySelectorAll(".tab");
   function show(id){ tabs.forEach(function(t){ var on=t.getAttribute("data-tab")===id; t.classList.toggle("on",on); document.getElementById("tab-"+t.getAttribute("data-tab")).hidden=!on; }); }
   tabs.forEach(function(t){ t.addEventListener("click",function(){ var id=t.getAttribute("data-tab"); show(id); try{history.replaceState(null,"","#"+id)}catch(e){} }); });
@@ -335,7 +337,8 @@ write("settings/index.html", page({
     inp.addEventListener("change",function(){ api.set(l[0]); box.querySelectorAll(".lang").forEach(function(x){x.classList.remove("on")}); lab.classList.add("on"); });
     lab.appendChild(code); lab.appendChild(name); lab.appendChild(en); lab.appendChild(inp); box.appendChild(lab);
   });
-});</script>`,
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",go); else go();})()</script>`,
 }));
 
 // ---------- home ----------
