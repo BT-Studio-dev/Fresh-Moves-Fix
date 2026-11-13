@@ -151,19 +151,18 @@ const docs = fs.readdirSync(docsDir)
 const bySource = new Map(docs.map((d) => [d.file, d]));
 
 function renderDoc(md) {
-  // bare GitHub attachment links are videos: turn them into readable links
-  md = md.replace(/^(https:\/\/github\.com\/\S+\/assets\/\S+)\s*$/gm, "%%VIDEO%%$1%%END%%");
+  // bare GitHub attachment links are videos: show a video card with the player on the page,
+  // and a plain link below in case it does not load
+  md = md.replace(/^(https:\/\/github\.com\/\S+\/assets\/\S+)\s*$/gm, (m, url) =>
+    `\n<figure class="video-card"><div class="video-head">${ICON.play}<span>Video</span></div>` +
+    `<video controls playsinline preload="metadata" src="${url}"></video>` +
+    `<figcaption>If the video does not play, <a href="${url}" target="_blank">open it on GitHub</a>. The website music pauses while the video plays.</figcaption></figure>\n`);
   let html = marked.parse(md);
   // links between docs -> links between pages
   html = html.replace(/href="<?([^"]+?\.md)>?"/g, (m, target) => {
     const d = bySource.get(decodeURIComponent(target));
     return d ? `href="../${d.slug}/"` : m;
   });
-  // a video card: the player on the page, with a plain link below in case it does not load
-  html = html.replace(/<p>%%VIDEO%%(.+?)%%END%%<\/p>/g, (m, url) =>
-    `<figure class="video-card"><div class="video-head">${ICON.play}<span>Video</span></div>` +
-    `<video controls playsinline preload="metadata" src="${url}"></video>` +
-    `<figcaption>If the video does not play, <a href="${url}" target="_blank">open it on GitHub</a>. The website music pauses while the video plays.</figcaption></figure>`);
   html = html.replace(/%%PLAY%%/g, ICON.play);
   return html.replace(/<a href="http/g, '<a rel="noopener" href="http').replace(/<img /g, '<img loading="lazy" ');
 }
