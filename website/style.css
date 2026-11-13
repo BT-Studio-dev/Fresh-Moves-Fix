@@ -581,3 +581,7 @@ html[data-theme="glass"] { background: #0a1210; }
 
 .ed a.status { text-decoration: none; }
 .ed a.status:hover, .ed a.status:focus-visible { text-decoration: underline; }
+
+.ed .pick.three { grid-template-columns: repeat(3, 1fr); }
+.ed .pick.three .pickb { flex-direction: column; text-align: center; gap: 6px; padding: 10px 6px; }
+.ed .pick.three .pickb > span { align-items: center; }

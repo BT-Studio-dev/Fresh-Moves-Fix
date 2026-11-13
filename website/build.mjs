@@ -149,7 +149,7 @@ fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 fs.copyFileSync(path.join(root, "pack.png"), path.join(out, "pack.png"));
 fs.copyFileSync(path.join(here, "title.png"), path.join(out, "title.png"));
-for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
+for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "dummy.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
@@ -253,16 +253,17 @@ write("editor/index.html", page({
 <div class="ed">
   <div class="ed-col">
   <section class="panel ecard">
-    <h3 class="ehead"><canvas id="skinicon" class="tool-img" width="8" height="8" style="background-image:url(../icon-skin.png)" aria-hidden="true"></canvas><span><b>1. Skin</b><small>Load your skin or start from Steve or Alex</small></span></h3>
+    <h3 class="ehead"><canvas id="skinicon" class="tool-img" width="8" height="8" style="background-image:url(../icon-skin.png)" aria-hidden="true"></canvas><span><b>1. Skin</b><small>Load your skin or start from Steve, Alex or a dummy</small></span></h3>
     <label class="drop" id="drop">
       <input type="file" id="file" accept="image/png" class="vh">
       <span class="drop-ic">${ICON.up}</span>
       <span><b>Choose your skin file</b><br><small id="filename">or drop the .png here</small></span>
     </label>
     <p class="elabel">Or start from a default skin</p>
-    <div class="pick">
+    <div class="pick three">
       <button type="button" class="pickb" id="steve" data-name="Steve" data-skin="${skinData("wide/steve.png")}"><img src="../icon-skin.png" alt="" width="36" height="36"><span><b>Steve</b><small>Default skin</small></span></button>
       <button type="button" class="pickb" data-name="Alex" data-skin="${skinData("slim/alex.png")}"><img src="../icon-alex.png" alt="" width="36" height="36"><span><b>Alex</b><small>Default skin</small></span></button>
+      <button type="button" class="pickb" data-name="Dummy" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "dummy.png")).toString("base64")}"><img src="../icon-dummy.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Blank face, no eyes</small></span></button>
     </div>
     <p class="elabel">Format</p>
     <div class="pick">
