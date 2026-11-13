@@ -479,3 +479,48 @@ header.top .brand img { border-radius: 10px; }
 @media (max-width: 860px) { header.top nav { border-radius: 12px; } }
 @media (hover: none) { header.top .get:hover { transform: none; } }
 header.top nav { box-sizing: border-box; }
+
+/* settings in the new card look */
+.set .menu, .set .box { border-radius: 16px; }
+.set .menu { padding: 12px; }
+.set .menu .tab { display: flex; align-items: center; gap: 4px; padding: 10px 12px; border: 1px solid transparent; border-radius: 12px; font-weight: 600; transition: border-color .12s, background .12s; }
+.set .menu .tab:hover { border-color: var(--line); }
+.set .menu .tab.on { border-color: color-mix(in srgb, var(--accent) 60%, transparent); background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.set .box h2.shead { display: flex; align-items: center; gap: 12px; margin: 0 0 14px; font-size: 19px; }
+.set .box h2.shead .tool-ic { width: 44px; height: 44px; }
+.set .box h2.shead .tool-ic .ic { width: 24px; height: 24px; margin: 0; }
+.set .box h2.shead > span:last-child { display: flex; flex-direction: column; min-width: 0; }
+.set .box h2.shead b { font-weight: 600; line-height: 1.2; }
+.set .box h2.shead small { font-size: 13px; font-weight: 400; color: var(--muted); }
+.mtiles { display: flex; flex-direction: column; gap: 10px; }
+.mtile { display: flex; align-items: center; gap: 12px; padding: 12px 14px; min-height: 52px; box-sizing: border-box; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; cursor: pointer; transition: border-color .12s, background .12s; }
+.mtile:hover, .mtile:focus-within { border-color: var(--accent); }
+.mtile:has(input[type="checkbox"]:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
+.mtile > span { display: flex; flex-direction: column; line-height: 1.25; }
+.mtile b { font-weight: 600; }
+.mtile small { font-size: 12px; color: var(--muted); }
+.mtile i { font-style: normal; margin-inline-start: auto; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 14px; }
+.mtile input[type="checkbox"] { margin: 0; flex: none; }
+.mtile input[type="range"] { flex: 1; min-width: 0; accent-color: var(--accent); margin: 0; }
+.mtile .mt-ic { flex: none; width: 18px; color: var(--accent); align-items: center; }
+.set .box > p.shint { display: flex; gap: 8px; align-items: flex-start; margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--bg); color: var(--muted); font-size: 13px; line-height: 1.5; }
+.shint .ic { flex: none; width: 16px; height: 16px; margin-top: 2px; color: var(--accent); }
+.langs { gap: 8px; }
+.langs .lang { padding: 11px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); transition: border-color .12s, background .12s; }
+.langs .lang:hover { border-color: var(--accent); background: var(--bg); }
+.langs .lang.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
+.themes label { border-radius: 14px; transition: border-color .12s, transform .12s; }
+.themes label:hover { border-color: var(--accent); transform: translateY(-1px); }
+.themes label:has(input:checked) { background: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
+@media (hover: none) { .themes label:hover { transform: none; } }
+
+/* music card under the music button in the new card look */
+header.top .snd-box { gap: 8px; width: 260px; padding: 12px; }
+header.top .snd-head { gap: 10px; padding: 2px 2px 6px; font-size: 15px; }
+header.top .snd-head svg { box-sizing: content-box; width: 20px; height: 20px; padding: 10px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 22%, transparent); flex: none; }
+header.top .snd-line { padding: 9px 12px; min-height: 42px; box-sizing: border-box; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; font-weight: 600; transition: border-color .12s, background .12s; }
+header.top .snd-line:hover, header.top .snd-line:focus-within { border-color: var(--accent); }
+header.top .snd-line:has(input[type="checkbox"]:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
+header.top .snd-more { padding: 9px 12px; border: 1px solid var(--line); border-radius: 12px; color: var(--text); transition: border-color .12s, color .12s; }
+header.top .snd-more:hover { border-color: var(--accent); }
+header.top .snd-more svg { color: var(--accent); }

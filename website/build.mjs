@@ -385,21 +385,22 @@ write("settings/index.html", page({
     <small>SOUND</small>
     <button type="button" class="tab" data-tab="music">${ICON.music} Music</button></div>
   <div class="box" id="tab-music" hidden>
-    <h2>${ICON.music} Music</h2>
+    <h2 class="shead"><span class="tool-ic">${ICON.music}</span><span><b>Music</b><small>Background song for the website</small></span></h2>
     <p>A calm background song, 3 minutes 34 seconds long, made by your browser (no music files). It repeats when it ends. It is off until you turn it on, and saved in this browser only.</p>
-    <p class="mrow">${ICON.music} <b data-music-time>0:00 / 3:34</b></p>
-    <p class="mrow"><label><input type="checkbox" data-music-check> Play music</label></p>
-    <p class="mrow"><label>Volume <input type="range" min="0" max="100" value="40" data-music-volume></label></p>
-    <p><small>You can also use the music button at the top of every page. The music keeps playing while you move between pages of this site.</small></p>
+    <div class="mtiles">
+      <label class="mtile"><input type="checkbox" data-music-check><span><b>Play music</b><small data-music-state>Music: off</small></span><i data-music-time>0:00 / 3:34</i></label>
+      <label class="mtile"><span class="mt-ic">${ICON.music}</span><span><b>Volume</b></span><input type="range" min="0" max="100" value="40" data-music-volume></label>
+    </div>
+    <p class="shint">${ICON.info} You can also use the music button at the top of every page. The music keeps playing while you move between pages of this site.</p>
   </div>
   <div class="box" id="tab-language" hidden>
-    <h2>${ICON.globe} Language</h2>
+    <h2 class="shead"><span class="tool-ic">${ICON.globe}</span><span><b>Language</b><small>Language of menus and buttons</small></span></h2>
     <div class="note">Only menus, buttons and the editor are translated. Guides and longer texts stay in English. The translations are machine-made and may contain mistakes.</div>
     <p>Choose your preferred language for the site.</p>
     <div class="langs" id="langs"></div>
   </div>
   <div class="box" id="tab-appearance">
-    <h2>${ICON.brush} Color theme</h2>
+    <h2 class="shead"><span class="tool-ic">${ICON.brush}</span><span><b>Color theme</b><small>Light, dark or OLED</small></span></h2>
     <p>Select your preferred color theme for this website. It is saved in this browser only.</p>
     <div class="themes">
       ${themeCard("system", "Sync with system", "linear-gradient(90deg,#f4f6f5 50%,#0f1412 50%)", "#18201c", "#2a3630", "#9aa8a0")}
