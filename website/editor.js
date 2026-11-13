@@ -198,22 +198,53 @@
   // ---- 3D preview (skinview3d). Falls back to the flat skin when WebGL is not available. ----
   let viewer = null, failed3d = false;
   const tex = document.createElement("canvas"); tex.width = tex.height = 64;
+  // why 3D cannot start, in plain words
+  function why3d(e) {
+    if (!window.skinview3d) return "The 3D part of the page did not load. Check your internet connection.";
+    let gl = null;
+    try { const c = document.createElement("canvas"); gl = c.getContext("webgl2") || c.getContext("webgl"); } catch (x) {}
+    if (!gl) return "Your browser has 3D graphics (WebGL) switched off right now. Close the browser completely and open it again. If that does not help, turn on graphics acceleration in the browser settings (Chrome: Settings > System).";
+    try { const x = gl.getExtension("WEBGL_lose_context"); if (x) x.loseContext(); } catch (x) {}
+    return "The 3D preview could not start (" + String((e && e.message) || e).slice(0, 120) + ").";
+  }
+  function fresh3d() { // a canvas that failed once cannot be used again
+    const old = $("view3d"), cv = document.createElement("canvas");
+    cv.id = "view3d"; cv.width = old.width; cv.height = old.height; old.replaceWith(cv);
+    cv.addEventListener("webglcontextlost", () => { if (viewer) fail3d(new Error("the browser stopped the 3D picture")); });
+  }
+  function fail3d(e) {
+    try { if (viewer) viewer.dispose(); } catch (x) {}
+    failed3d = true; viewer = null;
+    $("wrap3d").style.display = "none";
+    $("flat").open = true;
+    $("msg3d").textContent = "3D preview is not available in this browser; showing the flat skin instead.";
+    $("why3d").hidden = false; $("why3dtext").textContent = why3d(e);
+  }
+  function start3d() {
+    const cv = $("view3d");
+    viewer = new skinview3d.SkinViewer({ canvas: cv, width: cv.width, height: cv.height, zoom: Number($("zoom").value) });
+    viewer.autoRotate = $("spin").checked;
+    setAnim();
+    $("wrap3d").style.display = ""; $("why3d").hidden = true;
+    $("msg3d").textContent = "3D preview on.";
+  }
   function init3d() {
     if (viewer || failed3d) return;
     try {
       if (!window.skinview3d) throw new Error("library not loaded");
-      const cv = $("view3d");
-      viewer = new skinview3d.SkinViewer({ canvas: cv, width: cv.width, height: cv.height, zoom: Number($("zoom").value) });
-      viewer.autoRotate = false;
-      setAnim();
-      $("msg3d").textContent = "3D preview on.";
-    } catch (e) {
-      failed3d = true; viewer = null;
-      $("wrap3d").style.display = "none";
-      $("flat").open = true;
-      $("msg3d").textContent = "3D preview is not available in this browser; showing the flat skin instead.";
-    }
+      start3d();
+    } catch (e) { fail3d(e); }
   }
+  // "Try again": load the 3D part again if it is missing, then start on a new canvas
+  function retry3d() {
+    const go = () => { failed3d = false; viewer = null; fresh3d(); if (current) update3d(current); else init3d(); };
+    $("why3dtext").textContent = "Trying again...";
+    if (window.skinview3d) return go();
+    const sc = document.createElement("script");
+    sc.src = "../skinview3d.bundle.js?r=" + Date.now(); sc.onload = sc.onerror = go; document.body.appendChild(sc);
+  }
+  $("retry3d").addEventListener("click", retry3d);
+  $("view3d").addEventListener("webglcontextlost", () => { if (viewer) fail3d(new Error("the browser stopped the 3D picture")); });
   function setAnim() {
     if (!viewer) return;
     const A = { idle: skinview3d.IdleAnimation, walk: skinview3d.WalkingAnimation, run: skinview3d.RunningAnimation, wave: skinview3d.WaveAnimation }[$("anim").value];
@@ -228,7 +259,7 @@
     } catch (e) { $("msg3d").textContent = "3D preview could not show this skin."; }
   }
   ["fmtwide", "fmtslim"].forEach((id) => $(id).addEventListener("change", () => { if (current) update3d(current); }));
-  window.fmfCleanup = () => { try { if (viewer) viewer.dispose(); } catch (e) {} viewer = null; try { blobUrls.forEach((u) => URL.revokeObjectURL(u)); } catch (e) {} };
+  window.fmfCleanup = () => { try { if (viewer) { const r = viewer.renderer; viewer.dispose(); if (r && r.forceContextLoss) r.forceContextLoss(); } } catch (e) {} viewer = null; try { blobUrls.forEach((u) => URL.revokeObjectURL(u)); } catch (e) {} };
   $("anim").addEventListener("change", setAnim);
   $("spin").addEventListener("change", () => { if (viewer) viewer.autoRotate = $("spin").checked; });
   $("zoom").addEventListener("input", () => { if (viewer) viewer.zoom = Number($("zoom").value); });

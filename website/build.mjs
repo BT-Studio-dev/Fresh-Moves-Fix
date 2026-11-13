@@ -333,6 +333,11 @@ write("editor/index.html", page({
       </p>
       <p class="ehint">${ICON.info} Drag to turn the model, scroll to zoom. The preview shows the skin only; the blinking happens in-game.</p>
     </div>
+    <div class="why3d" id="why3d" hidden>
+      <p>${ICON.info} <span id="why3dtext"></span></p>
+      <p>You can still edit and download your skin; only the turning model is missing. <a href="https://get.webgl.org" target="_blank" rel="noopener">Test 3D in this browser</a></p>
+      <button type="button" class="btn" id="retry3d">Try again</button>
+    </div>
     <p class="statline"><a id="msg3d" class="status" href="#" target="_blank" rel="noopener" title="Open a picture of the 3D preview in a new tab"></a></p>
   </section>
   <section class="panel ecard">

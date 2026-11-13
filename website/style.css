@@ -604,3 +604,10 @@ html[data-theme="glass"] { background: #0a1210; }
 .reltime { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .93rem; margin: -4px 0 14px; }
 .reltime[hidden] { display: none; }
 .reltime b, .reltime time { color: var(--text); }
+
+/* editor: why the 3D preview is off + "Try again" */
+.ed .why3d { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 0 0 12px; background: var(--bg); font-size: .93rem; }
+.ed .why3d[hidden] { display: none; }
+.ed .why3d p { margin: 0 0 8px; }
+.ed .why3d svg { vertical-align: -3px; }
+[data-theme="glass"] .ed .why3d { background: rgba(0, 0, 0, .25); }
