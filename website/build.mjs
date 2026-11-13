@@ -304,7 +304,7 @@ write("editor/index.html", page({
   <section class="panel ecard">
     <h3 class="ehead"><span class="tool-ic">${ICON.down}</span><span><b>4. Save</b><small>Download the finished skin</small></span></h3>
     <p><button type="button" class="btn" id="save" disabled>${ICON.down} Download skin (.png)</button></p>
-    <p class="statline"><button type="button" id="status" class="status" title="Open the skin picture in a new tab"></button></p>
+    <p class="statline"><a id="status" class="status" href="#" target="_blank" rel="noopener" title="Open the skin picture in a new tab"></a></p>
   </section>
   </div>
 
@@ -325,7 +325,7 @@ write("editor/index.html", page({
       </p>
       <p class="ehint">${ICON.info} Drag to turn the model, scroll to zoom. The preview shows the skin only; the blinking happens in-game.</p>
     </div>
-    <p class="statline"><button type="button" id="msg3d" class="status" title="Open a picture of the 3D preview in a new tab"></button></p>
+    <p class="statline"><a id="msg3d" class="status" href="#" target="_blank" rel="noopener" title="Open a picture of the 3D preview in a new tab"></a></p>
   </section>
   <section class="panel ecard">
     <h3 class="ehead"><span class="tool-ic">${ICON.smile}</span><span><b>Face</b><small>How the eyes look on the skin</small></span></h3>

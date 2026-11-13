@@ -408,27 +408,37 @@
   $("pos").addEventListener("change", () => { pickDefaults(); render(); });
   $("custom").addEventListener("input", render);
 
-  // the two status lines are links: they open the picture as a blob: address in a new tab
+  // the two status lines are real links: just before one is used, its address is set to a fresh
+  // blob: address of the picture, so a click, "open in new tab" and "copy link" all work
   const blobUrls = [];
-  function openCanvas(c) {
-    try {
-      const bin = atob(c.toDataURL("image/png").split(",")[1]);
-      const bytes = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-      const url = URL.createObjectURL(new Blob([bytes], { type: "image/png" }));
-      blobUrls.push(url);
-      window.open(url, "_blank", "noopener");
-    } catch (e) {}
+  function blobOf(c) {
+    const bin = atob(c.toDataURL("image/png").split(",")[1]);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const url = URL.createObjectURL(new Blob([bytes], { type: "image/png" }));
+    blobUrls.push(url);
+    return url;
   }
   function skinCanvas() {
     const c = document.createElement("canvas"); c.width = c.height = 64;
     c.getContext("2d").putImageData(current, 0, 0);
     return c;
   }
-  $("status").addEventListener("click", () => { if (current) openCanvas(skinCanvas()); });
-  $("msg3d").addEventListener("click", () => {
-    if (viewer) { try { viewer.render(); } catch (e) {} openCanvas($("view3d")); }
-    else if (current) openCanvas(skinCanvas());
+  function blobLink(a, picture) {
+    let made = 0;
+    const prepare = () => {
+      if (!current || Date.now() - made < 400) return; // one picture per use, not one per event
+      try { a.href = blobOf(picture()); made = Date.now(); } catch (e) {}
+    };
+    ["pointerdown", "mouseenter", "focus", "touchstart", "contextmenu"].forEach((t) => a.addEventListener(t, prepare));
+    a.addEventListener("keydown", (e) => { if (e.key === "Enter") prepare(); });
+    a.addEventListener("click", (e) => { if (String(a.getAttribute("href") || "").indexOf("blob:") !== 0) e.preventDefault(); });
+  }
+  blobLink($("status"), skinCanvas);
+  blobLink($("msg3d"), () => {
+    if (!viewer) return skinCanvas();
+    try { viewer.render(); } catch (e) {}
+    return $("view3d");
   });
 
   $("save").addEventListener("click", () => {

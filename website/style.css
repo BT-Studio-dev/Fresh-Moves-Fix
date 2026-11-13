@@ -438,11 +438,11 @@ header.top nav::-webkit-scrollbar { display: none; }
 
 /* editor: status lines as link pills that open the picture (blob: address) */
 .ed .statline { margin: 12px 0 0; }
-.ed button.status { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; min-height: 0; padding: 5px 14px; border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); font: inherit; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; transition: background .12s; }
-.ed button.status::after { content: "\2197"; font-weight: 700; }
-.ed button.status:hover, .ed button.status:focus-visible { background: color-mix(in srgb, var(--accent) 26%, transparent); text-decoration: underline; outline: none; }
-.ed button.status.bad { color: #ff8a7a; border-color: #ff8a7a66; background: #ff8a7a1f; }
-.ed button.status:empty { display: none; }
+.ed a.status { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; min-height: 0; padding: 5px 14px; border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); font: inherit; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; transition: background .12s; }
+.ed a.status::after { content: "\2197"; font-weight: 700; }
+.ed a.status:hover, .ed a.status:focus-visible { background: color-mix(in srgb, var(--accent) 26%, transparent); text-decoration: underline; outline: none; }
+.ed a.status.bad { color: #ff8a7a; border-color: #ff8a7a66; background: #ff8a7a1f; }
+.ed a.status:empty { display: none; }
 
 /* editor: Eyes, Colours and 3D controls in the new card look */
 .ed .ecard p:not(.ctl) > label:has(> select) { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
@@ -578,3 +578,6 @@ html[data-theme="glass"] { background: #0a1210; }
 [data-theme="glass"] .ed .panel:has(.dd-btn[aria-expanded="true"]) { z-index: 30; }
 
 .ed h3.ehead canvas.tool-img { width: 44px; height: 44px; border: 0; border-radius: 10px; background-size: cover; image-rendering: pixelated; }
+
+.ed a.status { text-decoration: none; }
+.ed a.status:hover, .ed a.status:focus-visible { text-decoration: underline; }
