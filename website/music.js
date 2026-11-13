@@ -123,6 +123,15 @@
       if (!(e.target.matches && e.target.matches("[data-music-volume]"))) return;
       vol = Number(e.target.value); try { localStorage.setItem("fmf-volume", String(vol)); } catch (err) {} setGain();
     });
+    // the music waits while a video on the page is playing
+    var held = false;
+    function release() { if (held) { held = false; if (on && ctx) ctx.resume(); } }
+    document.addEventListener("play", function (e) {
+      if (e.target.tagName === "VIDEO" && on && ctx && ctx.state === "running") { held = true; ctx.suspend(); }
+    }, true);
+    document.addEventListener("pause", function (e) { if (e.target.tagName === "VIDEO") release(); }, true);
+    document.addEventListener("ended", function (e) { if (e.target.tagName === "VIDEO") release(); }, true);
+    document.addEventListener("fmf-nav", release);
     document.addEventListener("fmf-nav", paint);
     if (!AC) document.querySelectorAll("[data-music-toggle]").forEach(function (b) { b.hidden = true; });
     paint();

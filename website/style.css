@@ -284,3 +284,10 @@ article a .ic { vertical-align: -4px; }
 .set .menu .tab .ic { margin-inline-end: 8px; width: 17px; height: 17px; }
 .ed .panel h3 .ic { margin-inline-end: 8px; }
 @media (max-width: 600px) { .guide-nav { grid-template-columns: 1fr; } }
+
+/* video card on guide pages */
+.video-card { margin: 20px 0; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); overflow: hidden; max-width: 860px; }
+.video-card .video-head { display: flex; align-items: center; gap: 8px; padding: 10px 14px; font-weight: 700; border-bottom: 1px solid var(--line); }
+.video-card .video-head svg { color: var(--accent); }
+.video-card video { display: block; width: 100%; max-height: 70vh; background: #000; }
+.video-card figcaption { padding: 10px 14px; color: var(--muted); font-size: 14px; }
