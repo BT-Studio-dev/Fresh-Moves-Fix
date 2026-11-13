@@ -68,7 +68,7 @@ function page({ title, body, depth = 0, description = "", active = "" }) {
 if(t==="system")t=window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
 document.documentElement.setAttribute("data-theme",t);
 try{var c=localStorage.getItem("fmf-cursor");if(c==="off"||c==="black"||c==="green"||c==="gold")document.documentElement.setAttribute("data-cursor",c);
-var z=localStorage.getItem("fmf-cursor-size");if(z==="m"||z==="l")document.documentElement.setAttribute("data-cursor-size",z)}catch(e){}})()</script>
+var z=localStorage.getItem("fmf-cursor-size");if(z==="m"||z==="l"||z==="x")document.documentElement.setAttribute("data-cursor-size",z)}catch(e){}})()</script>
 <link rel="icon" href="${up}pack.png">
 <link rel="stylesheet" href="${up}style.css">
 </head>
@@ -146,6 +146,8 @@ fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
 fs.copyFileSync(path.join(here, "nav.js"), path.join(out, "nav.js"));
 fs.copyFileSync(path.join(here, "tip.js"), path.join(out, "tip.js"));
+fs.mkdirSync(path.join(out, "cursors"), { recursive: true });
+for (const f of fs.readdirSync(path.join(here, "cursors"))) fs.copyFileSync(path.join(here, "cursors", f), path.join(out, "cursors", f));
 // flag pictures for the language list (flag-icons, MIT), so no flag emoji are needed
 fs.mkdirSync(path.join(out, "flags"), { recursive: true });
 for (const f of ["us", "eg", "de", "es", "fr", "it", "br", "ru", "pl", "ua", "tr", "cn", "jp"])
@@ -385,7 +387,9 @@ write("settings/index.html", page({
       ${sizeCard("s", "Small (34 pixels)")}
       ${sizeCard("m", "Medium (51 pixels)")}
       ${sizeCard("l", "Large (64 pixels)")}
+      ${sizeCard("x", "Huge (128 pixel image)")}
     </div>
+    <p class="curdl">The huge pointer is a 128 x 128 pixel .png (shown smaller on the card). Download the files: <a href="../cursors/cursor-white-128.png" download>${ICON.down} White</a><a href="../cursors/cursor-black-128.png" download>${ICON.down} Black</a><a href="../cursors/cursor-green-128.png" download>${ICON.down} Green</a><a href="../cursors/cursor-gold-128.png" download>${ICON.down} Gold</a></p>
   </div>
 </div>
 </article></div>
@@ -393,7 +397,7 @@ write("settings/index.html", page({
   var cur="white"; try{cur=localStorage.getItem("fmf-cursor")||"white"}catch(e){}
   if(["white","black","green","gold","off"].indexOf(cur)<0) cur="white";
   var size="s"; try{size=localStorage.getItem("fmf-cursor-size")||"s"}catch(e){}
-  if(["s","m","l"].indexOf(size)<0) size="s";
+  if(["s","m","l","x"].indexOf(size)<0) size="s";
   document.querySelectorAll('input[name="cursize"]').forEach(function(el){
     el.checked = el.value===size;
     el.addEventListener("change",function(){ size=el.value; try{localStorage.setItem("fmf-cursor-size",size)}catch(e){}
