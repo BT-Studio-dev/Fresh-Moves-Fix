@@ -71,7 +71,7 @@
     $("status").className = bad ? "status bad" : "status";
   }
 
-  function loadImage(src, name) {
+  function loadImage(src, name, preset) {
     const img = new Image();
     img.onload = () => {
       if (img.width !== 64 || img.height !== 64) {
@@ -89,6 +89,11 @@
       const slim = original.data[idx(54, 20) + 3] === 0;
       $("fmtslim").checked = slim; $("fmtwide").checked = !slim;
       setStatus(`Loaded ${name}.`);
+      if (preset && TYPES[preset.type]) { // start skins that already have eyes choose the matching shape and place
+        $("type").value = preset.type; fillPositions();
+        if (TYPES[preset.type].variants[preset.pos]) $("pos").value = preset.pos;
+        syncMenus();
+      }
       pickDefaults();
       render();
     };
@@ -395,7 +400,7 @@
   setTimeout(syncMenus, 0); // pick up translated option texts
   document.addEventListener("click", (e) => { if (!(e.target.closest && e.target.closest(".dd"))) closeMenus(); });
   document.querySelectorAll("[data-skin]").forEach((b) =>
-    b.addEventListener("click", () => loadImage(b.dataset.skin, b.dataset.name || b.textContent.trim())));
+    b.addEventListener("click", () => loadImage(b.dataset.skin, b.dataset.name || b.textContent.trim(), b.dataset.type ? { type: b.dataset.type, pos: b.dataset.pos } : null)));
   for (const [key, t] of Object.entries(TYPES)) {
     const o = document.createElement("option");
     o.value = key; o.textContent = t.label;
