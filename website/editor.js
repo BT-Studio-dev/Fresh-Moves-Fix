@@ -196,9 +196,89 @@
   $("spin").addEventListener("change", () => { if (viewer) viewer.autoRotate = $("spin").checked; });
   $("zoom").addEventListener("input", () => { if (viewer) viewer.zoom = Number($("zoom").value); });
 
+  // ---- colour picker card (replaces the browser's own colour dialog) ----
+  const BASIC = ["#ffffff", "#d9d9d9", "#9a9a9a", "#4d4d4d", "#000000", "#3e2b18", "#6b4226", "#a9744f", "#d4ae87", "#f2d3b3",
+    "#c0392b", "#e67e22", "#f1c40f", "#2ecc71", "#1abc9c", "#3b82c4", "#1f4e9e", "#523d89", "#9b59b6", "#e84393"];
+  let pkFor = null, pkH = 0, pkS = 0, pkV = 1;
+  const toHex = (c) => "#" + c.map((x) => Math.round(x).toString(16).padStart(2, "0")).join("");
+  function hsv2rgb(h, sa, va) {
+    const f = (n) => { const k = (n + h / 60) % 6; return 255 * (va - va * sa * Math.max(0, Math.min(k, 4 - k, 1))); };
+    return [f(5), f(3), f(1)];
+  }
+  function rgb2hsv([r, g, b]) {
+    r /= 255; g /= 255; b /= 255;
+    const mx = Math.max(r, g, b), d = mx - Math.min(r, g, b);
+    let h = 0;
+    if (d) h = mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    return [h * 60, mx ? d / mx : 0, mx];
+  }
+  function syncSwatches() {
+    document.querySelectorAll(".sw[data-for]").forEach((b) => { b.style.background = $(b.dataset.for).value; });
+  }
+  function pkDraw() {
+    const cv = $("pk-sv"), ctx = cv.getContext("2d"), w = cv.width, h = cv.height;
+    ctx.fillStyle = toHex(hsv2rgb(pkH, 1, 1)); ctx.fillRect(0, 0, w, h);
+    let g = ctx.createLinearGradient(0, 0, w, 0); g.addColorStop(0, "#fff"); g.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+    g = ctx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(1, "#000");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+    ctx.beginPath(); ctx.arc(pkS * w, (1 - pkV) * h, 6, 0, 7);
+    ctx.lineWidth = 2; ctx.strokeStyle = pkV > 0.5 ? "#000" : "#fff"; ctx.stroke();
+  }
+  function pkApply(hexv, keepHsv) {
+    if (!pkFor) return;
+    if (!keepHsv) { const [h, sa, va] = rgb2hsv(rgb(hexv)); if (sa > 0 && va > 0) pkH = h; pkS = sa; pkV = va; $("pk-hue").value = Math.round(pkH); }
+    $(pkFor).value = hexv;
+    $("pk-hex").value = hexv; $("pk-now").style.background = hexv;
+    pkDraw();
+    if (pkFor !== "lid") $("custom").checked = true;
+    render();
+  }
+  function pkSwatches(box, list) {
+    box.innerHTML = "";
+    for (const c of list) {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "sw small"; b.style.background = c; b.title = c;
+      b.addEventListener("click", () => pkApply(c));
+      box.appendChild(b);
+    }
+  }
+  function pkOpen(btn) {
+    const id = btn.dataset.for;
+    if (pkFor === id && !$("picker").hidden) { pkClose(); return; }
+    pkFor = id;
+    $("pk-title").textContent = { lid: "Eyelid colour", white: "Eye white colour", pupil: $("pupilname").textContent + " colour" }[id];
+    const seen = [];
+    if (original) for (let y = 8; y < 16; y++) for (let x = 8; x < 16; x++) { const c = hex(original.data, idx(x, y)); if (!seen.includes(c)) seen.push(c); }
+    pkSwatches($("pk-skin"), seen.slice(0, 20));
+    pkSwatches($("pk-basic"), BASIC);
+    btn.closest("p").after($("picker"));
+    $("picker").hidden = false;
+    const custom = $("custom").checked;
+    pkApply($(id).value);
+    $("custom").checked = custom; render(); // opening the card must not change anything
+  }
+  function pkClose() { $("picker").hidden = true; pkFor = null; }
+  function pkPoint(e) {
+    const r = $("pk-sv").getBoundingClientRect();
+    pkS = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+    pkV = 1 - Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
+    pkApply(toHex(hsv2rgb(pkH, pkS, pkV)), true);
+  }
+  document.querySelectorAll(".sw[data-for]").forEach((b) => b.addEventListener("click", () => pkOpen(b)));
+  $("pk-close").addEventListener("click", pkClose);
+  $("pk-sv").addEventListener("pointerdown", (e) => { $("pk-sv").setPointerCapture(e.pointerId); pkPoint(e); });
+  $("pk-sv").addEventListener("pointermove", (e) => { if (e.buttons) pkPoint(e); });
+  $("pk-hue").addEventListener("input", () => { pkH = Number($("pk-hue").value); pkApply(toHex(hsv2rgb(pkH, pkS, pkV)), true); });
+  $("pk-hex").addEventListener("change", () => {
+    let t = $("pk-hex").value.trim().toLowerCase(); if (t[0] !== "#") t = "#" + t;
+    if (/^#[0-9a-f]{6}$/.test(t)) pkApply(t); else $("pk-hex").value = $(pkFor).value;
+  });
+
   let current = null;
   function render() {
     if (!loaded) return;
+    syncSwatches();
     const { out, c } = build();
     current = out;
     draw($("face"), out, 8, 8, 8, 8);
@@ -226,8 +306,7 @@
   fillPositions();
   $("type").addEventListener("change", () => { fillPositions(); pickDefaults(); render(); });
   $("pos").addEventListener("change", () => { pickDefaults(); render(); });
-  ["lid", "white", "pupil", "custom"].forEach((id) => $(id).addEventListener("input", render));
-  ["white", "pupil"].forEach((id) => $(id).addEventListener("input", () => { $("custom").checked = true; render(); }));
+  $("custom").addEventListener("input", render);
 
   $("save").addEventListener("click", () => {
     if (!current) return;

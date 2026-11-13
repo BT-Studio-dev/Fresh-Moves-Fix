@@ -198,13 +198,24 @@ write("editor/index.html", page({
       <select id="pos"></select></label></p>
 
     <h3>3. Colours</h3>
-    <p class="row"><label>Eyelid <input type="color" id="lid" value="#9b6349"></label></p>
+    <p class="row"><label>Eyelid <input type="hidden" id="lid" value="#9b6349"><button type="button" class="sw" data-for="lid" aria-label="Choose colour"></button></label></p>
     <p class="row">
-      <label id="whitewrap">Eye white <input type="color" id="white" value="#ffffff"></label>
-      <label><span id="pupilname">Pupil</span> <input type="color" id="pupil" value="#523d89"></label>
+      <label id="whitewrap">Eye white <input type="hidden" id="white" value="#ffffff"><button type="button" class="sw" data-for="white" aria-label="Choose colour"></button></label>
+      <label><span id="pupilname">Pupil</span> <input type="hidden" id="pupil" value="#523d89"><button type="button" class="sw" data-for="pupil" aria-label="Choose colour"></button></label>
     </p>
     <p><label><input type="checkbox" id="custom"> Paint these eye colours on the face</label><br>
       <small>Off: the eyes already drawn on your skin are used and the face is not changed.</small></p>
+
+    <div class="picker" id="picker" hidden>
+      <div class="pk-head"><b id="pk-title">Colour</b><button type="button" id="pk-close" aria-label="Close">&times;</button></div>
+      <canvas id="pk-sv" width="220" height="130"></canvas>
+      <input type="range" id="pk-hue" min="0" max="360" value="0" aria-label="Hue">
+      <div class="pk-row"><span class="pk-now" id="pk-now"></span><input type="text" id="pk-hex" maxlength="7" spellcheck="false" aria-label="Hex colour"></div>
+      <small>From your skin's face</small>
+      <div class="pk-sws" id="pk-skin"></div>
+      <small>Basic colours</small>
+      <div class="pk-sws" id="pk-basic"></div>
+    </div>
 
     <h3>4. Save</h3>
     <p><button type="button" class="btn" id="save" disabled>Download skin (.png)</button></p>
