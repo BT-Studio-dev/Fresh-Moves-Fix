@@ -364,7 +364,9 @@ write("title/index.html", page({
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <h1>${ICON.tag} Minecraft title</h1>
 <p>This is the real <b>Blockbench</b> web app, shown inside this page. Press <b>New</b>, then <b>Minecraft Title</b> to make a title, or <b>Minecraft Skin</b> to paint a skin.</p>
-<p><a class="btn" rel="noopener" target="_blank" href="${BB}">${ICON.right} Open Blockbench in a new tab</a></p>
+<p><a class="btn" rel="noopener" target="_blank" href="${BB}">${ICON.right} Open Blockbench in a new tab</a>
+<a class="btn ghost" rel="noopener" target="_blank" href="${REPO}/blob/main/model.bbmodel">${ICON.down} Our title model (.bbmodel)</a></p>
+<p><small>The "Fresh Moves Fix" title on the home page was made this way. Open the model file in Blockbench with File &rarr; Open Model.</small></p>
 <div class="note">If the box below stays empty, or "Minecraft Title" is missing from the New list, use the button above. In Blockbench you can also add it by hand: File &rarr; Plugins &rarr; Available &rarr; "Minecraft Title Generator" &rarr; Install. Blockbench is made by JannisX11 and the Title Generator plugin by Ewan Howell; they are not part of Fresh Moves Fix.</div>
 </article></div>
 <div class="bb-frame"><iframe src="${BB}" title="Blockbench" loading="lazy" allow="clipboard-read; clipboard-write; fullscreen" allowfullscreen></iframe></div>`,
@@ -463,7 +465,7 @@ write("index.html", page({
 <div class="hero">
   <img src="pack.png" alt="Fresh Moves Fix pack icon">
   <div class="txt">
-    <h1 class="mc-title"><img src="title.png" width="1304" height="130" alt="Fresh Moves Fix"></h1>
+    <h1 class="mc-title"><img src="title.png?2" width="1708" height="228" alt="Fresh Moves Fix"></h1>
     <p>Smoother, more expressive player animations and animated eyes for Minecraft. A fork of Fresh Moves with small fixes and builds for Minecraft ${versions[0].mc} to ${versions[versions.length - 1].mc}.</p>
     <a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">${ICON.down} Download ${esc(version)}</a>
     <a class="btn ghost" href="editor/">${ICON.eye} Skin eye editor</a>
