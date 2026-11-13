@@ -67,7 +67,8 @@ function page({ title, body, depth = 0, description = "", active = "" }) {
 <script>(function(){var t="system";try{t=localStorage.getItem("fmf-theme")||"system"}catch(e){}
 if(t==="system")t=window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
 document.documentElement.setAttribute("data-theme",t);
-try{var c=localStorage.getItem("fmf-cursor");if(c==="off"||c==="black"||c==="green"||c==="gold")document.documentElement.setAttribute("data-cursor",c)}catch(e){}})()</script>
+try{var c=localStorage.getItem("fmf-cursor");if(c==="off"||c==="black"||c==="green"||c==="gold")document.documentElement.setAttribute("data-cursor",c);
+var z=localStorage.getItem("fmf-cursor-size");if(z==="m"||z==="l")document.documentElement.setAttribute("data-cursor-size",z)}catch(e){}})()</script>
 <link rel="icon" href="${up}pack.png">
 <link rel="stylesheet" href="${up}style.css">
 </head>
@@ -332,6 +333,7 @@ write("editor/index.html", page({
 
 // ---------- settings ----------
 const curCard = (id, name) => `<label><span class="pv c-${id}"><span class="a"></span><span class="b"></span></span><span class="nm"><input type="radio" name="cursor" value="${id}"> ${name}</span></label>`;
+const sizeCard = (id, name) => `<label><span class="pv z z-${id}"><span></span></span><span class="nm"><input type="radio" name="cursize" value="${id}"> ${name}</span></label>`;
 const themeCard = (id, name, pb, pp, pl, pt) => `<label><span class="pv" style="--pb:${pb};--pp:${pp};--pl:${pl};--pt:${pt}"><i><b></b><u></u></i></span><span class="nm"><input type="radio" name="theme" value="${id}"> ${name}</span></label>`;
 write("settings/index.html", page({
   title: "Settings - Fresh Moves Fix",
@@ -377,12 +379,26 @@ write("settings/index.html", page({
       ${curCard("gold", "Pixel gold")}
       ${curCard("off", "Browser pointer")}
     </div>
+    <h2>${ICON.grid} Pointer size</h2>
+    <p>The size of the pixel pointer. Browsers show a pointer larger than 32 pixels only while it is fully inside the page, so near the edges of the window the large one changes back to the normal pointer.</p>
+    <div class="themes curs cursize">
+      ${sizeCard("s", "Small (34 pixels)")}
+      ${sizeCard("m", "Medium (51 pixels)")}
+      ${sizeCard("l", "Large (64 pixels)")}
+    </div>
   </div>
 </div>
 </article></div>
 <script>(function(){
   var cur="white"; try{cur=localStorage.getItem("fmf-cursor")||"white"}catch(e){}
   if(["white","black","green","gold","off"].indexOf(cur)<0) cur="white";
+  var size="s"; try{size=localStorage.getItem("fmf-cursor-size")||"s"}catch(e){}
+  if(["s","m","l"].indexOf(size)<0) size="s";
+  document.querySelectorAll('input[name="cursize"]').forEach(function(el){
+    el.checked = el.value===size;
+    el.addEventListener("change",function(){ size=el.value; try{localStorage.setItem("fmf-cursor-size",size)}catch(e){}
+      if(size==="s") document.documentElement.removeAttribute("data-cursor-size"); else document.documentElement.setAttribute("data-cursor-size",size); });
+  });
   document.querySelectorAll('input[name="cursor"]').forEach(function(el){
     el.checked = el.value===cur;
     el.addEventListener("change",function(){ cur=el.value; try{localStorage.setItem("fmf-cursor",cur)}catch(e){}
