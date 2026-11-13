@@ -399,7 +399,28 @@ write("title/index.html", page({
 <p><small>The "Fresh Moves Fix" title on the home page was made this way. Open the model file in Blockbench with File &rarr; Open Model.</small></p>
 <div class="note">If the box below stays empty, or "Minecraft Title" is missing from the New list, use the button above. In Blockbench you can also add it by hand: File &rarr; Plugins &rarr; Available &rarr; "Minecraft Title Generator" &rarr; Install. Blockbench is made by JannisX11 and the Title Generator plugin by Ewan Howell; they are not part of Fresh Moves Fix.</div>
 </article></div>
-<div class="bb-frame"><iframe src="${BB}" title="Blockbench" loading="lazy" allow="clipboard-read; clipboard-write; fullscreen" allowfullscreen></iframe></div>`,
+<div class="wrap"><div class="bb-help" id="bbhelp" hidden>
+  <h2>${ICON.info} Blockbench cannot start in this browser</h2>
+  <p>Blockbench needs 3D graphics (WebGL), and your browser has it switched off right now. That is why it says "Error creating WebGL context". This is a browser setting on your computer, not a fault of this website, so it has to be switched on there:</p>
+  <ol class="steps">
+    <li><strong>Restart the browser.</strong> Close every window of it, then open it again.</li>
+    <li><strong>Turn on graphics acceleration.</strong> In Chrome: Settings, System, switch on "Use graphics acceleration when available", then press Relaunch. (Edge: Settings, System and performance. Firefox: Settings, General, Performance.)</li>
+    <li><strong>Still off in Chrome?</strong> Type <code>chrome://flags/#ignore-gpu-blocklist</code> in the address bar, set it to Enabled, and press Relaunch.</li>
+    <li><strong>Update the graphics driver</strong> of your computer, or try another browser (Firefox, Edge).</li>
+  </ol>
+  <p>Check with <a href="https://get.webgl.org" target="_blank" rel="noopener">get.webgl.org</a>: when you see a spinning cube there, Blockbench will work.</p>
+  <p><button type="button" class="btn" id="bbretry">Check again</button> <button type="button" class="btn ghost" id="bbshow">Show Blockbench anyway</button></p>
+  <p><small>The <a href="../editor/">Skin eye editor</a> works without 3D graphics: it has its own simple 3D preview.</small></p>
+</div></div>
+<div class="bb-frame" id="bbframe"><iframe data-src="${BB}" title="Blockbench" allow="clipboard-read; clipboard-write; fullscreen" allowfullscreen></iframe></div>
+<script>(function(){
+  var help=document.getElementById("bbhelp"), box=document.getElementById("bbframe"), fr=box.querySelector("iframe");
+  function hasGL(){ try{ var c=document.createElement("canvas"); var g=c.getContext("webgl2")||c.getContext("webgl"); if(!g) return false; var x=g.getExtension("WEBGL_lose_context"); if(x) x.loseContext(); return true; }catch(e){ return false; } }
+  function show(force){ var ok=force||hasGL(); help.hidden=ok&&!force; box.hidden=!ok; if(ok&&!fr.getAttribute("src")) fr.setAttribute("src", fr.getAttribute("data-src")); if(ok&&!force) help.hidden=true; }
+  document.getElementById("bbretry").addEventListener("click", function(){ show(false); });
+  document.getElementById("bbshow").addEventListener("click", function(){ show(true); });
+  show(false);
+})()</script>`,
 }));
 
 const themeCard = (id, name, pb, pp, pl, pt) => `<label><span class="pv" style="--pb:${pb};--pp:${pp};--pl:${pl};--pt:${pt}"><i><b></b><u></u></i></span><span class="nm"><input type="radio" name="theme" value="${id}"> ${name}</span></label>`;

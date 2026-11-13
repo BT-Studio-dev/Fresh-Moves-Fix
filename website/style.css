@@ -632,3 +632,9 @@ header.top nav { min-width: 0; overflow-x: auto; }
 .nf-code { font-size: clamp(72px, 18vw, 150px); font-weight: 900; line-height: 1; margin: 0; color: var(--accent); letter-spacing: 2px; }
 .nf h1 { margin: 8px 0 10px; }
 .nf-go { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 22px; }
+
+/* Title page: help card when the browser has no 3D graphics */
+.bb-help { border: 1px solid var(--line); border-radius: 16px; background: var(--panel); padding: 18px 20px; margin: 0 0 24px; }
+.bb-help[hidden], .bb-frame[hidden] { display: none; }
+.bb-help h2 { margin-top: 0; }
+.bb-help code { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; user-select: all; }
