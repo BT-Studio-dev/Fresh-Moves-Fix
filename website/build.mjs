@@ -346,8 +346,8 @@ write("title/index.html", page({
   body: `<div class="wrap"><article class="editor">
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <h1>${ICON.tag} Minecraft title maker</h1>
-<p>Type a text and get a blocky, Minecraft-style title as a picture with a see-through background. Everything happens in your browser.</p>
-<div class="note">This is a simple maker drawn by this website, in one letter style. For real 3D title models with many fonts and textures, use <a rel="noopener" target="_blank" href="https://web.blockbench.net/">Blockbench</a> with the <a rel="noopener" target="_blank" href="https://github.com/ewanhowell5195/MinecraftTitleGenerator">Minecraft Title Generator</a> plugin by Ewan Howell.</div>
+<p>Type a text and get a Minecraft-style title made of 3D blocks. Turn it to the angle you like and download it as a picture with a see-through background. Everything happens in your browser.</p>
+<div class="note">This maker is drawn by this website and has one letter style; it saves pictures, not models. For title models with many fonts and textures, use <a rel="noopener" target="_blank" href="https://web.blockbench.net/">Blockbench</a> with the <a rel="noopener" target="_blank" href="https://github.com/ewanhowell5195/MinecraftTitleGenerator">Minecraft Title Generator</a> plugin by Ewan Howell.</div>
 
 <div class="ed" id="tt-form">
   <div class="panel">
@@ -364,8 +364,22 @@ write("title/index.html", page({
     </div>
     <div id="tt-second"><p class="tt-sub">Second colour</p><div class="chips">${styleChips("tt-style2", "grass")}</div></div>
     <h3>${ICON.grid} 3. Look</h3>
+    <div class="chips">
+      <label class="chip"><input type="radio" name="tt-view" value="3d" checked> 3D blocks</label>
+      <label class="chip"><input type="radio" name="tt-view" value="flat"> Flat picture</label>
+    </div>
     <p class="ctl"><label>Block size <input type="range" id="tt-size" min="2" max="8" step="1" value="4"></label> <b id="tt-sizeval"></b></p>
-    <p><label><input type="checkbox" id="tt-depth" checked> 3D edge under the letters</label></p>
+    <div id="tt-3dopts">
+      <p class="ctl"><label>Thickness <input type="range" id="tt-thick" min="1" max="8" step="1" value="2"></label> <b id="tt-thickval"></b></p>
+      <p class="tt-sub">Angle (or drag the picture)</p>
+      <div class="chips">
+        <button class="chip" type="button" data-tt-angle="0,0.35">From below</button>
+        <button class="chip" type="button" data-tt-angle="0,-0.35">From above</button>
+        <button class="chip" type="button" data-tt-angle="0.2,0.3">Corner</button>
+        <button class="chip" type="button" data-tt-angle="0,0">Front</button>
+      </div>
+    </div>
+    <p id="tt-flatopts"><label><input type="checkbox" id="tt-depth" checked> 3D edge under the letters</label></p>
     <p><label><input type="checkbox" id="tt-cracks" checked> Small dark specks (stone look)</label></p>
     <h3>${ICON.down} 4. Save</h3>
     <p><button class="btn" id="tt-save" type="button" disabled>${ICON.down} Download title (.png)</button></p>

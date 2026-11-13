@@ -372,3 +372,7 @@ header.top nav::-webkit-scrollbar { display: none; }
 .tt-stage { padding: 18px; border: 1px solid var(--line); border-radius: 8px; overflow: auto; background: repeating-conic-gradient(#26302b 0% 25%, #1c2420 0% 50%) 0 0 / 20px 20px; }
 .ed .tt-stage canvas { border: 0; border-radius: 0; margin: 0 auto; image-rendering: auto; }
 @media (hover: none) { .chip { min-height: 44px; } }
+
+button.chip { font: inherit; font-weight: 600; font-size: 14px; color: var(--text); }
+button.chip:hover { border-color: var(--accent); color: var(--accent); }
+.ed .tt-stage canvas { max-width: none; user-select: none; -webkit-user-select: none; }
