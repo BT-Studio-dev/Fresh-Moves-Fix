@@ -364,3 +364,20 @@ header.top nav::-webkit-scrollbar { display: none; }
 .bb-frame { max-width: 1400px; margin: 0 auto 32px; padding: 0 16px; box-sizing: border-box; }
 .bb-frame iframe { display: block; width: 100%; height: calc(100vh - 110px); min-height: 520px; border: 1px solid var(--line); border-radius: 12px; background: #1c2026; }
 @media (max-width: 560px) { .bb-frame { padding: 0 6px; } .bb-frame iframe { height: calc(100vh - 80px); border-radius: 8px; } }
+
+/* download: version cards in the new card style */
+.versions { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.versions a.ver { display: flex; flex-direction: column; gap: 10px; text-align: left; padding: 14px; border-radius: 16px; transition: border-color .12s, transform .12s; }
+.versions a.ver:hover, .versions a.ver:focus-visible { border-color: var(--accent); color: var(--text); transform: translateY(-1px); outline: none; }
+.ver .tool-head { display: flex; align-items: center; gap: 12px; }
+.ver .tool-ic { width: 40px; height: 40px; }
+.ver .tool-ic .ic { width: 22px; height: 22px; }
+.ver b { display: block; font-size: 16px; white-space: nowrap; }
+.versions .ver small { font-size: 13px; }
+.ver .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.ver .tags i { font-style: normal; font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 999px; background: #5b8fd9; color: #0d1420; display: inline-flex; align-items: center; gap: 4px; }
+.ver .tags i.g { background: #6fdc6f; }
+.ver .tags i.dl { background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); }
+.ver .tags .ic { width: 13px; height: 13px; }
+@media (max-width: 560px) { .versions { grid-template-columns: 1fr 1fr; } .ver .tool-ic { display: none; } }
+@media (hover: none) { .versions a.ver:hover { transform: none; } }

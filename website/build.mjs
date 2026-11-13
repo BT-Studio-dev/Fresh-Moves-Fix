@@ -429,7 +429,11 @@ for (const v of versions) {
 const versionLinks = groups.map((g) => {
   const last = g.list[g.list.length - 1];
   const label = g.list.length > 1 ? `${g.list[0]} – ${last}` : last;
-  return `<a href="${dl(`Fresh-Moves-Fix-mc${last}.zip`)}">${label}<small>pack format ${g.format}</small></a>`;
+  const newest = g === groups[groups.length - 1];
+  return `<a class="ver" download href="${dl(`Fresh-Moves-Fix-mc${last}.zip`)}" title="Download Fresh-Moves-Fix-mc${last}.zip">
+    <span class="tool-head"><span class="tool-ic">${ICON.box}</span><span><b>${label}</b><small>Minecraft</small></span></span>
+    <span class="tags"><i>format ${g.format}</i>${newest ? '<i class="g">Newest</i>' : ""}<i class="dl">${ICON.down} .zip</i></span>
+  </a>`;
 }).join("\n");
 
 write("index.html", page({
