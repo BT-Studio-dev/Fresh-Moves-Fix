@@ -4838,8 +4838,8 @@
 					"ctrl_l_pupil.tx": "-0.5 -head_yaw/(80 +160*var.ylook) +(-sin(pi/4+var.r+age/10)*3 +0.3 )*clamp(var.nov1*4, 0, 1)",
 					"ctrl_r_pupil.ty": " 0.5 +clamp(head_pitch/80, -0.5, 0.5) +( -cos(var.r+var.b +sin(var.r+var.b) )/4 )*var.nov2 +clamp(2*var.nov1, 0, 0.3) + (-1 -cos(limb_swing/3)/2)*if(is_hurt, -sin(hurt_time*pi/5)/6*hurt_time, 0)",
 					"ctrl_l_pupil.ty": "ctrl_r_pupil.ty",
-					"right_blink.sy": "clamp(1.5 -abs(sin(var.r+age/8)*6), 0, 1)*clamp(-32 +cos((var.r+age/8)/1.5)*40 +cos((var.r+age/8)/4)*40, 0, 1)",
-					"left_blink.sy": "clamp(1.5 -abs(sin(var.r+age/8)*6), 0, 1)*clamp(-32 +cos((var.r+age/8)/1.5)*40 +cos((var.r+age/8)/4)*40, 0, 1)"
+					"right_blink.sy": "if(varb.is_sleeping || death_time > 0, 1, clamp(1.5 -abs(sin(var.r+age/8)*6), 0, 1)*clamp(-32 +cos((var.r+age/8)/1.5)*40 +cos((var.r+age/8)/4)*40, 0, 1))",
+					"left_blink.sy": "if(varb.is_sleeping || death_time > 0, 1, clamp(1.5 -abs(sin(var.r+age/8)*6), 0, 1)*clamp(-32 +cos((var.r+age/8)/1.5)*40 +cos((var.r+age/8)/4)*40, 0, 1))"
 				},
 				{
 					"right_eye.sz": "1",
@@ -4982,8 +4982,8 @@
 					"ctrl_l_pupil5.tx": "-0.5 -head_yaw/(80 +160*var.ylook) +(-sin(pi/4+var.r+age/10)*3 +0.3 )*clamp(var.nov1*4, 0, 1)",
 					"ctrl_r_pupil5.ty": " 0.5 +clamp(head_pitch/80, -0.5, 0.5) +( -cos(var.r+var.b +sin(var.r+var.b) )/4 )*var.nov2 +clamp(2*var.nov1, 0, 0.3) + (-1 -cos(limb_swing/3)/2)*if(is_hurt, -sin(hurt_time*pi/5)/6*hurt_time, 0)",
 					"ctrl_l_pupil5.ty": "ctrl_r_pupil5.ty",
-					"right_blink5.sy": "clamp(1.5 -abs(sin(var.r+age/8)*6), 0, 1)*clamp(-32 +cos((var.r+age/8)/1.5)*40 +cos((var.r+age/8)/4)*40, 0, 1)",
-					"left_blink5.sy": "clamp(1.5 -abs(sin(var.r+age/8)*6), 0, 1)*clamp(-32 +cos((var.r+age/8)/1.5)*40 +cos((var.r+age/8)/4)*40, 0, 1)"
+					"right_blink5.sy": "if(varb.is_sleeping || death_time > 0, 1, clamp(1.5 -abs(sin(var.r+age/8)*6), 0, 1)*clamp(-32 +cos((var.r+age/8)/1.5)*40 +cos((var.r+age/8)/4)*40, 0, 1))",
+					"left_blink5.sy": "if(varb.is_sleeping || death_time > 0, 1, clamp(1.5 -abs(sin(var.r+age/8)*6), 0, 1)*clamp(-32 +cos((var.r+age/8)/1.5)*40 +cos((var.r+age/8)/4)*40, 0, 1))"
 				},
 				{
 					"right_eye5.sz": "1",
@@ -5126,8 +5126,8 @@
 					"ctrl_l_pupil9.tx": "-0.5 -head_yaw/(80 +160*var.ylook) +(-sin(pi/4+var.r+age/10)*3 +0.3 )*clamp(var.nov1*4, 0, 1)",
 					"ctrl_r_pupil9.ty": " 0.5 +clamp(head_pitch/80, -0.5, 0.5) +( -cos(var.r+var.b +sin(var.r+var.b) )/4 )*var.nov2 +clamp(2*var.nov1, 0, 0.3) + (-1 -cos(limb_swing/3)/2)*if(is_hurt, -sin(hurt_time*pi/5)/6*hurt_time, 0)",
 					"ctrl_l_pupil9.ty": "ctrl_r_pupil5.ty",
-					"right_blink9.sy": "clamp(1.5 -abs(sin(var.r+age/8)*6), 0, 1)*clamp(-32 +cos((var.r+age/8)/1.5)*40 +cos((var.r+age/8)/4)*40, 0, 1)",
-					"left_blink9.sy": "clamp(1.5 -abs(sin(var.r+age/8)*6), 0, 1)*clamp(-32 +cos((var.r+age/8)/1.5)*40 +cos((var.r+age/8)/4)*40, 0, 1)"
+					"right_blink9.sy": "if(varb.is_sleeping || death_time > 0, 1, clamp(1.5 -abs(sin(var.r+age/8)*6), 0, 1)*clamp(-32 +cos((var.r+age/8)/1.5)*40 +cos((var.r+age/8)/4)*40, 0, 1))",
+					"left_blink9.sy": "if(varb.is_sleeping || death_time > 0, 1, clamp(1.5 -abs(sin(var.r+age/8)*6), 0, 1)*clamp(-32 +cos((var.r+age/8)/1.5)*40 +cos((var.r+age/8)/4)*40, 0, 1))"
 				},
 				{
 					"right_eye9.sz": "1",
@@ -5162,7 +5162,7 @@
 					"ctrl_l_pupil10.tx": "ctrl_r_pupil10.tx +1",
 					"ctrl_r_pupil10.ty": "0.5 +( clamp(head_pitch/(30 +200*var.ylook), -0.3, 0.5) +(clamp(sin(var.r+age/38) +sin(var.r+age/13), -0.2, 0.2)*clamp(-20*2 -cos(var.r+age/125)*30*2, 0, 1) -clamp(-24 +sin(var.r+age/100)*40, 0, 1)/10 +clamp(2*clamp(-0.2 -cos(var.r+age/70)*2, 0, 1), 0, 0.3)) +(clamp(torad(head_yaw)/8, 0, 0.2) +clamp(-torad(head_yaw)/8, 0, 0.2))*var.ylook )*(1-var.aggroB)",
 					"ctrl_l_pupil10.ty": "ctrl_r_pupil10.ty",
-					"right_blink10.sy": "clamp((1.5 -abs(sin(var.r+age/16)*12))*clamp(-32 +cos((var.r+age/16)/1.5)*40 +cos((var.r+age/16)/4)*40, 0, 1), 0, 1-var.aggroB )",
+					"right_blink10.sy": "if(varb.is_sleeping || death_time > 0, 1, clamp((1.5 -abs(sin(var.r+age/16)*12))*clamp(-32 +cos((var.r+age/16)/1.5)*40 +cos((var.r+age/16)/4)*40, 0, 1), 0, 1-var.aggroB ))",
 					"left_blink10.sy": "right_blink10.sy"
 				},
 				{
@@ -5378,7 +5378,7 @@
 					"left_eyelid12.tz": "left_eyelid.tz"
 				},
 				{
-					"right_blink13.sy": "clamp(1.5 -abs(sin(var.r+age/8)*6), 0, 1)*clamp(-32 + cos((var.r+age/8)/1.5)*40 +cos((var.r + age/8)/4)*40, 0, 1)",
+					"right_blink13.sy": "if(varb.is_sleeping || death_time > 0, 1, clamp(1.5 -abs(sin(var.r+age/8)*6), 0, 1)*clamp(-32 + cos((var.r+age/8)/1.5)*40 +cos((var.r + age/8)/4)*40, 0, 1))",
 					"left_blink13.sy": " right_blink13.sy",
 					"right_eyelid13.sy": "1",
 					"right_eyelid13.sz": "if(right_eyelid13.sy==0||right_blink13.sy==0, 0, 1)",

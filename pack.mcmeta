@@ -1,7 +1,19 @@
 {
     "pack": {
         "pack_format": 15,
-        "supported_formats":[0,99],
+        "supported_formats": [15, 99],
+        "min_format": 15,
+        "max_format": 99,
         "description": "\u00A7a☑ With Animated Eyes \u00A7b\n❖ For 1.21.2 and below"
+    },
+    "overlays": {
+        "entries": [
+            {
+                "directory": "v1_21_2",
+                "formats": [42, 99],
+                "min_format": 42,
+                "max_format": 99
+            }
+        ]
     }
 }
