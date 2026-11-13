@@ -419,3 +419,19 @@ header.top nav::-webkit-scrollbar { display: none; }
 .ed summary.ehead .chev { flex: none; color: var(--muted); display: grid; place-content: center; transition: transform .15s; }
 .ed details[open] > summary.ehead .chev { transform: rotate(180deg); }
 .ed details.ecard[open] > summary.ehead { margin-bottom: 14px; }
+
+/* editor: choices inside the Skin card as small cards */
+.ed .drop { border-radius: 12px; padding: 16px; }
+.ed .drop-ic { width: 44px; height: 44px; border-radius: 10px; }
+.ed .elabel { margin: 16px 0 8px; font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.ed .pick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ed .pickb { display: flex; align-items: center; gap: 10px; padding: 10px 12px; min-width: 0; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; color: var(--text); font: inherit; text-align: left; cursor: pointer; transition: border-color .12s, background .12s; }
+.ed .pickb:hover, .ed .pickb:focus-visible, .ed .pickb:focus-within { border-color: var(--accent); outline: none; }
+.ed .pickb:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
+.ed .pickb img { flex: none; width: 36px; height: 36px; border-radius: 8px; image-rendering: pixelated; }
+.ed .pickb input { flex: none; margin: 0; }
+.ed .pickb > span { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.ed .pickb b { font-weight: 600; }
+.ed .pickb small { font-size: 12px; }
+.ed .ehint { display: flex; gap: 8px; align-items: flex-start; margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--bg); color: var(--muted); font-size: 13px; line-height: 1.5; }
+.ed .ehint .ic { flex: none; width: 16px; height: 16px; margin-top: 2px; color: var(--accent); }

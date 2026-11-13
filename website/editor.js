@@ -383,7 +383,7 @@
   setTimeout(syncMenus, 0); // pick up translated option texts
   document.addEventListener("click", (e) => { if (!(e.target.closest && e.target.closest(".dd"))) closeMenus(); });
   document.querySelectorAll("[data-skin]").forEach((b) =>
-    b.addEventListener("click", () => loadImage(b.dataset.skin, b.textContent.trim())));
+    b.addEventListener("click", () => loadImage(b.dataset.skin, b.dataset.name || b.textContent.trim())));
   for (const [key, t] of Object.entries(TYPES)) {
     const o = document.createElement("option");
     o.value = key; o.textContent = t.label;
