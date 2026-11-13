@@ -66,9 +66,7 @@ function page({ title, body, depth = 0, description = "", active = "" }) {
 <meta name="twitter:card" content="summary_large_image">
 <script>(function(){var t="system";try{t=localStorage.getItem("fmf-theme")||"system"}catch(e){}
 if(t==="system")t=window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
-document.documentElement.setAttribute("data-theme",t);
-try{var c=localStorage.getItem("fmf-cursor");if(c==="off"||c==="black"||c==="green"||c==="gold")document.documentElement.setAttribute("data-cursor",c);
-var z=localStorage.getItem("fmf-cursor-size");if(z==="m"||z==="l"||z==="x")document.documentElement.setAttribute("data-cursor-size",z)}catch(e){}})()</script>
+document.documentElement.setAttribute("data-theme",t)})()</script>
 <link rel="icon" href="${up}pack.png">
 <link rel="stylesheet" href="${up}style.css">
 </head>
@@ -146,8 +144,6 @@ fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
 fs.copyFileSync(path.join(here, "nav.js"), path.join(out, "nav.js"));
 fs.copyFileSync(path.join(here, "tip.js"), path.join(out, "tip.js"));
-fs.mkdirSync(path.join(out, "cursors"), { recursive: true });
-for (const f of fs.readdirSync(path.join(here, "cursors"))) fs.copyFileSync(path.join(here, "cursors", f), path.join(out, "cursors", f));
 // flag pictures for the language list (flag-icons, MIT), so no flag emoji are needed
 fs.mkdirSync(path.join(out, "flags"), { recursive: true });
 for (const f of ["us", "eg", "de", "es", "fr", "it", "br", "ru", "pl", "ua", "tr", "cn", "jp"])
@@ -334,8 +330,6 @@ write("editor/index.html", page({
 }));
 
 // ---------- settings ----------
-const curCard = (id, name) => `<label><span class="pv c-${id}"><span class="a"></span><span class="b"></span></span><span class="nm"><input type="radio" name="cursor" value="${id}"> ${name}</span></label>`;
-const sizeCard = (id, name) => `<label><span class="pv z z-${id}"><span></span></span><span class="nm"><input type="radio" name="cursize" value="${id}"> ${name}</span></label>`;
 const themeCard = (id, name, pb, pp, pl, pt) => `<label><span class="pv" style="--pb:${pb};--pp:${pp};--pl:${pl};--pt:${pt}"><i><b></b><u></u></i></span><span class="nm"><input type="radio" name="theme" value="${id}"> ${name}</span></label>`;
 write("settings/index.html", page({
   title: "Settings - Fresh Moves Fix",
@@ -372,42 +366,9 @@ write("settings/index.html", page({
       ${themeCard("dark", "Dark", "#0f1412", "#18201c", "#2a3630", "#9aa8a0")}
       ${themeCard("oled", "OLED", "#000000", "#0d0f0e", "#222826", "#98a39d")}
     </div>
-    <h2>${ICON.hand} Mouse pointer</h2>
-    <p>Select the mouse pointer for this website. Each card shows the normal pointer and the one over things you can click. It is saved in this browser only.</p>
-    <div class="themes curs">
-      ${curCard("white", "Pixel white")}
-      ${curCard("black", "Pixel black")}
-      ${curCard("green", "Pixel green")}
-      ${curCard("gold", "Pixel gold")}
-      ${curCard("off", "Browser pointer")}
-    </div>
-    <h2>${ICON.grid} Pointer size</h2>
-    <p>The size of the pixel pointer. Browsers show a pointer larger than 32 pixels only while it is fully inside the page, so near the edges of the window the large one changes back to the normal pointer.</p>
-    <div class="themes curs cursize">
-      ${sizeCard("s", "Small (34 pixels)")}
-      ${sizeCard("m", "Medium (51 pixels)")}
-      ${sizeCard("l", "Large (64 pixels)")}
-      ${sizeCard("x", "Huge (128 pixel image)")}
-    </div>
   </div>
 </div>
 </article></div>
-<script>(function(){
-  var cur="white"; try{cur=localStorage.getItem("fmf-cursor")||"white"}catch(e){}
-  if(["white","black","green","gold","off"].indexOf(cur)<0) cur="white";
-  var size="s"; try{size=localStorage.getItem("fmf-cursor-size")||"s"}catch(e){}
-  if(["s","m","l","x"].indexOf(size)<0) size="s";
-  document.querySelectorAll('input[name="cursize"]').forEach(function(el){
-    el.checked = el.value===size;
-    el.addEventListener("change",function(){ size=el.value; try{localStorage.setItem("fmf-cursor-size",size)}catch(e){}
-      if(size==="s") document.documentElement.removeAttribute("data-cursor-size"); else document.documentElement.setAttribute("data-cursor-size",size); });
-  });
-  document.querySelectorAll('input[name="cursor"]').forEach(function(el){
-    el.checked = el.value===cur;
-    el.addEventListener("change",function(){ cur=el.value; try{localStorage.setItem("fmf-cursor",cur)}catch(e){}
-      if(cur==="white") document.documentElement.removeAttribute("data-cursor"); else document.documentElement.setAttribute("data-cursor",cur); });
-  });
-})()</script>
 <script>(function(){
   var key="fmf-theme", cur="system"; try{cur=localStorage.getItem(key)||"system"}catch(e){}
   function apply(t){ var r=t; if(t==="system") r=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"; document.documentElement.setAttribute("data-theme",r); }
