@@ -282,8 +282,7 @@ write("editor/index.html", page({
       <label id="whitewrap">Eye white <input type="hidden" id="white" value="#ffffff"><button type="button" class="sw" data-for="white" aria-label="Choose colour"></button></label>
       <label><span id="pupilname">Pupil</span> <input type="hidden" id="pupil" value="#523d89"><button type="button" class="sw" data-for="pupil" aria-label="Choose colour"></button></label>
     </p>
-    <p><label><input type="checkbox" id="custom" checked> Draw the eyes on the face</label><br>
-      <small>On: the old eyes are removed and the new ones are drawn in these colours. Off: the face is not changed and the eyes already drawn on your skin are used.</small></p>
+    <label class="pickb wide"><input type="checkbox" id="custom" checked><span><b>Draw the eyes on the face</b><small>On: the old eyes are removed and the new ones are drawn in these colours. Off: the face is not changed and the eyes already drawn on your skin are used.</small></span></label>
 
     <div class="picker" id="picker" hidden>
       <div class="pk-head"><b id="pk-title">Colour</b><button type="button" id="pk-close" aria-label="Close">${ICON.close}</button></div>
@@ -319,7 +318,7 @@ write("editor/index.html", page({
         <label><input type="checkbox" id="spin"> Spin</label>
         <label>Zoom <input type="range" id="zoom" min="0.6" max="2.4" step="0.05" value="0.9"></label>
       </p>
-      <small>Drag to turn the model, scroll to zoom. The preview shows the skin only; the blinking happens in-game.</small>
+      <p class="ehint">${ICON.info} Drag to turn the model, scroll to zoom. The preview shows the skin only; the blinking happens in-game.</p>
     </div>
     <p class="statline"><button type="button" id="msg3d" class="status" title="Open a picture of the 3D preview in a new tab"></button></p>
   </section>

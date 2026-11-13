@@ -443,3 +443,39 @@ header.top nav::-webkit-scrollbar { display: none; }
 .ed button.status:hover, .ed button.status:focus-visible { background: color-mix(in srgb, var(--accent) 26%, transparent); text-decoration: underline; outline: none; }
 .ed button.status.bad { color: #ff8a7a; border-color: #ff8a7a66; background: #ff8a7a1f; }
 .ed button.status:empty { display: none; }
+
+/* editor: Eyes, Colours and 3D controls in the new card look */
+.ed .ecard p:not(.ctl) > label:has(> select) { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.ed .ecard p:not(.ctl) > label:has(> select) .dd { display: block; }
+.ed .ecard .dd-btn { border-radius: 12px; padding: 10px 38px 10px 12px; font-size: 15px; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--text); }
+.ed .ecard p:not(.ctl) > label:has(> select) .dd-btn { width: 100%; }
+.ed .ecard .dd-list { border-radius: 12px; text-transform: none; letter-spacing: 0; font-weight: 400; font-size: 15px; }
+.ed .ecard .dd-opt { border-radius: 8px; color: var(--text); }
+.ed .ecard .dd-opt.on { color: var(--on-accent); }
+.ed .ecard p.row:has(.sw) { gap: 10px; }
+.ed .ecard label:has(> .sw) { flex: 1 1 120px; display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; font-weight: 600; cursor: pointer; transition: border-color .12s; }
+.ed .ecard label:has(> .sw):hover, .ed .ecard label:has(> .sw):focus-within { border-color: var(--accent); }
+.ed .ecard label > .sw { order: -1; flex: none; width: 36px; height: 36px; border-radius: 8px; }
+.ed .pickb.wide { align-items: flex-start; margin-top: 4px; }
+.ed .pickb.wide input { margin-top: 2px; }
+.ed .pickb.wide small { margin-top: 4px; line-height: 1.5; }
+.ed .ecard .ctl { gap: 10px; margin-top: 12px; }
+.ed .ecard .ctl > label { display: flex; align-items: center; gap: 8px; padding: 6px 12px; min-height: 44px; box-sizing: border-box; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; font-weight: 600; font-size: 14px; }
+.ed .ecard .ctl > label:has(> select) { padding: 0 0 0 12px; }
+.ed .ecard .ctl > label:has(> select) .dd-btn { border: 0; background: none; padding-left: 4px; }
+.ed .ecard .ctl > label:has(#zoom) { flex: 1 1 160px; }
+.ed .ecard .ctl > label:has(#zoom) input { flex: 1; min-width: 0; width: auto; margin: 0; }
+.ed .ecard .ctl > label input[type="checkbox"] { margin: 0; }
+
+/* header in the new card look */
+header.top nav { padding: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; }
+header.top nav a { padding: 7px 13px; transition: background .12s, color .12s; }
+header.top nav a:hover { background: color-mix(in srgb, var(--text) 8%, transparent); }
+header.top nav a.on { background: var(--accent); color: var(--on-accent); }
+header.top .snd { border-radius: 12px; width: 40px; height: 40px; background: var(--panel); }
+header.top .get { background: var(--accent); color: var(--on-accent); border-radius: 12px; padding: 9px 16px; transition: filter .12s, transform .12s; }
+header.top .get:hover { background: var(--accent); filter: brightness(1.08); transform: translateY(-1px); }
+header.top .brand img { border-radius: 10px; }
+@media (max-width: 860px) { header.top nav { border-radius: 12px; } }
+@media (hover: none) { header.top .get:hover { transform: none; } }
+header.top nav { box-sizing: border-box; }
