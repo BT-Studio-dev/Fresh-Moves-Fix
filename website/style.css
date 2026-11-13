@@ -341,7 +341,6 @@ html[data-cursor="black"][data-cursor-size="x"] { --cur-a: var(--cbx); --cur-b: 
 html[data-cursor="green"][data-cursor-size="x"] { --cur-a: var(--cgx); --cur-b: var(--cwx); }
 html[data-cursor="gold"][data-cursor-size="x"] { --cur-a: var(--cyx); --cur-b: var(--cwx); }
 .curs .pv.z-x span { width: 92px; height: 92px; background-position: left top; image-rendering: pixelated; }
-.curdl a { margin-inline-end: 14px; white-space: nowrap; }
 html[data-cursor="off"] .cursize { opacity: .5; }
 /* sharp pointers on 4K and other high-density screens: double-resolution images where the browser supports them */
 @supports (cursor: image-set(url("cursors/white-s.png") 1x, url("cursors/white-s@2x.png") 2x) 0 0, auto) {

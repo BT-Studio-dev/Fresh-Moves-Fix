@@ -389,7 +389,6 @@ write("settings/index.html", page({
       ${sizeCard("l", "Large (64 pixels)")}
       ${sizeCard("x", "Huge (128 pixel image)")}
     </div>
-    <p class="curdl">On 4K and other high-density screens the pointer uses double-resolution images, so it stays sharp. The huge pointer is a 128 x 128 pixel .png (shown smaller on the card). Download the files: <a href="../cursors/cursor-white-128.png" download>${ICON.down} White</a><a href="../cursors/cursor-black-128.png" download>${ICON.down} Black</a><a href="../cursors/cursor-green-128.png" download>${ICON.down} Green</a><a href="../cursors/cursor-gold-128.png" download>${ICON.down} Gold</a></p>
   </div>
 </div>
 </article></div>
