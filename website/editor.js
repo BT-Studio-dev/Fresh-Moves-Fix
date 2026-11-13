@@ -65,6 +65,7 @@
   const rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
   const idx = (x, y) => (y * 64 + x) * 4;
 
+  let oldEyes = null;
   function setStatus(text, bad) {
     $("status").textContent = text;
     $("status").className = bad ? "status bad" : "status";
@@ -82,6 +83,8 @@
       sctx.drawImage(img, 0, 0);
       original = sctx.getImageData(0, 0, 64, 64);
       loaded = true;
+      oldEyes = findOldEyes(original.data);
+      $("custom").checked = true;
       // slim (Alex) skins leave the last arm column empty
       const slim = original.data[idx(54, 20) + 3] === 0;
       $("fmtslim").checked = slim; $("fmtwide").checked = !slim;
@@ -115,14 +118,35 @@
     return { type: $("type").value, ...va, box: { x, y, w: Math.max(...xs) - x + 1, h: Math.max(...ys) - y + 1 } };
   }
 
-  // take the default colours from the face of the loaded skin
+  // Eyes the loaded skin already has, found through its 2x1 or 2x2 marker.
+  // Returns { cells: [[col,row]], lid, white, pupil } or null.
+  function findOldEyes(d) {
+    const solid = (x, y, w, h) => { for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) if (!d[idx(xx, yy) + 3]) return false; return true; };
+    const make = (rows, mx, my) => ({
+      cells: rows.flatMap((r) => [1, 2, 5, 6].map((c) => [c, r])),
+      lid: hex(d, idx(mx, my)), white: hex(d, idx(mx, my + 1)), pupil: hex(d, idx(mx + 1, my + 1)) });
+    for (const my of [0, 2, 4, 6]) if (solid(4, my, 4, 2)) return make([3 + my / 2], 4, my);
+    for (const [mx, my, r] of [[28, 2, 2], [28, 5, 3], [24, 2, 4], [24, 5, 5]]) if (solid(mx, my, 4, 3)) return make([r, r + 1], mx, my);
+    return null;
+  }
+  const far = (a, b) => { const x = rgb(a), y = rgb(b); return Math.abs(x[0] - y[0]) + Math.abs(x[1] - y[1]) + Math.abs(x[2] - y[2]) > 60; };
+  const dark = (h) => { const c = rgb(h); return c[0] * 0.3 + c[1] * 0.59 + c[2] * 0.11 < 90; };
+
+  // default colours: from the eyes the skin already has; otherwise from the face, and when
+  // that gives colours you could not see (same as the skin, or white and pupil alike), safe ones
   function pickDefaults() {
     if (!loaded) return;
     const c = choice(), d = original.data;
     const first = c.face[0], w = c.face.find((f) => f[2] === "white"), p = c.face.find((f) => f[2] === "pupil");
-    $("lid").value = hex(d, idx(8 + first[0], 8 + Math.max(0, first[1] - 1)));
-    if (w) $("white").value = hex(d, idx(8 + w[0], 8 + w[1]));
-    if (p) $("pupil").value = hex(d, idx(8 + p[0], 8 + p[1]));
+    let lid = hex(d, idx(8 + first[0], 8 + Math.max(0, first[1] - 1)));
+    let white = w ? hex(d, idx(8 + w[0], 8 + w[1])) : "#ffffff";
+    let pupil = p ? hex(d, idx(8 + p[0], 8 + p[1])) : "#2b2b2b";
+    if (oldEyes) { lid = oldEyes.lid; white = oldEyes.white; pupil = oldEyes.pupil; }
+    if (w) {
+      if (!far(white, lid) || !far(white, pupil)) white = "#ffffff";
+      if (!far(pupil, white)) pupil = "#2b2b2b";
+    } else if (!far(pupil, lid)) pupil = dark(lid) ? "#ffffff" : "#2b2b2b";
+    $("lid").value = lid; $("white").value = white; $("pupil").value = pupil;
   }
 
   function build() {
@@ -133,7 +157,14 @@
     for (const [ax, ay, w, h] of c.type === "2x3" ? [...AREAS, AREA_2X3] : AREAS)
       for (let y = ay; y < ay + h; y++) for (let x = ax; x < ax + w; x++) { const i = idx(x, y); d[i] = d[i + 1] = d[i + 2] = d[i + 3] = 0; }
     const colour = { white: rgb($("white").value), pupil: rgb($("pupil").value), lid: rgb($("lid").value) };
-    if (custom) for (const [col, row, role] of c.face) put(8 + col, 8 + row, colour[role]);
+    if (custom) {
+      // remove the eyes the skin had, so they do not stay next to the new ones
+      if (oldEyes) for (const [col, row] of oldEyes.cells) put(8 + col, 8 + row, rgb(oldEyes.lid));
+      for (const [col, row, role] of c.face) {
+        put(8 + col, 8 + row, colour[role]);
+        d[idx(40 + col, 8 + row) + 3] = 0; // nothing from the second layer (hat) over the eye
+      }
+    }
     for (const [x, y, src] of c.marker) {
       if (typeof src === "string") put(x, y, colour[src]);
       else { const i = idx(8 + src[0], 8 + src[1]); put(x, y, [d[i], d[i + 1], d[i + 2]]); }

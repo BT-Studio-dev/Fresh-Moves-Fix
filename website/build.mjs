@@ -259,8 +259,8 @@ write("editor/index.html", page({
       <label id="whitewrap">Eye white <input type="hidden" id="white" value="#ffffff"><button type="button" class="sw" data-for="white" aria-label="Choose colour"></button></label>
       <label><span id="pupilname">Pupil</span> <input type="hidden" id="pupil" value="#523d89"><button type="button" class="sw" data-for="pupil" aria-label="Choose colour"></button></label>
     </p>
-    <p><label><input type="checkbox" id="custom"> Paint these eye colours on the face</label><br>
-      <small>Off: the eyes already drawn on your skin are used and the face is not changed.</small></p>
+    <p><label><input type="checkbox" id="custom" checked> Draw the eyes on the face</label><br>
+      <small>On: the old eyes are removed and the new ones are drawn in these colours. Off: the face is not changed and the eyes already drawn on your skin are used.</small></p>
 
     <div class="picker" id="picker" hidden>
       <div class="pk-head"><b id="pk-title">Colour</b><button type="button" id="pk-close" aria-label="Close">${ICON.close}</button></div>
