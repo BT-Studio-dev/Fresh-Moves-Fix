@@ -11,6 +11,8 @@ These are client-side mods that are available for Fabric, Forge and NeoForge.
 
 On Minecraft 1.21.9 and newer use EMF 3.0.12 or newer, otherwise armour does not follow the animations.
 
+On Minecraft 26.1, 26.1.1 and 26.1.2 use EMF 3.3.2 or newer (older versions do not start or crash there). On 26.3 use EMF 3.3.6 or newer. EMF for 26.x exists for Fabric and NeoForge.
+
 ## Guides
 
 - [All guides (wiki home)](docs/Home.md)
