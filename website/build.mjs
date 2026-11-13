@@ -29,6 +29,9 @@ function page({ title, body, depth = 0, description = "" }) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description || "Fresh Moves Fix - player animation resource pack for Minecraft")}">
+<meta property="og:title" content="${esc(title)}">
+<meta property="og:image" content="https://fresh-moves-fix.vercel.app/banner.png">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="${up}pack.png">
 <link rel="stylesheet" href="${up}style.css">
 </head>
@@ -62,6 +65,7 @@ fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 fs.copyFileSync(path.join(root, "pack.png"), path.join(out, "pack.png"));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
+fs.copyFileSync(path.join(root, "docs/images/banner.png"), path.join(out, "banner.png"));
 
 // ---------- guides (from docs/*.md) ----------
 const docsDir = path.join(root, "docs");

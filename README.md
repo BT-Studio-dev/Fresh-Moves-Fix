@@ -1,5 +1,7 @@
 # Fresh-Moves-Fix
 
+![Fresh Moves Fix](docs/images/banner.png)
+
 ## Requirements
 
 ![EMF and ETF are required](docs/images/requirements.png)
