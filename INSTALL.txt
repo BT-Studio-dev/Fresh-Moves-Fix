@@ -13,6 +13,10 @@ They are client-side mods, available for Fabric, Forge and NeoForge.
 On Minecraft 1.21.9 and newer use EMF 3.0.12 or newer, otherwise armour
 does not follow the animations.
 
+On Minecraft 26.1, 26.1.1 and 26.1.2 use EMF 3.3.2 or newer (older
+versions do not start or crash there). On 26.3 use EMF 3.3.6 or newer.
+EMF for 26.x exists for Fabric and NeoForge.
+
 INSTALL
 1. Install EMF and ETF.
 2. Put this zip (do not unzip it) in the "resourcepacks" folder.

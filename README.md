@@ -11,6 +11,8 @@ These are client-side mods that are available for Fabric, Forge and NeoForge.
 
 On Minecraft 1.21.9 and newer use EMF 3.0.12 or newer, otherwise armour does not follow the animations.
 
+On Minecraft 26.1, 26.1.1 and 26.1.2 use EMF 3.3.2 or newer (older versions do not start or crash there). On 26.3 use EMF 3.3.6 or newer. EMF for 26.x exists for Fabric and NeoForge.
+
 ## Guides
 
 - [All guides (wiki home)](docs/Home.md)
@@ -30,6 +32,8 @@ None of the model changes have been tested in-game yet.
 ## Website
 
 https://fresh-moves-fix.vercel.app
+
+It includes a skin eye editor (https://fresh-moves-fix.vercel.app/editor/) that adds the eye pixels (2 wide, derp, 3 wide and simple eyes) to a skin and downloads the result, with a 3D preview (uses the MIT-licensed skinview3d library). Flag pictures in the language list come from flag-icons (MIT).
 
 The site is in `website/`. It is generated from this repository (`docs/`, `VERSION`, `build.py`):
 
@@ -53,4 +57,4 @@ The per-version zips carry the pack format number of that version so Minecraft d
 ## Releases
 
 GitHub Actions runs the build on every push. On `main` it also publishes the zips as a GitHub release named after the `VERSION` file (tag `v<VERSION>`).
-To publish a new release, change the text in `VERSION` (for example `3.1-fix2`) and merge to `main`. If the release already exists, its zips are replaced.
+To publish a new release, change the text in `VERSION` (for example `3.1-fix4`) and merge to `main`. If the release already exists, its zips are replaced. A release can also be built from a branch: start the workflow by hand (Actions > Build pack > Run workflow) or put `[release]` in the commit message.
