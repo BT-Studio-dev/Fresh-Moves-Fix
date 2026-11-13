@@ -49,6 +49,7 @@ document.documentElement.setAttribute("data-theme",t)})()</script>
     ${nav("settings", up + "settings/", "Settings")}
     <a rel="noopener" href="${REPO}">GitHub</a>
   </nav>
+  <button type="button" class="snd" data-music-toggle aria-pressed="false" aria-label="Music" title="Music: off">&#9835;</button>
   <a class="get" href="${up}#download"><span>↓</span> Download</a>
 </div></header>
 ${body}
@@ -82,6 +83,7 @@ ${body}
   <p class="legal">Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.</p>
 </div></footer>
 <script src="${up}i18n.js"></script>
+<script src="${up}music.js"></script>
 </body>
 </html>
 `;
@@ -98,6 +100,7 @@ fs.mkdirSync(out, { recursive: true });
 fs.copyFileSync(path.join(root, "pack.png"), path.join(out, "pack.png"));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
+fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
 fs.copyFileSync(path.join(root, "docs/images/banner.png"), path.join(out, "banner.png"));
 
 // ---------- guides (from docs/*.md) ----------
@@ -280,7 +283,16 @@ write("settings/index.html", page({
 <div class="set">
   <div class="menu"><small>DISPLAY</small>
     <button type="button" class="tab on" data-tab="appearance">Appearance</button>
-    <button type="button" class="tab" data-tab="language">Language</button></div>
+    <button type="button" class="tab" data-tab="language">Language</button>
+    <small>SOUND</small>
+    <button type="button" class="tab" data-tab="music">Music</button></div>
+  <div class="box" id="tab-music" hidden>
+    <h2>Music</h2>
+    <p>A calm background tune, made by your browser (no music files). It is off until you turn it on, and saved in this browser only.</p>
+    <p class="mrow"><label><input type="checkbox" data-music-check> Play music</label></p>
+    <p class="mrow"><label>Volume <input type="range" min="0" max="100" value="40" data-music-volume></label></p>
+    <p><small>You can also use the &#9835; button at the top of every page. When you open another page, the music starts again after your first click.</small></p>
+  </div>
   <div class="box" id="tab-language" hidden>
     <h2>Language</h2>
     <div class="note">Only menus, buttons and the editor are translated. Guides and longer texts stay in English. The translations are machine-made and may contain mistakes.</div>
@@ -312,7 +324,7 @@ write("settings/index.html", page({
   var tabs=document.querySelectorAll(".tab");
   function show(id){ tabs.forEach(function(t){ var on=t.getAttribute("data-tab")===id; t.classList.toggle("on",on); document.getElementById("tab-"+t.getAttribute("data-tab")).hidden=!on; }); }
   tabs.forEach(function(t){ t.addEventListener("click",function(){ var id=t.getAttribute("data-tab"); show(id); try{history.replaceState(null,"","#"+id)}catch(e){} }); });
-  if(location.hash==="#language") show("language");
+  if(location.hash==="#language") show("language"); if(location.hash==="#music") show("music");
   var box=document.getElementById("langs"), api=window.fmfI18n; if(!api) return;
   api.langs.forEach(function(l){
     var lab=document.createElement("label"); lab.className="lang"+(api.get()===l[0]?" on":"");

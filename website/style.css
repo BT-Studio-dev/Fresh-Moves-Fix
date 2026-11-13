@@ -231,3 +231,12 @@ input[type="checkbox"]:focus-visible, input[type="radio"]:focus-visible { outlin
 .langs .lang .code { font: 700 11px/1 monospace; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 4px 5px; min-width: 28px; text-align: center; }
 .langs .lang small { color: var(--muted); }
 .langs .lang input { margin-inline-start: auto; margin-inline-end: 0; }
+
+/* music button and settings */
+header.top .snd { background: none; border: 1px solid var(--line); color: var(--muted); width: 36px; height: 36px; border-radius: 50%; font-size: 17px; line-height: 1; cursor: pointer; flex: none; }
+header.top .snd:hover { border-color: var(--accent); color: var(--text); }
+header.top .snd.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.set .menu small + .tab { margin-top: 0; }
+.set .menu .tab + small { margin-top: 10px; }
+.set .mrow { color: var(--text) !important; }
+.set .mrow input[type="range"] { vertical-align: middle; margin-inline-start: 8px; accent-color: var(--accent); width: 180px; max-width: 60%; }
