@@ -14,3 +14,8 @@
 - Wiki pages copied to `docs/`; caption fixed in "Eyebrow (Villager)" (upstream issue #246).
 
 None of the model changes have been tested in-game yet.
+
+## Build
+
+`python3 build.py` checks the pack files and writes the installable zip to `dist/Fresh-Moves-Fix.zip`
+(add a version, e.g. `python3 build.py 3.1-fix1`, to put it in the file name). GitHub Actions runs the same build on every push and attaches the zip as an artifact.
