@@ -88,7 +88,7 @@ document.documentElement.setAttribute("data-theme",t)})()</script>
     <button type="button" class="snd" data-music-toggle aria-pressed="false" aria-label="Music">${ICON.music}</button>
     <span class="snd-card"><span class="snd-box">
       <span class="snd-head">${ICON.music} <b data-music-state>Music: off</b> <i data-music-time>0:00 / 3:34</i></span>
-      <label class="snd-line"><input type="checkbox" data-music-check> Play music</label>
+      <label class="snd-line"><input type="checkbox" data-music-check> Play music <i data-music-name>Calm</i></label>
       <label class="snd-line">Volume <input type="range" min="0" max="100" value="40" data-music-volume></label>
       <a class="snd-more" href="${up}settings/#music">${ICON.gear} Music settings</a>
     </span></span>
@@ -386,7 +386,13 @@ write("settings/index.html", page({
     <button type="button" class="tab" data-tab="music">${ICON.music} Music</button></div>
   <div class="box" id="tab-music" hidden>
     <h2 class="shead"><span class="tool-ic">${ICON.music}</span><span><b>Music</b><small>Background song for the website</small></span></h2>
-    <p>A calm background song, 3 minutes 34 seconds long, made by your browser (no music files). It repeats when it ends. It is off until you turn it on, and saved in this browser only.</p>
+    <p>Background music made by your browser (no music files). Choose the calm song or the dark Herobrine song; each is 3 minutes 34 seconds long and repeats. It is off until you turn it on, and saved in this browser only.</p>
+    <p class="elabel">Song</p>
+    <div class="mtiles two">
+      <label class="mtile"><input type="radio" name="song" value="calm" data-music-song checked><span><b>Calm</b><small>Soft and friendly</small></span></label>
+      <label class="mtile"><input type="radio" name="song" value="herobrine" data-music-song><span><b>Herobrine</b><small>Dark and creepy</small></span></label>
+    </div>
+    <p class="elabel">Player</p>
     <div class="mtiles">
       <label class="mtile"><input type="checkbox" data-music-check><span><b>Play music</b><small data-music-state>Music: off</small></span><i data-music-time>0:00 / 3:34</i></label>
       <label class="mtile"><span class="mt-ic">${ICON.music}</span><span><b>Volume</b></span><input type="range" min="0" max="100" value="40" data-music-volume></label>

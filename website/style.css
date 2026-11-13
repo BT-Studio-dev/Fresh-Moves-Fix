@@ -524,3 +524,11 @@ header.top .snd-line:has(input[type="checkbox"]:checked) { border-color: var(--a
 header.top .snd-more { padding: 9px 12px; border: 1px solid var(--line); border-radius: 12px; color: var(--text); transition: border-color .12s, color .12s; }
 header.top .snd-more:hover { border-color: var(--accent); }
 header.top .snd-more svg { color: var(--accent); }
+
+/* song choice */
+.set .elabel { margin: 16px 0 8px; font-size: 13px; font-weight: 600; color: var(--muted) !important; text-transform: uppercase; letter-spacing: .04em; }
+.mtiles.two { display: grid; grid-template-columns: 1fr 1fr; }
+@media (max-width: 560px) { .mtiles.two { grid-template-columns: 1fr; } }
+.mtile input[type="radio"] { margin: 0; flex: none; }
+.mtile:has(input[type="radio"]:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
+header.top .snd-line i { font-style: normal; font-weight: 400; color: var(--muted); margin-inline-start: auto; font-size: 13px; }
