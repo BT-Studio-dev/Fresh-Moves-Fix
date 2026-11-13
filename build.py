@@ -13,7 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 NAME = "Fresh-Moves-Fix"
-INCLUDE = ["pack.mcmeta", "pack.png", "LICENSE", "assets"]
+INCLUDE = ["pack.mcmeta", "pack.png", "LICENSE", "INSTALL.txt", "assets"]
 
 
 def fail(msg):

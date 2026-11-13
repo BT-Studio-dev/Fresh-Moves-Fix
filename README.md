@@ -1,5 +1,14 @@
 # Fresh-Moves-Fix
 
+## Requirements
+
+![EMF and ETF are required](docs/images/requirements.png)
+
+You need the **LATEST** versions of [Entity Model Features](https://modrinth.com/mod/entity-model-features) (+v2.0.2) and [Entity Texture Features](https://modrinth.com/mod/entitytexturefeatures) (+v6.0.1) to use this pack.
+These are client-side mods that are available for Fabric, Forge and NeoForge.
+
+On Minecraft 1.21.9 and newer use EMF 3.0.12 or newer, otherwise armour does not follow the animations.
+
 ## Guides
 
 - [All guides (wiki home)](docs/Home.md)
