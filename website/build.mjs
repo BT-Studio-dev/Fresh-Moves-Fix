@@ -130,9 +130,8 @@ ${cards(eyes)}
 }));
 
 // ---------- skin eye editor ----------
-fs.mkdirSync(path.join(out, "skins"), { recursive: true });
-fs.copyFileSync(path.join(root, "assets/minecraft/textures/entity/player/wide/steve.png"), path.join(out, "skins/steve.png"));
-fs.copyFileSync(path.join(root, "assets/minecraft/textures/entity/player/slim/alex.png"), path.join(out, "skins/alex.png"));
+// the two default skins are embedded in the page, so the editor needs no extra requests
+const skinData = (p) => "data:image/png;base64," + fs.readFileSync(path.join(root, "assets/minecraft/textures/entity/player", p)).toString("base64");
 fs.copyFileSync(path.join(here, "editor.js"), path.join(out, "editor.js"));
 write("editor/index.html", page({
   title: "Skin eye editor - Fresh Moves Fix",
@@ -149,8 +148,8 @@ write("editor/index.html", page({
     <h3>1. Skin</h3>
     <p><input type="file" id="file" accept="image/png"></p>
     <p>or start from
-      <button type="button" class="btn ghost small" data-skin="../skins/steve.png">Steve</button>
-      <button type="button" class="btn ghost small" data-skin="../skins/alex.png">Alex</button></p>
+      <button type="button" class="btn ghost small" id="steve" data-skin="${skinData("wide/steve.png")}">Steve</button>
+      <button type="button" class="btn ghost small" data-skin="${skinData("slim/alex.png")}">Alex</button></p>
 
     <h3>2. Eyes</h3>
     <p class="row">

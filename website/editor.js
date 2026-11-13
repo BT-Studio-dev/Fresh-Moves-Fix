@@ -147,5 +147,5 @@
     }, "image/png");
   });
 
-  loadImage("../skins/steve.png", "Steve");
+  loadImage($("steve").dataset.skin, "Steve");
 })();
