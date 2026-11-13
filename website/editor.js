@@ -198,6 +198,114 @@
   // ---- 3D preview (skinview3d). Falls back to the flat skin when WebGL is not available. ----
   let viewer = null, failed3d = false;
   const tex = document.createElement("canvas"); tex.width = tex.height = 64;
+
+  // ---- simple 3D preview without WebGL: the model is drawn pixel by pixel on a normal 2D canvas ----
+  function SoftViewer(cv) {
+    const g = cv.getContext("2d");
+    let img = null, slim = false, yaw = -0.5, pitch = 0.15, raf = 0, last = 0, t = 0, dead = false, drag = null;
+    const self = this; self.soft = true; self.autoRotate = false; self.zoom = 0.9; self.pose = "idle";
+    // box: uv corner, size (w,h,d), centre, pivot name, inflate
+    function parts() {
+      const aw = slim ? 3 : 4, ax = slim ? 5.5 : 6;
+      const P = [
+        ["head", 0, 0, 8, 8, 8, 0, 28, 0, 0], ["head", 32, 0, 8, 8, 8, 0, 28, 0, 0.5],
+        ["body", 16, 16, 8, 12, 4, 0, 18, 0, 0], ["body", 16, 32, 8, 12, 4, 0, 18, 0, 0.25],
+        ["ra", 40, 16, aw, 12, 4, -ax, 18, 0, 0], ["ra", 40, 32, aw, 12, 4, -ax, 18, 0, 0.25],
+        ["la", 32, 48, aw, 12, 4, ax, 18, 0, 0], ["la", 48, 48, aw, 12, 4, ax, 18, 0, 0.25],
+        ["rl", 0, 16, 4, 12, 4, -2, 6, 0, 0], ["rl", 0, 32, 4, 12, 4, -2, 6, 0, 0.25],
+        ["ll", 16, 48, 4, 12, 4, 2, 6, 0, 0], ["ll", 0, 48, 4, 12, 4, 2, 6, 0, 0.25],
+      ];
+      return P;
+    }
+    const PIV = { head: [0, 24, 0], body: [0, 24, 0], ra: [-5, 22, 0], la: [5, 22, 0], rl: [-2, 12, 0], ll: [2, 12, 0] };
+    function angles() { // [rotX, rotZ] per part
+      const A = { head: [0, 0], body: [0, 0], ra: [0, 0], la: [0, 0], rl: [0, 0], ll: [0, 0] };
+      const p = self.pose;
+      if (p === "walk" || p === "run") {
+        const k = p === "run" ? 1.1 : 0.6, w = Math.sin(t * (p === "run" ? 10 : 6)) * k;
+        A.ra[0] = w; A.la[0] = -w; A.rl[0] = -w; A.ll[0] = w;
+      } else if (p === "wave") {
+        A.ra[1] = -2.4 + Math.sin(t * 7) * 0.35; A.la[1] = 0.05; A.head[1] = 0.06;
+      } else {
+        const b = Math.sin(t * 1.6) * 0.04; A.ra[1] = -0.05 - b; A.la[1] = 0.05 + b; A.ra[0] = b; A.la[0] = -b;
+      }
+      return A;
+    }
+    function draw() {
+      const W = cv.width, H = cv.height; g.clearRect(0, 0, W, H);
+      if (!img) return;
+      const d = img.data, A = angles(), sc = (H / 46) * self.zoom, cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+      const quads = [];
+      const pt = (name, x, y, z) => {
+        const a = A[name], pv = PIV[name];
+        let X = x - pv[0], Y = y - pv[1], Z = z - pv[2];
+        if (a[0]) { const c = Math.cos(a[0]), s2 = Math.sin(a[0]); const y2 = Y * c - Z * s2; Z = Y * s2 + Z * c; Y = y2; }
+        if (a[1]) { const c = Math.cos(a[1]), s2 = Math.sin(a[1]); const x2 = X * c - Y * s2; Y = X * s2 + Y * c; X = x2; }
+        X += pv[0]; Y += pv[1] - 16; Z += pv[2];
+        const x3 = X * cy + Z * sy, z3 = -X * sy + Z * cy;       // turn left/right
+        const y4 = Y * cp - z3 * sp, z4 = Y * sp + z3 * cp;       // tilt
+        const f = 90 / (90 - z4);                                 // a little perspective
+        return [W / 2 + x3 * f * sc, H / 2 - y4 * f * sc, z4];
+      };
+      for (const [name, u, v, w, h, dp, cx, cyy, cz, inf] of parts()) {
+        const sx = (w + 2 * inf) / w, sy2 = (h + 2 * inf) / h, sz = (dp + 2 * inf) / dp, top = cyy + h / 2 * sy2;
+        // each face: texture corner, columns, rows, and a function texel corner (i,j) -> model point
+        const F = [
+          [u + dp, v + dp, w, h, (i, j) => [cx + (-w / 2 + i) * sx, top - j * sy2, cz + dp / 2 * sz]],               // front
+          [u + 2 * dp + w, v + dp, w, h, (i, j) => [cx + (w / 2 - i) * sx, top - j * sy2, cz - dp / 2 * sz]],       // back
+          [u, v + dp, dp, h, (i, j) => [cx - w / 2 * sx, top - j * sy2, cz + (-dp / 2 + i) * sz]],                  // player's right
+          [u + dp + w, v + dp, dp, h, (i, j) => [cx + w / 2 * sx, top - j * sy2, cz + (dp / 2 - i) * sz]],          // player's left
+          [u + dp, v, w, dp, (i, j) => [cx + (-w / 2 + i) * sx, top, cz + (-dp / 2 + j) * sz]],                     // top
+          [u + dp + w, v, w, dp, (i, j) => [cx + (-w / 2 + i) * sx, top - h * sy2, cz + (-dp / 2 + j) * sz]],       // bottom
+        ];
+        for (let fi = 0; fi < 6; fi++) {
+          const [fu, fv, cols, rows, fn] = F[fi];
+          // corners of the whole face, to drop faces that look away (only for the solid inner layer)
+          const c00 = pt(name, ...fn(0, 0)), c10 = pt(name, ...fn(cols, 0)), c01 = pt(name, ...fn(0, rows));
+          let cross = (c10[0] - c00[0]) * (c01[1] - c00[1]) - (c10[1] - c00[1]) * (c01[0] - c00[0]);
+          if (fi === 5) cross = -cross; // the bottom is seen from below
+          if (!inf && cross <= 0) continue;
+          const grid = [];
+          for (let j = 0; j <= rows; j++) for (let i = 0; i <= cols; i++) grid.push(pt(name, ...fn(i, j)));
+          const shade = cross > 0 ? (fi < 2 ? 1 : fi < 4 ? 0.82 : fi === 4 ? 1 : 0.6) : 0.7;
+          for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+            const o = ((fv + j) * 64 + fu + i) * 4, al = d[o + 3];
+            if (!al) continue;
+            const a = grid[j * (cols + 1) + i], b = grid[j * (cols + 1) + i + 1], c = grid[(j + 1) * (cols + 1) + i + 1], e = grid[(j + 1) * (cols + 1) + i];
+            quads.push([(a[2] + b[2] + c[2] + e[2]) / 4, a, b, c, e, "rgba(" + Math.round(d[o] * shade) + "," + Math.round(d[o + 1] * shade) + "," + Math.round(d[o + 2] * shade) + "," + (al / 255) + ")"]);
+          }
+        }
+      }
+      quads.sort((p, q) => p[0] - q[0]);
+      g.lineJoin = "round"; g.lineWidth = 0.7;
+      for (const q of quads) {
+        g.fillStyle = g.strokeStyle = q[5];
+        g.beginPath(); g.moveTo(q[1][0], q[1][1]); g.lineTo(q[2][0], q[2][1]); g.lineTo(q[3][0], q[3][1]); g.lineTo(q[4][0], q[4][1]); g.closePath();
+        g.fill(); g.stroke();
+      }
+    }
+    function frame(now) {
+      if (dead) return;
+      const dt = Math.min(0.1, (now - (last || now)) / 1000); last = now; t += dt;
+      if (self.autoRotate && !drag) yaw += dt * 0.9;
+      try { draw(); } catch (e) {}
+      raf = requestAnimationFrame(frame);
+    }
+    const down = (e) => { drag = [e.clientX, e.clientY, yaw, pitch]; try { cv.setPointerCapture(e.pointerId); } catch (x) {} };
+    const move = (e) => { if (!drag) return; yaw = drag[2] + (e.clientX - drag[0]) * 0.012; pitch = Math.max(-1.3, Math.min(1.3, drag[3] + (e.clientY - drag[1]) * 0.012)); };
+    const up = () => { drag = null; };
+    const wheel = (e) => {
+      e.preventDefault(); const z = $("zoom"), n = Math.max(Number(z.min), Math.min(Number(z.max), self.zoom * (e.deltaY > 0 ? 0.93 : 1.07)));
+      self.zoom = n; z.value = n;
+    };
+    cv.addEventListener("pointerdown", down); cv.addEventListener("pointermove", move); cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
+    cv.addEventListener("wheel", wheel, { passive: false });
+    cv.style.touchAction = "none"; cv.style.cursor = "grab";
+    self.loadSkin = (canvas, opt) => { img = canvas.getContext("2d").getImageData(0, 0, 64, 64); slim = !!opt && opt.model === "slim"; };
+    self.render = () => { try { draw(); } catch (e) {} };
+    self.dispose = () => { dead = true; cancelAnimationFrame(raf); cv.removeEventListener("pointerdown", down); cv.removeEventListener("pointermove", move); cv.removeEventListener("pointerup", up); cv.removeEventListener("pointercancel", up); cv.removeEventListener("wheel", wheel); };
+    raf = requestAnimationFrame(frame);
+  }
   // why 3D cannot start, in plain words
   function why3d(e) {
     if (!window.skinview3d) return "The 3D part of the page did not load. Check your internet connection.";
@@ -215,10 +323,22 @@
   function fail3d(e) {
     try { if (viewer) viewer.dispose(); } catch (x) {}
     failed3d = true; viewer = null;
-    $("wrap3d").style.display = "none";
-    $("flat").open = true;
-    $("msg3d").textContent = "3D preview is not available in this browser; showing the flat skin instead.";
-    $("why3d").hidden = false; $("why3dtext").textContent = why3d(e);
+    const reason = why3d(e);
+    try { // simple 3D that needs no WebGL
+      fresh3d();
+      viewer = new SoftViewer($("view3d"));
+      viewer.autoRotate = $("spin").checked; viewer.zoom = Number($("zoom").value); setAnim();
+      $("wrap3d").style.display = "";
+      $("msg3d").textContent = "3D preview on (simple mode).";
+      $("why3d").hidden = false; $("why3dtext").textContent = "Simple 3D mode. " + reason;
+      $("why3dmore").textContent = "The simple mode shows the same skin, only less smooth.";
+    } catch (x) {
+      viewer = null;
+      $("wrap3d").style.display = "none";
+      $("flat").open = true;
+      $("msg3d").textContent = "3D preview is not available in this browser; showing the flat skin instead.";
+      $("why3d").hidden = false; $("why3dtext").textContent = reason;
+    }
   }
   function start3d() {
     const cv = $("view3d");
@@ -237,7 +357,7 @@
   }
   // "Try again": load the 3D part again if it is missing, then start on a new canvas
   function retry3d() {
-    const go = () => { failed3d = false; viewer = null; fresh3d(); if (current) update3d(current); else init3d(); };
+    const go = () => { try { if (viewer) viewer.dispose(); } catch (x) {} failed3d = false; viewer = null; fresh3d(); if (current) update3d(current); else init3d(); };
     $("why3dtext").textContent = "Trying again...";
     if (window.skinview3d) return go();
     const sc = document.createElement("script");
@@ -247,6 +367,7 @@
   $("view3d").addEventListener("webglcontextlost", () => { if (viewer) fail3d(new Error("the browser stopped the 3D picture")); });
   function setAnim() {
     if (!viewer) return;
+    if (viewer.soft) { viewer.pose = $("anim").value; return; }
     const A = { idle: skinview3d.IdleAnimation, walk: skinview3d.WalkingAnimation, run: skinview3d.RunningAnimation, wave: skinview3d.WaveAnimation }[$("anim").value];
     viewer.animation = A ? new A() : null;
   }
