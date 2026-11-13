@@ -20,8 +20,9 @@ const versions = [...read("build.py").match(/VERSIONS = \{([\s\S]*?)\}/)[1].matc
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const slug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-function page({ title, body, depth = 0, description = "" }) {
+function page({ title, body, depth = 0, description = "", active = "" }) {
   const up = "../".repeat(depth);
+  const nav = (id, href, label) => `<a${id === active ? ' class="on"' : ""} href="${href}">${label}</a>`;
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -39,21 +40,46 @@ document.documentElement.setAttribute("data-theme",t)})()</script>
 <link rel="stylesheet" href="${up}style.css">
 </head>
 <body>
-<header class="top"><div class="wrap">
-  <img src="${up}pack.png" alt="">
-  <a class="name" href="${up || "./"}">Fresh Moves Fix</a>
+<header class="top"><div class="bar">
+  <a class="brand" href="${up || "./"}"><img src="${up}pack.png" alt=""><span>Fresh Moves Fix</span></a>
   <nav>
-    <a href="${up}#download">Download</a>
-    <a href="${up}guides/">Guides</a>
-    <a href="${up}editor/">Eye editor</a>
-    <a href="${up}settings/">Settings</a>
-    <a href="${REPO}">GitHub</a>
+    ${nav("home", up || "./", "Home")}
+    ${nav("guides", up + "guides/", "Guides")}
+    ${nav("editor", up + "editor/", "Eye editor")}
+    ${nav("settings", up + "settings/", "Settings")}
+    <a rel="noopener" href="${REPO}">GitHub</a>
   </nav>
+  <a class="get" href="${up}#download"><span>↓</span> Download</a>
 </div></header>
 ${body}
-<footer><div class="wrap">
-  Fresh Moves Fix is a fork of <a href="https://github.com/IthanMendoza/Fresh-Moves">Fresh Moves</a> by IthanMendoza (CC0),
-  based on Fresh Animations by FreshLX. Not an official Minecraft product; not approved by or associated with Mojang or Microsoft.
+<footer><div class="bar">
+  <div class="cols">
+    <div class="about">
+      <a class="brand" href="${up || "./"}"><img src="${up}pack.png" alt=""><span>Fresh Moves Fix</span></a>
+      <p>Fresh Moves Fix is <a rel="noopener" href="${REPO}">open source</a>.</p>
+      <p>CC0 1.0 · a fork of <a rel="noopener" href="https://github.com/IthanMendoza/Fresh-Moves">Fresh Moves</a> by IthanMendoza, based on Fresh Animations by FreshLX.</p>
+    </div>
+    <div><h4>Pack</h4>
+      <a href="${up}#download">Download</a>
+      <a rel="noopener" href="${REPO}/releases">Releases</a>
+      <a rel="noopener" href="${REPO}#changes-from-the-original-pack">Changes</a>
+    </div>
+    <div><h4>Skins</h4>
+      <a href="${up}guides/">Eye guides</a>
+      <a href="${up}editor/">Eye editor</a>
+      <a href="${up}guides/fix-black-eyes/">Fix black eyes</a>
+    </div>
+    <div><h4>Required mods</h4>
+      <a rel="noopener" href="https://modrinth.com/mod/entity-model-features">Entity Model Features</a>
+      <a rel="noopener" href="https://modrinth.com/mod/entitytexturefeatures">Entity Texture Features</a>
+    </div>
+    <div><h4>Resources</h4>
+      <a rel="noopener" href="${REPO}">GitHub</a>
+      <a rel="noopener" href="${REPO}/issues">Report issues</a>
+      <a href="${up}settings/">Settings</a>
+    </div>
+  </div>
+  <p class="legal">Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.</p>
 </div></footer>
 </body>
 </html>
@@ -98,6 +124,7 @@ for (const d of docs) {
   const md = fs.readFileSync(path.join(docsDir, d.file), "utf8").replace(/^# .*\n/, "");
   write(`guides/${d.slug}/index.html`, page({
     title: `${d.name} - Fresh Moves Fix`,
+    active: "guides",
     depth: 2,
     body: `<div class="wrap"><article>
 <div class="crumb"><a href="../../">Home</a> / <a href="../">Guides</a></div>
@@ -114,6 +141,7 @@ const cards = (list) => `<div class="cards">${list.map((d) =>
 
 write("guides/index.html", page({
   title: "Guides - Fresh Moves Fix",
+  active: "guides",
   depth: 1,
   body: `<div class="wrap"><article>
 <div class="crumb"><a href="../">Home</a></div>
@@ -139,6 +167,7 @@ const skinData = (p) => "data:image/png;base64," + fs.readFileSync(path.join(roo
 fs.copyFileSync(path.join(here, "editor.js"), path.join(out, "editor.js"));
 write("editor/index.html", page({
   title: "Skin eye editor - Fresh Moves Fix",
+  active: "editor",
   description: "Add the animated-eye pixels for Fresh Moves to your Minecraft skin and download the result.",
   depth: 1,
   body: `<div class="wrap"><article class="editor">
@@ -202,6 +231,7 @@ write("editor/index.html", page({
 const themeCard = (id, name, pb, pp, pl, pt) => `<label><span class="pv" style="--pb:${pb};--pp:${pp};--pl:${pl};--pt:${pt}"><i><b></b><u></u></i></span><span class="nm"><input type="radio" name="theme" value="${id}"> ${name}</span></label>`;
 write("settings/index.html", page({
   title: "Settings - Fresh Moves Fix",
+  active: "settings",
   depth: 1,
   body: `<div class="wrap"><article>
 <h1>Settings</h1>
@@ -244,6 +274,7 @@ const versionLinks = groups.map((g) => {
 
 write("index.html", page({
   title: "Fresh Moves Fix - player animations for Minecraft",
+  active: "home",
   description: "A fork of the Fresh Moves resource pack: smoother player animations and animated eyes, with builds for Minecraft 1.20 to 26.3.",
   body: `<div class="wrap">
 <div class="hero">
