@@ -167,6 +167,8 @@
     document.addEventListener("click", function (e) {
       var b = e.target.closest && e.target.closest("[data-music-toggle]");
       if (b) set(!on);
+      // choosing a song (also the one already chosen) starts the music
+      if (e.target.matches && e.target.matches("[data-music-song]")) { if (e.target.value !== song) setSong(e.target.value); if (!on) set(true); }
     });
     document.addEventListener("change", function (e) {
       if (e.target.matches && e.target.matches("[data-music-check]")) set(e.target.checked);
