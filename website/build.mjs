@@ -28,6 +28,20 @@ const ICON = {
   up: svg('<path d="M12 20V7"/><path d="M6 12l6-6 6 6"/><path d="M5 3h14"/>'),
   right: svg('<path d="M9 5l7 7-7 7"/>'),
   close: svg('<path d="M6 6l12 12"/><path d="M18 6L6 18"/>'),
+  home: svg('<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>'),
+  book: svg('<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21a2 2 0 0 1 2-2h13"/>'),
+  eye: svg('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>'),
+  gear: svg('<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/>'),
+  code: svg('<path d="M8 6l-6 6 6 6"/><path d="M16 6l6 6-6 6"/>'),
+  ext: svg('<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v6H4V6h6"/>'),
+  run: svg('<circle cx="14" cy="4.5" r="2"/><path d="M6 11l4-3 4 1 2 4 3 1"/><path d="M12 9l-2 6 4 3v4"/><path d="M10 15l-2 3H4"/>'),
+  wrench: svg('<path d="M14.5 6.5a4 4 0 0 0 5 5L11 20a2.1 2.1 0 0 1-3-3l8.5-8.5"/><path d="M14.5 6.5L17 4a4 4 0 0 0-5 5"/>'),
+  hand: svg('<path d="M8 13V5a1.500 1.500 0 0 1 3 0v6"/><path d="M11 11V4a1.500 1.500 0 0 1 3 0v7"/><path d="M14 11V6a1.500 1.500 0 0 1 3 0v8"/><path d="M8 13l-1.500-2a1.500 1.500 0 0 0-2.500 1.700L7 18a5 5 0 0 0 4 2h2a4 4 0 0 0 4-4v-2"/>'),
+  star: svg('<path d="M12 3l2.700 5.600 6.100.800-4.500 4.300 1.100 6.100L12 16.900 6.600 19.800l1.100-6.100L3.200 9.400l6.100-.800z"/>'),
+  list: svg('<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/>'),
+  box: svg('<path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/>'),
+  bug: svg('<rect x="8" y="7" width="8" height="12" rx="4"/><path d="M12 7V4M4 13h4M16 13h4M5 7l3 2M19 7l-3 2M5 20l3-3M19 20l-3-3"/>'),
+  tag: svg('<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.500" cy="7.500" r="1.200"/>'),
 };
 function page({ title, body, depth = 0, description = "", active = "" }) {
   const up = "../".repeat(depth);
@@ -52,11 +66,11 @@ document.documentElement.setAttribute("data-theme",t)})()</script>
 <header class="top"><div class="bar">
   <a class="brand" href="${up || "./"}"><img src="${up}pack.png" alt=""><span>Fresh Moves Fix</span></a>
   <nav>
-    ${nav("home", up || "./", "Home")}
-    ${nav("guides", up + "guides/", "Guides")}
-    ${nav("editor", up + "editor/", "Eye editor")}
-    ${nav("settings", up + "settings/", "Settings")}
-    <a rel="noopener" href="${REPO}">GitHub</a>
+    ${nav("home", up || "./", ICON.home + " Home")}
+    ${nav("guides", up + "guides/", ICON.book + " Guides")}
+    ${nav("editor", up + "editor/", ICON.eye + " Eye editor")}
+    ${nav("settings", up + "settings/", ICON.gear + " Settings")}
+    <a rel="noopener" href="${REPO}">${ICON.code} GitHub</a>
   </nav>
   <button type="button" class="snd" data-music-toggle aria-pressed="false" aria-label="Music" title="Music: off">${ICON.music}</button>
   <a class="get" href="${up}#download">${ICON.down} Download</a>
@@ -69,24 +83,24 @@ ${body}
       <p>Fresh Moves Fix is <a rel="noopener" href="${REPO}">open source</a>.</p>
       <p>CC0 1.0 · a fork of <a rel="noopener" href="https://github.com/IthanMendoza/Fresh-Moves">Fresh Moves</a> by IthanMendoza, based on Fresh Animations by FreshLX.</p>
     </div>
-    <div><h4>Pack</h4>
-      <a href="${up}#download">Download</a>
-      <a rel="noopener" href="${REPO}/releases">Releases</a>
-      <a rel="noopener" href="${REPO}#changes-from-the-original-pack">Changes</a>
+    <div><h4>${ICON.box} Pack</h4>
+      <a href="${up}#download">${ICON.down} Download</a>
+      <a rel="noopener" href="${REPO}/releases">${ICON.tag} Releases</a>
+      <a rel="noopener" href="${REPO}#changes-from-the-original-pack">${ICON.star} Changes</a>
     </div>
-    <div><h4>Skins</h4>
-      <a href="${up}guides/">Eye guides</a>
-      <a href="${up}editor/">Eye editor</a>
-      <a href="${up}guides/fix-black-eyes/">Fix black eyes</a>
+    <div><h4>${ICON.eye} Skins</h4>
+      <a href="${up}guides/">${ICON.book} Eye guides</a>
+      <a href="${up}editor/">${ICON.eye} Eye editor</a>
+      <a href="${up}guides/fix-black-eyes/">${ICON.wrench} Fix black eyes</a>
     </div>
-    <div><h4>Required mods</h4>
-      <a rel="noopener" href="https://modrinth.com/mod/entity-model-features">Entity Model Features</a>
-      <a rel="noopener" href="https://modrinth.com/mod/entitytexturefeatures">Entity Texture Features</a>
+    <div><h4>${ICON.wrench} Required mods</h4>
+      <a rel="noopener" href="https://modrinth.com/mod/entity-model-features">${ICON.ext} Entity Model Features</a>
+      <a rel="noopener" href="https://modrinth.com/mod/entitytexturefeatures">${ICON.ext} Entity Texture Features</a>
     </div>
-    <div><h4>Resources</h4>
-      <a rel="noopener" href="${REPO}">GitHub</a>
-      <a rel="noopener" href="${REPO}/issues">Report issues</a>
-      <a href="${up}settings/">Settings</a>
+    <div><h4>${ICON.list} Resources</h4>
+      <a rel="noopener" href="${REPO}">${ICON.code} GitHub</a>
+      <a rel="noopener" href="${REPO}/issues">${ICON.bug} Report issues</a>
+      <a href="${up}settings/">${ICON.gear} Settings</a>
     </div>
   </div>
   <p class="legal">Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.</p>
@@ -378,45 +392,45 @@ write("index.html", page({
   <div class="txt">
     <h1>Fresh Moves Fix</h1>
     <p>Smoother, more expressive player animations and animated eyes for Minecraft. A fork of Fresh Moves with small fixes and builds for Minecraft ${versions[0].mc} to ${versions[versions.length - 1].mc}.</p>
-    <a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">Download ${esc(version)}</a>
-    <a class="btn ghost" href="editor/">Skin eye editor</a>
-    <a class="btn ghost" href="guides/">Eye guides</a>
+    <a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">${ICON.down} Download ${esc(version)}</a>
+    <a class="btn ghost" href="editor/">${ICON.eye} Skin eye editor</a>
+    <a class="btn ghost" href="guides/">${ICON.book} Eye guides</a>
   </div>
 </div>
 
 <section>
   <div class="note"><strong>Beta.</strong> These builds have not been tested in-game yet. On Minecraft 1.21.4 and newer the cape and elytra may not be animated.</div>
-  <h2>What it does</h2>
+  <h2>${ICON.star} What it does</h2>
   <div class="cards">
-    <div class="card"><h3>Player animations</h3><p>Reworked walking, sprinting, sneaking, swimming, crawling and sleeping, in the style of Fresh Animations.</p></div>
-    <div class="card"><h3>Animated eyes</h3><p>Eyes blink and look around when your skin has the marker pixels described in the guides.</p></div>
-    <div class="card"><h3>Changes in this fork</h3><p>Eyes stay closed while sleeping and after death, and the second skin layer no longer moves twice on 1.21.2+.</p></div>
-    <div class="card"><h3>Wave emote</h3><p>Stand still, sneak and look straight up, and your right arm waves.</p></div>
+    <a class="card feat" href="#download"><h3>${ICON.run} Player animations</h3><p>Reworked walking, sprinting, sneaking, swimming, crawling and sleeping, in the style of Fresh Animations.</p><span class="more">Download ${ICON.right}</span></a>
+    <a class="card feat" href="guides/"><h3>${ICON.eye} Animated eyes</h3><p>Eyes blink and look around when your skin has the marker pixels described in the guides.</p><span class="more">Eye guides ${ICON.right}</span></a>
+    <a class="card feat" rel="noopener" href="${REPO}#changes-from-the-original-pack"><h3>${ICON.wrench} Changes in this fork</h3><p>Eyes stay closed while sleeping and after death, and the second skin layer no longer moves twice on 1.21.2+.</p><span class="more">Changes ${ICON.ext}</span></a>
+    <a class="card feat" href="editor/"><h3>${ICON.hand} Wave emote</h3><p>Stand still, sneak and look straight up, and your right arm waves.</p><span class="more">3D preview ${ICON.right}</span></a>
   </div>
 </section>
 
 <section>
-  <h2>Requirements</h2>
+  <h2>${ICON.wrench} Requirements</h2>
   <p>You need the <strong>latest</strong> versions of these two client-side mods (Fabric, Forge and NeoForge):</p>
   <p>
-    <a class="btn ghost" rel="noopener" href="https://modrinth.com/mod/entity-model-features">Entity Model Features (EMF)</a>
-    <a class="btn ghost" rel="noopener" href="https://modrinth.com/mod/entitytexturefeatures">Entity Texture Features (ETF)</a>
+    <a class="btn ghost" rel="noopener" href="https://modrinth.com/mod/entity-model-features">${ICON.ext} Entity Model Features (EMF)</a>
+    <a class="btn ghost" rel="noopener" href="https://modrinth.com/mod/entitytexturefeatures">${ICON.ext} Entity Texture Features (ETF)</a>
   </p>
   <p>On Minecraft 1.21.9 and newer armour only follows the animations with a recent EMF (3.0.5 or newer; 3.0.12 fixes armour lag).</p>
 </section>
 
 <section id="download">
-  <h2>Download</h2>
-  <p><a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">Fresh-Moves-Fix.zip - all versions</a></p>
+  <h2>${ICON.down} Download</h2>
+  <p><a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">${ICON.down} Fresh-Moves-Fix.zip - all versions</a></p>
   <p>One zip for every supported version. Or pick the zip labelled for your Minecraft version:</p>
   <div class="versions">
 ${versionLinks}
   </div>
-  <p style="margin-top:16px"><a href="${REPO}/releases">All releases on GitHub</a></p>
+  <p style="margin-top:16px"><a rel="noopener" href="${REPO}/releases">${ICON.tag} All releases on GitHub</a></p>
 </section>
 
 <section>
-  <h2>How to install</h2>
+  <h2>${ICON.list} How to install</h2>
   <ol class="steps">
     <li>Install EMF and ETF.</li>
     <li>Put the downloaded zip (do not unzip it) in your <code>resourcepacks</code> folder.</li>
