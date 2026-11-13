@@ -4699,7 +4699,8 @@
 					"left_arm.rx": "  if(varb.IFPH,  left_arm.rx, wraprad( left_arm.rx)             )",
 					"right_arm.ry": " if(varb.IFPH, right_arm.ry,                                                                      torad( -10)*limb_speed*(var.player_sprinting) + wraprad(right_arm.ry)  )",
 					"left_arm.ry": "  if(varb.IFPH,  left_arm.ry,                                                                      torad(  10)*limb_speed*(var.player_sprinting) + wraprad( left_arm.ry)  )",
-					"right_arm.rz": " if(varb.IFPH, right_arm.rz, if(is_sneaking, torad( 5), 0) + if(varb.is_sleeping, torad( 5), 0) + torad( 7.5)*limb_speed*(var.player_sprinting) + wraprad(right_arm.rz)  )",
+					"var.emote_wave": "clamp(var.emote_wave + if(is_sneaking && head_pitch < -60 && limb_speed < 0.1 && !varb.is_sleeping && !is_riding, 0.15, -0.15), 0, 1)",
+					"right_arm.rz": " if(varb.IFPH, right_arm.rz, var.emote_wave*(torad(150) + torad(20)*sin(age*0.6)) + if(is_sneaking, torad( 5), 0) + if(varb.is_sleeping, torad( 5), 0) + torad( 7.5)*limb_speed*(var.player_sprinting) + wraprad(right_arm.rz)  )",
 					"left_arm.rz": "  if(varb.IFPH,  left_arm.rz, if(is_sneaking, torad(-5), 0) + if(varb.is_sleeping, torad(-5), 0) + torad(-7.5)*limb_speed*(var.player_sprinting) + wraprad( left_arm.rz)  )"
 				},
 				{

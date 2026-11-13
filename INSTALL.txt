@@ -18,4 +18,7 @@ INSTALL
 2. Put this zip (do not unzip it) in the "resourcepacks" folder.
 3. In Minecraft: Options > Resource Packs, move the pack to the right, Done.
 
+WAVE EMOTE
+Stand still, sneak and look straight up: the right arm waves.
+
 Based on Fresh Moves by IthanMendoza (CC0).

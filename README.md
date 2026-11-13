@@ -1,5 +1,7 @@
 # Fresh-Moves-Fix
 
+![Fresh Moves Fix](docs/images/banner.png)
+
 ## Requirements
 
 ![EMF and ETF are required](docs/images/requirements.png)
@@ -19,10 +21,23 @@ On Minecraft 1.21.9 and newer use EMF 3.0.12 or newer, otherwise armour does not
 - Eyes stay closed while sleeping and after death (upstream issue #360).
 - `v1_21_2/` overlay (loaded automatically on Minecraft 1.21.2+): the second skin layer (hat, jacket, sleeves, pants) no longer moves twice (upstream issues #211, #309).
 - `pack.mcmeta` declares the overlay and the `min_format` / `max_format` fields that Minecraft 1.21.9+ expects.
+- Wave emote (new in 3.1-fix2): stand still, sneak and look straight up, and the right arm waves. Other players with the pack see it too.
 - Added example skins `herobrine.png` and `alex_white_eyes.png`.
 - Wiki pages copied to `docs/`; caption fixed in "Eyebrow (Villager)" (upstream issue #246).
 
 None of the model changes have been tested in-game yet.
+
+## Website
+
+https://fresh-moves-fix.vercel.app
+
+The site is in `website/`. It is generated from this repository (`docs/`, `VERSION`, `build.py`):
+
+```
+cd website
+npm install
+npm run build   # writes website/public
+```
 
 ## Build
 
