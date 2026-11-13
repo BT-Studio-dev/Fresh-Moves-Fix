@@ -313,6 +313,18 @@
     syncSwatches();
     const { out, c } = build();
     current = out;
+    try { // the small picture in the "1. Skin" heading shows the face of the skin being edited
+      const ic = $("skinicon"), g = ic && ic.getContext && ic.getContext("2d");
+      if (g) {
+        const face = g.createImageData(8, 8);
+        for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) {
+          const hat = idx(40 + x, 8 + y), base = idx(8 + x, 8 + y), from = out.data[hat + 3] > 127 ? hat : base, to = (y * 8 + x) * 4;
+          for (let k = 0; k < 3; k++) face.data[to + k] = out.data[from + k];
+          face.data[to + 3] = 255;
+        }
+        g.putImageData(face, 0, 0);
+      }
+    } catch (e) {}
     draw($("face"), out, 8, 8, 8, 8);
     draw($("top"), out, 0, 0, 40, 8, c.box);
     draw($("full"), out, 0, 0, 64, 64, c.box);

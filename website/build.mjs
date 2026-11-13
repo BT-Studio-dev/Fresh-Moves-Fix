@@ -253,7 +253,7 @@ write("editor/index.html", page({
 <div class="ed">
   <div class="ed-col">
   <section class="panel ecard">
-    <h3 class="ehead"><span class="tool-ic">${ICON.person}</span><span><b>1. Skin</b><small>Load your skin or start from Steve or Alex</small></span></h3>
+    <h3 class="ehead"><canvas id="skinicon" class="tool-img" width="8" height="8" style="background-image:url(../icon-skin.png)" aria-hidden="true"></canvas><span><b>1. Skin</b><small>Load your skin or start from Steve or Alex</small></span></h3>
     <label class="drop" id="drop">
       <input type="file" id="file" accept="image/png" class="vh">
       <span class="drop-ic">${ICON.up}</span>

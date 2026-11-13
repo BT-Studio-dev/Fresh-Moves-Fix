@@ -576,3 +576,5 @@ html[data-theme="glass"] { background: #0a1210; }
 /* blurred cards stack separately, so the card with an open list must come to the front */
 [data-theme="glass"] .ed .panel { position: relative; }
 [data-theme="glass"] .ed .panel:has(.dd-btn[aria-expanded="true"]) { z-index: 30; }
+
+.ed h3.ehead canvas.tool-img { width: 44px; height: 44px; border: 0; border-radius: 10px; background-size: cover; image-rendering: pixelated; }
