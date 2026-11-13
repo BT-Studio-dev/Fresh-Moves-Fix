@@ -11,6 +11,12 @@ const REPO = "https://github.com/BT-Studio-dev/Fresh-Moves-Fix";
 
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 const version = read("VERSION").trim();
+// time of the release on GitHub (asked at build time; the page asks again when it is opened)
+let releaseTime = "";
+try {
+  const r = await fetch(`https://api.github.com/repos/BT-Studio-dev/Fresh-Moves-Fix/releases/tags/v${version}`, { headers: { "User-Agent": "fresh-moves-fix-site" }, signal: AbortSignal.timeout(8000) });
+  if (r.ok) { const j = await r.json(); releaseTime = (j.assets || []).map((x) => x.updated_at).sort().pop() || j.published_at || ""; }
+} catch (e) {}
 const dl = (file) => `${REPO}/releases/download/v${version}/${file}`;
 
 // A short fingerprint of a file, added to its address, so browsers fetch the new file after every change
@@ -532,6 +538,16 @@ write("index.html", page({
 <section id="download">
   <h2>${ICON.down} Download</h2>
   <p><a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">${ICON.down} Fresh-Moves-Fix.zip - all versions</a></p>
+  <p class="reltime" id="reltime"${releaseTime ? "" : " hidden"}>${ICON.tag} <span>Release <b>v${version}</b> · updated <time datetime="${releaseTime}">${releaseTime ? releaseTime.replace("T", " ").replace(/:\d\dZ$/, " UTC") : ""}</time></span></p>
+  <script>(function(){
+    var p=document.getElementById("reltime"); if(!p) return; var t=p.querySelector("time");
+    function show(iso){ var d=new Date(iso); if(isNaN(d)) return; t.setAttribute("datetime",iso);
+      var txt; try{ txt=d.toLocaleString(document.documentElement.lang||undefined,{dateStyle:"medium",timeStyle:"short"}); }catch(e){ txt=d.toLocaleString(); }
+      t.textContent=txt; t.title=iso.replace("T"," ").replace("Z"," UTC"); p.hidden=false; }
+    if(t.getAttribute("datetime")) show(t.getAttribute("datetime"));
+    try{ fetch("https://api.github.com/repos/BT-Studio-dev/Fresh-Moves-Fix/releases/tags/v${version}").then(function(r){return r.ok?r.json():null}).then(function(j){
+      if(!j) return; var a=(j.assets||[]).map(function(x){return x.updated_at}).sort().pop()||j.published_at; if(a) show(a); }).catch(function(){}); }catch(e){}
+  })()</script>
   <p>One zip for every supported version. Or pick the zip labelled for your Minecraft version:</p>
   <div class="versions">
 ${versionLinks}

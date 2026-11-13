@@ -599,3 +599,8 @@ html[data-theme="glass"] { background: #0a1210; }
 .set .saved.flash { animation: savedflash .6s ease; }
 @keyframes savedflash { from { transform: scale(.97); opacity: .3; } to { transform: none; opacity: 1; } }
 .set .saved:not(.bad)::before { content: "\2713"; color: var(--accent); font-weight: 700; }
+
+/* release time under the download button */
+.reltime { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .93rem; margin: -4px 0 14px; }
+.reltime[hidden] { display: none; }
+.reltime b, .reltime time { color: var(--text); }
