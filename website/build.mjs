@@ -13,6 +13,11 @@ const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 const version = read("VERSION").trim();
 const dl = (file) => `${REPO}/releases/download/v${version}/${file}`;
 
+// A short fingerprint of a file, added to its address, so browsers fetch the new file after every change
+// instead of showing an old saved copy of the styles or scripts.
+import { createHash } from "node:crypto";
+const ver = (f) => createHash("sha1").update(fs.readFileSync(path.join(here, f))).digest("hex").slice(0, 8);
+
 // Minecraft versions and pack formats come from build.py, so the site matches the builds.
 const versions = [...read("build.py").match(/VERSIONS = \{([\s\S]*?)\}/)[1].matchAll(/"([\d.]+)":\s*(\d+)/g)]
   .map((m) => ({ mc: m[1], format: Number(m[2]) }));
@@ -71,7 +76,7 @@ function page({ title, body, depth = 0, description = "", active = "" }) {
 if(t==="system")t=window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
 document.documentElement.setAttribute("data-theme",t)})()</script>
 <link rel="icon" href="${up}pack.png">
-<link rel="stylesheet" href="${up}style.css">
+<link rel="stylesheet" href="${up}style.css?v=${ver("style.css")}">
 </head>
 <body>
 <header class="top"><div class="bar">
@@ -126,9 +131,9 @@ ${body}
   </div>
   <p class="legal">Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.</p>
 </div></footer>
-<script src="${up}i18n.js"></script>
-<script src="${up}music.js"></script>
-<script src="${up}nav.js"></script>
+<script src="${up}i18n.js?v=${ver("i18n.js")}"></script>
+<script src="${up}music.js?v=${ver("music.js")}"></script>
+<script src="${up}nav.js?v=${ver("nav.js")}"></script>
 </body>
 </html>
 `;
@@ -348,7 +353,7 @@ write("editor/index.html", page({
 <p>The positions of 2 wide 1 tall and 2 wide 2 tall come from the example skins in the pack. The other shapes were worked out from the pack's model file and are less certain; the derp layout is the least certain. Eyebrows, eyelashes and fox eyes are not in the editor yet; see the <a href="../guides/">guides</a>.</p>
 </article></div>
 <script src="../skinview3d.bundle.js"></script>
-<script src="../editor.js"></script>`,
+<script src="../editor.js?v=${ver("editor.js")}"></script>`,
 }));
 
 // ---------- settings ----------
