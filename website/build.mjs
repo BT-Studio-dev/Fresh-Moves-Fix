@@ -292,6 +292,9 @@ write("editor/index.html", page({
   </section>
   <section class="panel ecard">
     <h3 class="ehead"><span class="tool-ic">${ICON.eye}</span><span><b>2. Eyes</b><small>Shape and place of the eyes, eyebrows, eyelashes</small></span></h3>
+    <p class="elabel">Quick choice</p>
+    <p class="row"><button type="button" class="btn ghost" id="eyeboy">Boy eyes</button> <button type="button" class="btn ghost" id="eyegirl">Girl eyes</button></p>
+    <p class="ehint">${ICON.info} <span>Boy: small eyes, 2 wide and 1 tall, with eyebrows. Girl: big eyes, 2 wide and 2 tall, with eyelashes. You can still change everything below.</span></p>
     <p><label>Eye shape
       <select id="type"></select></label></p>
     <p><label>Position on the face

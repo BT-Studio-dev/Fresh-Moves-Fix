@@ -618,6 +618,13 @@
   fillPositions();
   $("type").addEventListener("change", () => { fillPositions(); syncMenus(); pickDefaults(); render(); });
   ["type", "pos", "anim", "brow"].forEach((id) => enhance($(id)));
+  function eyePreset(type, pos, brow, lash) { // "Boy eyes" / "Girl eyes"
+    $("type").value = type; fillPositions(); $("pos").value = pos;
+    $("brow").value = brow; $("lash").checked = lash; $("custom").checked = true;
+    syncMenus(); pickDefaults(); render();
+  }
+  $("eyeboy").addEventListener("click", () => eyePreset("2x1", "upper", "f3", false));
+  $("eyegirl").addEventListener("click", () => eyePreset("2x2", "bottom", "none", true));
   $("brow").addEventListener("change", render); $("lash").addEventListener("input", render);
   $("pos").addEventListener("change", () => { pickDefaults(); render(); });
   $("custom").addEventListener("input", render);
