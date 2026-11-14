@@ -155,7 +155,7 @@ fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 fs.copyFileSync(path.join(root, "pack.png"), path.join(out, "pack.png"));
 fs.copyFileSync(path.join(here, "title.png"), path.join(out, "title.png"));
-for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
+for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
@@ -313,6 +313,13 @@ write("editor/index.html", page({
     <h3 class="ehead"><span class="tool-ic">${ICON.down}</span><span><b>4. Save</b><small>Download the finished skin</small></span></h3>
     <p><button type="button" class="btn" id="save" disabled>${ICON.down} Download skin (.png)</button></p>
     <p class="statline"><a id="status" class="status" href="#" target="_blank" rel="noopener" title="Open the skin picture in a new tab"></a></p>
+  </section>
+  <section class="panel ecard" id="model3d">
+    <h3 class="ehead"><span class="tool-ic">${ICON.box}</span><span><b>5. 3D model</b><small>Animated model file with your skin</small></span></h3>
+    <p class="ehint">${ICON.info} Saves the player as a 3D model file with your skin on it and the move chosen under "Emote" in the 3D preview (now: <b id="move3d"></b>), as a loop.</p>
+    <p><button type="button" class="btn" id="save3d">${ICON.down} Download 3D model (.gltf)</button></p>
+    <p class="ehint">Open it in Blender (File, Import, glTF 2.0), Blockbench (File, Import) or the Windows 3D Viewer. It is not used by the game.</p>
+    <p class="statline"><span id="msg3dfile" class="status" style="cursor:default"></span></p>
   </section>
   </div>
 
@@ -624,6 +631,11 @@ write("index.html", page({
       <span class="tool-head"><img class="tool-img" src="icon-title.png" alt="" width="48" height="48"><span><b>Minecraft Title</b><small>Blockbench + Title Generator</small></span></span>
       <span class="tool-text">Make a real 3D Minecraft title in Blockbench, right on this website.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Title</i><i>Logo</i></span>
+    </a>
+    <a class="tool" href="editor/#model3d">
+      <span class="tool-head"><img class="tool-img" src="icon-model.png" alt="" width="48" height="48"><span><b>Minecraft 3D Model</b><small>by Fresh Moves Fix</small></span></span>
+      <span class="tool-text">Turn your skin into an animated 3D model file for Blender or Blockbench.</span>
+      <span class="tags"><i class="g">Minecraft</i><i>3D Model</i><i>Animated</i></span>
     </a>
     <a class="tool" href="animation/">
       <span class="tool-head"><img class="tool-img" src="icon-anim.png" alt="" width="48" height="48"><span><b>Minecraft Animation</b><small>Blender + MCprep</small></span></span>

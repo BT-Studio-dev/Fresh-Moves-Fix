@@ -210,6 +210,112 @@
     look: (t) => ({ head: [Math.sin(t * 0.9) * 0.25, Math.sin(t * 1.5) * 0.9, 0], ra: [0, 0, -0.05], la: [0, 0, 0.05] }),
     tpose: () => ({ ra: [0, 0, -Math.PI / 2], la: [0, 0, Math.PI / 2] }),
   };
+  // the four basic moves, in the same form (used by the simple viewer and by the 3D model file)
+  const MOVES = {
+    idle: (t) => { const b = Math.sin(t * 1.6) * 0.04; return { ra: [b, 0, -0.05 - b], la: [-b, 0, 0.05 + b] }; },
+    walk: (t) => { const w = Math.sin(t * 6) * 0.6; return { ra: [w, 0, 0], la: [-w, 0, 0], rl: [-w, 0, 0], ll: [w, 0, 0] }; },
+    run: (t) => { const w = Math.sin(t * 10) * 1.1; return { ra: [w, 0, 0], la: [-w, 0, 0], rl: [-w, 0, 0], ll: [w, 0, 0] }; },
+    wave: (t) => ({ ra: [0, 0, -2.4 + Math.sin(t * 7) * 0.35], la: [0, 0, 0.05], head: [0, 0, 0.06] }),
+  };
+  const moveOf = (name) => EMOTES[name] || MOVES[name] || MOVES.idle;
+  // seconds after which each move repeats (for a clean loop in the 3D model file)
+  const LOOP = { idle: 2 * Math.PI / 1.6, walk: Math.PI / 3, run: Math.PI / 5, wave: 2 * Math.PI / 7, cheer: Math.PI / 4, jacks: Math.PI / 3, clap: 2 * Math.PI / 11, dance: Math.PI / 3, dab: 2 * Math.PI / 3, sit: 2 * Math.PI / 1.6, look: 2 * Math.PI / 0.3, tpose: 1 };
+  const BOXES = (slim) => { // [joint, u, v, w, h, d, centre x, y, z, inflate]
+    const aw = slim ? 3 : 4, ax = slim ? 5.5 : 6;
+    return [
+      ["head", 0, 0, 8, 8, 8, 0, 28, 0, 0], ["head", 32, 0, 8, 8, 8, 0, 28, 0, 0.5],
+      ["body", 16, 16, 8, 12, 4, 0, 18, 0, 0], ["body", 16, 32, 8, 12, 4, 0, 18, 0, 0.25],
+      ["ra", 40, 16, aw, 12, 4, -ax, 18, 0, 0], ["ra", 40, 32, aw, 12, 4, -ax, 18, 0, 0.25],
+      ["la", 32, 48, aw, 12, 4, ax, 18, 0, 0], ["la", 48, 48, aw, 12, 4, ax, 18, 0, 0.25],
+      ["rl", 0, 16, 4, 12, 4, -2, 6, 0, 0], ["rl", 0, 32, 4, 12, 4, -2, 6, 0, 0.25],
+      ["ll", 16, 48, 4, 12, 4, 2, 6, 0, 0], ["ll", 0, 48, 4, 12, 4, 2, 6, 0, 0.25],
+    ];
+  };
+  const PIVOTS = { head: [0, 24, 0], body: [0, 24, 0], ra: [-5, 22, 0], la: [5, 22, 0], rl: [-2, 12, 0], ll: [2, 12, 0] };
+  const FACE_NORMALS = [[0, 0, 1], [0, 0, -1], [-1, 0, 0], [1, 0, 0], [0, 1, 0], [0, -1, 0]]; // front, back, right, left, top, bottom
+  // the four corners of each box face with their place on the skin: [x, y, z, u, v] x4
+  function boxFaces(u, v, w, h, dp, cx, cy, cz, n) {
+    const X = w / 2 + n, Y = h / 2 + n, Z = dp / 2 + n, t = cy + Y, b = cy - Y;
+    const q = (fu, fv, cols, rows, p) => [[...p[0], fu, fv], [...p[1], fu + cols, fv], [...p[2], fu + cols, fv + rows], [...p[3], fu, fv + rows]];
+    return [
+      q(u + dp, v + dp, w, h, [[cx - X, t, cz + Z], [cx + X, t, cz + Z], [cx + X, b, cz + Z], [cx - X, b, cz + Z]]),
+      q(u + 2 * dp + w, v + dp, w, h, [[cx + X, t, cz - Z], [cx - X, t, cz - Z], [cx - X, b, cz - Z], [cx + X, b, cz - Z]]),
+      q(u, v + dp, dp, h, [[cx - X, t, cz - Z], [cx - X, t, cz + Z], [cx - X, b, cz + Z], [cx - X, b, cz - Z]]),
+      q(u + dp + w, v + dp, dp, h, [[cx + X, t, cz + Z], [cx + X, t, cz - Z], [cx + X, b, cz - Z], [cx + X, b, cz + Z]]),
+      q(u + dp, v, w, dp, [[cx - X, t, cz - Z], [cx + X, t, cz - Z], [cx + X, t, cz + Z], [cx - X, t, cz + Z]]),
+      q(u + dp + w, v, w, dp, [[cx - X, b, cz - Z], [cx + X, b, cz - Z], [cx + X, b, cz + Z], [cx - X, b, cz + Z]]), // same picture as the preview; seen from below
+    ];
+  }
+  // ---- 3D model file (glTF 2.0): the player with the skin on it and one looping move. Opens in Blender, Blockbench, Windows 3D Viewer. ----
+  function buildGltf(pngDataUrl, slim, move) {
+    const S = 1 / 16, JOINTS = ["head", "body", "ra", "la", "rl", "ll"], NAMES = { head: "Head", body: "Body", ra: "RightArm", la: "LeftArm", rl: "RightLeg", ll: "LeftLeg" };
+    const chunks = [], views = [], accessors = []; let size = 0;
+    const add = (typed, target, type, comp, count, extra) => {
+      const bytes = new Uint8Array(typed.buffer); const pad = (4 - (bytes.length % 4)) % 4;
+      views.push(Object.assign({ buffer: 0, byteOffset: size, byteLength: bytes.length }, target ? { target } : {}));
+      chunks.push(bytes); if (pad) chunks.push(new Uint8Array(pad)); size += bytes.length + pad;
+      accessors.push(Object.assign({ bufferView: views.length - 1, componentType: comp, count, type }, extra || {}));
+      return accessors.length - 1;
+    };
+    const meshes = [], nodes = [{ name: "Player", children: JOINTS.map((_, i) => i + 1), translation: [0, 0, 0] }];
+    JOINTS.forEach((j, ji) => {
+      const pv = PIVOTS[j], prims = [];
+      for (const layer of [0, 1]) {
+        const pos = [], nor = [], uv = [], idx = [];
+        for (const [name, u, v, w, h, dp, cx, cy, cz, inf] of BOXES(slim)) {
+          if (name !== j || (inf > 0) !== (layer === 1)) continue;
+          boxFaces(u, v, w, h, dp, cx, cy, cz, inf).forEach((f, fi) => {
+            const base = pos.length / 3;
+            for (const c of f) { pos.push((c[0] - pv[0]) * S, (c[1] - pv[1]) * S, (c[2] - pv[2]) * S); nor.push(...FACE_NORMALS[fi]); uv.push(c[3] / 64, c[4] / 64); }
+            if (fi === 5) idx.push(base, base + 1, base + 2, base, base + 2, base + 3);
+            else idx.push(base, base + 3, base + 2, base, base + 2, base + 1); // counter-clockwise seen from outside
+          });
+        }
+        const mn = [1e9, 1e9, 1e9], mx = [-1e9, -1e9, -1e9];
+        for (let i = 0; i < pos.length; i++) { mn[i % 3] = Math.min(mn[i % 3], pos[i]); mx[i % 3] = Math.max(mx[i % 3], pos[i]); }
+        const P = add(new Float32Array(pos), 34962, "VEC3", 5126, pos.length / 3, { min: Array.from(new Float32Array(mn)), max: Array.from(new Float32Array(mx)) });
+        const N = add(new Float32Array(nor), 34962, "VEC3", 5126, nor.length / 3);
+        const T = add(new Float32Array(uv), 34962, "VEC2", 5126, uv.length / 2);
+        const I = add(new Uint16Array(idx), 34963, "SCALAR", 5123, idx.length);
+        prims.push({ attributes: { POSITION: P, NORMAL: N, TEXCOORD_0: T }, indices: I, material: layer });
+      }
+      meshes.push({ name: NAMES[j], primitives: prims });
+      nodes.push({ name: NAMES[j], mesh: ji, translation: [pv[0] * S, pv[1] * S, pv[2] * S], rotation: [0, 0, 0, 1] });
+    });
+    // the move: one turn value per joint, 30 times a second, over one loop
+    const fn = moveOf(move), len = LOOP[move] || 2, frames = Math.max(2, Math.min(600, Math.round(len * 30) + 1));
+    const times = new Float32Array(frames), rot = JOINTS.map(() => new Float32Array(frames * 4)), lift = new Float32Array(frames * 3);
+    for (let f = 0; f < frames; f++) {
+      const t = (f / (frames - 1)) * len, e = fn(t); times[f] = t;
+      JOINTS.forEach((j, ji) => {
+        const r = e[j] || [0, 0, 0], cx = Math.cos(r[0] / 2), sx = Math.sin(r[0] / 2), cy = Math.cos(r[1] / 2), sy = Math.sin(r[1] / 2), cz = Math.cos(r[2] / 2), sz = Math.sin(r[2] / 2);
+        // turn order x, y, z as in the preview
+        rot[ji].set([sx * cy * cz + cx * sy * sz, cx * sy * cz - sx * cy * sz, cx * cy * sz + sx * sy * cz, cx * cy * cz - sx * sy * sz], f * 4);
+      });
+      lift[f * 3 + 1] = (e.lift || 0) * S;
+    }
+    const TI = add(times, 0, "SCALAR", 5126, frames, { min: [0], max: [times[frames - 1]] });
+    const samplers = [], channels = [];
+    JOINTS.forEach((j, ji) => {
+      samplers.push({ input: TI, output: add(rot[ji], 0, "VEC4", 5126, frames), interpolation: "LINEAR" });
+      channels.push({ sampler: samplers.length - 1, target: { node: ji + 1, path: "rotation" } });
+    });
+    samplers.push({ input: TI, output: add(lift, 0, "VEC3", 5126, frames), interpolation: "LINEAR" });
+    channels.push({ sampler: samplers.length - 1, target: { node: 0, path: "translation" } });
+    const all = new Uint8Array(size); let o = 0; for (const c of chunks) { all.set(c, o); o += c.length; }
+    let bin = ""; for (let i = 0; i < all.length; i += 0x8000) bin += String.fromCharCode.apply(null, all.subarray(i, i + 0x8000));
+    const mat = (name) => ({ name, pbrMetallicRoughness: { baseColorTexture: { index: 0 }, metallicFactor: 0, roughnessFactor: 1 }, alphaMode: "MASK", alphaCutoff: 0.5, doubleSided: name !== "Skin" });
+    return JSON.stringify({
+      asset: { version: "2.0", generator: "Fresh Moves Fix skin editor" },
+      scene: 0, scenes: [{ name: "Scene", nodes: [0] }], nodes, meshes,
+      materials: [mat("Skin"), mat("SkinSecondLayer")],
+      textures: [{ sampler: 0, source: 0 }], images: [{ name: "skin", uri: pngDataUrl }],
+      samplers: [{ magFilter: 9728, minFilter: 9728, wrapS: 33071, wrapT: 33071 }],
+      animations: [{ name: move, samplers, channels }],
+      accessors, bufferViews: views, buffers: [{ byteLength: size, uri: "data:application/octet-stream;base64," + btoa(bin) }],
+    });
+  }
+
   const PARTS3D = { head: "head", body: "body", ra: "rightArm", la: "leftArm", rl: "rightLeg", ll: "leftLeg" };
   // the same emote for the WebGL viewer (skinview3d)
   function emoteAnimation(fn) {
@@ -242,16 +348,7 @@
     const PIV = { head: [0, 24, 0], body: [0, 24, 0], ra: [-5, 22, 0], la: [5, 22, 0], rl: [-2, 12, 0], ll: [2, 12, 0] };
     function angles() { // [turn x, turn y, turn z] per part, plus lift
       const A = { head: [0, 0, 0], body: [0, 0, 0], ra: [0, 0, 0], la: [0, 0, 0], rl: [0, 0, 0], ll: [0, 0, 0], lift: 0 };
-      const p = self.pose;
-      if (EMOTES[p]) { const e = EMOTES[p](t); for (const k in e) A[k] = e[k]; return A; }
-      if (p === "walk" || p === "run") {
-        const k = p === "run" ? 1.1 : 0.6, w = Math.sin(t * (p === "run" ? 10 : 6)) * k;
-        A.ra[0] = w; A.la[0] = -w; A.rl[0] = -w; A.ll[0] = w;
-      } else if (p === "wave") {
-        A.ra[2] = -2.4 + Math.sin(t * 7) * 0.35; A.la[2] = 0.05; A.head[2] = 0.06;
-      } else {
-        const b = Math.sin(t * 1.6) * 0.04; A.ra[2] = -0.05 - b; A.la[2] = 0.05 + b; A.ra[0] = b; A.la[0] = -b;
-      }
+      const e = moveOf(self.pose)(t); for (const k in e) A[k] = e[k];
       return A;
     }
     function draw() {
@@ -680,6 +777,19 @@
       setStatus("Downloaded skin-fresh-moves.png.");
     }, "image/png");
   });
+
+  $("save3d").addEventListener("click", () => {
+    if (!current) return;
+    const move = $("anim").value, text = buildGltf(skinCanvas().toDataURL("image/png"), $("fmtslim").checked, move);
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type: "model/gltf+json" }));
+    a.download = "player-" + move + ".gltf";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    $("msg3dfile").textContent = "Downloaded " + a.download + ".";
+  });
+  const sync3dname = () => { const o = $("anim").options[$("anim").selectedIndex]; $("move3d").textContent = o ? o.textContent : ""; };
+  $("anim").addEventListener("change", sync3dname); sync3dname();
 
   loadImage($("steve").dataset.skin, "Steve");
 })();
