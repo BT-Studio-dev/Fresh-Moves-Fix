@@ -507,7 +507,7 @@ write("title/index.html", page({
   </section>
   <section class="panel ecard">
     <h3 class="ehead"><span class="tool-ic">${ICON.down}</span><span><b>2. Save</b><small>A .png picture</small></span></h3>
-    <p class="prow"><button type="button" class="btn" id="tsave">${ICON.down} Download title (.png)</button> <button type="button" class="btn ghost" id="tsave3">${ICON.down} Download 3D view (.png)</button></p>
+    <p class="prow"><button type="button" class="btn" id="tsave">${ICON.down} Download title (.png)</button></p>
     <p><small id="tinfo"></small></p>
   </section>
   </div>
@@ -518,22 +518,36 @@ write("title/index.html", page({
     <div class="tprev" id="tflat"><canvas id="tcanvas" width="16" height="16"></canvas></div>
     <div id="t3dwrap" hidden>
       <div class="tprev t3d"><canvas id="t3d" width="840" height="460"></canvas></div>
-      <p class="ehint">${ICON.info} <span>Drag the empty space to turn the title. Drag the red (X), green (Y) or blue (Z) arrow to move it. Click a ball of the X, Y, Z cross in the corner to look from that side; the darker balls are the opposite sides. From behind, the text reads mirrored.</span></p>
+      <p class="ehint">${ICON.info} <span>Drag the empty space to turn the title. Drag the red (X), green (Y) or blue (Z) arrow to move it (or only the letter selected in the Outliner). Click a ball of the X, Y, Z cross in the corner to look from that side; the darker balls are the opposite sides. From behind, the text reads mirrored.</span></p>
     </div>
   </section>
   <section class="panel ecard">
     <h3 class="ehead"><span class="tool-ic">${ICON.box}</span><span><b>Transform</b><small>Turn and zoom the 3D view</small></span></h3>
+    <p><small>Moving: <b id="tselname">the whole title</b></small></p>
     <p class="prow"><span>Position</span> <label>X <input type="number" id="tpx" class="tlsecs" value="0" step="1"></label> <label>Y <input type="number" id="tpy" class="tlsecs" value="0" step="1"></label> <label>Z <input type="number" id="tpz" class="tlsecs" value="0" step="1"></label> <button type="button" class="btn ghost" id="tcentre">Centre</button></p>
     <p class="prow"><label>Rotation X <input type="range" id="trx" min="-90" max="90" value="12"> <span id="trxv" class="tnum"></span></label></p>
     <p class="prow"><label>Rotation Y <input type="range" id="try" min="-180" max="180" value="-28"> <span id="tryv" class="tnum"></span></label></p>
     <p class="prow"><label>Rotation Z <input type="range" id="trz" min="-180" max="180" value="0"> <span id="trzv" class="tnum"></span></label></p>
     <p class="prow"><label>Zoom <input type="range" id="tzoom" min="40" max="160" value="100"></label></p>
-    <p class="prow"><button type="button" class="btn ghost" data-tview3="0,0,0">Front</button> <button type="button" class="btn ghost" data-tview3="12,-28,0">Angle</button> <button type="button" class="btn ghost" data-tview3="20,35,0">Other side</button> <button type="button" class="btn ghost" data-tview3="60,0,0">From above</button></p>
+    <p class="prow"><label>Angles <select id="tangle"><option value="12,-28,0" selected>Initial angle</option><option value="90,0,0">Top</option><option value="-90,0,0">Bottom</option><option value="0,0,0">South (front)</option><option value="0,180,0">North (back)</option><option value="0,90,0">East</option><option value="0,-90,0">West</option><option value="26.57,-45,0">Isometric right (2:1)</option><option value="26.57,45,0">Isometric left (2:1)</option><option value="30,-45,0">True isometric right (30°)</option><option value="30,45,0">True isometric left (30°)</option><option value="-24,0,0">Minecraft Title</option></select></label></p>
     <p><small>Size (wide x tall x deep): <span id="tsize3"></span></small></p>
   </section>
   <section class="panel ecard">
-    <h3 class="ehead"><span class="tool-ic">${ICON.grid}</span><span><b>Outliner</b><small>Click a letter to hide it or show it again</small></span></h3>
+    <h3 class="ehead"><span class="tool-ic">${ICON.grid}</span><span><b>Outliner</b><small>Click a letter to select it</small></span></h3>
     <div class="toutl" id="toutl"></div>
+    <p class="prow"><button type="button" class="btn ghost" id="thide" disabled>Hide the selected letter</button> <button type="button" class="btn ghost" id="tselnone" disabled>Select the whole title</button></p>
+    <p class="ehint">${ICON.info} <span>A selected letter gets a blue frame in the 3D view. The arrows and the Position boxes then move only that letter. Moving single letters shows in the 3D view and in the render, not in the flat picture.</span></p>
+  </section>
+  <section class="panel ecard">
+    <h3 class="ehead"><span class="tool-ic">${ICON.down}</span><span><b>Render</b><small>The 3D view as a clean picture</small></span></h3>
+    <p class="prow"><label>Mode <select id="trmode"><option value="normal" selected>Normal</option><option value="square">Square</option><option value="custom">Custom</option><option value="minecraft">Minecraft (1024 x 256)</option></select></label>
+      <label id="trsizerow">Size <select id="trsize"><option value="640">SD (640)</option><option value="1280">HD (1280)</option><option value="1024" selected>1K (1024)</option><option value="2048">2K (2048)</option></select></label></p>
+    <p class="prow" id="trcustom"><label>Resolution <input type="number" id="trw" class="tlsecs" min="16" max="4096" value="1920"></label> <label>x <input type="number" id="trh" class="tlsecs" min="16" max="4096" value="1080"></label></p>
+    <p class="prow"><label><input type="checkbox" id="trbg"> Background colour</label> <span id="trbgc-wrap"><input type="color" id="trbgc" value="#1d3c2d" aria-label="Render background colour"></span> <label>Padding <input type="number" id="trpad" class="tlsecs" min="0" max="400" value="0"></label></p>
+    <div class="tprev"><canvas id="trender" width="16" height="16"></canvas></div>
+    <p><small id="trinfo"></small></p>
+    <p class="prow"><button type="button" class="btn" id="trsave">${ICON.down} Save render (.png)</button> <button type="button" class="btn ghost" id="trcopy">Copy render</button></p>
+    <p><small id="trmsg"></small></p>
   </section>
   </div>
 </div>

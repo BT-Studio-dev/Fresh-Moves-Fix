@@ -701,3 +701,6 @@ header.top nav { min-width: 0; overflow-x: auto; }
 .tol-chips button { min-width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; font-weight: 700; cursor: pointer; }
 .tol-chips button:hover, .tol-chips button:focus-visible { border-color: var(--accent); outline: none; }
 .tol-chips button.off { opacity: .4; text-decoration: line-through; }
+
+.tol-chips button.sel { background: var(--accent); color: var(--on-accent); border-color: var(--accent); opacity: 1; }
+.tprev #trender { image-rendering: auto; }

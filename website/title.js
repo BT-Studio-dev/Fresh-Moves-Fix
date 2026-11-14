@@ -44,11 +44,12 @@
   }
 
   // one line of text -> grid of 0 (empty), 1 (outline), 2 (shade), 3 (face)
+  const letterPos = [{}, {}, {}]; let sel = null; // 3D view: own position of single letters, and the selected letter
   const hidden = [{}, {}, {}], lastText = ["", "", ""]; // letters switched off in the outliner, per line
   function line(text, kind, n) {
     const { U, OX, OY, D, LG } = shape(kind), GAP = 3 * U, hide = hidden[n] || {};
     let w = 0; const at = [];
-    for (let i = 0; i < text.length; i++) { const c = text[i]; if (c === " ") { w += GAP - LG; continue; } if (!hide[i]) at.push([c, w]); w += G[c][0].length * U + LG; }
+    for (let i = 0; i < text.length; i++) { const c = text[i]; if (c === " ") { w += GAP - LG; continue; } if (!hide[i]) at.push([c, w, i]); w += G[c][0].length * U + LG; }
     w -= LG; if (w < 1) return null;
     const W = w + 2 * OX, H = 10 * U + D + 2 * OY, face = new Uint8Array(W * H), ext = new Uint8Array(W * H), g = new Uint8Array(W * H);
     for (const [c, x0] of at) G[c].forEach((row, r) => { for (let k = 0; k < row.length; k++) if (row[k] === "X")
@@ -86,7 +87,7 @@
 
   let scene = null; // what the 3D view draws
   function draw() {
-    IDS.forEach((n, i) => { const t = clean($("tt" + n).value); if (t !== lastText[i]) { lastText[i] = t; hidden[i] = {}; } });
+    IDS.forEach((n, i) => { const t = clean($("tt" + n).value); if (t !== lastText[i]) { lastText[i] = t; hidden[i] = {}; letterPos[i] = {}; if (sel && sel.n === i) sel = null; } });
     const rowsIn = IDS.map((n, i) => [lastText[i], $("tc" + n).value, $("tk" + n).value, i]).filter((r) => r[0]);
     const lines = rowsIn.map((r) => ({ l: line(r[0], r[2], r[3]), col: hexRgb(r[1]) })).filter((r) => r.l);
     outliner();
@@ -110,7 +111,7 @@
     let y0 = 0;
     for (const { l, col } of lines) {
       const x0 = align === "left" ? 0 : align === "right" ? W - l.W : Math.floor((W - l.W) / 2);
-      scene.lines.push({ l, col, x0, y0 });
+      scene.lines.push({ l, col, x0, y0, n: rowsIn[scene.lines.length][3] });
       for (let y = 0; y < l.H; y++) { const gy = y0 + y; if (gy < 0 || gy >= H) continue;
         for (let x = 0; x < l.W; x++) {
           const v = l.g[y * l.W + x]; if (!v) continue;
@@ -134,7 +135,7 @@
     try { localStorage.setItem("fmf-title3", JSON.stringify({ v: FIELDS.map((id) => val(id, "")), c: CHECKS.map((id) => on(id, false)) })); } catch (e) {}
   }
 
-  // ---- outliner: every letter can be switched off and on again (it keeps its place) ----
+  // ---- outliner: click a letter to select it; a selected letter can be moved or hidden (it keeps its place) ----
   function outliner() {
     const box = $("toutl"); if (!box || !box.appendChild) return;
     box.innerHTML = "";
@@ -145,62 +146,87 @@
       const chips = document.createElement("span"); chips.className = "tol-chips";
       for (let k = 0; k < t.length; k++) { if (t[k] === " ") continue;
         const b = document.createElement("button"); b.type = "button"; b.textContent = t[k].toLowerCase();
-        const off = !!hidden[i][k]; b.className = off ? "off" : ""; b.setAttribute("aria-pressed", String(!off)); b.title = off ? "Show this letter" : "Hide this letter";
-        b.addEventListener("click", () => { if (hidden[i][k]) delete hidden[i][k]; else hidden[i][k] = 1; draw(); });
+        const off = !!hidden[i][k], me = !!sel && sel.n === i && sel.i === k;
+        b.className = (off ? "off" : "") + (me ? " sel" : ""); b.setAttribute("aria-pressed", String(me)); b.title = "Select this letter";
+        b.addEventListener("click", () => { sel = me ? null : { n: i, i: k }; outliner(); draw3d(); });
         chips.appendChild(b); }
       row.appendChild(chips); box.appendChild(row);
     });
     if (!box.firstChild) box.textContent = "Type a text first.";
+    const what = sel ? 'letter "' + lastText[sel.n][sel.i].toLowerCase() + '"' : "the whole title";
+    const w1 = $("tselname"); if (w1) w1.textContent = what;
+    const hb = $("thide"); if (hb) { hb.disabled = !sel; hb.textContent = sel && hidden[sel.n][sel.i] ? "Show the selected letter" : "Hide the selected letter"; }
+    const nb = $("tselnone"); if (nb) nb.disabled = !sel;
   }
+  const target = () => { if (!sel) return pos; const m = letterPos[sel.n]; return m[sel.i] || (m[sel.i] = { x: 0, y: 0, z: 0 }); };
 
   // ---- 3D view without WebGL: the letters are blocks, drawn face by face on a normal canvas ----
   const rot = { x: 12, y: -28, z: 0 }, pos = { x: 0, y: 0, z: 0 }, view = { k: 1, balls: [], arrows: [] };
-  function draw3d(fast) { // fast = while dragging: plain blocks, the pattern comes back on release
-    const cv = $("t3d"); if (!cv || !cv.getContext) return;
-    const ctx = cv.getContext("2d"), CW = cv.width, CH = cv.height;
-    ctx.clearRect(0, 0, CW, CH);
-    if (scene && scene.bg) { ctx.fillStyle = "rgb(" + scene.bg.join(",") + ")"; ctx.fillRect(0, 0, CW, CH); }
+  const turner = () => {
     const rad = Math.PI / 180, cx = Math.cos(rot.x * rad), sx = Math.sin(rot.x * rad), cy = Math.cos(rot.y * rad), sy = Math.sin(rot.y * rad), cz = Math.cos(rot.z * rad), sz = Math.sin(rot.z * rad);
-    const turn = (x, y, z) => { // y axis, then x axis, then z axis
+    return (x, y, z) => { // y axis, then x axis, then z axis
       let a = x * cy + z * sy, c = -x * sy + z * cy, b = y * cx - c * sx; c = y * sx + c * cx;
       return [a * cz - b * sz, a * sz + b * cz, c];
     };
-    if (scene) {
-      const maxD = Math.max(...scene.lines.map((r) => r.l.U * scene.deep)), zoom = Number(val("tzoom", "100")) / 100;
-      const k = Math.min(CW / (scene.W + maxD), CH / (scene.H + maxD)) * 0.82 * zoom;
-      view.k = k;
-      const P = (x, y, z) => { const p = turn(x - scene.W / 2 + pos.x, y - scene.H / 2 - pos.y, z - pos.z); return [CW / 2 + p[0] * k, CH / 2 + p[1] * k, p[2]]; };
-      const walls = [], caps = [];
-      const light = { top: 0.85, bottom: 0.4, left: 0.6, right: 0.6 };
-      for (const { l, col, x0, y0 } of scene.lines) {
-        const U = l.U, dz = U * scene.deep, zf = -dz / 2, zb = dz / 2, bx = x0 + l.OX, by = y0 + l.OY;
-        const cols = (l.W - 2 * l.OX) / U | 0, full = (c, r) => c >= 0 && r >= 0 && c < cols && r < 10 && l.face[(l.OY + r * U) * l.W + l.OX + c * U] === 1;
-        const nFront = turn(0, 0, -1)[2] < 0; // is the front side turned towards the viewer?
+  };
+  // all letters as lists of flat faces, already turned (in title units, before zoom)
+  function geometry(turn, detail) {
+    const out = [], light = { top: 0.85, bottom: 0.4, left: 0.6, right: 0.6 }, nFront = turn(0, 0, -1)[2] < 0;
+    for (const { l, col, x0, y0, n } of scene.lines) {
+      const U = l.U, dz = U * scene.deep, zf = -dz / 2, zb = dz / 2;
+      for (const [ch, xoff, idx] of l.at) {
+        const g = G[ch], cols = g[0].length, o = letterPos[n][idx] || { x: 0, y: 0, z: 0 };
+        const ox = x0 + l.OX + xoff - scene.W / 2 + pos.x + o.x, oy = y0 + l.OY - scene.H / 2 - pos.y - o.y, oz = -pos.z - o.z;
+        const T = (x, y, z) => turn(ox + x, oy + y, oz + z), full = (c, r) => c >= 0 && r >= 0 && c < cols && r < 10 && g[r][c] === "X";
+        const walls = [], caps = [];
         for (let r = 0; r < 10; r++) for (let c = 0; c < cols; c++) { if (!full(c, r)) continue;
-          const x1 = bx + c * U, y1 = by + r * U, x2 = x1 + U, y2 = y1 + U, mid = scene.shade(l, col, l.OX + c * U + (U >> 1), l.OY + r * U + (U >> 1), 3);
-          const wall = (name, pts, n) => { if (turn(n[0], n[1], n[2])[2] >= 0) return; const q = pts.map((p) => P(p[0], p[1], p[2])); walls.push({ q, z: (q[0][2] + q[1][2] + q[2][2] + q[3][2]) / 4, c: mid.map((v) => v * light[name]) }); };
-          if (!full(c, r - 1)) wall("top", [[x1, y1, zf], [x2, y1, zf], [x2, y1, zb], [x1, y1, zb]], [0, -1, 0]);
-          if (!full(c, r + 1)) wall("bottom", [[x1, y2, zf], [x2, y2, zf], [x2, y2, zb], [x1, y2, zb]], [0, 1, 0]);
-          if (!full(c - 1, r)) wall("left", [[x1, y1, zf], [x1, y2, zf], [x1, y2, zb], [x1, y1, zb]], [-1, 0, 0]);
-          if (!full(c + 1, r)) wall("right", [[x2, y1, zf], [x2, y2, zf], [x2, y2, zb], [x2, y1, zb]], [1, 0, 0]);
+          const x1 = c * U, y1 = r * U, x2 = x1 + U, y2 = y1 + U, mid = scene.shade(l, col, l.OX + xoff + x1 + (U >> 1), l.OY + y1 + (U >> 1), 3);
+          const wall = (name, pts, nx, ny) => { if (turn(nx, ny, 0)[2] >= 0) return; const q = pts.map((p) => T(p[0], p[1], p[2])); walls.push({ q, z: (q[0][2] + q[1][2] + q[2][2] + q[3][2]) / 4, c: mid.map((v) => v * light[name]) }); };
+          if (!full(c, r - 1)) wall("top", [[x1, y1, zf], [x2, y1, zf], [x2, y1, zb], [x1, y1, zb]], 0, -1);
+          if (!full(c, r + 1)) wall("bottom", [[x1, y2, zf], [x2, y2, zf], [x2, y2, zb], [x1, y2, zb]], 0, 1);
+          if (!full(c - 1, r)) wall("left", [[x1, y1, zf], [x1, y2, zf], [x1, y2, zb], [x1, y1, zb]], -1, 0);
+          if (!full(c + 1, r)) wall("right", [[x2, y1, zf], [x2, y2, zf], [x2, y2, zb], [x2, y1, zb]], 1, 0);
           const z = nFront ? zf : zb;
-          if (nFront && scene.detail && !fast) { // textured front: one small square at a time
-            for (let j = 0; j < U; j++) for (let i = 0; i < U; i++) caps.push({ q: [P(x1 + i, y1 + j, z), P(x1 + i + 1, y1 + j, z), P(x1 + i + 1, y1 + j + 1, z), P(x1 + i, y1 + j + 1, z)], c: scene.shade(l, col, l.OX + c * U + i, l.OY + r * U + j, 3) });
-          } else caps.push({ q: [P(x1, y1, z), P(x2, y1, z), P(x2, y2, z), P(x1, y2, z)], c: nFront ? mid : mid.map((v) => v * 0.5) });
+          if (nFront && detail) { // textured front: one small square at a time
+            for (let j = 0; j < U; j++) for (let i = 0; i < U; i++) caps.push({ q: [T(x1 + i, y1 + j, z), T(x1 + i + 1, y1 + j, z), T(x1 + i + 1, y1 + j + 1, z), T(x1 + i, y1 + j + 1, z)], c: scene.shade(l, col, l.OX + xoff + x1 + i, l.OY + y1 + j, 3) });
+          } else caps.push({ q: [T(x1, y1, z), T(x2, y1, z), T(x2, y2, z), T(x1, y2, z)], c: nFront ? mid : mid.map((v) => v * 0.5) });
         }
+        walls.sort((a, b) => b.z - a.z);
+        const w = cols * U, h = 10 * U, box = [[0, 0, zf], [w, 0, zf], [w, h, zf], [0, h, zf], [0, 0, zb], [w, 0, zb], [w, h, zb], [0, h, zb]].map((p) => T(p[0], p[1], p[2]));
+        out.push({ n, i: idx, faces: walls.concat(caps), box, mid: T(w / 2, h / 2, 0) });
       }
-      walls.sort((a, b) => b.z - a.z);
-      const all = walls.concat(caps), path = (q) => { ctx.moveTo(q[0][0], q[0][1]); ctx.lineTo(q[1][0], q[1][1]); ctx.lineTo(q[2][0], q[2][1]); ctx.lineTo(q[3][0], q[3][1]); ctx.closePath(); };
-      if (scene.outline) { // outline: everything is first drawn a bit fatter in the outline colour
-        const ow = { thin: 0.5, normal: 1, thick: 1.5 }[val("toutw", "normal")] || 1;
-        ctx.beginPath(); all.forEach((f) => path(f.q)); ctx.lineJoin = "round"; ctx.lineWidth = Math.max(2, 4 * k * ow); ctx.strokeStyle = "rgb(" + scene.outc.join(",") + ")"; ctx.stroke();
-      }
-      for (const f of all) { const c = "rgb(" + (f.c[0] | 0) + "," + (f.c[1] | 0) + "," + (f.c[2] | 0) + ")"; ctx.beginPath(); path(f.q); ctx.fillStyle = c; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = c; ctx.stroke(); }
     }
-    // move arrows on the title (drag one to move the title along X, Y or Z)
+    return out.sort((a, b) => b.mid[2] - a.mid[2]); // far letters first
+  }
+  function paint(ctx, letters, k, cx, cy) {
+    const ow = { thin: 0.5, normal: 1, thick: 1.5 }[val("toutw", "normal")] || 1;
+    const path = (q) => { ctx.moveTo(cx + q[0][0] * k, cy + q[0][1] * k); for (let i = 1; i < 4; i++) ctx.lineTo(cx + q[i][0] * k, cy + q[i][1] * k); ctx.closePath(); };
+    for (const L of letters) {
+      if (scene.outline) { // outline: the letter is first drawn a bit fatter in the outline colour
+        ctx.beginPath(); L.faces.forEach((f) => path(f.q)); ctx.lineJoin = "round"; ctx.lineWidth = Math.max(2, 4 * k * ow); ctx.strokeStyle = "rgb(" + scene.outc.join(",") + ")"; ctx.stroke();
+      }
+      for (const f of L.faces) { const c = "rgb(" + (f.c[0] | 0) + "," + (f.c[1] | 0) + "," + (f.c[2] | 0) + ")"; ctx.beginPath(); path(f.q); ctx.fillStyle = c; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = c; ctx.stroke(); }
+    }
+    return scene.outline ? 2 * ow : 0; // how far the outline sticks out, in title units
+  }
+
+  function draw3d(fast) { // fast = while dragging: plain blocks, the pattern comes back on release
+    const cv = $("t3d"); if (!cv || !cv.getContext) return;
+    const ctx = cv.getContext("2d"), CW = cv.width, CH = cv.height, turn = turner();
+    ctx.clearRect(0, 0, CW, CH);
+    if (scene && scene.bg) { ctx.fillStyle = "rgb(" + scene.bg.join(",") + ")"; ctx.fillRect(0, 0, CW, CH); }
     view.arrows = [];
     if (scene) {
-      const o = turn(pos.x, -pos.y, -pos.z), ox = CW / 2 + o[0] * view.k, oy = CH / 2 + o[1] * view.k;
+      const maxD = Math.max(...scene.lines.map((r) => r.l.U * scene.deep)), zoom = Number(val("tzoom", "100")) / 100;
+      const k = view.k = Math.min(CW / (scene.W + maxD), CH / (scene.H + maxD)) * 0.82 * zoom;
+      const letters = geometry(turn, scene.detail && !fast);
+      paint(ctx, letters, k, CW / 2, CH / 2);
+      // blue frame around the selected letter
+      const S = sel && letters.find((L) => L.n === sel.n && L.i === sel.i);
+      if (S) { const b = S.box.map((p) => [CW / 2 + p[0] * k, CH / 2 + p[1] * k]); ctx.strokeStyle = "#4c9aff"; ctx.lineWidth = 1.5; ctx.beginPath();
+        [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]].forEach(([a, c]) => { ctx.moveTo(b[a][0], b[a][1]); ctx.lineTo(b[c][0], b[c][1]); }); ctx.stroke(); }
+      // move arrows on the selected letter, or on the whole title (drag one to move along X, Y or Z)
+      const o = S ? S.mid : turn(pos.x, -pos.y, -pos.z), ox = CW / 2 + o[0] * k, oy = CH / 2 + o[1] * k;
       [["x", 1, 0, 0, "#e5484d"], ["y", 0, -1, 0, "#46a758"], ["z", 0, 0, -1, "#3e7bfa"]].forEach(([name, ax_, ay_, az_, c]) => {
         const d = turn(ax_, ay_, az_), len = Math.hypot(d[0], d[1]);
         ctx.strokeStyle = c; ctx.fillStyle = c; ctx.lineWidth = 3;
@@ -208,7 +234,7 @@
         const tx = ox + d[0] * 78, ty = oy + d[1] * 78, ux = d[0] / len, uy = d[1] / len;
         ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(tx, ty); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(tx + ux * 14, ty + uy * 14); ctx.lineTo(tx - uy * 7, ty + ux * 7); ctx.lineTo(tx + uy * 7, ty - ux * 7); ctx.closePath(); ctx.fill();
-        view.arrows.push({ name, x1: ox, y1: oy, x2: tx + ux * 14, y2: ty + uy * 14, dx: d[0] * view.k, dy: d[1] * view.k });
+        view.arrows.push({ name, x1: ox, y1: oy, x2: tx + ux * 14, y2: ty + uy * 14, dx: d[0] * k, dy: d[1] * k });
       });
     }
     // X / Y / Z cross in the corner: it turns with the title, and a click on a ball looks at the title from that side
@@ -221,10 +247,36 @@
       ctx.fillStyle = a.c; ctx.beginPath(); ctx.arc(a.x, a.y, a.t ? 10 : 8, 0, 7); ctx.fill();
       if (a.t) { ctx.fillStyle = "#fff"; ctx.fillText(a.t, a.x, a.y + 1); }
     }
-    ["x", "y", "z"].forEach((a) => { const e = $("tp" + a); if (e && document.activeElement !== e) e.value = String(Math.round(pos[a])); });
+    const tp = target();
+    ["x", "y", "z"].forEach((a) => { const e = $("tp" + a); if (e && document.activeElement !== e) e.value = String(Math.round(tp[a])); });
     ["x", "y", "z"].forEach((a) => { const e = $("tr" + a), o = $("tr" + a + "v"); if (e && document.activeElement !== e) e.value = String(Math.round(rot[a])); if (o) o.textContent = Math.round(rot[a]) + "\u00b0"; });
     const sz3 = $("tsize3"); if (sz3) sz3.textContent = scene ? scene.W + " x " + scene.H + " x " + Math.max(...scene.lines.map((r) => r.l.U * scene.deep)) : "";
+    if (!fast) render();
   }
+
+  // ---- render: the 3D view as a clean picture (no arrows, no cross), fitted into the chosen picture size ----
+  function render() {
+    const cv = $("trender"); if (!cv || !cv.getContext) return;
+    const info = $("trinfo"), mode = val("trmode", "normal"), size = Number(val("trsize", "1024")) || 1024, pad = Math.max(0, Math.min(400, Number(val("trpad", "0")) || 0));
+    const show = (id, yes) => { const e = $(id); if (e && e.style) e.style.display = yes ? "" : "none"; };
+    show("trcustom", mode === "custom"); show("trsizerow", mode === "normal" || mode === "square"); show("trbgc-wrap", on("trbg", false));
+    if (!scene) { cv.width = 16; cv.height = 16; if (info) info.textContent = "Type a text first."; return; }
+    const letters = geometry(turner(), scene.detail), m = scene.outline ? 2 * ({ thin: 0.5, normal: 1, thick: 1.5 }[val("toutw", "normal")] || 1) : 0;
+    let x1 = 1e9, y1 = 1e9, x2 = -1e9, y2 = -1e9;
+    for (const L of letters) for (const f of L.faces) for (const p of f.q) { if (p[0] < x1) x1 = p[0]; if (p[0] > x2) x2 = p[0]; if (p[1] < y1) y1 = p[1]; if (p[1] > y2) y2 = p[1]; }
+    if (x2 < x1) { cv.width = 16; cv.height = 16; if (info) info.textContent = "Every letter is hidden."; return; }
+    const bw = x2 - x1 + 2 * m, bh = y2 - y1 + 2 * m, lim = (v) => Math.max(16, Math.min(4096, Math.round(Number(v) || 0)));
+    let W, H;
+    if (mode === "square") W = H = size; else if (mode === "custom") { W = lim(val("trw", "1920")); H = lim(val("trh", "1080")); } else if (mode === "minecraft") { W = 1024; H = 256; }
+    else { W = size; H = Math.max(16, Math.ceil(bh * Math.max(0.01, (W - 2 * pad) / bw) + 2 * pad)); }
+    const k = Math.max(0.01, Math.min((W - 2 * pad) / bw, (H - 2 * pad) / bh));
+    cv.width = W; cv.height = H;
+    const ctx = cv.getContext("2d"); ctx.clearRect(0, 0, W, H);
+    if (on("trbg", false)) { ctx.fillStyle = val("trbgc", "#1d3c2d"); ctx.fillRect(0, 0, W, H); }
+    paint(ctx, letters, k, W / 2 - (x1 + x2) / 2 * k, H / 2 - (y1 + y2) / 2 * k);
+    if (info) info.textContent = W + " x " + H + " pixels" + (on("trbg", false) ? "" : ", see-through background");
+  }
+
   (function () { // 3D view controls
     const cv = $("t3d"); if (!cv || !cv.addEventListener) return;
     const wrap = (v) => ((v + 180) % 360 + 360) % 360 - 180;
@@ -235,33 +287,47 @@
     const arrowAt = (m) => view.arrows.find((a) => { // close to the arrow line?
       const vx = a.x2 - a.x1, vy = a.y2 - a.y1, t = Math.max(0.15, Math.min(1, ((m[0] - a.x1) * vx + (m[1] - a.y1) * vy) / (vx * vx + vy * vy)));
       return Math.hypot(m[0] - (a.x1 + vx * t), m[1] - (a.y1 + vy * t)) <= 10; });
+    const angle = (x, y, z) => { rot.x = x; rot.y = y; rot.z = z; draw3d(); };
     cv.addEventListener("pointerdown", (e) => {
       const m = at(e), b = ballAt(m);
-      if (b) { rot.x = SIDE[b.name][0]; rot.y = SIDE[b.name][1]; rot.z = 0; draw3d(); return; }
+      if (b) { angle(SIDE[b.name][0], SIDE[b.name][1], 0); return; }
       const a = arrowAt(m);
-      if (a) move = { a, m, start: pos[a.name] }; else from = [e.clientX, e.clientY, rot.x, rot.y];
+      if (a) move = { a, m, start: target()[a.name] }; else from = [e.clientX, e.clientY, rot.x, rot.y];
       try { cv.setPointerCapture(e.pointerId); } catch (er) {}
     });
     cv.addEventListener("pointermove", (e) => {
       const m = at(e);
-      if (move && e.buttons) { const a = move.a; pos[a.name] = Math.round(move.start + ((m[0] - move.m[0]) * a.dx + (m[1] - move.m[1]) * a.dy) / (a.dx * a.dx + a.dy * a.dy)); draw3d(true); return; }
+      if (move && e.buttons) { const a = move.a; target()[a.name] = Math.round(move.start + ((m[0] - move.m[0]) * a.dx + (m[1] - move.m[1]) * a.dy) / (a.dx * a.dx + a.dy * a.dy)); draw3d(true); return; }
       if (from && e.buttons) { rot.y = wrap(from[3] + (e.clientX - from[0]) * 0.5); rot.x = Math.max(-90, Math.min(90, from[2] - (e.clientY - from[1]) * 0.5)); draw3d(true); return; }
       cv.style.cursor = ballAt(m) ? "pointer" : arrowAt(m) ? "move" : "grab";
     });
     const stop = () => { if (from || move) { from = null; move = null; draw3d(); } };
     cv.addEventListener("pointerup", stop); cv.addEventListener("pointercancel", stop);
-    ["x", "y", "z"].forEach((a) => { const e = $("tp" + a); if (e) e.addEventListener("input", () => { pos[a] = Math.max(-500, Math.min(500, Number(e.value) || 0)); draw3d(); }); });
-    const mid = $("tcentre"); if (mid) mid.addEventListener("click", () => { pos.x = pos.y = pos.z = 0; draw3d(); });
+    ["x", "y", "z"].forEach((a) => { const e = $("tp" + a); if (e) e.addEventListener("input", () => { target()[a] = Math.max(-500, Math.min(500, Number(e.value) || 0)); draw3d(); }); });
+    const mid = $("tcentre"); if (mid) mid.addEventListener("click", () => { const t = target(); t.x = t.y = t.z = 0; draw3d(); });
     ["x", "y", "z"].forEach((a) => { const e = $("tr" + a); if (e) { e.addEventListener("input", () => { rot[a] = Number(e.value) || 0; draw3d(true); }); e.addEventListener("change", () => draw3d()); } });
     const z = $("tzoom"); if (z) { z.addEventListener("input", () => draw3d(true)); z.addEventListener("change", () => draw3d()); }
-    document.querySelectorAll("[data-tview3]").forEach((b) => b.addEventListener("click", () => { const [x, y, zz] = b.dataset.tview3.split(",").map(Number); rot.x = x; rot.y = y; rot.z = zz; draw3d(); }));
+    const an = $("tangle"); if (an) an.addEventListener("change", () => { const v = an.value.split(",").map(Number); if (v.length === 3) angle(v[0], v[1], v[2]); });
+    const hb = $("thide"); if (hb) hb.addEventListener("click", () => { if (!sel) return; if (hidden[sel.n][sel.i]) delete hidden[sel.n][sel.i]; else hidden[sel.n][sel.i] = 1; draw(); });
+    const nb = $("tselnone"); if (nb) nb.addEventListener("click", () => { sel = null; outliner(); draw3d(); });
     const views = Array.from(document.querySelectorAll("[data-tview]"));
     const openView = (name) => { views.forEach((b) => { const yes = b.dataset.tview === name; b.classList.toggle("on", yes); b.setAttribute("aria-pressed", String(yes)); }); const f = $("tflat"), d = $("t3dwrap"); if (f) f.hidden = name !== "flat"; if (d) d.hidden = name !== "3d"; try { localStorage.setItem("fmf-title-view", name); } catch (e) {} };
     views.forEach((b) => b.addEventListener("click", () => openView(b.dataset.tview)));
     let start = "flat"; try { start = localStorage.getItem("fmf-title-view") || "flat"; } catch (e) {}
     openView(start === "3d" ? "3d" : "flat");
-    const save = $("tsave3");
-    if (save) save.addEventListener("click", () => { const a = document.createElement("a"); a.href = cv.toDataURL("image/png"); a.download = "title-3d.png"; document.body.appendChild(a); a.click(); a.remove(); $("tinfo").textContent = "Downloaded title-3d.png."; });
+    // render card
+    ["trmode", "trsize", "trw", "trh", "trpad", "trbg", "trbgc"].forEach((id) => { const e = $(id); if (e) { e.addEventListener("input", render); e.addEventListener("change", render); } });
+    const rc = $("trender"), say = (t) => { const i = $("trmsg"); if (i) i.textContent = t; };
+    const save = $("trsave");
+    if (save && rc) save.addEventListener("click", () => { render(); const a = document.createElement("a"); a.href = rc.toDataURL("image/png"); a.download = "title-render.png"; document.body.appendChild(a); a.click(); a.remove(); say("Downloaded title-render.png."); });
+    const copy = $("trcopy");
+    if (copy && rc) copy.addEventListener("click", () => {
+      render();
+      try {
+        if (!navigator.clipboard || !window.ClipboardItem || !rc.toBlob) throw new Error("no clipboard");
+        rc.toBlob((bl) => navigator.clipboard.write([new ClipboardItem({ "image/png": bl })]).then(() => say("Copied. Paste it with Ctrl+V."), () => say("The browser did not allow copying. Use Save render.")), "image/png");
+      } catch (e) { say("This browser cannot copy pictures. Use Save render."); }
+    });
   })();
 
   try {
