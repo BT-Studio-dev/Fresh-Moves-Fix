@@ -87,8 +87,9 @@
       $("custom").checked = true;
       // slim (Alex) skins leave the last arm column empty
       const slim = original.data[idx(54, 20) + 3] === 0;
-      $("fmtslim").checked = slim; $("fmtwide").checked = !slim;
+      origSlim = slim; $("fmtslim").checked = slim; $("fmtwide").checked = !slim;
       setStatus(`Loaded ${name}.`);
+      if (!preset && oldEyes) preset = oldEyes; // a skin that already has moving eyes keeps their shape and place
       if (preset && TYPES[preset.type]) { // start skins that already have eyes choose the matching shape and place
         $("type").value = preset.type; fillPositions();
         if (TYPES[preset.type].variants[preset.pos]) $("pos").value = preset.pos;
@@ -127,11 +128,11 @@
   // Returns { cells: [[col,row]], lid, white, pupil } or null.
   function findOldEyes(d) {
     const solid = (x, y, w, h) => { for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) if (!d[idx(xx, yy) + 3]) return false; return true; };
-    const make = (rows, mx, my) => ({
+    const make = (rows, mx, my, type, pos) => ({ type, pos,
       cells: rows.flatMap((r) => [1, 2, 5, 6].map((c) => [c, r])),
       lid: hex(d, idx(mx, my)), white: hex(d, idx(mx, my + 1)), pupil: hex(d, idx(mx + 1, my + 1)) });
-    for (const my of [0, 2, 4, 6]) if (solid(4, my, 4, 2)) return make([3 + my / 2], 4, my);
-    for (const [mx, my, r] of [[28, 2, 2], [28, 5, 3], [24, 2, 4], [24, 5, 5]]) if (solid(mx, my, 4, 3)) return make([r, r + 1], mx, my);
+    for (const my of [0, 2, 4, 6]) if (solid(4, my, 4, 2)) return make([3 + my / 2], 4, my, "2x1", ["top", "upper", "lower", "bottom"][my / 2]);
+    for (const [mx, my, r, pos] of [[28, 2, 2, "top"], [28, 5, 3, "upper"], [24, 2, 4, "lower"], [24, 5, 5, "bottom"]]) if (solid(mx, my, 4, 3)) return make([r, r + 1], mx, my, "2x2", pos);
     return null;
   }
   const far = (a, b) => { const x = rgb(a), y = rgb(b); return Math.abs(x[0] - y[0]) + Math.abs(x[1] - y[1]) + Math.abs(x[2] - y[2]) > 60; };
@@ -149,14 +150,31 @@
     if (oldEyes) { lid = oldEyes.lid; white = oldEyes.white; pupil = oldEyes.pupil; }
     if (w) {
       if (!far(white, lid) || !far(white, pupil)) white = "#ffffff";
-      if (!far(pupil, white)) pupil = "#2b2b2b";
+      if (!far(pupil, white) || !far(pupil, lid)) pupil = ["#2b2b2b", "#3b82c4", "#ffffff"].find((x) => far(x, white) && far(x, lid)) || "#2b2b2b"; // a pupil in the skin colour cannot be seen
     } else if (!far(pupil, lid)) pupil = dark(lid) ? "#ffffff" : "#2b2b2b";
     $("lid").value = lid; $("white").value = white; $("pupil").value = pupil;
   }
 
+  // Change the arms between Steve (4 pixels wide) and Alex (3 pixels wide), so the saved file fits the chosen format.
+  function convertArms(d, toSlim) {
+    const src = new Uint8ClampedArray(d);
+    const W = [[4, 4, 0, 4], [8, 4, 0, 4], [0, 4, 4, 16], [4, 4, 4, 16], [8, 4, 4, 16], [12, 4, 4, 16]]; // x, width, y0, y1 of each part
+    const S = [[4, 3, 0, 4], [7, 3, 0, 4], [0, 4, 4, 16], [4, 3, 4, 16], [7, 4, 4, 16], [11, 3, 4, 16]];
+    const from = toSlim ? W : S, to = toSlim ? S : W;
+    for (const [ox, oy] of [[40, 16], [40, 32], [32, 48], [48, 48]]) {
+      for (let y = oy; y < oy + 16; y++) for (let x = ox; x < ox + 16; x++) { const i = idx(x, y); d[i] = d[i + 1] = d[i + 2] = d[i + 3] = 0; }
+      from.forEach((f, k) => {
+        const t = to[k];
+        const cols = f[1] === t[1] ? [0, 1, 2, 3].slice(0, f[1]) : toSlim ? [0, 1, 3] : [0, 1, 1, 2];
+        cols.forEach((c, n) => { for (let y = f[2]; y < f[3]; y++) { const a = idx(ox + f[0] + c, oy + y), b = idx(ox + t[0] + n, oy + y); for (let q = 0; q < 4; q++) d[b + q] = src[a + q]; } });
+      });
+    }
+  }
+  let origSlim = false;
   function build() {
     const out = new ImageData(new Uint8ClampedArray(original.data), 64, 64);
     const d = out.data, c = choice();
+    if ($("fmtslim").checked !== origSlim) convertArms(d, $("fmtslim").checked);
     const custom = $("custom").checked;
     const put = (x, y, col) => { const i = idx(x, y); d[i] = col[0]; d[i + 1] = col[1]; d[i + 2] = col[2]; d[i + 3] = 255; };
     for (const [ax, ay, w, h] of c.type === "2x3" ? [...AREAS, AREA_2X3] : AREAS)
@@ -174,7 +192,36 @@
       if (typeof src === "string") put(x, y, colour[src]);
       else { const i = idx(8 + src[0], 8 + src[1]); put(x, y, [d[i], d[i + 1], d[i + 2]]); }
     }
+    // ---- eyebrows: the pack draws them itself from two rows of pixels in the top-right corner of the skin file
+    const brow = $("brow").value, wipe = (ax, ay, w, h) => { for (let y = ay; y < ay + h; y++) for (let x = ax; x < ax + w; x++) { const i = idx(x, y); d[i] = d[i + 1] = d[i + 2] = d[i + 3] = 0; } };
+    if (brow !== "keep") {
+      wipe(60, 0, 4, 8); wipe(56, 4, 4, 4); wipe(24, 0, 5, 2);
+      const bc = rgb($("browcol").value), r = Number(brow.slice(1));
+      if (brow[0] === "f") { // on the face: a cover row in the skin colour (so the drawn eyebrow is not seen twice), then the eyebrow
+        const cy = (r - 2) * 2;
+        for (let k = 0; k < 4; k++) { put(60 + k, cy, colour.lid); put(60 + k, cy + 1, bc); }
+        if (custom) for (const col of [1, 2, 5, 6]) put(8 + col, 8 + r, bc);
+      } else if (brow[0] === "h") { // in front of the hat layer: only the eyebrow row
+        for (let k = 0; k < 4; k++) put(56 + k, r + 2, bc);
+      } else if (brow === "villager") {
+        for (let k = 0; k < 5; k++) { put(24 + k, 0, colour.lid); put(24 + k, 1, bc); }
+        if (custom) for (let col = 1; col <= 6; col++) put(8 + col, 8 + 3, bc);
+      }
+    }
+    // ---- eyelashes (only for 2 wide, 2 tall eyes at the bottom)
+    if (lashOk() && $("lash").checked) {
+      wipe(56, 0, 4, 4);
+      const lc = rgb($("lashcol").value);
+      for (let k = 0; k < 4; k++) put(56 + k, 0, lc);
+      for (const x of [56, 59]) { put(x, 1, lc); put(x, 2, lc); }
+    }
     return { out, c };
+  }
+  const lashOk = () => $("type").value === "2x2" && $("pos").value === "bottom";
+  function syncExtras() { // show only the controls that do something
+    const ok = lashOk(); $("lash").disabled = !ok; $("lashwrap").style.opacity = ok ? "" : ".5";
+    $("lashcolwrap").style.display = ok && $("lash").checked ? "" : "none";
+    const b = $("brow").value; $("browwrap").style.display = b === "keep" || b === "none" ? "none" : "";
   }
 
   function draw(canvas, data, sx, sy, sw, sh, mark) {
@@ -198,26 +245,134 @@
   // ---- 3D preview (skinview3d). Falls back to the flat skin when WebGL is not available. ----
   let viewer = null, failed3d = false;
   const tex = document.createElement("canvas"); tex.width = tex.height = 64;
-  function init3d() {
-    if (viewer || failed3d) return;
-    try {
-      if (!window.skinview3d) throw new Error("library not loaded");
-      const cv = $("view3d");
-      viewer = new skinview3d.SkinViewer({ canvas: cv, width: cv.width, height: cv.height, zoom: Number($("zoom").value) });
-      viewer.autoRotate = false;
-      setAnim();
-      $("msg3d").textContent = "3D preview on.";
-    } catch (e) {
-      failed3d = true; viewer = null;
+
+  // moves, emotes, the 3D model file and the simple 3D viewer live in player.js (shared with other pages)
+  const { EMOTES, MOVES, moveOf, LOOP, buildGltf, SoftViewer } = window.FMFPlayer;
+
+
+  const PARTS3D = { head: "head", body: "body", ra: "rightArm", la: "leftArm", rl: "rightLeg", ll: "leftLeg" };
+  // the same emote for the WebGL viewer (skinview3d)
+  function emoteAnimation(fn) {
+    return new skinview3d.FunctionAnimation((player, t) => {
+      const e = fn(t);
+      for (const k in PARTS3D) { const r = e[k] || [0, 0, 0]; player.skin[PARTS3D[k]].rotation.set(r[0], r[1], r[2]); }
+      player.position.y = e.lift || 0;
+    });
+  }
+
+  // why 3D cannot start, in plain words
+  function why3d(e) {
+    if (!window.skinview3d) return "The 3D part of the page did not load. Check your internet connection.";
+    let gl = null;
+    try { const c = document.createElement("canvas"); gl = c.getContext("webgl2") || c.getContext("webgl"); } catch (x) {}
+    if (!gl) return "Your browser has 3D graphics (WebGL) switched off right now. Close the browser completely and open it again. If that does not help, turn on graphics acceleration in the browser settings (Chrome: Settings > System).";
+    try { const x = gl.getExtension("WEBGL_lose_context"); if (x) x.loseContext(); } catch (x) {}
+    return "The 3D preview could not start (" + String((e && e.message) || e).slice(0, 120) + ").";
+  }
+  function fresh3d() { // a canvas that failed once cannot be used again
+    const old = $("view3d"), cv = document.createElement("canvas");
+    cv.id = "view3d"; cv.width = old.width; cv.height = old.height; old.replaceWith(cv);
+    cv.addEventListener("webglcontextlost", (ev) => { if (viewer && !viewer.soft && ev.target === $("view3d")) fail3d(new Error("the browser stopped the 3D picture")); });
+  }
+  function fail3d(e) {
+    try { if (viewer) viewer.dispose(); } catch (x) {}
+    failed3d = true; viewer = null;
+    const reason = why3d(e);
+    try { // simple 3D that needs no WebGL
+      startSoft();
+      $("msg3d").textContent = "3D preview on (simple mode).";
+      $("why3d").hidden = false; $("why3dtext").textContent = "Simple 3D mode. " + reason;
+      $("why3dmore").textContent = "The simple mode shows the same skin, only less smooth.";
+    } catch (x) {
+      viewer = null;
       $("wrap3d").style.display = "none";
       $("flat").open = true;
       $("msg3d").textContent = "3D preview is not available in this browser; showing the flat skin instead.";
+      $("why3d").hidden = false; $("why3dtext").textContent = reason;
     }
   }
+  function start3d() {
+    const cv = $("view3d");
+    viewer = new skinview3d.SkinViewer({ canvas: cv, width: cv.width, height: cv.height, zoom: Number($("zoom").value) });
+    viewer.autoRotate = $("spin").checked;
+    setAnim();
+    $("wrap3d").style.display = ""; $("why3d").hidden = true;
+    $("msg3d").textContent = "3D preview on.";
+    watchSpeed(viewer);
+  }
+  // On a slow computer the smooth 3D can drop to a few pictures per second; then the light viewer is used instead.
+  function watchSpeed(v) {
+    if (typeof requestAnimationFrame !== "function") return;
+    let n = 0, t0 = 0;
+    const step = (now) => {
+      if (viewer !== v) return;
+      if (document.hidden) { n = 0; t0 = 0; }
+      else if (!t0) t0 = now;
+      else if (now - t0 > 1500) { // the first moments of a page are always slow, so they are not counted
+        n++;
+        if (now - t0 >= 4500) {
+          if (n / 3 < 18) {
+            try { const r = v.renderer; v.dispose(); if (r && r.forceContextLoss) r.forceContextLoss(); } catch (x) {}
+            viewer = null; failed3d = true;
+            try {
+              startSoft(); if (current) update3d(current);
+              $("msg3d").textContent = "3D preview on (fast mode).";
+              $("why3d").hidden = true; // this is not an error, so no warning card
+              try { localStorage.setItem("fmf-3dfast", "on"); } catch (x) {} // next time start in fast mode straight away
+            } catch (x) { viewer = null; }
+          }
+          return;
+        }
+      }
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+  // the simple viewer on purpose: it can show the second skin layer as 3D blocks
+  function startSoft() {
+    fresh3d();
+    viewer = new SoftViewer($("view3d"));
+    viewer.onZoom = (n) => { $("zoom").value = n; }; viewer.autoRotate = $("spin").checked; viewer.zoom = Number($("zoom").value); viewer.layers3d = $("layers3d").checked; setAnim();
+    $("wrap3d").style.display = "";
+  }
+  function init3d() {
+    if (viewer || failed3d) return;
+    let fast = false; try { fast = localStorage.getItem("fmf-3dfast") === "on"; } catch (e) {}
+    if (fast) { // this computer was too slow for the smooth 3D before
+      try { startSoft(); failed3d = true; $("why3d").hidden = true; $("msg3d").textContent = "3D preview on (fast mode)."; return; } catch (e) { viewer = null; }
+    }
+    if ($("layers3d").checked) {
+      try { startSoft(); $("why3d").hidden = true; $("msg3d").textContent = "3D preview on (3D skin layers)."; return; } catch (e) { viewer = null; }
+    }
+    try {
+      if (!window.skinview3d) throw new Error("library not loaded");
+      start3d();
+    } catch (e) { fail3d(e); }
+  }
+  // "Try again": load the 3D part again if it is missing, then start on a new canvas
+  function retry3d() {
+    const go = () => { try { if (viewer) viewer.dispose(); } catch (x) {} failed3d = false; viewer = null; fresh3d(); if (current) update3d(current); else init3d(); };
+    $("why3dtext").textContent = "Trying again...";
+    if (window.skinview3d) return go();
+    const sc = document.createElement("script");
+    sc.src = "../skinview3d.bundle.js?r=" + Date.now(); sc.onload = sc.onerror = go; document.body.appendChild(sc);
+  }
+  $("retry3d").addEventListener("click", retry3d);
+  $("layers3d").addEventListener("change", () => {
+    try { localStorage.setItem("fmf-layers3d", $("layers3d").checked ? "on" : "off"); } catch (e) {}
+    if (viewer && viewer.soft && failed3d) { viewer.layers3d = $("layers3d").checked; return; } // no WebGL: stay in the simple viewer
+    try { if (viewer) { const r = viewer.renderer; viewer.dispose(); if (r && r.forceContextLoss) r.forceContextLoss(); } } catch (e) {}
+    viewer = null; failed3d = false; fresh3d();
+    if (current) update3d(current); else init3d();
+  });
+  try { $("layers3d").checked = localStorage.getItem("fmf-layers3d") === "on"; } catch (e) {}
+  $("view3d").addEventListener("webglcontextlost", (ev) => { if (viewer && !viewer.soft && ev.target === $("view3d")) fail3d(new Error("the browser stopped the 3D picture")); });
   function setAnim() {
     if (!viewer) return;
+    if (viewer.soft) { viewer.pose = $("anim").value; return; }
     const A = { idle: skinview3d.IdleAnimation, walk: skinview3d.WalkingAnimation, run: skinview3d.RunningAnimation, wave: skinview3d.WaveAnimation }[$("anim").value];
-    viewer.animation = A ? new A() : null;
+    const em = EMOTES[$("anim").value];
+    viewer.animation = em ? emoteAnimation(em) : A ? new A() : null;
   }
   function update3d(data) {
     init3d();
@@ -225,12 +380,60 @@
     try {
       tex.getContext("2d").putImageData(data, 0, 0);
       viewer.loadSkin(tex, { model: $("fmtslim").checked ? "slim" : "default" });
+      eyeState = ""; applyPause(); applyOuter();
     } catch (e) { $("msg3d").textContent = "3D preview could not show this skin."; }
   }
-  ["fmtwide", "fmtslim"].forEach((id) => $(id).addEventListener("change", () => { if (current) update3d(current); }));
-  window.fmfCleanup = () => { try { if (viewer) viewer.dispose(); } catch (e) {} viewer = null; try { blobUrls.forEach((u) => URL.revokeObjectURL(u)); } catch (e) {} };
-  $("anim").addEventListener("change", setAnim);
-  $("spin").addEventListener("change", () => { if (viewer) viewer.autoRotate = $("spin").checked; });
+  ["fmtwide", "fmtslim"].forEach((id) => $(id).addEventListener("change", () => { if (loaded) render(); else if (current) update3d(current); }));
+  window.fmfCleanup = () => { try { if (viewer) { const r = viewer.renderer; viewer.dispose(); if (r && r.forceContextLoss) r.forceContextLoss(); } } catch (e) {} viewer = null; try { blobUrls.forEach((u) => URL.revokeObjectURL(u)); } catch (e) {} };
+  // ---- play / pause, and eyes that blink and look around like the pack does in the game (simplified) ----
+  let paused3d = false, eyeState = "", eyeT0 = Date.now();
+  function applyPause() {
+    if (!viewer) return;
+    if (viewer.soft) viewer.paused = paused3d;
+    else { if (viewer.animation) viewer.animation.paused = paused3d; viewer.autoRotate = !paused3d && $("spin").checked; }
+  }
+  function eyeFrame(state) { // the skin with the eyes closed or looking to one side
+    const c = choice(), out = new ImageData(new Uint8ClampedArray(current.data), 64, 64), d = out.data;
+    const get = (col, row) => { const i = idx(8 + col, 8 + row); return [d[i], d[i + 1], d[i + 2]]; };
+    const put = (col, row, v) => { const i = idx(8 + col, 8 + row); d[i] = v[0]; d[i + 1] = v[1]; d[i + 2] = v[2]; d[i + 3] = 255; };
+    if (state === "shut") { const lid = rgb($("lid").value); for (const [col, row] of c.face) put(col, row, lid); return out; }
+    const w = c.face.find((f) => f[2] === "white"), pu = c.face.find((f) => f[2] === "pupil");
+    if (!w || !pu) return out; // eyes without a white part only blink
+    const white = get(w[0], w[1]), pupil = get(pu[0], pu[1]);
+    for (const row of [...new Set(c.face.map((f) => f[1]))]) for (const half of [0, 1]) {
+      const cols = c.face.filter((f) => f[1] === row && (f[0] >= 4) === !!half).map((f) => f[0]).sort((x, y) => x - y);
+      if (cols.length < 2) continue;
+      const at = state === "left" ? cols[0] : cols[cols.length - 1];
+      for (const col of cols) put(col, row, col === at ? pupil : white);
+    }
+    return out;
+  }
+  function eyeTick() {
+    if (!viewer || !current || !loaded) return;
+    let st = "";
+    if ($("eyes3d").checked && !paused3d) {
+      const t = ((Date.now() - eyeT0) / 1000) % 6.4;
+      st = t < 0.16 ? "shut" : t > 1.8 && t < 2.7 ? "left" : t >= 2.7 && t < 2.86 ? "shut" : t > 4.2 && t < 5.1 ? "right" : "";
+    }
+    if (st === eyeState) return;
+    eyeState = st;
+    try { tex.getContext("2d").putImageData(st ? eyeFrame(st) : current, 0, 0); viewer.loadSkin(tex, { model: $("fmtslim").checked ? "slim" : "default" }); } catch (e) {}
+  }
+  const eyeTimer = setInterval(eyeTick, 80);
+  { const clean = window.fmfCleanup; window.fmfCleanup = () => { clearInterval(eyeTimer); clean(); }; }
+  $("play3d").addEventListener("click", () => {
+    paused3d = !paused3d; applyPause();
+    $("play3d").textContent = paused3d ? "Play" : "Pause"; $("play3d").setAttribute("aria-pressed", paused3d ? "true" : "false");
+  });
+  $("anim").addEventListener("change", () => { setAnim(); applyPause(); });
+  function applyOuter() { // show or hide the second skin layer (hat, jacket, sleeves) in the 3D preview
+    if (!viewer) return;
+    const on = $("outer3d").checked;
+    if (viewer.soft) { viewer.showOuter = on; return; }
+    try { const sk = viewer.playerObject.skin; for (const k of ["head", "body", "rightArm", "leftArm", "rightLeg", "leftLeg"]) if (sk[k] && sk[k].outerLayer) sk[k].outerLayer.visible = on; } catch (e) {}
+  }
+  $("outer3d").addEventListener("change", applyOuter);
+  $("spin").addEventListener("change", () => { if (viewer) viewer.autoRotate = $("spin").checked; applyPause(); });
   $("zoom").addEventListener("input", () => { if (viewer) viewer.zoom = Number($("zoom").value); });
 
   // ---- colour picker card (replaces the browser's own colour dialog) ----
@@ -314,6 +517,7 @@
 
   let current = null;
   function render() {
+    syncExtras();
     if (!loaded) return;
     syncSwatches();
     const { out, c } = build();
@@ -413,7 +617,15 @@
   $("type").value = "2x1";
   fillPositions();
   $("type").addEventListener("change", () => { fillPositions(); syncMenus(); pickDefaults(); render(); });
-  ["type", "pos", "anim"].forEach((id) => enhance($(id)));
+  ["type", "pos", "anim", "brow"].forEach((id) => enhance($(id)));
+  function eyePreset(type, pos, brow, lash) { // "Boy eyes" / "Girl eyes"
+    $("type").value = type; fillPositions(); $("pos").value = pos;
+    $("brow").value = brow; $("lash").checked = lash; $("custom").checked = true;
+    syncMenus(); pickDefaults(); render();
+  }
+  $("eyeboy").addEventListener("click", () => eyePreset("2x1", "upper", "f3", false));
+  $("eyegirl").addEventListener("click", () => eyePreset("2x2", "bottom", "none", true));
+  $("brow").addEventListener("change", render); $("lash").addEventListener("input", render);
   $("pos").addEventListener("change", () => { pickDefaults(); render(); });
   $("custom").addEventListener("input", render);
 
@@ -463,6 +675,19 @@
       setStatus("Downloaded skin-fresh-moves.png.");
     }, "image/png");
   });
+
+  $("save3d").addEventListener("click", () => {
+    if (!current) return;
+    const move = $("anim").value, text = buildGltf(skinCanvas().toDataURL("image/png"), $("fmtslim").checked, move);
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type: "model/gltf+json" }));
+    a.download = "player-" + move + ".gltf";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    $("msg3dfile").textContent = "Downloaded " + a.download + ".";
+  });
+  const sync3dname = () => { const o = $("anim").options[$("anim").selectedIndex]; $("move3d").textContent = o ? o.textContent : ""; };
+  $("anim").addEventListener("change", sync3dname); sync3dname();
 
   loadImage($("steve").dataset.skin, "Steve");
 })();

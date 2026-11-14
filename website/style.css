@@ -58,7 +58,7 @@ img { max-width: 100%; height: auto; border-radius: 6px; }
 header.top {
   border-bottom: 1px solid var(--line);
   background: var(--header);
-  position: sticky; top: 0; z-index: 5;
+  position: sticky; top: 0; z-index: 50; /* above cards with an open list or colour card (z-index 30) */
 }
 header.top .bar { display: flex; align-items: center; gap: 16px; height: 64px; }
 .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 19px; color: var(--text); text-decoration: none; }
@@ -189,11 +189,11 @@ html { scrollbar-width: thin; scrollbar-color: var(--scroll-thumb) var(--bg); }
 .ed .picker[hidden] { display: none; }
 .ed .pk-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .ed .pk-head button { background: none; border: 0; color: var(--text); font-size: 20px; line-height: 1; cursor: pointer; padding: 0 4px; }
-.ed #pk-sv { width: 100%; height: auto; border-radius: 6px; cursor: crosshair; touch-action: none; display: block; }
-.ed #pk-hue { width: 100%; margin: 10px 0; height: 12px; border-radius: 6px; -webkit-appearance: none; appearance: none; background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); }
+.ed #pk-sv, .ed .pk-sv { width: 100%; height: auto; border-radius: 6px; cursor: crosshair; touch-action: none; display: block; }
+.ed #pk-hue, .ed .pk-hue { width: 100%; margin: 10px 0; height: 12px; border-radius: 6px; -webkit-appearance: none; appearance: none; background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); }
 .ed .pk-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
 .ed .pk-now { width: 34px; height: 30px; border-radius: 6px; border: 1px solid var(--line); flex: none; }
-.ed #pk-hex { flex: 1; min-width: 0; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; font: inherit; font-family: monospace; }
+.ed #pk-hex, .ed .pk-hex { flex: 1; min-width: 0; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; font: inherit; font-family: monospace; }
 .ed .pk-sws { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0 8px; }
 
 /* themed form controls (instead of the browser's own) */
@@ -542,7 +542,7 @@ header.top .snd-line i { font-style: normal; font-weight: 400; color: var(--mute
   --muted: #b7c5bd;
   --accent: #5ee6a0;
   --on-accent: #04110a;
-  --header: rgba(8, 14, 12, .5);
+  --header: #0c1614;
   --note-bg: rgba(120, 96, 20, .28);
   --note-line: rgba(240, 200, 90, .4);
   --note-text: #f6e6b8;
@@ -550,29 +550,27 @@ header.top .snd-line i { font-style: normal; font-weight: 400; color: var(--mute
   color-scheme: dark;
 }
 html[data-theme="glass"] { background: #0a1210; }
-[data-theme="glass"] body {
+[data-theme="glass"] body { background: transparent; }
+/* the coloured background is one fixed picture behind the page: nothing has to be drawn again while scrolling */
+[data-theme="glass"] body::before {
+  content: ""; position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none;
   background:
     radial-gradient(900px 600px at 12% 8%, rgba(47, 174, 120, .42), transparent 60%),
     radial-gradient(800px 600px at 92% 30%, rgba(59, 111, 208, .38), transparent 60%),
     radial-gradient(700px 500px at 40% 95%, rgba(150, 80, 200, .26), transparent 60%),
     #0a1210;
-  background-attachment: fixed;
 }
 [data-theme="glass"] :is(header.top, .ed .panel, .set .menu, .set .box, a.tool, .card, .versions a, .note, .guide-nav a, .themes label, .video) {
-  -webkit-backdrop-filter: blur(16px) saturate(140%); backdrop-filter: blur(16px) saturate(140%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 10px 30px rgba(0, 0, 0, .22);
+  /* no blur behind the cards: it made the whole site slow on older computers. The background is already soft. */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 2px 6px rgba(0, 0, 0, .2);
 }
-[data-theme="glass"] header.top { box-shadow: 0 6px 24px rgba(0, 0, 0, .25); }
+[data-theme="glass"] header.top { box-shadow: 0 2px 8px rgba(0, 0, 0, .25); }
 [data-theme="glass"] header.top nav { background: rgba(255, 255, 255, .06); }
 /* things that open on top of the page need a darker glass to stay readable */
 [data-theme="glass"] :is(header.top .snd-box, .ed .dd-list, .ed .picker) {
-  background: rgba(14, 22, 19, .82);
-  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  background: rgba(14, 22, 19, .96);
 }
 [data-theme="glass"] footer { background: rgba(6, 12, 10, .45); }
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  [data-theme="glass"] { --panel: rgba(24, 34, 30, .9); --header: rgba(10, 16, 14, .95); }
-}
 /* blurred cards stack separately, so the card with an open list must come to the front */
 [data-theme="glass"] .ed .panel { position: relative; }
 [data-theme="glass"] .ed .panel:has(.dd-btn[aria-expanded="true"]) { z-index: 30; }
@@ -604,3 +602,78 @@ html[data-theme="glass"] { background: #0a1210; }
 .reltime { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .93rem; margin: -4px 0 14px; }
 .reltime[hidden] { display: none; }
 .reltime b, .reltime time { color: var(--text); }
+
+/* editor: why the 3D preview is off + "Try again" */
+.ed .why3d { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 0 0 12px; background: var(--bg); font-size: .93rem; }
+.ed .why3d[hidden] { display: none; }
+.ed .why3d p { margin: 0 0 8px; }
+.ed .why3d svg { vertical-align: -3px; }
+[data-theme="glass"] .ed .why3d { background: rgba(0, 0, 0, .25); }
+
+/* editor: "How to test it in the game" */
+ol.steps { padding-inline-start: 1.3em; }
+ol.steps li { margin: 0 0 8px; }
+
+/* top bar: the icon and the Download button must never be cut off.
+   Below 1140px the menu moves to its own row instead of pushing things off the screen. */
+.brand, .brand img { flex: none; }
+header.top nav { min-width: 0; overflow-x: auto; }
+@media (max-width: 1140px) {
+  header.top .bar { height: auto; flex-wrap: wrap; padding-top: 10px; padding-bottom: 8px; gap: 6px 12px; }
+  header.top nav { order: 3; width: 100%; margin: 0; }
+  header.top .snd-wrap { margin-inline-start: auto; }
+}
+@media (max-width: 1140px) { header.top .get { margin-left: 0; } }
+
+/* "Page not found" page */
+.nf { text-align: center; padding: 56px 0 72px; }
+.nf-code { font-size: clamp(72px, 18vw, 150px); font-weight: 900; line-height: 1; margin: 0; color: var(--accent); letter-spacing: 2px; }
+.nf h1 { margin: 8px 0 10px; }
+.nf-go { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 22px; }
+
+/* Title page: help card when the browser has no 3D graphics */
+.bb-help { border: 1px solid var(--line); border-radius: 16px; background: var(--panel); padding: 18px 20px; margin: 0 0 24px; }
+.bb-help[hidden], .bb-frame[hidden] { display: none; }
+.bb-help h2 { margin-top: 0; }
+.bb-help code { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; user-select: all; }
+
+/* Skin Painter 3D */
+.paint .ptools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
+.paint .ptools button, .paint .pviews button { background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 8px 6px; font: inherit; cursor: pointer; }
+.paint .ptools button:hover, .paint .pviews button:hover { border-color: var(--accent); }
+.paint .ptools button.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
+.paint .pviews { display: flex; flex-wrap: wrap; gap: 4px; }
+.paint .pviews button { padding: 4px 9px; font-size: 14px; }
+.paint .prow { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.paint .prow label { display: inline-flex; gap: 6px; align-items: center; }
+.paint .pnow { width: 34px; height: 30px; border-radius: 6px; border: 1px solid var(--line); display: inline-block; }
+.paint .phex { width: 96px; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; font: inherit; font-family: monospace; }
+.paint .psws { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0 10px; min-height: 24px; }
+.paint .psw { width: 24px; height: 24px; border: 1px solid var(--line); border-radius: 4px; padding: 0; cursor: pointer; }
+.paint .psw:hover, .paint .psw:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.paint canvas.p3d { width: 100%; max-width: 460px; margin: 0 auto; image-rendering: auto; background: var(--bg); }
+.paint canvas.p2d { width: 100%; max-width: 512px; margin: 0 auto; }
+.paint button:disabled { opacity: .45; cursor: default; }
+
+/* 3D Model and Animation pages */
+.paint .tl { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.paint .tlrow { display: flex; align-items: center; gap: 6px; padding: 6px 8px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
+.paint .tlrow.on { border-color: var(--accent); }
+.paint .tlrow b { flex: 1; min-width: 0; font-weight: 600; }
+.paint .tlrow span { color: var(--muted); min-width: 48px; text-align: right; }
+.paint .tlrow button { width: 30px; height: 30px; background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 6px; cursor: pointer; font: inherit; padding: 0; }
+.paint .tlrow button:hover:not(:disabled) { border-color: var(--accent); }
+.paint .tlsecs { width: 70px; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; font: inherit; }
+.paint .tlbarwrap { height: 8px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; margin: 10px 0; }
+.paint .tlbar { height: 100%; width: 0; background: var(--accent); }
+.paint [hidden] { display: none !important; }
+
+/* pop-up colour card of ui.js (Skin Painter, 3D Model, Animation) */
+.ed .uipick { position: absolute; z-index: 40; left: 0; top: calc(100% + 6px); width: 246px; margin: 0; }
+.ed .uipick .pk-head button { font-size: 22px; }
+/* thin themed scroll bar inside the drop-down lists */
+.ed .dd-list { scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.ed .dd-list::-webkit-scrollbar { width: 8px; }
+.ed .dd-list::-webkit-scrollbar-track { background: transparent; }
+.ed .dd-list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+.ed .dd-list::-webkit-scrollbar-button { display: none; height: 0; }

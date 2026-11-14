@@ -1,15 +1,18 @@
 // Fresh Moves Fix - optional background music, generated in the browser with Web Audio.
 // No audio files: a calm song of 3:34 (64 bars) is made from notes and then repeats. Off by default.
 // A second, dark song ("Herobrine") can be chosen in Settings; it has the same length.
+// A third song ("Minecraft", soft piano) is 6:00 long (96 bars).
 // Saved in localStorage: "fmf-music" ("on"/"off"), "fmf-volume" (0..100) and "fmf-song" ("calm"/"herobrine").
 (function () {
   var on = false, vol = 40, song = "calm";
-  try { if (localStorage.getItem("fmf-song") === "herobrine") song = "herobrine"; } catch (e) {}
+  var INFO = { calm: { name: "Calm", len: 214, bars: 64 }, herobrine: { name: "Herobrine", len: 214, bars: 64 }, minecraft: { name: "Minecraft", len: 360, bars: 96 } };
+  try { var saved = localStorage.getItem("fmf-song"); if (INFO[saved]) song = saved; } catch (e) {}
   try { on = localStorage.getItem("fmf-music") === "on"; var v = parseInt(localStorage.getItem("fmf-volume"), 10); if (v >= 0 && v <= 100) vol = v; } catch (e) {}
   var AC = window.AudioContext || window.webkitAudioContext;
   var ctx = null, master = null, timer = null, step = 0, nextTime = 0;
   // ---- the song: 64 bars, exactly 3:34 long, then it repeats ----
-  var LENGTH = 214, BARS_N = 64, BEAT = LENGTH / (BARS_N * 8); // seconds per eighth note (about 0.418)
+  // the "Minecraft" song is 96 bars and exactly 6:00 long (a slower beat)
+  var LENGTH = INFO[song].len, BEAT = LENGTH / (INFO[song].bars * 8); // seconds per eighth note (about 0.418; 0.469 for the long song)
   // chords as [root in semitones above A3, third]: Am F C G / Dm Am F G / Am Em F C
   var Am = [0, 3], F = [-4, 4], C = [3, 4], G = [-2, 4], Dm = [5, 3], Em = [-5, 3];
   var MAIN = [Am, F, C, G], LIFT = [Am, Em, F, C], BRIDGE = [Dm, Am, F, G];
@@ -25,7 +28,9 @@
   var ARPS = [
     [0, -1, 2, -1, 3, -1, 2, -1],  // sparse (−1 = rest)
     [0, 1, 2, 3, 4, 3, 2, 1],      // rolling
-    [0, 2, 3, 4, 5, 4, 3, 2]       // higher
+    [0, 2, 3, 4, 5, 4, 3, 2],      // higher
+    [0, -1, -1, 2, -1, 4, -1, -1], // piano, very sparse
+    [0, -1, 2, -1, 4, 3, -1, 2]    // piano, walking
   ];
   var SCALE = [0, 2, 3, 5, 7, 8, 10]; // A natural minor
   // fixed "random" numbers, so the song is the same every time
@@ -67,7 +72,19 @@
     });
     return out;
   }
-  var SONGS = { calm: compose(SECTIONS, SCALE, 7), herobrine: compose(H_SECTIONS, H_SCALE, 13) };
+  // ---- the "Minecraft" song: slow, soft piano notes with a lot of air, in the mood of the game's quiet music (our own notes, not a copy) ----
+  var M_HOME = [C, G, Am, F], M_WALK = [F, C, G, Am], M_DUSK = [Am, Em, F, C];
+  var M_SECTIONS = [
+    { bars: 8, chords: M_HOME, layers: "a", arp: 3, level: 0.8, piano: true },       // a few single notes
+    { bars: 16, chords: M_HOME, layers: "pa", arp: 3, level: 0.9, piano: true },     // morning
+    { bars: 16, chords: M_WALK, layers: "pam", arp: 4, level: 1, piano: true },      // the tune
+    { bars: 8, chords: M_DUSK, layers: "ps", arp: 0, level: 0.8, piano: true },      // quiet
+    { bars: 16, chords: M_HOME, layers: "pbam", arp: 4, level: 1, piano: true },     // fuller
+    { bars: 8, chords: M_DUSK, layers: "pas", arp: 3, level: 0.9, piano: true },     // evening
+    { bars: 16, chords: M_WALK, layers: "pbams", arp: 4, level: 1, piano: true },    // everything
+    { bars: 8, chords: M_HOME, layers: "a", arp: 3, level: 0.7, piano: true }        // the last notes
+  ];
+  var SONGS = { calm: compose(SECTIONS, SCALE, 7), herobrine: compose(H_SECTIONS, H_SCALE, 13), minecraft: compose(M_SECTIONS, SCALE, 21) };
   function freq(semi) { return 220 * Math.pow(2, semi / 12); }
   function tone(f, t, len, peak, type, attack, slideTo) {
     var o = ctx.createOscillator(), g = ctx.createGain();
@@ -90,8 +107,12 @@
         if (has("b")) tone(freq(bar.root - 12), t, BEAT * 7, 0.15 * lv, "sine");
       }
       if (i === 4 && has("b")) tone(freq(bar.root - 12 + 7), t, BEAT * 3.5, 0.08 * lv, "sine");
-      if (has("a")) { var n = ARPS[sec.arp][i]; if (n >= 0) tone(freq(bar.root + bar.tones[n]), t, BEAT * 2.4, 0.1 * lv, "triangle"); }
-      bar.mel.forEach(function (m) { if (m.at === i) tone(freq(m.semi + 12), t, BEAT * m.len * 1.3, 0.085 * lv, "sine", 0.02); });
+      if (has("a")) {
+        var n = ARPS[sec.arp][i];
+        if (n >= 0 && sec.piano) { var pf = freq(bar.root + bar.tones[n]); tone(pf, t, BEAT * 6, 0.12 * lv, "sine", 0.008); tone(pf * 2, t, BEAT * 2.5, 0.02 * lv, "triangle", 0.008); } // a soft piano note that rings out
+        else if (n >= 0) tone(freq(bar.root + bar.tones[n]), t, BEAT * 2.4, 0.1 * lv, "triangle");
+      }
+      bar.mel.forEach(function (m) { if (m.at === i) tone(freq(m.semi + 12), t, BEAT * m.len * (sec.piano ? 2.6 : 1.3), 0.085 * lv, "sine", sec.piano ? 0.008 : 0.02); });
       bar.spark.forEach(function (sp) { if (sp.at === i) tone(freq(bar.root + bar.tones[sp.tone] + 24), t, BEAT * 4, 0.03, "sine"); });
       nextTime += BEAT; step++;
     }
@@ -145,10 +166,10 @@
     document.querySelectorAll("[data-music-check]").forEach(function (c) { c.checked = on; });
     document.querySelectorAll("[data-music-volume]").forEach(function (r) { r.value = vol; });
     document.querySelectorAll("[data-music-song]").forEach(function (r) { r.checked = r.value === song; });
-    document.querySelectorAll("[data-music-name]").forEach(function (e) { e.textContent = song === "herobrine" ? "Herobrine" : "Calm"; });
+    document.querySelectorAll("[data-music-name]").forEach(function (e) { e.textContent = INFO[song].name; });
   }
   function setSong(next) {
-    song = next === "herobrine" ? "herobrine" : "calm"; try { localStorage.setItem("fmf-song", song); } catch (e) {}
+    song = INFO[next] ? next : "calm"; LENGTH = INFO[song].len; BEAT = LENGTH / (INFO[song].bars * 8); try { localStorage.setItem("fmf-song", song); } catch (e) {}
     step = 0; if (ctx) nextTime = Math.max(nextTime, ctx.currentTime + 0.1); // start the chosen song from its beginning
     paint();
   }
