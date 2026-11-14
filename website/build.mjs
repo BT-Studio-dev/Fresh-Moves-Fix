@@ -271,6 +271,7 @@ fs.copyFileSync(path.join(here, "paint.js"), path.join(out, "paint.js"));
 fs.copyFileSync(path.join(here, "player.js"), path.join(out, "player.js"));
 fs.copyFileSync(path.join(here, "studio.js"), path.join(out, "studio.js"));
 fs.copyFileSync(path.join(here, "ui.js"), path.join(out, "ui.js"));
+fs.copyFileSync(path.join(here, "title.js"), path.join(out, "title.js"));
 // 3D preview library (skinview3d, MIT licence), served from this site
 fs.copyFileSync(path.join(here, "node_modules/skinview3d/bundles/skinview3d.bundle.js"), path.join(out, "skinview3d.bundle.js"));
 write("editor/index.html", page({
@@ -366,13 +367,6 @@ write("editor/index.html", page({
     <p><button type="button" class="btn" id="save" disabled>${ICON.down} Download skin (.png)</button></p>
     <p class="statline"><a id="status" class="status" href="#" target="_blank" rel="noopener" title="Open the skin picture in a new tab"></a></p>
   </section>
-  <section class="panel ecard" id="model3d">
-    <h3 class="ehead"><span class="tool-ic">${ICON.box}</span><span><b>5. 3D model</b><small>Animated model file with your skin</small></span></h3>
-    <p class="ehint">${ICON.info} <span>Saves the player as a 3D model file with your skin on it and the move chosen under "Emote" in the 3D preview (now: <b id="move3d"></b>), as a loop.</span></p>
-    <p><button type="button" class="btn" id="save3d">${ICON.down} Download 3D model (.gltf)</button></p>
-    <p class="ehint">Open it in Blender (File, Import, glTF 2.0), Blockbench (File, Import) or the Windows 3D Viewer. It is not used by the game.</p>
-    <p class="statline"><span id="msg3dfile" class="status" style="cursor:default"></span></p>
-  </section>
   </div>
 
   <div class="ed-col">
@@ -459,17 +453,113 @@ const BB = "https://web.blockbench.net/?plugins=minecraft_title_generator";
 write("title/index.html", page({
   title: "Minecraft title - Fresh Moves Fix",
   active: "title",
-  description: "Make a Minecraft title or paint a skin with the real Blockbench web app, right on this page.",
+  description: "Type a text and download a Minecraft-style block-letter title picture, right in your browser.",
   depth: 1,
   body: `<div class="wrap"><article class="editor">
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <h1>${ICON.tag} Minecraft title</h1>
+<p>Type your text and get a block-letter title picture, in the style of the "Fresh Moves Fix" title. Everything happens in your browser. It works without 3D graphics (WebGL).</p>
+<div class="ed paint">
+  <div class="ed-col">
+  <section class="panel ecard">
+    <h3 class="ehead"><img class="tool-img" src="../icon-title.png" alt="" width="44" height="44"><span><b>1. Title</b><small>Text, texture, overlay, style and settings</small></span></h3>
+    <div class="ttabs" role="tablist">
+      <button type="button" role="tab" data-ttab="text">Text</button>
+      <button type="button" role="tab" data-ttab="texture">Texture</button>
+      <button type="button" role="tab" data-ttab="overlay">Overlay</button>
+      <button type="button" role="tab" data-ttab="style">Style</button>
+      <button type="button" role="tab" data-ttab="settings">Settings</button>
+    </div>
+    <div id="tp-text">
+    <p class="prow"><label>Line 1 <input type="text" id="tt1" class="ttext" maxlength="24" value="MINECRAFT" spellcheck="false"></label> <input type="color" id="tc1" value="#ffffff" aria-label="Colour of line 1"> <label>Type <select id="tk1"><option value="top" selected>Top</option><option value="bottom">Bottom</option><option value="small">Small</option></select></label></p>
+    <p class="prow"><label>Line 2 <input type="text" id="tt2" class="ttext" maxlength="24" value="HEROBRINE" spellcheck="false"></label> <input type="color" id="tc2" value="#63ff54" aria-label="Colour of line 2"> <label>Type <select id="tk2"><option value="top">Top</option><option value="bottom" selected>Bottom</option><option value="small">Small</option></select></label></p>
+    <p class="prow"><label>Line 3 <input type="text" id="tt3" class="ttext" maxlength="24" value="JAVA EDITION" spellcheck="false"></label> <input type="color" id="tc3" value="#ffd24a" aria-label="Colour of line 3"> <label>Type <select id="tk3"><option value="top">Top</option><option value="bottom">Bottom</option><option value="small" selected>Small</option></select></label></p>
+    <p class="ehint">${ICON.info} <span>Type: <b>Top</b> is the big "Minecraft" text, <b>Bottom</b> is the smaller update text under it, <b>Small</b> is the little edition text. Letters A to Z, numbers and ! ? . - : work. Leave a line empty to skip it.</span></p>
+    <p class="elabel">Ready-made</p>
+    <p class="prow">
+      <button type="button" class="btn ghost" data-title="MINECRAFT|#ffffff|top;HEROBRINE|#63ff54|bottom;JAVA EDITION|#ffd24a|small">Minecraft Herobrine</button>
+      <button type="button" class="btn ghost" data-title="FRESH MOVES|#ffffff|top;FIX|#63ff54|top">Fresh Moves Fix</button>
+      <button type="button" class="btn ghost" data-title="MY SERVER|#ffd24a|top;SEASON 2|#ffffff|bottom">My Server</button>
+    </p>
+    </div>
+    <div id="tp-texture" hidden>
+      <p class="prow"><label>Texture <select id="ttex"><option value="plain" selected>Plain colour</option><option value="stone">Stone</option><option value="bricks">Bricks</option><option value="planks">Planks</option><option value="stripes">Stripes</option><option value="dots">Dots</option><option value="grass">Grass block</option><option value="ore">Diamond ore</option><option value="gold">Gold</option><option value="lava">Lava</option></select></label></p>
+      <p class="ehint">${ICON.info} <span>The texture is a pattern drawn on the letters. Plain colour, Stone, Bricks, Planks, Stripes and Dots keep the colour of each line. Grass block, Diamond ore, Gold and Lava bring their own colours. The patterns are our own drawings, not Minecraft's block pictures.</span></p>
+    </div>
+    <div id="tp-overlay" hidden>
+      <p class="prow"><label>Overlay <select id="tover"><option value="none" selected>None</option><option value="down">Fade in towards the bottom</option><option value="up">Fade in towards the top</option><option value="all">Over the whole letter</option></select></label></p>
+      <p class="prow" id="tovrow"><span>Colour</span> <input type="color" id="tovc" value="#000000" aria-label="Overlay colour"> <label>Strength <input type="range" id="tovs" min="0" max="100" value="60"></label></p>
+      <p class="ehint">${ICON.info} <span>An overlay lays a second colour over the letters, for example black fading in at the bottom, or orange at the top for a sunset look.</span></p>
+    </div>
+    <div id="tp-style" hidden>
+      <p class="prow"><label><input type="checkbox" id="tout" checked> Outline</label></p>
+      <p class="prow" id="toutrow"><span>Outline colour</span> <input type="color" id="toutc" value="#14100e" aria-label="Outline colour"> <label>Thickness <select id="toutw"><option value="thin">Thin</option><option value="normal" selected>Normal</option><option value="thick">Thick</option></select></label></p>
+      <p class="prow"><label>3D depth <select id="tdepth"><option value="none">Flat</option><option value="normal" selected>Normal</option><option value="deep">Deep</option></select></label>
+        <label>Letter spacing <select id="tspace"><option value="tight">Tight</option><option value="normal" selected>Normal</option><option value="wide">Wide</option></select></label></p>
+      <p class="prow"><label>Space between lines <input type="range" id="tlines" min="-8" max="24" value="3"></label></p>
+    </div>
+    <div id="tp-settings" hidden>
+      <p class="prow"><label>Size <select id="tsize"><option value="2">Small</option><option value="4" selected>Normal</option><option value="8">Big</option></select></label>
+        <label>Lines <select id="talign"><option value="left">Left</option><option value="center" selected>Centre</option><option value="right">Right</option></select></label></p>
+      <p class="prow"><label><input type="checkbox" id="tbg"> Background colour</label> <span id="tbgrow"><input type="color" id="tbgc" value="#1d3c2d" aria-label="Background colour"></span></p>
+      <p class="prow"><button type="button" class="btn ghost" id="treset">Reset texture, overlay, style and settings</button></p>
+    </div>
+  </section>
+  <section class="panel ecard">
+    <h3 class="ehead"><span class="tool-ic">${ICON.down}</span><span><b>2. Save</b><small>A .png picture</small></span></h3>
+    <p class="prow"><button type="button" class="btn" id="tsave">${ICON.down} Download title (.png)</button></p>
+    <p><small id="tinfo"></small></p>
+  </section>
+  </div>
+  <div class="ed-col">
+  <section class="panel ecard">
+    <h3 class="ehead"><span class="tool-ic">${ICON.eye}</span><span><b>Preview</b><small>Changes while you type</small></span></h3>
+    <div class="ttabs"><button type="button" data-tview="flat">Flat picture</button><button type="button" data-tview="3d">3D view</button></div>
+    <div class="tprev" id="tflat"><canvas id="tcanvas" width="16" height="16"></canvas></div>
+    <div id="t3dwrap" hidden>
+      <div class="tprev t3d"><canvas id="t3d" width="840" height="460"></canvas></div>
+      <p class="ehint">${ICON.info} <span>Drag the empty space to turn the title. Drag the red (X), green (Y) or blue (Z) arrow to move it (or only the letter selected in the Outliner). Click a ball of the X, Y, Z cross in the corner to look from that side; the darker balls are the opposite sides. From behind, the text reads mirrored.</span></p>
+    </div>
+  </section>
+  <section class="panel ecard">
+    <h3 class="ehead"><span class="tool-ic">${ICON.box}</span><span><b>Transform</b><small>Turn and zoom the 3D view</small></span></h3>
+    <p><small>Moving: <b id="tselname">the whole title</b></small></p>
+    <p class="prow"><span>Position</span> <label>X <input type="number" id="tpx" class="tlsecs" value="0" step="1"></label> <label>Y <input type="number" id="tpy" class="tlsecs" value="0" step="1"></label> <label>Z <input type="number" id="tpz" class="tlsecs" value="0" step="1"></label> <button type="button" class="btn ghost" id="tcentre">Centre</button></p>
+    <p class="prow"><label>Rotation X <input type="range" id="trx" min="-90" max="90" value="12"> <span id="trxv" class="tnum"></span></label></p>
+    <p class="prow"><label>Rotation Y <input type="range" id="try" min="-180" max="180" value="-28"> <span id="tryv" class="tnum"></span></label></p>
+    <p class="prow"><label>Rotation Z <input type="range" id="trz" min="-180" max="180" value="0"> <span id="trzv" class="tnum"></span></label></p>
+    <p class="prow"><label>Zoom <input type="range" id="tzoom" min="40" max="160" value="100"></label></p>
+    <p class="prow"><label>Angles <select id="tangle"><option value="12,-28,0" selected>Initial angle</option><option value="90,0,0">Top</option><option value="-90,0,0">Bottom</option><option value="0,0,0">South (front)</option><option value="0,180,0">North (back)</option><option value="0,90,0">East</option><option value="0,-90,0">West</option><option value="26.57,-45,0">Isometric right (2:1)</option><option value="26.57,45,0">Isometric left (2:1)</option><option value="30,-45,0">True isometric right (30°)</option><option value="30,45,0">True isometric left (30°)</option><option value="-24,0,0">Minecraft Title</option></select></label></p>
+    <p><small>Size (wide x tall x deep): <span id="tsize3"></span></small></p>
+  </section>
+  <section class="panel ecard">
+    <h3 class="ehead"><span class="tool-ic">${ICON.grid}</span><span><b>Outliner</b><small>Click a letter to select it</small></span></h3>
+    <div class="toutl" id="toutl"></div>
+    <p class="prow"><button type="button" class="btn ghost" id="thide" disabled>Hide the selected letter</button> <button type="button" class="btn ghost" id="tselnone" disabled>Select the whole title</button></p>
+    <p class="ehint">${ICON.info} <span>A selected letter gets a blue frame in the 3D view. The arrows and the Position boxes then move only that letter. Moving single letters shows in the 3D view and in the render, not in the flat picture.</span></p>
+  </section>
+  <section class="panel ecard">
+    <h3 class="ehead"><span class="tool-ic">${ICON.down}</span><span><b>Render</b><small>The 3D view as a clean picture</small></span></h3>
+    <p class="prow"><label>Mode <select id="trmode"><option value="normal" selected>Normal</option><option value="square">Square</option><option value="custom">Custom</option><option value="minecraft">Minecraft (1024 x 256)</option></select></label>
+      <label id="trsizerow">Size <select id="trsize"><option value="640">SD (640)</option><option value="1280">HD (1280)</option><option value="1024" selected>1K (1024)</option><option value="2048">2K (2048)</option><option value="4096">4K (4096)</option></select></label></p>
+    <p class="prow" id="trcustom"><label>Resolution <input type="number" id="trw" class="tlsecs" min="16" max="4096" value="1920"></label> <label>x <input type="number" id="trh" class="tlsecs" min="16" max="4096" value="1080"></label></p>
+    <p class="prow"><label><input type="checkbox" id="trbg"> Background colour</label> <span id="trbgc-wrap"><input type="color" id="trbgc" value="#1d3c2d" aria-label="Render background colour"></span> <label><input type="checkbox" id="traa" checked> Antialiasing</label> <label>Padding <input type="number" id="trpad" class="tlsecs" min="0" max="400" value="0"></label></p>
+    <div class="tprev"><canvas id="trender" width="16" height="16"></canvas></div>
+    <p><small id="trinfo"></small></p>
+    <p class="prow"><button type="button" class="btn" id="trsave">${ICON.down} Save render (.png)</button> <button type="button" class="btn ghost" id="trcopy">Copy render</button></p>
+    <p><small id="trmsg"></small></p>
+  </section>
+  </div>
+</div>
+<h2>${ICON.box} Blockbench</h2>
 <p>This is the real <b>Blockbench</b> web app, shown inside this page. Press <b>New</b>, then <b>Minecraft Title</b> to make a title, or <b>Minecraft Skin</b> to paint a skin.</p>
 <p><a class="btn" rel="noopener" target="_blank" href="${BB}">${ICON.right} Open Blockbench in a new tab</a>
 <a class="btn ghost" rel="noopener" target="_blank" href="${REPO}/blob/main/model.bbmodel">${ICON.down} Our title model (.bbmodel)</a></p>
 <p><small>The "Fresh Moves Fix" title on the home page was made this way. Open the model file in Blockbench with File &rarr; Open Model.</small></p>
 <div class="note">If the box below stays empty, or "Minecraft Title" is missing from the New list, use the button above. In Blockbench you can also add it by hand: File &rarr; Plugins &rarr; Available &rarr; "Minecraft Title Generator" &rarr; Install. Blockbench is made by JannisX11 and the Title Generator plugin by Ewan Howell; they are not part of Fresh Moves Fix.</div>
 </article></div>
+<script src="../title.js?v=${ver("title.js")}"></script>
+<script src="../ui.js?v=${ver("ui.js")}"></script>
 <div class="wrap"><div class="bb-help" id="bbhelp" hidden>
   <h2>${ICON.info} Blockbench cannot start in this browser</h2>
   <p>Blockbench needs 3D graphics (WebGL), and your browser has it switched off right now. That is why it says "Error creating WebGL context". This is a browser setting on your computer, not a fault of this website, so it has to be switched on there:</p>
@@ -882,8 +972,8 @@ write("index.html", page({
       <span class="tags"><i class="g">Minecraft</i><i>Skin</i><i>Paint</i><i>3D</i></span>
     </a>
     <a class="tool" href="title/">
-      <span class="tool-head"><img class="tool-img" src="icon-title.png" alt="" width="48" height="48"><span><b>Minecraft Title</b><small>Blockbench + Title Generator</small></span></span>
-      <span class="tool-text">Make a real 3D Minecraft title in Blockbench, right on this website.</span>
+      <span class="tool-head"><img class="tool-img" src="icon-title.png" alt="" width="48" height="48"><span><b>Minecraft Title</b><small>Type a text, get the picture</small></span></span>
+      <span class="tool-text">Type your text and download a block-letter title picture. Blockbench is on the same page.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Title</i><i>Logo</i></span>
     </a>
     <a class="tool" href="model/">

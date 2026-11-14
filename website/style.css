@@ -677,3 +677,30 @@ header.top nav { min-width: 0; overflow-x: auto; }
 .ed .dd-list::-webkit-scrollbar-track { background: transparent; }
 .ed .dd-list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
 .ed .dd-list::-webkit-scrollbar-button { display: none; height: 0; }
+
+/* title maker */
+.paint .ttext { width: min(260px, 60vw); background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font: inherit; font-weight: 700; text-transform: uppercase; }
+.paint .ttext:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.tprev { padding: 18px; border-radius: 12px; border: 1px solid var(--line); overflow: auto; text-align: center;
+  background: repeating-conic-gradient(rgba(127,127,127,.22) 0% 25%, rgba(127,127,127,.08) 0% 50%) 0 0 / 24px 24px; }
+.tprev canvas { max-width: 100%; height: auto; image-rendering: pixelated; }
+
+.ttabs { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; margin: 4px 0 14px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; }
+.ttabs button { flex: 1 1 auto; background: none; border: 0; color: var(--muted); font: inherit; font-weight: 600; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+.ttabs button:hover, .ttabs button:focus-visible { color: var(--text); outline: none; }
+.ttabs button.on { background: var(--accent); color: var(--on-accent); }
+.paint .prow input[type="range"] { accent-color: var(--accent); vertical-align: middle; }
+
+.tprev.t3d { padding: 0; }
+.tprev.t3d canvas { width: 100%; cursor: grab; touch-action: none; image-rendering: auto; display: block; }
+.paint .tnum { min-width: 44px; display: inline-block; color: var(--muted); font-variant-numeric: tabular-nums; }
+.toutl { display: flex; flex-direction: column; gap: 10px; }
+.tol-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.tol-row > b { min-width: 110px; }
+.tol-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.tol-chips button { min-width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; font-weight: 700; cursor: pointer; }
+.tol-chips button:hover, .tol-chips button:focus-visible { border-color: var(--accent); outline: none; }
+.tol-chips button.off { opacity: .4; text-decoration: line-through; }
+
+.tol-chips button.sel { background: var(--accent); color: var(--on-accent); border-color: var(--accent); opacity: 1; }
+.tprev #trender { image-rendering: auto; }
