@@ -136,6 +136,7 @@
       ];
       return P;
     }
+    const SHADES = [1, 0.82, 0.6, 0.7]; let shaded = null;
     const NORMALS = [[0, 0, 1], [0, 0, -1], [-1, 0, 0], [1, 0, 0], [0, 1, 0], [0, -1, 0]]; // front, back, right, left, top, bottom
     const PIV = { head: [0, 24, 0], body: [0, 24, 0], ra: [-5, 22, 0], la: [5, 22, 0], rl: [-2, 12, 0], ll: [2, 12, 0] };
     function angles() { // [turn x, turn y, turn z] per part, plus lift
@@ -158,7 +159,7 @@
         X += pv[0]; Y += pv[1] - 16 + A.lift; Z += pv[2];
         const x3 = X * cy + Z * sy, z3 = -X * sy + Z * cy;       // turn left/right
         const y4 = Y * cp - z3 * sp, z4 = Y * sp + z3 * cp;       // tilt
-        const f = 90 / (90 - z4);                                 // a little perspective
+        const f = 1;                                              // no perspective: whole faces can then be drawn in one go (much faster)
         return [W / 2 + x3 * f * sc, H / 2 - y4 * f * sc, z4];
       };
       const col = (o, k) => "rgba(" + Math.round(d[o] * k) + "," + Math.round(d[o + 1] * k) + "," + Math.round(d[o + 2] * k) + "," + (d[o + 3] / 255) + ")";
@@ -187,12 +188,17 @@
           let cross = (c10[0] - c00[0]) * (c01[1] - c00[1]) - (c10[1] - c00[1]) * (c01[0] - c00[0]);
           if (fi === 5) cross = -cross; // the bottom is seen from below
           if (!inf0 && cross <= 0) continue;
+          const shade = cross > 0 ? (fi < 2 ? 1 : fi < 4 ? 0.82 : fi === 4 ? 1 : 0.6) : 0.7;
+          if (!vox && shaded) { // fast way: the whole face as one picture instead of one shape per pixel
+            const mid = pt(name, ...fn(cols / 2, rows / 2));
+            quads.push([mid[2], null, c00, c10, c01, fu, fv, cols, rows, shaded[SHADES.indexOf(shade)]]);
+            continue;
+          }
           const C = cols + 1, grid = [], base = [];
           for (let jj = 0; jj <= rows; jj++) for (let ii = 0; ii <= cols; ii++) {
             grid.push(pt(name, ...fn(ii, jj)));
             if (vox) { const q = fn(ii, jj), nrm = NORMALS[fi]; base.push(pt(name, q[0] - nrm[0] * inf, q[1] - nrm[1] * inf, q[2] - nrm[2] * inf)); } // straight down to the skin
           }
-          const shade = cross > 0 ? (fi < 2 ? 1 : fi < 4 ? 0.82 : fi === 4 ? 1 : 0.6) : 0.7;
           const solid = (ii, jj) => ii >= 0 && jj >= 0 && ii < cols && jj < rows && d[((fv + jj) * 64 + fu + ii) * 4 + 3] > 0;
           for (let jj = 0; jj < rows; jj++) for (let ii = 0; ii < cols; ii++) {
             const o = ((fv + jj) * 64 + fu + ii) * 4;
@@ -218,6 +224,14 @@
       quads.sort((p, q) => p[0] - q[0]);
       g.lineJoin = "round"; g.lineWidth = 0.7;
       for (const q of quads) {
+        if (!q[1]) {
+          const o = q[2], a = q[3], b = q[4], cols = q[7], rows = q[8], e = 0.03;
+          g.setTransform((a[0] - o[0]) / cols, (a[1] - o[1]) / cols, (b[0] - o[0]) / rows, (b[1] - o[1]) / rows, o[0], o[1]);
+          g.imageSmoothingEnabled = false;
+          g.drawImage(q[9], q[5], q[6], cols, rows, -e, -e, cols + 2 * e, rows + 2 * e);
+          g.setTransform(1, 0, 0, 1, 0, 0);
+          continue;
+        }
         g.fillStyle = g.strokeStyle = q[5];
         g.beginPath(); g.moveTo(q[1][0], q[1][1]); g.lineTo(q[2][0], q[2][1]); g.lineTo(q[3][0], q[3][1]); g.lineTo(q[4][0], q[4][1]); g.closePath();
         g.fill(); g.stroke();
@@ -240,7 +254,17 @@
     cv.addEventListener("pointerdown", down); cv.addEventListener("pointermove", move); cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
     cv.addEventListener("wheel", wheel, { passive: false });
     cv.style.touchAction = "none"; cv.style.cursor = "grab";
-    self.loadSkin = (canvas, opt) => { img = canvas.getContext("2d").getImageData(0, 0, 64, 64); slim = !!opt && opt.model === "slim"; };
+    self.loadSkin = (canvas, opt) => {
+      img = canvas.getContext("2d").getImageData(0, 0, 64, 64); slim = !!opt && opt.model === "slim";
+      try { // the skin in each brightness, ready to be drawn face by face
+        shaded = SHADES.map((k, n) => {
+          const c = (shaded && shaded[n]) || document.createElement("canvas"); c.width = c.height = 64;
+          const x = c.getContext("2d"), im = x.createImageData(64, 64), s = img.data, t2 = im.data;
+          for (let i = 0; i < s.length; i += 4) { t2[i] = s[i] * k; t2[i + 1] = s[i + 1] * k; t2[i + 2] = s[i + 2] * k; t2[i + 3] = s[i + 3]; }
+          x.putImageData(im, 0, 0); return c;
+        });
+      } catch (e) { shaded = null; }
+    };
     self.view = (y, p, at) => { yaw = y; pitch = p; if (at !== undefined) t = at; };
     self.render = () => { try { draw(); } catch (e) {} };
     self.dispose = () => { dead = true; cancelAnimationFrame(raf); cv.removeEventListener("pointerdown", down); cv.removeEventListener("pointermove", move); cv.removeEventListener("pointerup", up); cv.removeEventListener("pointercancel", up); cv.removeEventListener("wheel", wheel); };

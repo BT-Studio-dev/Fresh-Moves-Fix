@@ -269,6 +269,35 @@
     setAnim();
     $("wrap3d").style.display = ""; $("why3d").hidden = true;
     $("msg3d").textContent = "3D preview on.";
+    watchSpeed(viewer);
+  }
+  // On a slow computer the smooth 3D can drop to a few pictures per second; then the light viewer is used instead.
+  function watchSpeed(v) {
+    if (typeof requestAnimationFrame !== "function") return;
+    let n = 0, t0 = 0;
+    const step = (now) => {
+      if (viewer !== v) return;
+      if (document.hidden) { n = 0; t0 = 0; }
+      else if (!t0) t0 = now;
+      else if (now - t0 > 1500) { // the first moments of a page are always slow, so they are not counted
+        n++;
+        if (now - t0 >= 4500) {
+          if (n / 3 < 18) {
+            try { const r = v.renderer; v.dispose(); if (r && r.forceContextLoss) r.forceContextLoss(); } catch (x) {}
+            viewer = null; failed3d = true;
+            try {
+              startSoft(); if (current) update3d(current);
+              $("msg3d").textContent = "3D preview on (fast mode).";
+              $("why3d").hidden = false; $("why3dtext").textContent = "Fast mode. The smooth 3D was too slow on this computer, so the light 3D is used.";
+              $("why3dmore").textContent = "It shows the same skin. \"Try again\" goes back to the smooth 3D.";
+            } catch (x) { viewer = null; }
+          }
+          return;
+        }
+      }
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
   }
   // the simple viewer on purpose: it can show the second skin layer as 3D blocks
   function startSoft() {
