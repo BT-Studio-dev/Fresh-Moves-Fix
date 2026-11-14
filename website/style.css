@@ -656,3 +656,16 @@ header.top nav { min-width: 0; overflow-x: auto; }
 .paint canvas.p3d { width: 100%; max-width: 460px; margin: 0 auto; image-rendering: auto; background: var(--bg); }
 .paint canvas.p2d { width: 100%; max-width: 512px; margin: 0 auto; }
 .paint button:disabled { opacity: .45; cursor: default; }
+
+/* 3D Model and Animation pages */
+.paint .tl { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.paint .tlrow { display: flex; align-items: center; gap: 6px; padding: 6px 8px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
+.paint .tlrow.on { border-color: var(--accent); }
+.paint .tlrow b { flex: 1; min-width: 0; font-weight: 600; }
+.paint .tlrow span { color: var(--muted); min-width: 48px; text-align: right; }
+.paint .tlrow button { width: 30px; height: 30px; background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 6px; cursor: pointer; font: inherit; padding: 0; }
+.paint .tlrow button:hover:not(:disabled) { border-color: var(--accent); }
+.paint .tlsecs { width: 70px; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; font: inherit; }
+.paint .tlbarwrap { height: 8px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; margin: 10px 0; }
+.paint .tlbar { height: 100%; width: 0; background: var(--accent); }
+.paint [hidden] { display: none !important; }

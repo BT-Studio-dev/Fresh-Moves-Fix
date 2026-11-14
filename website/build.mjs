@@ -244,6 +244,8 @@ ${cards(eyes)}
 const skinData = (p) => "data:image/png;base64," + fs.readFileSync(path.join(root, "assets/minecraft/textures/entity/player", p)).toString("base64");
 fs.copyFileSync(path.join(here, "editor.js"), path.join(out, "editor.js"));
 fs.copyFileSync(path.join(here, "paint.js"), path.join(out, "paint.js"));
+fs.copyFileSync(path.join(here, "player.js"), path.join(out, "player.js"));
+fs.copyFileSync(path.join(here, "studio.js"), path.join(out, "studio.js"));
 // 3D preview library (skinview3d, MIT licence), served from this site
 fs.copyFileSync(path.join(here, "node_modules/skinview3d/bundles/skinview3d.bundle.js"), path.join(out, "skinview3d.bundle.js"));
 write("editor/index.html", page({
@@ -399,6 +401,7 @@ write("editor/index.html", page({
 <p>The positions of 2 wide 1 tall and 2 wide 2 tall come from the example skins in the pack. The other shapes were worked out from the pack's model file and are less certain; the derp layout is the least certain. Eyebrows, eyelashes and fox eyes are not in the editor yet; see the <a href="../guides/">guides</a>.</p>
 </article></div>
 <script src="../skinview3d.bundle.js"></script>
+<script src="../player.js?v=${ver("player.js")}"></script>
 <script src="../editor.js?v=${ver("editor.js")}"></script>`,
 }));
 
@@ -527,15 +530,112 @@ write("paint/index.html", page({
 </article></div>
 <script src="../paint.js?v=${ver("paint.js")}"></script>`,
 }));
-// ---- Minecraft animation in Blender (a guide page: Blender is a desktop program and cannot run inside a web page) ----
-write("animation/index.html", page({
-  title: "Minecraft animation in Blender - Fresh Moves Fix",
+// ---- shared parts of the "3D Model" and "Animation" pages (studio.js) ----
+const MOVE_OPTS = [["idle", "Standing"], ["walk", "Walking"], ["run", "Running"], ["wave", "Waving"], ["cheer", "Cheer"], ["dance", "Dance"], ["jacks", "Jumping jacks"], ["clap", "Clap"], ["dab", "Dab"], ["sit", "Sit"], ["look", "Look around"], ["tpose", "T-pose"]]
+  .map(([v, n]) => `<option value="${v}">${n}</option>`).join("");
+const fileData = (f) => "data:image/png;base64," + fs.readFileSync(path.join(here, f)).toString("base64");
+const studioSkin = `<section class="panel ecard">
+    <h3 class="ehead"><img class="tool-img" src="../icon-skin.png" alt="" width="44" height="44"><span><b>1. Skin</b><small>Load your skin, or start from one of these</small></span></h3>
+    <label class="drop" id="sdrop">
+      <input type="file" id="sfile" accept="image/png" class="vh">
+      <span class="drop-ic">${ICON.up}</span>
+      <span><b>Choose your skin file</b><br><small>or drop the .png here</small></span>
+    </label>
+    <div class="pick" id="sstart">
+      <button type="button" class="pickb" data-name="Steve" data-slim="0" data-skin="${skinData("wide/steve.png")}"><img src="../icon-skin.png" alt="" width="36" height="36"><span><b>Steve</b><small>Default skin</small></span></button>
+      <button type="button" class="pickb" data-name="Alex" data-slim="1" data-skin="${skinData("slim/alex.png")}"><img src="../icon-alex.png" alt="" width="36" height="36"><span><b>Alex</b><small>Default skin</small></span></button>
+      <button type="button" class="pickb" data-name="Dummy (tall eyes)" data-skin="${fileData("dummy.png")}"><img src="../icon-dummy.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Tall eyes</small></span></button>
+      <button type="button" class="pickb" data-name="Dummy (dot eyes)" data-skin="${fileData("dummy2.png")}"><img src="../icon-dummy2.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Dot eyes</small></span></button>
+      <button type="button" class="pickb" data-name="Dummy (blank face)" data-skin="${fileData("painted.png")}"><img src="../icon-painted.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Blank face</small></span></button>
+      <button type="button" class="pickb" id="smine" hidden><img src="../icon-paint.png" alt="" width="36" height="36"><span><b>My painting</b><small>From the Skin Painter 3D</small></span></button>
+    </div>
+    <p class="prow"><label>Format <select id="sformat"><option value="wide">Wide arms (Steve)</option><option value="slim">Slim arms (Alex)</option></select></label></p>
+    <p class="prow"><a class="btn ghost" href="../paint/">${ICON.brush} Paint a skin</a> <a class="btn ghost" href="../editor/">${ICON.eye} Add moving eyes</a></p>
+  </section>`;
+const studioView = (extra) => `<section class="panel ecard">
+    <h3 class="ehead"><span><b>3D preview</b><small>Drag to turn it. Mouse wheel = zoom.</small></span></h3>
+    <canvas id="s3d" class="p3d" width="460" height="560"></canvas>
+    ${extra}
+    <div class="row ctl">
+      <button type="button" class="btn ghost" id="splay" aria-pressed="false">Pause</button>
+      <label><input type="checkbox" id="sspin"> Spin</label>
+      <label><input type="checkbox" id="souter" checked> Show the outer layer</label>
+      <label><input type="checkbox" id="slayers"> 3D skin layers</label>
+      <label>Zoom <input type="range" id="szoom" min="0.6" max="2.4" step="0.05" value="0.9"></label>
+    </div>
+    <p><small id="smsg" role="status"></small></p>
+  </section>`;
+const studioScripts = `<script src="../player.js?v=${ver("player.js")}"></script>
+<script src="../studio.js?v=${ver("studio.js")}"></script>`;
+
+// ---- Minecraft 3D Model: its own page (skin -> animated .gltf file) ----
+write("model/index.html", page({
+  title: "Minecraft 3D Model - Fresh Moves Fix",
   active: "",
-  description: "How to make a Minecraft animation with your own skin in Blender, using the free MCprep add-on.",
+  description: "Turn your Minecraft skin into an animated 3D model file (.gltf) for Blender, Blockbench and 3D viewers.",
   depth: 1,
   body: `<div class="wrap"><article class="editor">
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
-<h1>${ICON.play} Minecraft animation in Blender</h1>
+<h1>${ICON.box} Minecraft 3D Model</h1>
+<p>Turn your skin into a 3D model of the player, with a movement, and download it as one file. Everything happens in your browser; nothing is uploaded. It works without 3D graphics (WebGL).</p>
+<div class="ed paint">
+  <div class="ed-col">
+  ${studioSkin}
+  <section class="panel ecard">
+    <h3 class="ehead"><img class="tool-img" src="../icon-model.png" alt="" width="44" height="44"><span><b>2. Movement and download</b><small>The model moves like this, again and again</small></span></h3>
+    <p class="prow"><label>Movement <select id="smove">${MOVE_OPTS}</select></label></p>
+    <p class="prow"><button type="button" class="btn" id="sgltf">${ICON.down} Download 3D model (.gltf)</button></p>
+    <p><small>One .gltf file with the player, your skin (both layers) and the chosen movement inside.</small></p>
+  </section>
+  </div>
+  <div class="ed-col">
+  ${studioView("")}
+  </div>
+</div>
+<h2>${ICON.info} How to open the file</h2>
+<ol class="steps">
+  <li><strong>Blender:</strong> File, Import, glTF 2.0, pick the file. Press Space to play the movement.</li>
+  <li><strong>Blockbench:</strong> File, Import, "Import glTF" (or drag the file into the window).</li>
+  <li><strong>Windows:</strong> double-click the file; it opens in "3D Viewer" if that app is installed.</li>
+</ol>
+<p><small>The game itself does not use this file. It is for pictures, videos and 3D programs.</small></p>
+</article></div>
+${studioScripts}`,
+}));
+
+// ---- Minecraft animation in Blender (a guide page: Blender is a desktop program and cannot run inside a web page) ----
+write("animation/index.html", page({
+  title: "Minecraft Animation - Fresh Moves Fix",
+  active: "",
+  description: "Make a Minecraft animation with your own skin right in the browser and save it as a video. Plus a guide for Blender.",
+  depth: 1,
+  body: `<div class="wrap"><article class="editor">
+<div class="crumb"><a href="../">${ICON.home} Home</a></div>
+<h1>${ICON.play} Minecraft Animation</h1>
+<p>Make a short animation with your own skin: put movements in a row, press play, and save it as a video. Everything happens in your browser; nothing is uploaded. It works without 3D graphics (WebGL).</p>
+<div class="ed paint">
+  <div class="ed-col">
+  ${studioSkin}
+  <section class="panel ecard">
+    <h3 class="ehead"><img class="tool-img" src="../icon-anim.png" alt="" width="44" height="44"><span><b>2. Movements</b><small>They play one after the other, from top to bottom</small></span></h3>
+    <div class="tl" id="tl"></div>
+    <p class="prow"><label>Add <select id="tlmove">${MOVE_OPTS}</select></label> <label>for <input type="number" id="tlsecs" class="tlsecs" min="0.5" max="30" step="0.5" value="3"> seconds</label> <button type="button" class="btn ghost" id="tladd">Add</button></p>
+    <p class="prow"><small>Whole animation: <b id="tltotal"></b></small> <label><input type="checkbox" id="tlloop" checked> Repeat</label></p>
+  </section>
+  <section class="panel ecard">
+    <h3 class="ehead"><span><b>3. Save</b><small>As a video or as one picture</small></span></h3>
+    <p class="prow"><label><input type="checkbox" id="sbgon" checked> Background colour</label> <input type="color" id="sbg" value="#7fb8ff" aria-label="Background colour"></p>
+    <p class="prow"><button type="button" class="btn" id="svideo">Save video</button> <button type="button" class="btn ghost" id="spng">Save picture (.png)</button></p>
+    <p><small>The video is recorded while the animation plays once, so it takes as long as the animation. It is a .webm file; it plays in browsers and in VLC, and you can upload it to YouTube.</small></p>
+  </section>
+  </div>
+  <div class="ed-col">
+  ${studioView(`<div class="tlbarwrap"><div class="tlbar" id="tlbar"></div></div>
+    <p class="prow"><button type="button" class="btn ghost" id="tlstart">From the start</button> <small id="tltime"></small></p>`)}
+  </div>
+</div>
+
+<h2>${ICON.info} Bigger animations: Blender</h2>
 <p><b>Blender</b> is a free 3D program for your computer. With the free <b>MCprep</b> add-on it gets ready-made Minecraft characters that you can pose, animate and turn into a video. Blender cannot run inside a web page, so this page is a guide: you download it and follow the steps.</p>
 <p><a class="btn" rel="noopener" target="_blank" href="https://www.blender.org/download/">${ICON.down} Download Blender</a>
 <a class="btn ghost" rel="noopener" target="_blank" href="https://github.com/Moo-Ack-Productions/MCprep">${ICON.right} MCprep add-on</a>
@@ -566,7 +666,8 @@ write("animation/index.html", page({
 
 <h2>${ICON.info} What this page is not</h2>
 <p>This resource pack animates the player <em>inside the game</em>. Blender animations are separate <em>videos</em>; the two do not share files. MCprep is made by its own team (GPL-3.0 licence) and Blender by the Blender Foundation; they are not part of Fresh Moves Fix. Button and menu names can differ a little between Blender versions.</p>
-</article></div>`,
+</article></div>
+${studioScripts}`,
 }));
 
 write("settings/index.html", page({
@@ -725,15 +826,15 @@ write("index.html", page({
       <span class="tool-text">Make a real 3D Minecraft title in Blockbench, right on this website.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Title</i><i>Logo</i></span>
     </a>
-    <a class="tool" href="editor/#model3d">
+    <a class="tool" href="model/">
       <span class="tool-head"><img class="tool-img" src="icon-model.png" alt="" width="48" height="48"><span><b>Minecraft 3D Model</b><small>by Fresh Moves Fix</small></span></span>
       <span class="tool-text">Turn your skin into an animated 3D model file for Blender or Blockbench.</span>
       <span class="tags"><i class="g">Minecraft</i><i>3D Model</i><i>Animated</i></span>
     </a>
     <a class="tool" href="animation/">
-      <span class="tool-head"><img class="tool-img" src="icon-anim.png" alt="" width="48" height="48"><span><b>Minecraft Animation</b><small>Blender + MCprep</small></span></span>
-      <span class="tool-text">Make a Minecraft animation video with your own skin in Blender, step by step.</span>
-      <span class="tags"><i class="g">Minecraft</i><i>Animation</i><i>Blender</i></span>
+      <span class="tool-head"><img class="tool-img" src="icon-anim.png" alt="" width="48" height="48"><span><b>Minecraft Animation</b><small>by Fresh Moves Fix</small></span></span>
+      <span class="tool-text">Put movements in a row with your own skin and save the animation as a video.</span>
+      <span class="tags"><i class="g">Minecraft</i><i>Animation</i><i>Video</i></span>
     </a>
   </div>
 </section>
