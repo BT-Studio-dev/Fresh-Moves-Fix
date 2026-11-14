@@ -22,6 +22,8 @@ const dl = (file) => `${REPO}/releases/download/v${version}/${file}`;
 // A short fingerprint of a file, added to its address, so browsers fetch the new file after every change
 // instead of showing an old saved copy of the styles or scripts.
 import { createHash } from "node:crypto";
+// a new address when the banner changes, so chat apps (Discord...) fetch the new picture for link previews
+const bannerVer = createHash("sha1").update(fs.readFileSync(path.join(root, "docs/images/banner.png"))).digest("hex").slice(0, 8);
 const ver = (f) => createHash("sha1").update(fs.readFileSync(path.join(here, f))).digest("hex").slice(0, 8);
 
 // Minecraft versions and pack formats come from build.py, so the site matches the builds.
@@ -76,7 +78,9 @@ function page({ title, body, depth = 0, description = "", active = "" }) {
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description || "Fresh Moves Fix - player animation resource pack for Minecraft")}">
 <meta property="og:title" content="${esc(title)}">
-<meta property="og:image" content="https://fresh-moves-fix.vercel.app/banner.png">
+<meta property="og:image" content="https://fresh-moves-fix.vercel.app/banner.png?v=${bannerVer}">
+<meta property="og:image:width" content="1920">
+<meta property="og:image:height" content="1080">
 <meta name="twitter:card" content="summary_large_image">
 <script>(function(){var t="";try{t=localStorage.getItem("fmf-theme")||""}catch(e){}
 if(!t){try{var m=document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/);if(m)t=m[1]}catch(e){}}
