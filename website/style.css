@@ -542,7 +542,7 @@ header.top .snd-line i { font-style: normal; font-weight: 400; color: var(--mute
   --muted: #b7c5bd;
   --accent: #5ee6a0;
   --on-accent: #04110a;
-  --header: rgba(10, 18, 16, .94);
+  --header: #0c1614;
   --note-bg: rgba(120, 96, 20, .28);
   --note-line: rgba(240, 200, 90, .4);
   --note-text: #f6e6b8;
