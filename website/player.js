@@ -194,6 +194,8 @@
             quads.push([mid[2], null, c00, c10, c01, fu, fv, cols, rows, shaded[SHADES.indexOf(shade)]]);
             continue;
           }
+          let tops = true; // 3D skin layers: the tops of the little blocks as one picture too, only their walls one by one
+          if (vox && shaded && cross > 0) { const mid = pt(name, ...fn(cols / 2, rows / 2)); quads.push([mid[2], null, c00, c10, c01, fu, fv, cols, rows, shaded[SHADES.indexOf(shade)]]); tops = false; }
           const C = cols + 1, grid = [], base = [];
           for (let jj = 0; jj <= rows; jj++) for (let ii = 0; ii <= cols; ii++) {
             grid.push(pt(name, ...fn(ii, jj)));
@@ -205,7 +207,7 @@
             if (!d[o + 3]) continue;
             const k = [jj * C + ii, jj * C + ii + 1, (jj + 1) * C + ii + 1, (jj + 1) * C + ii];
             const a = grid[k[0]], b = grid[k[1]], c = grid[k[2]], e = grid[k[3]];
-            if (!vox || cross > 0) quads.push([zq(a, b, c, e), a, b, c, e, col(o, shade)]);
+            if (tops && (!vox || cross > 0)) quads.push([zq(a, b, c, e), a, b, c, e, col(o, shade)]);
             if (vox) { // walls of the little block where the pixel next to it is empty
               const nb = [[0, -1], [1, 0], [0, 1], [-1, 0]];
               for (let m = 0; m < 4; m++) {

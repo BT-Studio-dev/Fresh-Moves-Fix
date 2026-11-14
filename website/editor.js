@@ -288,8 +288,8 @@
             try {
               startSoft(); if (current) update3d(current);
               $("msg3d").textContent = "3D preview on (fast mode).";
-              $("why3d").hidden = false; $("why3dtext").textContent = "Fast mode. The smooth 3D was too slow on this computer, so the light 3D is used.";
-              $("why3dmore").textContent = "It shows the same skin. \"Try again\" goes back to the smooth 3D.";
+              $("why3d").hidden = true; // this is not an error, so no warning card
+              try { localStorage.setItem("fmf-3dfast", "on"); } catch (x) {} // next time start in fast mode straight away
             } catch (x) { viewer = null; }
           }
           return;
@@ -308,6 +308,10 @@
   }
   function init3d() {
     if (viewer || failed3d) return;
+    let fast = false; try { fast = localStorage.getItem("fmf-3dfast") === "on"; } catch (e) {}
+    if (fast) { // this computer was too slow for the smooth 3D before
+      try { startSoft(); failed3d = true; $("why3d").hidden = true; $("msg3d").textContent = "3D preview on (fast mode)."; return; } catch (e) { viewer = null; }
+    }
     if ($("layers3d").checked) {
       try { startSoft(); $("why3d").hidden = true; $("msg3d").textContent = "3D preview on (3D skin layers)."; return; } catch (e) { viewer = null; }
     }
