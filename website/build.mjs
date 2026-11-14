@@ -507,14 +507,32 @@ write("title/index.html", page({
   </section>
   <section class="panel ecard">
     <h3 class="ehead"><span class="tool-ic">${ICON.down}</span><span><b>2. Save</b><small>A .png picture</small></span></h3>
-    <p class="prow"><button type="button" class="btn" id="tsave">${ICON.down} Download title (.png)</button></p>
+    <p class="prow"><button type="button" class="btn" id="tsave">${ICON.down} Download title (.png)</button> <button type="button" class="btn ghost" id="tsave3">${ICON.down} Download 3D view (.png)</button></p>
     <p><small id="tinfo"></small></p>
   </section>
   </div>
   <div class="ed-col">
   <section class="panel ecard">
     <h3 class="ehead"><span class="tool-ic">${ICON.eye}</span><span><b>Preview</b><small>Changes while you type</small></span></h3>
-    <div class="tprev"><canvas id="tcanvas" width="16" height="16"></canvas></div>
+    <div class="ttabs"><button type="button" data-tview="flat">Flat picture</button><button type="button" data-tview="3d">3D view</button></div>
+    <div class="tprev" id="tflat"><canvas id="tcanvas" width="16" height="16"></canvas></div>
+    <div id="t3dwrap" hidden>
+      <div class="tprev t3d"><canvas id="t3d" width="840" height="460"></canvas></div>
+      <p class="ehint">${ICON.info} <span>Drag the title to turn it. The small X, Y, Z cross in the corner turns with it.</span></p>
+    </div>
+  </section>
+  <section class="panel ecard">
+    <h3 class="ehead"><span class="tool-ic">${ICON.box}</span><span><b>Transform</b><small>Turn and zoom the 3D view</small></span></h3>
+    <p class="prow"><label>Rotation X <input type="range" id="trx" min="-90" max="90" value="12"> <span id="trxv" class="tnum"></span></label></p>
+    <p class="prow"><label>Rotation Y <input type="range" id="try" min="-180" max="180" value="-28"> <span id="tryv" class="tnum"></span></label></p>
+    <p class="prow"><label>Rotation Z <input type="range" id="trz" min="-180" max="180" value="0"> <span id="trzv" class="tnum"></span></label></p>
+    <p class="prow"><label>Zoom <input type="range" id="tzoom" min="40" max="160" value="100"></label></p>
+    <p class="prow"><button type="button" class="btn ghost" data-tview3="0,0,0">Front</button> <button type="button" class="btn ghost" data-tview3="12,-28,0">Angle</button> <button type="button" class="btn ghost" data-tview3="20,35,0">Other side</button> <button type="button" class="btn ghost" data-tview3="60,0,0">From above</button></p>
+    <p><small>Size (wide x tall x deep): <span id="tsize3"></span></small></p>
+  </section>
+  <section class="panel ecard">
+    <h3 class="ehead"><span class="tool-ic">${ICON.grid}</span><span><b>Outliner</b><small>Click a letter to hide it or show it again</small></span></h3>
+    <div class="toutl" id="toutl"></div>
   </section>
   </div>
 </div>
