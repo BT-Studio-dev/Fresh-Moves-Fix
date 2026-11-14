@@ -462,7 +462,15 @@ write("title/index.html", page({
 <div class="ed paint">
   <div class="ed-col">
   <section class="panel ecard">
-    <h3 class="ehead"><img class="tool-img" src="../icon-title.png" alt="" width="44" height="44"><span><b>1. Text</b><small>Up to three lines, each with its own type and colour</small></span></h3>
+    <h3 class="ehead"><img class="tool-img" src="../icon-title.png" alt="" width="44" height="44"><span><b>1. Title</b><small>Text, texture, overlay, style and settings</small></span></h3>
+    <div class="ttabs" role="tablist">
+      <button type="button" role="tab" data-ttab="text">Text</button>
+      <button type="button" role="tab" data-ttab="texture">Texture</button>
+      <button type="button" role="tab" data-ttab="overlay">Overlay</button>
+      <button type="button" role="tab" data-ttab="style">Style</button>
+      <button type="button" role="tab" data-ttab="settings">Settings</button>
+    </div>
+    <div id="tp-text">
     <p class="prow"><label>Line 1 <input type="text" id="tt1" class="ttext" maxlength="24" value="MINECRAFT" spellcheck="false"></label> <input type="color" id="tc1" value="#ffffff" aria-label="Colour of line 1"> <label>Type <select id="tk1"><option value="top" selected>Top</option><option value="bottom">Bottom</option><option value="small">Small</option></select></label></p>
     <p class="prow"><label>Line 2 <input type="text" id="tt2" class="ttext" maxlength="24" value="HEROBRINE" spellcheck="false"></label> <input type="color" id="tc2" value="#63ff54" aria-label="Colour of line 2"> <label>Type <select id="tk2"><option value="top">Top</option><option value="bottom" selected>Bottom</option><option value="small">Small</option></select></label></p>
     <p class="prow"><label>Line 3 <input type="text" id="tt3" class="ttext" maxlength="24" value="JAVA EDITION" spellcheck="false"></label> <input type="color" id="tc3" value="#ffd24a" aria-label="Colour of line 3"> <label>Type <select id="tk3"><option value="top">Top</option><option value="bottom">Bottom</option><option value="small" selected>Small</option></select></label></p>
@@ -473,10 +481,32 @@ write("title/index.html", page({
       <button type="button" class="btn ghost" data-title="FRESH MOVES|#ffffff|top;FIX|#63ff54|top">Fresh Moves Fix</button>
       <button type="button" class="btn ghost" data-title="MY SERVER|#ffd24a|top;SEASON 2|#ffffff|bottom">My Server</button>
     </p>
+    </div>
+    <div id="tp-texture" hidden>
+      <p class="prow"><label>Texture <select id="ttex"><option value="plain" selected>Plain colour</option><option value="stone">Stone</option><option value="bricks">Bricks</option><option value="planks">Planks</option><option value="stripes">Stripes</option><option value="dots">Dots</option><option value="grass">Grass block</option><option value="ore">Diamond ore</option><option value="gold">Gold</option><option value="lava">Lava</option></select></label></p>
+      <p class="ehint">${ICON.info} <span>The texture is a pattern drawn on the letters. Plain colour, Stone, Bricks, Planks, Stripes and Dots keep the colour of each line. Grass block, Diamond ore, Gold and Lava bring their own colours. The patterns are our own drawings, not Minecraft's block pictures.</span></p>
+    </div>
+    <div id="tp-overlay" hidden>
+      <p class="prow"><label>Overlay <select id="tover"><option value="none" selected>None</option><option value="down">Fade in towards the bottom</option><option value="up">Fade in towards the top</option><option value="all">Over the whole letter</option></select></label></p>
+      <p class="prow" id="tovrow"><span>Colour</span> <input type="color" id="tovc" value="#000000" aria-label="Overlay colour"> <label>Strength <input type="range" id="tovs" min="0" max="100" value="60"></label></p>
+      <p class="ehint">${ICON.info} <span>An overlay lays a second colour over the letters, for example black fading in at the bottom, or orange at the top for a sunset look.</span></p>
+    </div>
+    <div id="tp-style" hidden>
+      <p class="prow"><label><input type="checkbox" id="tout" checked> Outline</label></p>
+      <p class="prow" id="toutrow"><span>Outline colour</span> <input type="color" id="toutc" value="#14100e" aria-label="Outline colour"> <label>Thickness <select id="toutw"><option value="thin">Thin</option><option value="normal" selected>Normal</option><option value="thick">Thick</option></select></label></p>
+      <p class="prow"><label>3D depth <select id="tdepth"><option value="none">Flat</option><option value="normal" selected>Normal</option><option value="deep">Deep</option></select></label>
+        <label>Letter spacing <select id="tspace"><option value="tight">Tight</option><option value="normal" selected>Normal</option><option value="wide">Wide</option></select></label></p>
+      <p class="prow"><label>Space between lines <input type="range" id="tlines" min="-8" max="24" value="3"></label></p>
+    </div>
+    <div id="tp-settings" hidden>
+      <p class="prow"><label>Size <select id="tsize"><option value="2">Small</option><option value="4" selected>Normal</option><option value="8">Big</option></select></label>
+        <label>Lines <select id="talign"><option value="left">Left</option><option value="center" selected>Centre</option><option value="right">Right</option></select></label></p>
+      <p class="prow"><label><input type="checkbox" id="tbg"> Background colour</label> <span id="tbgrow"><input type="color" id="tbgc" value="#1d3c2d" aria-label="Background colour"></span></p>
+      <p class="prow"><button type="button" class="btn ghost" id="treset">Reset texture, overlay, style and settings</button></p>
+    </div>
   </section>
   <section class="panel ecard">
-    <h3 class="ehead"><span class="tool-ic">${ICON.down}</span><span><b>2. Save</b><small>A .png picture with a see-through background</small></span></h3>
-    <p class="prow"><label>Size <select id="tsize"><option value="2">Small</option><option value="4" selected>Normal</option><option value="8">Big</option></select></label></p>
+    <h3 class="ehead"><span class="tool-ic">${ICON.down}</span><span><b>2. Save</b><small>A .png picture</small></span></h3>
     <p class="prow"><button type="button" class="btn" id="tsave">${ICON.down} Download title (.png)</button></p>
     <p><small id="tinfo"></small></p>
   </section>
