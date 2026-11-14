@@ -320,7 +320,7 @@ write("editor/index.html", page({
   </section>
   <section class="panel ecard" id="model3d">
     <h3 class="ehead"><span class="tool-ic">${ICON.box}</span><span><b>5. 3D model</b><small>Animated model file with your skin</small></span></h3>
-    <p class="ehint">${ICON.info} Saves the player as a 3D model file with your skin on it and the move chosen under "Emote" in the 3D preview (now: <b id="move3d"></b>), as a loop.</p>
+    <p class="ehint">${ICON.info} <span>Saves the player as a 3D model file with your skin on it and the move chosen under "Emote" in the 3D preview (now: <b id="move3d"></b>), as a loop.</span></p>
     <p><button type="button" class="btn" id="save3d">${ICON.down} Download 3D model (.gltf)</button></p>
     <p class="ehint">Open it in Blender (File, Import, glTF 2.0), Blockbench (File, Import) or the Windows 3D Viewer. It is not used by the game.</p>
     <p class="statline"><span id="msg3dfile" class="status" style="cursor:default"></span></p>
