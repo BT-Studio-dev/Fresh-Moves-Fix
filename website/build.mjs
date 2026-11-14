@@ -155,7 +155,7 @@ fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 fs.copyFileSync(path.join(root, "pack.png"), path.join(out, "pack.png"));
 fs.copyFileSync(path.join(here, "title.png"), path.join(out, "title.png"));
-for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
+for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
@@ -243,6 +243,7 @@ ${cards(eyes)}
 // the two default skins are embedded in the page, so the editor needs no extra requests
 const skinData = (p) => "data:image/png;base64," + fs.readFileSync(path.join(root, "assets/minecraft/textures/entity/player", p)).toString("base64");
 fs.copyFileSync(path.join(here, "editor.js"), path.join(out, "editor.js"));
+fs.copyFileSync(path.join(here, "paint.js"), path.join(out, "paint.js"));
 // 3D preview library (skinview3d, MIT licence), served from this site
 fs.copyFileSync(path.join(here, "node_modules/skinview3d/bundles/skinview3d.bundle.js"), path.join(out, "skinview3d.bundle.js"));
 write("editor/index.html", page({
@@ -439,6 +440,88 @@ write("title/index.html", page({
 }));
 
 const themeCard = (id, name, pb, pp, pl, pt) => `<label><span class="pv" style="--pb:${pb};--pp:${pp};--pl:${pl};--pt:${pt}"><i><b></b><u></u></i></span><span class="nm"><input type="radio" name="theme" value="${id}"> ${name}</span></label>`;
+// ---- Skin Painter 3D (our own; drawn on a 2D canvas, so it also works where WebGL is off) ----
+write("paint/index.html", page({
+  title: "Skin Painter 3D - Fresh Moves Fix",
+  active: "",
+  description: "Paint a Minecraft skin on a 3D model or on the flat skin file, right in your browser.",
+  depth: 1,
+  body: `<div class="wrap"><article class="editor">
+<div class="crumb"><a href="../">${ICON.home} Home</a></div>
+<h1>${ICON.brush} Skin Painter 3D</h1>
+<p>Paint your Minecraft skin pixel by pixel, on the 3D model or on the flat skin file. Everything happens in your browser; the skin is not uploaded anywhere. It works without 3D graphics (WebGL).</p>
+
+<div class="ed paint">
+  <div class="ed-col">
+  <section class="panel ecard">
+    <h3 class="ehead"><img class="tool-img" src="../icon-paint.png" alt="" width="44" height="44"><span><b>Tools</b><small>Pick a tool, pick a colour, then click the model</small></span></h3>
+    <div class="ptools" id="ptools">
+      <button type="button" data-tool="pen" title="Pen (B)">Pen</button>
+      <button type="button" data-tool="erase" title="Eraser (E)">Eraser</button>
+      <button type="button" data-tool="fill" title="Fill one side of a body part (G)">Fill</button>
+      <button type="button" data-tool="pick" title="Take a colour from the skin (I)">Take colour</button>
+      <button type="button" data-tool="light" title="Make pixels lighter (L)">Lighter</button>
+      <button type="button" data-tool="dark" title="Make pixels darker (D)">Darker</button>
+    </div>
+    <p class="prow"><button type="button" class="btn ghost" id="pundo" title="Ctrl+Z">Undo</button> <button type="button" class="btn ghost" id="predo" title="Ctrl+Y">Redo</button></p>
+    <p class="elabel">Colour</p>
+    <p class="prow"><span class="pnow" id="pnow"></span> <input type="color" id="pcolor" value="#3b82c4" aria-label="Colour"> <input type="text" id="phex" class="phex" value="#3b82c4" maxlength="7" spellcheck="false" aria-label="Colour code"></p>
+    <div class="psws" id="ppalette"><button type="button" class="psw" style="background:#000000" title="#000000" data-c="#000000"></button><button type="button" class="psw" style="background:#3f3f3f" title="#3f3f3f" data-c="#3f3f3f"></button><button type="button" class="psw" style="background:#7f7f7f" title="#7f7f7f" data-c="#7f7f7f"></button><button type="button" class="psw" style="background:#bfbfbf" title="#bfbfbf" data-c="#bfbfbf"></button><button type="button" class="psw" style="background:#ffffff" title="#ffffff" data-c="#ffffff"></button><button type="button" class="psw" style="background:#5a3a1e" title="#5a3a1e" data-c="#5a3a1e"></button><button type="button" class="psw" style="background:#8b5a2b" title="#8b5a2b" data-c="#8b5a2b"></button><button type="button" class="psw" style="background:#c68642" title="#c68642" data-c="#c68642"></button><button type="button" class="psw" style="background:#e0ac69" title="#e0ac69" data-c="#e0ac69"></button><button type="button" class="psw" style="background:#f1c27d" title="#f1c27d" data-c="#f1c27d"></button><button type="button" class="psw" style="background:#ffdbac" title="#ffdbac" data-c="#ffdbac"></button><button type="button" class="psw" style="background:#e5534b" title="#e5534b" data-c="#e5534b"></button><button type="button" class="psw" style="background:#ff8c1a" title="#ff8c1a" data-c="#ff8c1a"></button><button type="button" class="psw" style="background:#ffd21a" title="#ffd21a" data-c="#ffd21a"></button><button type="button" class="psw" style="background:#7bc043" title="#7bc043" data-c="#7bc043"></button><button type="button" class="psw" style="background:#2e8b57" title="#2e8b57" data-c="#2e8b57"></button><button type="button" class="psw" style="background:#1fb5a8" title="#1fb5a8" data-c="#1fb5a8"></button><button type="button" class="psw" style="background:#3b82c4" title="#3b82c4" data-c="#3b82c4"></button><button type="button" class="psw" style="background:#2b4fa8" title="#2b4fa8" data-c="#2b4fa8"></button><button type="button" class="psw" style="background:#7a4fd0" title="#7a4fd0" data-c="#7a4fd0"></button><button type="button" class="psw" style="background:#d05fb5" title="#d05fb5" data-c="#d05fb5"></button><button type="button" class="psw" style="background:#ff9ecb" title="#ff9ecb" data-c="#ff9ecb"></button></div>
+    <p class="elabel">Last used</p>
+    <div class="psws" id="precent"></div>
+    <p class="elabel">Paint on</p>
+    <p class="prow"><label><input type="radio" name="player" value="0" checked> Skin (first layer)</label> <label><input type="radio" name="player" value="1"> Outer layer (hat, jacket, sleeves)</label></p>
+    <p class="prow"><label><input type="checkbox" id="pshow" checked> Show the outer layer</label></p>
+  </section>
+  <section class="panel ecard">
+    <h3 class="ehead"><img class="tool-img" src="../icon-skin.png" alt="" width="44" height="44"><span><b>Skin file</b><small>Load a skin, or start from one of these</small></span></h3>
+    <label class="drop" id="pdrop">
+      <input type="file" id="pfile" accept="image/png" class="vh">
+      <span class="drop-ic">${ICON.up}</span>
+      <span><b>Choose your skin file</b><br><small>or drop the .png here</small></span>
+    </label>
+    <div class="pick" id="pstart">
+      <button type="button" class="pickb" data-name="Steve" data-slim="0" data-skin="${skinData("wide/steve.png")}"><img src="../icon-skin.png" alt="" width="36" height="36"><span><b>Steve</b><small>Default skin</small></span></button>
+      <button type="button" class="pickb" data-name="Alex" data-slim="1" data-skin="${skinData("slim/alex.png")}"><img src="../icon-alex.png" alt="" width="36" height="36"><span><b>Alex</b><small>Default skin</small></span></button>
+      <button type="button" class="pickb" data-name="Dummy (tall eyes)" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "dummy.png")).toString("base64")}"><img src="../icon-dummy.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Tall eyes</small></span></button>
+      <button type="button" class="pickb" data-name="Dummy (dot eyes)" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "dummy2.png")).toString("base64")}"><img src="../icon-dummy2.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Dot eyes</small></span></button>
+    </div>
+    <p class="prow"><label>Format <select id="pformat"><option value="wide">Wide arms (Steve)</option><option value="slim">Slim arms (Alex)</option></select></label> <button type="button" class="btn ghost" id="pclear">Empty skin</button></p>
+    <p class="prow"><button type="button" class="btn" id="psave">${ICON.down} Save skin (.png)</button> <a class="btn ghost" href="../editor/">${ICON.eye} Add moving eyes</a></p>
+    <p><small id="pmsg" role="status"></small></p>
+    <p><small>Your painting is kept in this browser, so it is still here when you come back.</small></p>
+  </section>
+  </div>
+  <div class="ed-col">
+  <section class="panel ecard">
+    <h3 class="ehead"><span><b>3D model</b><small>Click the model to paint. Drag next to it (or with the right mouse button) to turn it. Mouse wheel = zoom.</small></span></h3>
+    <canvas id="p3d" class="p3d" width="460" height="560"></canvas>
+    <div class="row ctl">
+      <span id="pviews" class="pviews"><button type="button" data-v="0.55,0.15">Front</button><button type="button" data-v="3.7,0.15">Back</button><button type="button" data-v="1.5708,0">Left</button><button type="button" data-v="-1.5708,0">Right</button><button type="button" data-v="0.4,1.3">Top</button><button type="button" data-v="0.4,-1.3">Bottom</button></span>
+      <label>Zoom <input type="range" id="pzoom" min="0.5" max="3" step="0.01" value="0.9"></label>
+      <label>Pose <select id="ppose"><option value="stand">Standing</option><option value="apart">Arms and legs apart</option></select></label>
+    </div>
+    <p class="prow" id="pparts">Show: <label><input type="checkbox" value="head" checked> Head</label> <label><input type="checkbox" value="body" checked> Body</label> <label><input type="checkbox" value="arms" checked> Arms</label> <label><input type="checkbox" value="legs" checked> Legs</label></p>
+  </section>
+  <section class="panel ecard">
+    <h3 class="ehead"><span><b>Flat skin file</b><small>You can paint here too. Blue boxes = skin, orange boxes = outer layer.</small></span></h3>
+    <canvas id="p2d" class="p2d" width="512" height="512"></canvas>
+  </section>
+  </div>
+</div>
+
+<h2>How to use it</h2>
+<ol class="steps">
+<li>Load your skin, or start from Steve, Alex or a Dummy.</li>
+<li>Pick a colour and click the model to paint. Hold the mouse button and move to draw a line.</li>
+<li>To reach hidden sides (under the arms, between the legs) choose the pose "Arms and legs apart" or untick a body part under "Show".</li>
+<li>To paint a hat, jacket or sleeves, choose "Outer layer" under "Paint on".</li>
+<li>Press "Save skin (.png)". Then, if you want blinking eyes, load that file in the <a href="../editor/">Skin eye editor</a>.</li>
+</ol>
+<p><small>Keys: B pen, E eraser, G fill, I take colour, L lighter, D darker, Ctrl+Z undo, Ctrl+Y redo.</small></p>
+</article></div>
+<script src="../paint.js?v=${ver("paint.js")}"></script>`,
+}));
 // ---- Minecraft animation in Blender (a guide page: Blender is a desktop program and cannot run inside a web page) ----
 write("animation/index.html", page({
   title: "Minecraft animation in Blender - Fresh Moves Fix",
@@ -626,6 +709,11 @@ write("index.html", page({
       <span class="tool-head"><img class="tool-img" src="icon-skin.png" alt="" width="48" height="48"><span><b>Minecraft Skin</b><small>by Fresh Moves Fix</small></span></span>
       <span class="tool-text">Add blinking, moving eyes to your skin and see it in 3D.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Skin</i><i>Eyes</i></span>
+    </a>
+    <a class="tool" href="paint/">
+      <span class="tool-head"><img class="tool-img" src="icon-paint.png" alt="" width="48" height="48"><span><b>Skin Painter 3D</b><small>by Fresh Moves Fix</small></span></span>
+      <span class="tool-text">Paint your Minecraft skin right on a 3D model, pixel by pixel.</span>
+      <span class="tags"><i class="g">Minecraft</i><i>Skin</i><i>Paint</i><i>3D</i></span>
     </a>
     <a class="tool" href="title/">
       <span class="tool-head"><img class="tool-img" src="icon-title.png" alt="" width="48" height="48"><span><b>Minecraft Title</b><small>Blockbench + Title Generator</small></span></span>
