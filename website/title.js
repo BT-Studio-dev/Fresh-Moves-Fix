@@ -154,7 +154,7 @@
   }
 
   // ---- 3D view without WebGL: the letters are blocks, drawn face by face on a normal canvas ----
-  const rot = { x: 12, y: -28, z: 0 };
+  const rot = { x: 12, y: -28, z: 0 }, pos = { x: 0, y: 0, z: 0 }, view = { k: 1, balls: [], arrows: [] };
   function draw3d(fast) { // fast = while dragging: plain blocks, the pattern comes back on release
     const cv = $("t3d"); if (!cv || !cv.getContext) return;
     const ctx = cv.getContext("2d"), CW = cv.width, CH = cv.height;
@@ -168,7 +168,8 @@
     if (scene) {
       const maxD = Math.max(...scene.lines.map((r) => r.l.U * scene.deep)), zoom = Number(val("tzoom", "100")) / 100;
       const k = Math.min(CW / (scene.W + maxD), CH / (scene.H + maxD)) * 0.82 * zoom;
-      const P = (x, y, z) => { const p = turn(x - scene.W / 2, y - scene.H / 2, z); return [CW / 2 + p[0] * k, CH / 2 + p[1] * k, p[2]]; };
+      view.k = k;
+      const P = (x, y, z) => { const p = turn(x - scene.W / 2 + pos.x, y - scene.H / 2 - pos.y, z - pos.z); return [CW / 2 + p[0] * k, CH / 2 + p[1] * k, p[2]]; };
       const walls = [], caps = [];
       const light = { top: 0.85, bottom: 0.4, left: 0.6, right: 0.6 };
       for (const { l, col, x0, y0 } of scene.lines) {
@@ -196,20 +197,61 @@
       }
       for (const f of all) { const c = "rgb(" + (f.c[0] | 0) + "," + (f.c[1] | 0) + "," + (f.c[2] | 0) + ")"; ctx.beginPath(); path(f.q); ctx.fillStyle = c; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = c; ctx.stroke(); }
     }
-    // small X / Y / Z cross in the corner, turning with the title
-    const gx = CW - 54, gy = CH - 54, ax = [[1, 0, 0, "#e5484d", "X"], [0, -1, 0, "#46a758", "Y"], [0, 0, -1, "#3e7bfa", "Z"]].map((a) => { const p = turn(a[0], a[1], a[2]); return { x: gx + p[0] * 34, y: gy + p[1] * 34, z: p[2], c: a[3], t: a[4] }; }).sort((a, b) => b.z - a.z);
-    ctx.lineWidth = 3; ctx.font = "bold 12px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    for (const a of ax) { ctx.strokeStyle = a.c; ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(a.x, a.y); ctx.stroke(); ctx.fillStyle = a.c; ctx.beginPath(); ctx.arc(a.x, a.y, 9, 0, 7); ctx.fill(); ctx.fillStyle = "#fff"; ctx.fillText(a.t, a.x, a.y + 1); }
+    // move arrows on the title (drag one to move the title along X, Y or Z)
+    view.arrows = [];
+    if (scene) {
+      const o = turn(pos.x, -pos.y, -pos.z), ox = CW / 2 + o[0] * view.k, oy = CH / 2 + o[1] * view.k;
+      [["x", 1, 0, 0, "#e5484d"], ["y", 0, -1, 0, "#46a758"], ["z", 0, 0, -1, "#3e7bfa"]].forEach(([name, ax_, ay_, az_, c]) => {
+        const d = turn(ax_, ay_, az_), len = Math.hypot(d[0], d[1]);
+        ctx.strokeStyle = c; ctx.fillStyle = c; ctx.lineWidth = 3;
+        if (len < 0.25) { ctx.beginPath(); ctx.arc(ox, oy, 6, 0, 7); ctx.fill(); return; } // pointing at you: only a dot
+        const tx = ox + d[0] * 78, ty = oy + d[1] * 78, ux = d[0] / len, uy = d[1] / len;
+        ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(tx, ty); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(tx + ux * 14, ty + uy * 14); ctx.lineTo(tx - uy * 7, ty + ux * 7); ctx.lineTo(tx + uy * 7, ty - ux * 7); ctx.closePath(); ctx.fill();
+        view.arrows.push({ name, x1: ox, y1: oy, x2: tx + ux * 14, y2: ty + uy * 14, dx: d[0] * view.k, dy: d[1] * view.k });
+      });
+    }
+    // X / Y / Z cross in the corner: it turns with the title, and a click on a ball looks at the title from that side
+    const gx = CW - 60, gy = CH - 60;
+    view.balls = [["x", 1, 0, 0, "#e5484d", "X"], ["y", 0, -1, 0, "#46a758", "Y"], ["z", 0, 0, -1, "#3e7bfa", "Z"], ["-x", -1, 0, 0, "#8a2d31", ""], ["-y", 0, 1, 0, "#2b6a38", ""], ["-z", 0, 0, 1, "#274f9e", ""]]
+      .map((a) => { const p = turn(a[1], a[2], a[3]); return { name: a[0], x: gx + p[0] * 38, y: gy + p[1] * 38, z: p[2], c: a[4], t: a[5] }; }).sort((a, b) => b.z - a.z);
+    ctx.font = "bold 12px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    for (const a of view.balls) {
+      if (a.t) { ctx.lineWidth = 3; ctx.strokeStyle = a.c; ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(a.x, a.y); ctx.stroke(); }
+      ctx.fillStyle = a.c; ctx.beginPath(); ctx.arc(a.x, a.y, a.t ? 10 : 8, 0, 7); ctx.fill();
+      if (a.t) { ctx.fillStyle = "#fff"; ctx.fillText(a.t, a.x, a.y + 1); }
+    }
+    ["x", "y", "z"].forEach((a) => { const e = $("tp" + a); if (e && document.activeElement !== e) e.value = String(Math.round(pos[a])); });
     ["x", "y", "z"].forEach((a) => { const e = $("tr" + a), o = $("tr" + a + "v"); if (e && document.activeElement !== e) e.value = String(Math.round(rot[a])); if (o) o.textContent = Math.round(rot[a]) + "\u00b0"; });
     const sz3 = $("tsize3"); if (sz3) sz3.textContent = scene ? scene.W + " x " + scene.H + " x " + Math.max(...scene.lines.map((r) => r.l.U * scene.deep)) : "";
   }
   (function () { // 3D view controls
     const cv = $("t3d"); if (!cv || !cv.addEventListener) return;
     const wrap = (v) => ((v + 180) % 360 + 360) % 360 - 180;
-    let from = null;
-    cv.addEventListener("pointerdown", (e) => { from = [e.clientX, e.clientY, rot.x, rot.y]; try { cv.setPointerCapture(e.pointerId); } catch (er) {} });
-    cv.addEventListener("pointermove", (e) => { if (!from || !e.buttons) return; rot.y = wrap(from[3] + (e.clientX - from[0]) * 0.5); rot.x = Math.max(-90, Math.min(90, from[2] - (e.clientY - from[1]) * 0.5)); draw3d(true); });
-    cv.addEventListener("pointerup", () => { from = null; draw3d(); });
+    let from = null, move = null;
+    const at = (e) => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * cv.width / (r.width || 1), (e.clientY - r.top) * cv.height / (r.height || 1)]; };
+    const SIDE = { x: [0, 90], "-x": [0, -90], y: [90, 0], "-y": [-90, 0], z: [0, 0], "-z": [0, 180] };
+    const ballAt = (m) => view.balls.slice().reverse().find((b) => Math.hypot(m[0] - b.x, m[1] - b.y) <= 12);
+    const arrowAt = (m) => view.arrows.find((a) => { // close to the arrow line?
+      const vx = a.x2 - a.x1, vy = a.y2 - a.y1, t = Math.max(0.15, Math.min(1, ((m[0] - a.x1) * vx + (m[1] - a.y1) * vy) / (vx * vx + vy * vy)));
+      return Math.hypot(m[0] - (a.x1 + vx * t), m[1] - (a.y1 + vy * t)) <= 10; });
+    cv.addEventListener("pointerdown", (e) => {
+      const m = at(e), b = ballAt(m);
+      if (b) { rot.x = SIDE[b.name][0]; rot.y = SIDE[b.name][1]; rot.z = 0; draw3d(); return; }
+      const a = arrowAt(m);
+      if (a) move = { a, m, start: pos[a.name] }; else from = [e.clientX, e.clientY, rot.x, rot.y];
+      try { cv.setPointerCapture(e.pointerId); } catch (er) {}
+    });
+    cv.addEventListener("pointermove", (e) => {
+      const m = at(e);
+      if (move && e.buttons) { const a = move.a; pos[a.name] = Math.round(move.start + ((m[0] - move.m[0]) * a.dx + (m[1] - move.m[1]) * a.dy) / (a.dx * a.dx + a.dy * a.dy)); draw3d(true); return; }
+      if (from && e.buttons) { rot.y = wrap(from[3] + (e.clientX - from[0]) * 0.5); rot.x = Math.max(-90, Math.min(90, from[2] - (e.clientY - from[1]) * 0.5)); draw3d(true); return; }
+      cv.style.cursor = ballAt(m) ? "pointer" : arrowAt(m) ? "move" : "grab";
+    });
+    const stop = () => { if (from || move) { from = null; move = null; draw3d(); } };
+    cv.addEventListener("pointerup", stop); cv.addEventListener("pointercancel", stop);
+    ["x", "y", "z"].forEach((a) => { const e = $("tp" + a); if (e) e.addEventListener("input", () => { pos[a] = Math.max(-500, Math.min(500, Number(e.value) || 0)); draw3d(); }); });
+    const mid = $("tcentre"); if (mid) mid.addEventListener("click", () => { pos.x = pos.y = pos.z = 0; draw3d(); });
     ["x", "y", "z"].forEach((a) => { const e = $("tr" + a); if (e) { e.addEventListener("input", () => { rot[a] = Number(e.value) || 0; draw3d(true); }); e.addEventListener("change", () => draw3d()); } });
     const z = $("tzoom"); if (z) { z.addEventListener("input", () => draw3d(true)); z.addEventListener("change", () => draw3d()); }
     document.querySelectorAll("[data-tview3]").forEach((b) => b.addEventListener("click", () => { const [x, y, zz] = b.dataset.tview3.split(",").map(Number); rot.x = x; rot.y = y; rot.z = zz; draw3d(); }));

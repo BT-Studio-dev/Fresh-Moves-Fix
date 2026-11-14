@@ -518,11 +518,12 @@ write("title/index.html", page({
     <div class="tprev" id="tflat"><canvas id="tcanvas" width="16" height="16"></canvas></div>
     <div id="t3dwrap" hidden>
       <div class="tprev t3d"><canvas id="t3d" width="840" height="460"></canvas></div>
-      <p class="ehint">${ICON.info} <span>Drag the title to turn it. The small X, Y, Z cross in the corner turns with it.</span></p>
+      <p class="ehint">${ICON.info} <span>Drag the empty space to turn the title. Drag the red (X), green (Y) or blue (Z) arrow to move it. Click a ball of the X, Y, Z cross in the corner to look from that side; the darker balls are the opposite sides. From behind, the text reads mirrored.</span></p>
     </div>
   </section>
   <section class="panel ecard">
     <h3 class="ehead"><span class="tool-ic">${ICON.box}</span><span><b>Transform</b><small>Turn and zoom the 3D view</small></span></h3>
+    <p class="prow"><span>Position</span> <label>X <input type="number" id="tpx" class="tlsecs" value="0" step="1"></label> <label>Y <input type="number" id="tpy" class="tlsecs" value="0" step="1"></label> <label>Z <input type="number" id="tpz" class="tlsecs" value="0" step="1"></label> <button type="button" class="btn ghost" id="tcentre">Centre</button></p>
     <p class="prow"><label>Rotation X <input type="range" id="trx" min="-90" max="90" value="12"> <span id="trxv" class="tnum"></span></label></p>
     <p class="prow"><label>Rotation Y <input type="range" id="try" min="-180" max="180" value="-28"> <span id="tryv" class="tnum"></span></label></p>
     <p class="prow"><label>Rotation Z <input type="range" id="trz" min="-180" max="180" value="0"> <span id="trzv" class="tnum"></span></label></p>
