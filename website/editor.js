@@ -371,6 +371,7 @@
       const col = (o, k) => "rgba(" + Math.round(d[o] * k) + "," + Math.round(d[o + 1] * k) + "," + Math.round(d[o + 2] * k) + "," + (d[o + 3] / 255) + ")";
       const zq = (a, b, c, e) => (a[2] + b[2] + c[2] + e[2]) / 4;
       for (const [name, u, v, w, h, dp, cx, cyy, cz, inf0] of parts()) {
+        if (inf0 > 0 && self.showOuter === false) continue; // outer layer hidden
         const vox = self.layers3d && inf0 > 0;          // 3D skin layers: the second layer becomes little blocks
         const inf = vox ? (name === "head" ? 0.7 : 0.55) : inf0;
         // each face: texture corner, columns, rows, and a function texel corner (i,j) -> model point
@@ -539,7 +540,7 @@
     try {
       tex.getContext("2d").putImageData(data, 0, 0);
       viewer.loadSkin(tex, { model: $("fmtslim").checked ? "slim" : "default" });
-      eyeState = ""; applyPause();
+      eyeState = ""; applyPause(); applyOuter();
     } catch (e) { $("msg3d").textContent = "3D preview could not show this skin."; }
   }
   ["fmtwide", "fmtslim"].forEach((id) => $(id).addEventListener("change", () => { if (current) update3d(current); }));
@@ -585,6 +586,13 @@
     $("play3d").textContent = paused3d ? "Play" : "Pause"; $("play3d").setAttribute("aria-pressed", paused3d ? "true" : "false");
   });
   $("anim").addEventListener("change", () => { setAnim(); applyPause(); });
+  function applyOuter() { // show or hide the second skin layer (hat, jacket, sleeves) in the 3D preview
+    if (!viewer) return;
+    const on = $("outer3d").checked;
+    if (viewer.soft) { viewer.showOuter = on; return; }
+    try { const sk = viewer.playerObject.skin; for (const k of ["head", "body", "rightArm", "leftArm", "rightLeg", "leftLeg"]) if (sk[k] && sk[k].outerLayer) sk[k].outerLayer.visible = on; } catch (e) {}
+  }
+  $("outer3d").addEventListener("change", applyOuter);
   $("spin").addEventListener("change", () => { if (viewer) viewer.autoRotate = $("spin").checked; applyPause(); });
   $("zoom").addEventListener("input", () => { if (viewer) viewer.zoom = Number($("zoom").value); });
 
