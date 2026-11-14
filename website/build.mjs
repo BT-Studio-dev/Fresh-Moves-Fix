@@ -684,11 +684,12 @@ write("settings/index.html", page({
     <button type="button" class="tab" data-tab="music">${ICON.music} Music</button></div>
   <div class="box" id="tab-music" hidden>
     <h2 class="shead"><span class="tool-ic">${ICON.music}</span><span><b>Music</b><small>Background song for the website</small></span></h2>
-    <p>Background music made by your browser (no music files). Choose the calm song or the dark Herobrine song; each is 3 minutes 34 seconds long and repeats. It is off until you turn it on, and saved in this browser only.</p>
+    <p>Background music made by your browser (no music files). Choose the calm song, the dark Herobrine song (each 3 minutes 34 seconds) or the soft piano Minecraft song (6 minutes). Each song repeats. It is off until you turn it on, and saved in this browser only.</p>
     <p class="elabel">Song</p>
     <div class="mtiles two">
       <label class="mtile"><input type="radio" name="song" value="calm" data-music-song checked><span><b>Calm</b><small>Soft and friendly</small></span></label>
       <label class="mtile"><input type="radio" name="song" value="herobrine" data-music-song><span><b>Herobrine</b><small>Dark and creepy</small></span></label>
+      <label class="mtile"><input type="radio" name="song" value="minecraft" data-music-song><span><b>Minecraft</b><small>Soft piano, 6:00</small></span></label>
     </div>
     <p class="elabel">Player</p>
     <div class="mtiles">
