@@ -463,9 +463,9 @@ write("title/index.html", page({
 <a class="btn ghost" rel="noopener" target="_blank" href="${REPO}/blob/main/model.bbmodel">${ICON.down} Our title model (.bbmodel)</a></p>
 <p><small>The "Fresh Moves Fix" title on the home page was made this way. Open the model file in Blockbench with File &rarr; Open Model.</small></p>
 <h2>Title "Minecraft Herobrine"</h2>
-<p><img src="../title-herobrine.png" width="1076" height="402" alt="Minecraft Herobrine" style="max-width:100%;height:auto;image-rendering:pixelated"></p>
+<p><img src="../title-herobrine.png" width="1168" height="468" alt="Minecraft Herobrine" style="max-width:100%;height:auto;image-rendering:pixelated"></p>
 <p><a class="btn" href="../title-herobrine.png" download="minecraft-herobrine-title.png">${ICON.down} Download this title (.png)</a></p>
-<p><small>Our own drawing with a see-through background, free to use. It is not made with the Minecraft fonts.</small></p>
+<p><small>Drawn in the same style as the "Fresh Moves Fix" title, with a see-through background. Free to use.</small></p>
 <div class="note">If the box below stays empty, or "Minecraft Title" is missing from the New list, use the button above. In Blockbench you can also add it by hand: File &rarr; Plugins &rarr; Available &rarr; "Minecraft Title Generator" &rarr; Install. Blockbench is made by JannisX11 and the Title Generator plugin by Ewan Howell; they are not part of Fresh Moves Fix.</div>
 </article></div>
 <div class="wrap"><div class="bb-help" id="bbhelp" hidden>
