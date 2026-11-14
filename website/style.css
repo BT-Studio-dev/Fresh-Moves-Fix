@@ -542,7 +542,7 @@ header.top .snd-line i { font-style: normal; font-weight: 400; color: var(--mute
   --muted: #b7c5bd;
   --accent: #5ee6a0;
   --on-accent: #04110a;
-  --header: rgba(8, 14, 12, .5);
+  --header: rgba(10, 18, 16, .94);
   --note-bg: rgba(120, 96, 20, .28);
   --note-line: rgba(240, 200, 90, .4);
   --note-text: #f6e6b8;
@@ -550,29 +550,27 @@ header.top .snd-line i { font-style: normal; font-weight: 400; color: var(--mute
   color-scheme: dark;
 }
 html[data-theme="glass"] { background: #0a1210; }
-[data-theme="glass"] body {
+[data-theme="glass"] body { background: transparent; }
+/* the coloured background is one fixed picture behind the page: nothing has to be drawn again while scrolling */
+[data-theme="glass"] body::before {
+  content: ""; position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none;
   background:
     radial-gradient(900px 600px at 12% 8%, rgba(47, 174, 120, .42), transparent 60%),
     radial-gradient(800px 600px at 92% 30%, rgba(59, 111, 208, .38), transparent 60%),
     radial-gradient(700px 500px at 40% 95%, rgba(150, 80, 200, .26), transparent 60%),
     #0a1210;
-  background-attachment: fixed;
 }
 [data-theme="glass"] :is(header.top, .ed .panel, .set .menu, .set .box, a.tool, .card, .versions a, .note, .guide-nav a, .themes label, .video) {
-  -webkit-backdrop-filter: blur(16px) saturate(140%); backdrop-filter: blur(16px) saturate(140%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 10px 30px rgba(0, 0, 0, .22);
+  /* no blur behind the cards: it made the whole site slow on older computers. The background is already soft. */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 2px 6px rgba(0, 0, 0, .2);
 }
-[data-theme="glass"] header.top { box-shadow: 0 6px 24px rgba(0, 0, 0, .25); }
+[data-theme="glass"] header.top { box-shadow: 0 2px 8px rgba(0, 0, 0, .25); }
 [data-theme="glass"] header.top nav { background: rgba(255, 255, 255, .06); }
 /* things that open on top of the page need a darker glass to stay readable */
 [data-theme="glass"] :is(header.top .snd-box, .ed .dd-list, .ed .picker) {
-  background: rgba(14, 22, 19, .82);
-  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  background: rgba(14, 22, 19, .96);
 }
 [data-theme="glass"] footer { background: rgba(6, 12, 10, .45); }
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  [data-theme="glass"] { --panel: rgba(24, 34, 30, .9); --header: rgba(10, 16, 14, .95); }
-}
 /* blurred cards stack separately, so the card with an open list must come to the front */
 [data-theme="glass"] .ed .panel { position: relative; }
 [data-theme="glass"] .ed .panel:has(.dd-btn[aria-expanded="true"]) { z-index: 30; }
