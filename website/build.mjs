@@ -155,7 +155,7 @@ fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 fs.copyFileSync(path.join(root, "pack.png"), path.join(out, "pack.png"));
 fs.copyFileSync(path.join(here, "title.png"), path.join(out, "title.png"));
-for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
+for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
@@ -424,6 +424,48 @@ write("title/index.html", page({
 }));
 
 const themeCard = (id, name, pb, pp, pl, pt) => `<label><span class="pv" style="--pb:${pb};--pp:${pp};--pl:${pl};--pt:${pt}"><i><b></b><u></u></i></span><span class="nm"><input type="radio" name="theme" value="${id}"> ${name}</span></label>`;
+// ---- Minecraft animation in Blender (a guide page: Blender is a desktop program and cannot run inside a web page) ----
+write("animation/index.html", page({
+  title: "Minecraft animation in Blender - Fresh Moves Fix",
+  active: "",
+  description: "How to make a Minecraft animation with your own skin in Blender, using the free MCprep add-on.",
+  depth: 1,
+  body: `<div class="wrap"><article class="editor">
+<div class="crumb"><a href="../">${ICON.home} Home</a></div>
+<h1>${ICON.play} Minecraft animation in Blender</h1>
+<p><b>Blender</b> is a free 3D program for your computer. With the free <b>MCprep</b> add-on it gets ready-made Minecraft characters that you can pose, animate and turn into a video. Blender cannot run inside a web page, so this page is a guide: you download it and follow the steps.</p>
+<p><a class="btn" rel="noopener" target="_blank" href="https://www.blender.org/download/">${ICON.down} Download Blender</a>
+<a class="btn ghost" rel="noopener" target="_blank" href="https://github.com/Moo-Ack-Productions/MCprep">${ICON.right} MCprep add-on</a>
+<a class="btn ghost" href="../editor/">${ICON.eye} Make your skin</a></p>
+<div class="note"><strong>Good to know.</strong> Blender needs working 3D graphics on your computer (a graphics driver that is up to date). MCprep's page lists which Blender versions it supports; if the newest Blender is not on that list yet, install a Blender version that is.</div>
+
+<h2>${ICON.info} Step by step</h2>
+<ol class="steps">
+  <li><strong>Install Blender.</strong> Download it from blender.org and install it like any other program.</li>
+  <li><strong>Download MCprep.</strong> Open the MCprep page and download the add-on. Keep it as a .zip file; do not unzip it.</li>
+  <li><strong>Add MCprep to Blender.</strong> In Blender: Edit, Preferences, Add-ons, "Install from file" (in newer versions it is in the small arrow menu at the top right), choose the .zip, then tick the box next to MCprep.</li>
+  <li><strong>Open the MCprep panel.</strong> In the 3D view press N. A side bar opens; click the "MCprep" tab.</li>
+  <li><strong>Add a player.</strong> In "Spawner", choose a player rig and press Spawn. A Minecraft character appears.</li>
+  <li><strong>Put your skin on it.</strong> Select the character, open "Skin Swapper", choose "Skin from file" and pick your skin .png (for example the one you made in the <a href="../editor/">Skin eye editor</a>).</li>
+  <li><strong>Make a first pose.</strong> Click the rig and press Ctrl+Tab to switch to Pose Mode. Click a control (an arm, the head), press R and move the mouse to turn it. With the mouse over the 3D view press I to save the pose as a keyframe.</li>
+  <li><strong>Make it move.</strong> Drag the blue marker in the timeline at the bottom to a later frame, change the pose, press I again. Press Space to play: Blender fills in the movement between your poses.</li>
+  <li><strong>Make the video.</strong> In the Output settings choose a folder and the file format "FFmpeg video", then Render, Render Animation.</li>
+</ol>
+
+<h2>${ICON.star} Tips</h2>
+<ul>
+  <li><strong>Start small.</strong> A wave or a few steps of walking, 2 to 3 seconds long, is a good first animation.</li>
+  <li><strong>24 frames are one second</strong> with Blender's normal settings. A pose every 6 to 12 frames looks natural.</li>
+  <li><strong>The eye pixels do not matter here.</strong> The extra pixels the Skin eye editor adds are for the resource pack in the game. In Blender the eyes are moved with the rig's own controls, if the rig has them.</li>
+  <li><strong>Blockbench models.</strong> A model made in Blockbench can be brought into Blender: in Blockbench use File, Export, glTF, then in Blender File, Import, glTF.</li>
+  <li><strong>Save often</strong> (Ctrl+S), and keep the rig's file and your skin in the same project folder.</li>
+</ul>
+
+<h2>${ICON.info} What this page is not</h2>
+<p>This resource pack animates the player <em>inside the game</em>. Blender animations are separate <em>videos</em>; the two do not share files. MCprep is made by its own team (GPL-3.0 licence) and Blender by the Blender Foundation; they are not part of Fresh Moves Fix. Button and menu names can differ a little between Blender versions.</p>
+</article></div>`,
+}));
+
 write("settings/index.html", page({
   title: "Settings - Fresh Moves Fix",
   active: "settings",
@@ -574,6 +616,11 @@ write("index.html", page({
       <span class="tool-head"><img class="tool-img" src="icon-title.png" alt="" width="48" height="48"><span><b>Minecraft Title</b><small>Blockbench + Title Generator</small></span></span>
       <span class="tool-text">Make a real 3D Minecraft title in Blockbench, right on this website.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Title</i><i>Logo</i></span>
+    </a>
+    <a class="tool" href="animation/">
+      <span class="tool-head"><img class="tool-img" src="icon-anim.png" alt="" width="48" height="48"><span><b>Minecraft Animation</b><small>Blender + MCprep</small></span></span>
+      <span class="tool-text">Make a Minecraft animation video with your own skin in Blender, step by step.</span>
+      <span class="tags"><i class="g">Minecraft</i><i>Animation</i><i>Blender</i></span>
     </a>
   </div>
 </section>
