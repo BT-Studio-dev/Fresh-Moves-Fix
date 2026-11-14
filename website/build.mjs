@@ -322,11 +322,19 @@ write("editor/index.html", page({
     <div id="wrap3d">
       <canvas id="view3d" width="420" height="520"></canvas>
       <p class="row ctl">
-        <label>Pose <select id="anim">
+        <label>Emote <select id="anim">
           <option value="idle" selected>Standing</option>
           <option value="walk">Walking</option>
           <option value="run">Running</option>
           <option value="wave">Waving</option>
+          <option value="cheer">Cheer</option>
+          <option value="dance">Dance</option>
+          <option value="jacks">Jumping jacks</option>
+          <option value="clap">Clap</option>
+          <option value="dab">Dab</option>
+          <option value="sit">Sit</option>
+          <option value="look">Look around</option>
+          <option value="tpose">T-pose</option>
         </select></label>
         <label><input type="checkbox" id="spin"> Spin</label>
         <label title="Shows the second skin layer (hat, jacket, sleeves) as little 3D blocks, like the 3D Skin Layers mod"><input type="checkbox" id="layers3d"> 3D skin layers</label>

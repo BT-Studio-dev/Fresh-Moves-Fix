@@ -199,6 +199,27 @@
   let viewer = null, failed3d = false;
   const tex = document.createElement("canvas"); tex.width = tex.height = 64;
 
+  // ---- emotes: one description for both 3D viewers. t = seconds; each part gets [turn x, turn y, turn z]; lift moves the whole player up ----
+  const EMOTES = {
+    cheer: (t) => ({ ra: [0, 0, -2.6 + Math.sin(t * 8) * 0.2], la: [0, 0, 2.6 - Math.sin(t * 8) * 0.2], head: [-0.25, 0, 0], lift: Math.abs(Math.sin(t * 4)) * 2 }),
+    jacks: (t) => { const p = (1 - Math.cos(t * 6)) / 2; return { ra: [0, 0, -p * 2.7], la: [0, 0, p * 2.7], rl: [0, 0, -p * 0.4], ll: [0, 0, p * 0.4], lift: Math.sin(Math.min(1, p * 1.2) * Math.PI) * 1.5 }; },
+    clap: (t) => { const c = 0.32 + Math.max(0, Math.sin(t * 11)) * 0.3; return { ra: [-1.35, 0, c], la: [-1.35, 0, -c], head: [0.12, 0, 0] }; },
+    dance: (t) => { const w = Math.sin(t * 6); return { ra: [-2.7 + w * 0.5, 0, -0.25], la: [-2.7 - w * 0.5, 0, 0.25], rl: [w * 0.45, 0, 0], ll: [-w * 0.45, 0, 0], head: [0, 0, w * 0.18], lift: Math.abs(w) * 1.2 }; },
+    dab: (t) => { const b = Math.sin(t * 3) * 0.04; return { head: [0.45, 0.35, 0], ra: [0, 0, -2.05 + b], la: [-1.75, -0.2, -0.95 + b], rl: [0, 0, -0.08], ll: [0, 0, 0.08] }; },
+    sit: (t) => { const b = Math.sin(t * 1.6) * 0.03; return { rl: [-1.45, 0.12, 0], ll: [-1.45, -0.12, 0], ra: [-0.55 + b, 0, -0.08], la: [-0.55 - b, 0, 0.08], lift: -10 }; },
+    look: (t) => ({ head: [Math.sin(t * 0.9) * 0.25, Math.sin(t * 1.5) * 0.9, 0], ra: [0, 0, -0.05], la: [0, 0, 0.05] }),
+    tpose: () => ({ ra: [0, 0, -Math.PI / 2], la: [0, 0, Math.PI / 2] }),
+  };
+  const PARTS3D = { head: "head", body: "body", ra: "rightArm", la: "leftArm", rl: "rightLeg", ll: "leftLeg" };
+  // the same emote for the WebGL viewer (skinview3d)
+  function emoteAnimation(fn) {
+    return new skinview3d.FunctionAnimation((player, t) => {
+      const e = fn(t);
+      for (const k in PARTS3D) { const r = e[k] || [0, 0, 0]; player.skin[PARTS3D[k]].rotation.set(r[0], r[1], r[2]); }
+      player.position.y = e.lift || 0;
+    });
+  }
+
   // ---- simple 3D preview without WebGL: the model is drawn pixel by pixel on a normal 2D canvas ----
   function SoftViewer(cv) {
     const g = cv.getContext("2d");
@@ -219,16 +240,17 @@
     }
     const NORMALS = [[0, 0, 1], [0, 0, -1], [-1, 0, 0], [1, 0, 0], [0, 1, 0], [0, -1, 0]]; // front, back, right, left, top, bottom
     const PIV = { head: [0, 24, 0], body: [0, 24, 0], ra: [-5, 22, 0], la: [5, 22, 0], rl: [-2, 12, 0], ll: [2, 12, 0] };
-    function angles() { // [rotX, rotZ] per part
-      const A = { head: [0, 0], body: [0, 0], ra: [0, 0], la: [0, 0], rl: [0, 0], ll: [0, 0] };
+    function angles() { // [turn x, turn y, turn z] per part, plus lift
+      const A = { head: [0, 0, 0], body: [0, 0, 0], ra: [0, 0, 0], la: [0, 0, 0], rl: [0, 0, 0], ll: [0, 0, 0], lift: 0 };
       const p = self.pose;
+      if (EMOTES[p]) { const e = EMOTES[p](t); for (const k in e) A[k] = e[k]; return A; }
       if (p === "walk" || p === "run") {
         const k = p === "run" ? 1.1 : 0.6, w = Math.sin(t * (p === "run" ? 10 : 6)) * k;
         A.ra[0] = w; A.la[0] = -w; A.rl[0] = -w; A.ll[0] = w;
       } else if (p === "wave") {
-        A.ra[1] = -2.4 + Math.sin(t * 7) * 0.35; A.la[1] = 0.05; A.head[1] = 0.06;
+        A.ra[2] = -2.4 + Math.sin(t * 7) * 0.35; A.la[2] = 0.05; A.head[2] = 0.06;
       } else {
-        const b = Math.sin(t * 1.6) * 0.04; A.ra[1] = -0.05 - b; A.la[1] = 0.05 + b; A.ra[0] = b; A.la[0] = -b;
+        const b = Math.sin(t * 1.6) * 0.04; A.ra[2] = -0.05 - b; A.la[2] = 0.05 + b; A.ra[0] = b; A.la[0] = -b;
       }
       return A;
     }
@@ -240,9 +262,10 @@
       const pt = (name, x, y, z) => {
         const a = A[name], pv = PIV[name];
         let X = x - pv[0], Y = y - pv[1], Z = z - pv[2];
+        if (a[2]) { const c = Math.cos(a[2]), s2 = Math.sin(a[2]); const x2 = X * c - Y * s2; Y = X * s2 + Y * c; X = x2; }   // same order as the WebGL viewer: z, then y, then x
+        if (a[1]) { const c = Math.cos(a[1]), s2 = Math.sin(a[1]); const x2 = X * c + Z * s2; Z = -X * s2 + Z * c; X = x2; }
         if (a[0]) { const c = Math.cos(a[0]), s2 = Math.sin(a[0]); const y2 = Y * c - Z * s2; Z = Y * s2 + Z * c; Y = y2; }
-        if (a[1]) { const c = Math.cos(a[1]), s2 = Math.sin(a[1]); const x2 = X * c - Y * s2; Y = X * s2 + Y * c; X = x2; }
-        X += pv[0]; Y += pv[1] - 16; Z += pv[2];
+        X += pv[0]; Y += pv[1] - 16 + A.lift; Z += pv[2];
         const x3 = X * cy + Z * sy, z3 = -X * sy + Z * cy;       // turn left/right
         const y4 = Y * cp - z3 * sp, z4 = Y * sp + z3 * cp;       // tilt
         const f = 90 / (90 - z4);                                 // a little perspective
@@ -327,7 +350,7 @@
     cv.addEventListener("wheel", wheel, { passive: false });
     cv.style.touchAction = "none"; cv.style.cursor = "grab";
     self.loadSkin = (canvas, opt) => { img = canvas.getContext("2d").getImageData(0, 0, 64, 64); slim = !!opt && opt.model === "slim"; };
-    self.view = (y, p) => { yaw = y; pitch = p; };
+    self.view = (y, p, at) => { yaw = y; pitch = p; if (at !== undefined) t = at; };
     self.render = () => { try { draw(); } catch (e) {} };
     self.dispose = () => { dead = true; cancelAnimationFrame(raf); cv.removeEventListener("pointerdown", down); cv.removeEventListener("pointermove", move); cv.removeEventListener("pointerup", up); cv.removeEventListener("pointercancel", up); cv.removeEventListener("wheel", wheel); };
     raf = requestAnimationFrame(frame);
@@ -410,7 +433,8 @@
     if (!viewer) return;
     if (viewer.soft) { viewer.pose = $("anim").value; return; }
     const A = { idle: skinview3d.IdleAnimation, walk: skinview3d.WalkingAnimation, run: skinview3d.RunningAnimation, wave: skinview3d.WaveAnimation }[$("anim").value];
-    viewer.animation = A ? new A() : null;
+    const em = EMOTES[$("anim").value];
+    viewer.animation = em ? emoteAnimation(em) : A ? new A() : null;
   }
   function update3d(data) {
     init3d();
