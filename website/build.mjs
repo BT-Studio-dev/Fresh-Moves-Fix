@@ -78,7 +78,9 @@ function page({ title, body, depth = 0, description = "", active = "" }) {
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:image" content="https://fresh-moves-fix.vercel.app/banner.png">
 <meta name="twitter:card" content="summary_large_image">
-<script>(function(){var t="system";try{t=localStorage.getItem("fmf-theme")||"system"}catch(e){}
+<script>(function(){var t="";try{t=localStorage.getItem("fmf-theme")||""}catch(e){}
+if(!t){try{var m=document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/);if(m)t=m[1]}catch(e){}}
+if(["system","light","dark","oled","glass"].indexOf(t)<0)t="system";
 if(t==="system")t=window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
 document.documentElement.setAttribute("data-theme",t)})()</script>
 <link rel="icon" href="${up}pack.png">
@@ -719,7 +721,10 @@ write("settings/index.html", page({
 </div>
 </article></div>
 <script>(function(){
-  var key="fmf-theme", cur="system"; try{cur=localStorage.getItem(key)||"system"}catch(e){}
+  var key="fmf-theme", cur=""; try{cur=localStorage.getItem(key)||""}catch(e){}
+  if(!cur){ try{ var m=document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/); if(m) cur=m[1]; }catch(e){} } // second place the choice is kept
+  if(!cur) cur="system";
+  function keep(v){ try{ document.cookie=key+"="+v+"; path=/; max-age=31536000"+(location.protocol==="https:"?"; SameSite=None; Secure":"; SameSite=Lax"); return document.cookie.indexOf(key+"="+v)>=0; }catch(e){ return false; } }
   function apply(t){ var r=t; if(t==="system") r=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"; document.documentElement.setAttribute("data-theme",r); }
   var note=document.getElementById("theme-saved");
   function told(el, ok){ if(!note) return; var name=(el.closest("label").textContent||"").trim();
@@ -727,7 +732,7 @@ write("settings/index.html", page({
     note.classList.toggle("bad", !ok); note.hidden=false; note.classList.remove("flash"); void note.offsetWidth; note.classList.add("flash"); }
   document.querySelectorAll('input[name="theme"]').forEach(function(el){
     el.checked = el.value===cur;
-    el.addEventListener("change",function(){ cur=el.value; var ok=true; try{localStorage.setItem(key,cur); ok=localStorage.getItem(key)===cur}catch(e){ok=false} apply(cur); told(el, ok); });
+    el.addEventListener("change",function(){ cur=el.value; var ok=true; try{localStorage.setItem(key,cur); ok=localStorage.getItem(key)===cur}catch(e){ok=false} if(keep(cur)) ok=true; apply(cur); told(el, ok); });
   });
   matchMedia("(prefers-color-scheme: light)").addEventListener("change",function(){ if(cur==="system") apply(cur); });
 })()</script>
