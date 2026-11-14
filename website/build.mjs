@@ -500,7 +500,13 @@ write("paint/index.html", page({
       <button type="button" class="pickb" data-name="Dummy (dot eyes)" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "dummy2.png")).toString("base64")}"><img src="../icon-dummy2.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Dot eyes</small></span></button>
       <button type="button" class="pickb" data-name="Dummy (blank face)" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "painted.png")).toString("base64")}"><img src="../icon-painted.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Blank face</small></span></button>
     </div>
-    <p class="prow"><label>Format <select id="pformat"><option value="wide">Wide arms (Steve)</option><option value="slim">Slim arms (Alex)</option></select></label> <button type="button" class="btn ghost" id="pclear">Empty skin</button></p>
+    <p class="elabel">Format</p>
+    <div class="pick">
+      <label class="pickb"><input type="radio" name="pfmt" id="pfmtwide" value="wide" checked><span><b>Steve</b><small>Wide arms</small></span></label>
+      <label class="pickb"><input type="radio" name="pfmt" id="pfmtslim" value="slim"><span><b>Alex</b><small>Slim arms</small></span></label>
+    </div>
+    <p class="ehint">${ICON.info} <span>The format is guessed from the skin when you load it. If you pick the other one, the arms of your skin are changed to fit it (Steve = 4 pixels wide, Alex = 3). Undo brings them back.</span></p>
+    <p class="prow"><button type="button" class="btn ghost" id="pclear">Empty skin</button></p>
     <p class="prow"><button type="button" class="btn" id="psave">${ICON.down} Save skin (.png)</button> <a class="btn ghost" href="../editor/">${ICON.eye} Add moving eyes</a></p>
     <p><small id="pmsg" role="status"></small></p>
     <p><small>Your painting is kept in this browser, so it is still here when you come back.</small></p>

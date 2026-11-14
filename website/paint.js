@@ -171,9 +171,32 @@
     if (stroke.changed) { undo.push(stroke.before); if (undo.length > 80) undo.shift(); redo.length = 0; if (tool === "pen" || tool === "fill") remember(); autosave(); buttons(); }
     stroke = null;
   }
+  function showFormat() { $("pfmtslim").checked = slim; $("pfmtwide").checked = !slim; }
+  // Change the arms between Steve (4 pixels wide) and Alex (3 pixels wide); the same as in the eye editor.
+  function convertArms(d, toSlim) {
+    const src = new Uint8ClampedArray(d), idx = (x, y) => (y * 64 + x) * 4;
+    const W = [[4, 4, 0, 4], [8, 4, 0, 4], [0, 4, 4, 16], [4, 4, 4, 16], [8, 4, 4, 16], [12, 4, 4, 16]]; // x, width, y0, y1 of each part
+    const S = [[4, 3, 0, 4], [7, 3, 0, 4], [0, 4, 4, 16], [4, 3, 4, 16], [7, 4, 4, 16], [11, 3, 4, 16]];
+    const from = toSlim ? W : S, to = toSlim ? S : W;
+    for (const [ox, oy] of [[40, 16], [40, 32], [32, 48], [48, 48]]) {
+      for (let y = oy; y < oy + 16; y++) for (let x = ox; x < ox + 16; x++) { const i = idx(x, y); d[i] = d[i + 1] = d[i + 2] = d[i + 3] = 0; }
+      from.forEach((f, k) => {
+        const t = to[k];
+        const cols = f[1] === t[1] ? [0, 1, 2, 3].slice(0, f[1]) : toSlim ? [0, 1, 3] : [0, 1, 1, 2];
+        cols.forEach((c, n) => { for (let y = f[2]; y < f[3]; y++) { const a = idx(ox + f[0] + c, oy + y), b = idx(ox + t[0] + n, oy + y); for (let q = 0; q < 4; q++) d[b + q] = src[a + q]; } });
+      });
+    }
+  }
+  // after Undo or Redo the arms may be the other width again: read it from the skin
+  function reguess() {
+    let wide = false, any = false;
+    for (let y = 20; y < 32; y++) { for (let x = 40; x < 54; x++) if (px[(y * 64 + x) * 4 + 3]) any = true; for (let x = 54; x < 56; x++) if (px[(y * 64 + x) * 4 + 3]) wide = true; }
+    if (wide) slim = false; else if (any) slim = true;
+    showFormat();
+  }
   function buttons() { $("pundo").disabled = !undo.length; $("predo").disabled = !redo.length; }
-  function doUndo() { if (!undo.length) return; redo.push(new Uint8ClampedArray(px)); px = undo.pop(); dirty = true; autosave(); buttons(); }
-  function doRedo() { if (!redo.length) return; undo.push(new Uint8ClampedArray(px)); px = redo.pop(); dirty = true; autosave(); buttons(); }
+  function doUndo() { if (!undo.length) return; redo.push(new Uint8ClampedArray(px)); px = undo.pop(); reguess(); dirty = true; autosave(); buttons(); }
+  function doRedo() { if (!redo.length) return; undo.push(new Uint8ClampedArray(px)); px = redo.pop(); reguess(); dirty = true; autosave(); buttons(); }
   function autosave() {
     try { sctx.putImageData(new ImageData(px, 64, 64), 0, 0); localStorage.setItem("fmf-paint", skin.toDataURL("image/png")); localStorage.setItem("fmf-paint-slim", slim ? "1" : "0"); } catch (e) {}
   }
@@ -198,7 +221,7 @@
       if (!first) { undo.push(new Uint8ClampedArray(px)); redo.length = 0; }
       px = new Uint8ClampedArray(d);
       slim = forceSlim === undefined ? px[(20 * 64 + 54) * 4 + 3] === 0 : forceSlim;
-      $("pformat").value = slim ? "slim" : "wide";
+      showFormat();
       dirty = true; buttons(); if (!first) autosave();
       say(name ? "Loaded: " + name : "");
     };
@@ -264,7 +287,13 @@
   $("pfile").addEventListener("change", (e) => { loadFile(e.target.files[0]); e.target.value = ""; });
   document.querySelectorAll("#pstart button").forEach((b) => b.addEventListener("click", () => loadUrl(b.dataset.skin, b.dataset.name, b.dataset.slim ? b.dataset.slim === "1" : undefined)));
   $("pclear").addEventListener("click", () => { undo.push(new Uint8ClampedArray(px)); redo.length = 0; px = new Uint8ClampedArray(64 * 64 * 4); dirty = true; autosave(); buttons(); say("Empty skin. Use Undo to get the old one back."); });
-  $("pformat").addEventListener("change", (e) => { slim = e.target.value === "slim"; dirty = true; autosave(); });
+  document.querySelectorAll("input[name=pfmt]").forEach((r) => r.addEventListener("change", () => {
+    if (!r.checked) return;
+    const want = r.value === "slim"; if (want === slim) return;
+    undo.push(new Uint8ClampedArray(px)); if (undo.length > 80) undo.shift(); redo.length = 0;
+    convertArms(px, want); slim = want; dirty = true; autosave(); buttons();
+    say(want ? "Arms changed to Alex (3 pixels wide)." : "Arms changed to Steve (4 pixels wide).");
+  }));
   document.querySelectorAll("input[name=player]").forEach((r) => r.addEventListener("change", () => { if (r.checked) { target = Number(r.value); if (target === 1 && !showOuter) { showOuter = true; $("pshow").checked = true; } dirty = true; } }));
   $("pshow").addEventListener("change", (e) => { showOuter = e.target.checked; if (!showOuter && target === 1) { target = 0; document.querySelector("input[name=player][value='0']").checked = true; } dirty = true; });
   document.querySelectorAll("#pparts input").forEach((c) => c.addEventListener("change", () => { hidden[c.value] = !c.checked; dirty = true; }));
