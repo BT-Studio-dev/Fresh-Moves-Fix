@@ -676,18 +676,5 @@
     }, "image/png");
   });
 
-  $("save3d").addEventListener("click", () => {
-    if (!current) return;
-    const move = $("anim").value, text = buildGltf(skinCanvas().toDataURL("image/png"), $("fmtslim").checked, move);
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([text], { type: "model/gltf+json" }));
-    a.download = "player-" + move + ".gltf";
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-    $("msg3dfile").textContent = "Downloaded " + a.download + ".";
-  });
-  const sync3dname = () => { const o = $("anim").options[$("anim").selectedIndex]; $("move3d").textContent = o ? o.textContent : ""; };
-  $("anim").addEventListener("change", sync3dname); sync3dname();
-
   loadImage($("steve").dataset.skin, "Steve");
 })();
