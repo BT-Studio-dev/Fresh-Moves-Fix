@@ -22,7 +22,6 @@ const dl = (file) => `${REPO}/releases/download/v${version}/${file}`;
 // A short fingerprint of a file, added to its address, so browsers fetch the new file after every change
 // instead of showing an old saved copy of the styles or scripts.
 import { createHash } from "node:crypto";
-import { execSync } from "node:child_process";
 const ver = (f) => createHash("sha1").update(fs.readFileSync(path.join(here, f))).digest("hex").slice(0, 8);
 
 // Minecraft versions and pack formats come from build.py, so the site matches the builds.
@@ -156,7 +155,7 @@ fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 fs.copyFileSync(path.join(root, "pack.png"), path.join(out, "pack.png"));
 fs.copyFileSync(path.join(here, "title.png"), path.join(out, "title.png"));
-for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
+for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
@@ -482,66 +481,6 @@ write("animation/index.html", page({
 </article></div>`,
 }));
 
-// ---- Skin painter: the NeedCoolerShoes skin editor (GPL-3.0-or-later, not our code) ----
-// Its source is fetched at a fixed commit and built here, then shown inside our page.
-// If that fails (no network), the page only links to needcoolershoes.com.
-const NCRS = { repo: "https://github.com/NeedCoolerShoes/editor", sha: "b9a6a9a5f22050aa1607a0dc25971133336e801f" };
-function buildPainter() {
-  const dir = path.join(here, ".cache", "ncrs-" + NCRS.sha), dist = path.join(dir, "dist");
-  try {
-    if (!fs.existsSync(path.join(dist, "index.html"))) {
-      fs.rmSync(dir, { recursive: true, force: true }); fs.mkdirSync(dir, { recursive: true });
-      const run = (cmd) => execSync(cmd, { cwd: dir, stdio: "pipe", timeout: 240000 });
-      run(`curl -fsSL https://codeload.github.com/NeedCoolerShoes/editor/tar.gz/${NCRS.sha} | tar xz --strip-components=1`);
-      run("npm install --no-audit --no-fund");
-      run("npx vite build --base=./");
-    }
-    const app = path.join(out, "paint", "app");
-    fs.cpSync(dist, app, { recursive: true });
-    fs.copyFileSync(path.join(dir, "LICENSE.md"), path.join(app, "LICENSE.md"));
-    // our note instead of the "beta testing site" line, and a plain title
-    const idx = path.join(app, "index.html");
-    fs.writeFileSync(idx, fs.readFileSync(idx, "utf8")
-      .replace(/<title>[^<]*<\/title>/, "<title>Skin painter (NeedCoolerShoes editor)</title>")
-      .replace(/<p>\s*This is the beta testing site[\s\S]*?<\/p>/, `<p style="font:14px sans-serif;color:#aaa;padding:8px 12px">NeedCoolerShoes skin editor, unchanged, built from <a style="color:#8cf" href="${NCRS.repo}/tree/${NCRS.sha}">its source</a>. Licence: <a style="color:#8cf" href="LICENSE.md">GPL-3.0-or-later</a>. Hosted here by Fresh Moves Fix; not affiliated with NeedCoolerShoes.</p>`));
-    return true;
-  } catch (e) {
-    console.warn("Skin painter not built: " + String(e.message || e).split("\n")[0]);
-    return false;
-  }
-}
-const painter = buildPainter();
-write("paint/index.html", page({
-  title: "Skin painter - Fresh Moves Fix",
-  active: "",
-  description: "Paint a Minecraft skin in 3D with the NeedCoolerShoes skin editor, right on this page.",
-  depth: 1,
-  body: `<div class="wrap"><article class="editor">
-<div class="crumb"><a href="../">${ICON.home} Home</a></div>
-<h1>${ICON.brush} Skin painter</h1>
-<p>Paint a Minecraft skin directly on the 3D model: brush, eraser, bucket, shading, layers, colour palettes. This is the <b>NeedCoolerShoes skin editor</b>, shown inside this page.</p>
-<p>${painter ? `<a class="btn" target="_blank" rel="noopener" href="app/">${ICON.right} Open the painter full screen</a>
-` : ""}<a class="btn${painter ? " ghost" : ""}" rel="noopener" target="_blank" href="https://needcoolershoes.com/">${ICON.right} needcoolershoes.com</a>
-<a class="btn ghost" href="../editor/">${ICON.eye} Add moving eyes</a></p>
-<div class="note"><strong>How to use it with this pack.</strong> Paint your skin, then <b>Save</b>, <b>Export Image (.png)</b>. Load that file in the <a href="../editor/">Skin eye editor</a> to add the blinking, moving eyes. To start from an existing skin use <b>Import</b>, <b>Import Skin from File (.png)</b>.</div>
-<p><small>The editor is made by the NeedCoolerShoes team and is free software (GPL-3.0-or-later); <a rel="noopener" href="${NCRS.repo}/tree/${NCRS.sha}">its source code</a> and <a href="app/LICENSE.md">licence</a>. It is not part of Fresh Moves Fix and is not covered by this project's CC0 licence. "Import Skin from Minecraft", the skin search and "Share to Gallery" talk to needcoolershoes.com and may not work from this page; use their website for those.</small></p>
-</article></div>
-${painter ? `<div class="wrap"><div class="bb-help" id="bbhelp" hidden>
-  <h2>${ICON.info} The painter cannot start in this browser</h2>
-  <p>The painter needs 3D graphics (WebGL), and your browser has it switched off right now. Restart the browser, then turn on graphics acceleration in its settings (Chrome: Settings, System). Check with <a href="https://get.webgl.org" target="_blank" rel="noopener">get.webgl.org</a>.</p>
-  <p><button type="button" class="btn" id="bbretry">Check again</button> <button type="button" class="btn ghost" id="bbshow">Show the painter anyway</button></p>
-</div></div>
-<div class="bb-frame" id="bbframe"><iframe data-src="app/" title="Skin painter" allow="clipboard-read; clipboard-write; fullscreen" allowfullscreen></iframe></div>
-<script>(function(){
-  var help=document.getElementById("bbhelp"), box=document.getElementById("bbframe"), fr=box.querySelector("iframe");
-  function hasGL(){ try{ var c=document.createElement("canvas"); var g=c.getContext("webgl2")||c.getContext("webgl"); if(!g) return false; var x=g.getExtension("WEBGL_lose_context"); if(x) x.loseContext(); return true; }catch(e){ return false; } }
-  function show(force){ var ok=force||hasGL(); help.hidden=ok; box.hidden=!ok; if(ok&&!fr.getAttribute("src")) fr.setAttribute("src", fr.getAttribute("data-src")); }
-  document.getElementById("bbretry").addEventListener("click", function(){ show(false); });
-  document.getElementById("bbshow").addEventListener("click", function(){ show(true); });
-  show(false);
-})()</script>` : ""}`,
-}));
-
 write("settings/index.html", page({
   title: "Settings - Fresh Moves Fix",
   active: "settings",
@@ -687,11 +626,6 @@ write("index.html", page({
       <span class="tool-head"><img class="tool-img" src="icon-skin.png" alt="" width="48" height="48"><span><b>Minecraft Skin</b><small>by Fresh Moves Fix</small></span></span>
       <span class="tool-text">Add blinking, moving eyes to your skin and see it in 3D.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Skin</i><i>Eyes</i></span>
-    </a>
-    <a class="tool" href="paint/">
-      <span class="tool-head"><img class="tool-img" src="icon-paint.png" alt="" width="48" height="48"><span><b>Skin Painter</b><small>NeedCoolerShoes editor</small></span></span>
-      <span class="tool-text">Paint a skin on the 3D model with brush, bucket, shading and layers.</span>
-      <span class="tags"><i class="g">Minecraft</i><i>Skin</i><i>Paint</i></span>
     </a>
     <a class="tool" href="title/">
       <span class="tool-head"><img class="tool-img" src="icon-title.png" alt="" width="48" height="48"><span><b>Minecraft Title</b><small>Blockbench + Title Generator</small></span></span>
