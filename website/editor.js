@@ -87,7 +87,7 @@
       $("custom").checked = true;
       // slim (Alex) skins leave the last arm column empty
       const slim = original.data[idx(54, 20) + 3] === 0;
-      $("fmtslim").checked = slim; $("fmtwide").checked = !slim;
+      origSlim = slim; $("fmtslim").checked = slim; $("fmtwide").checked = !slim;
       setStatus(`Loaded ${name}.`);
       if (!preset && oldEyes) preset = oldEyes; // a skin that already has moving eyes keeps their shape and place
       if (preset && TYPES[preset.type]) { // start skins that already have eyes choose the matching shape and place
@@ -155,9 +155,26 @@
     $("lid").value = lid; $("white").value = white; $("pupil").value = pupil;
   }
 
+  // Change the arms between Steve (4 pixels wide) and Alex (3 pixels wide), so the saved file fits the chosen format.
+  function convertArms(d, toSlim) {
+    const src = new Uint8ClampedArray(d);
+    const W = [[4, 4, 0, 4], [8, 4, 0, 4], [0, 4, 4, 16], [4, 4, 4, 16], [8, 4, 4, 16], [12, 4, 4, 16]]; // x, width, y0, y1 of each part
+    const S = [[4, 3, 0, 4], [7, 3, 0, 4], [0, 4, 4, 16], [4, 3, 4, 16], [7, 4, 4, 16], [11, 3, 4, 16]];
+    const from = toSlim ? W : S, to = toSlim ? S : W;
+    for (const [ox, oy] of [[40, 16], [40, 32], [32, 48], [48, 48]]) {
+      for (let y = oy; y < oy + 16; y++) for (let x = ox; x < ox + 16; x++) { const i = idx(x, y); d[i] = d[i + 1] = d[i + 2] = d[i + 3] = 0; }
+      from.forEach((f, k) => {
+        const t = to[k];
+        const cols = f[1] === t[1] ? [0, 1, 2, 3].slice(0, f[1]) : toSlim ? [0, 1, 3] : [0, 1, 1, 2];
+        cols.forEach((c, n) => { for (let y = f[2]; y < f[3]; y++) { const a = idx(ox + f[0] + c, oy + y), b = idx(ox + t[0] + n, oy + y); for (let q = 0; q < 4; q++) d[b + q] = src[a + q]; } });
+      });
+    }
+  }
+  let origSlim = false;
   function build() {
     const out = new ImageData(new Uint8ClampedArray(original.data), 64, 64);
     const d = out.data, c = choice();
+    if ($("fmtslim").checked !== origSlim) convertArms(d, $("fmtslim").checked);
     const custom = $("custom").checked;
     const put = (x, y, col) => { const i = idx(x, y); d[i] = col[0]; d[i + 1] = col[1]; d[i + 2] = col[2]; d[i + 3] = 255; };
     for (const [ax, ay, w, h] of c.type === "2x3" ? [...AREAS, AREA_2X3] : AREAS)
@@ -304,7 +321,7 @@
       eyeState = ""; applyPause(); applyOuter();
     } catch (e) { $("msg3d").textContent = "3D preview could not show this skin."; }
   }
-  ["fmtwide", "fmtslim"].forEach((id) => $(id).addEventListener("change", () => { if (current) update3d(current); }));
+  ["fmtwide", "fmtslim"].forEach((id) => $(id).addEventListener("change", () => { if (loaded) render(); else if (current) update3d(current); }));
   window.fmfCleanup = () => { try { if (viewer) { const r = viewer.renderer; viewer.dispose(); if (r && r.forceContextLoss) r.forceContextLoss(); } } catch (e) {} viewer = null; try { blobUrls.forEach((u) => URL.revokeObjectURL(u)); } catch (e) {} };
   // ---- play / pause, and eyes that blink and look around like the pack does in the game (simplified) ----
   let paused3d = false, eyeState = "", eyeT0 = Date.now();

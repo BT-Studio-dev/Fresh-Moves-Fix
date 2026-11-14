@@ -281,7 +281,7 @@ write("editor/index.html", page({
       <label class="pickb"><input type="radio" name="fmt" id="fmtwide" value="default" checked><span><b>Steve</b><small>Wide arms</small></span></label>
       <label class="pickb"><input type="radio" name="fmt" id="fmtslim" value="slim"><span><b>Alex</b><small>Slim arms</small></span></label>
     </div>
-    <p class="ehint">${ICON.info} The format is guessed from the skin when you load it. It only changes the 3D preview, not the file.</p>
+    <p class="ehint">${ICON.info} The format is guessed from the skin when you load it. If you pick the other one, the arms in the saved file are changed to fit it (Steve = 4 pixels wide, Alex = 3).</p>
 
   </section>
   <section class="panel ecard">
