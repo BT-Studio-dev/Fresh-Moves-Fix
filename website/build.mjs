@@ -270,6 +270,7 @@ fs.copyFileSync(path.join(here, "editor.js"), path.join(out, "editor.js"));
 fs.copyFileSync(path.join(here, "paint.js"), path.join(out, "paint.js"));
 fs.copyFileSync(path.join(here, "player.js"), path.join(out, "player.js"));
 fs.copyFileSync(path.join(here, "studio.js"), path.join(out, "studio.js"));
+fs.copyFileSync(path.join(here, "ui.js"), path.join(out, "ui.js"));
 // 3D preview library (skinview3d, MIT licence), served from this site
 fs.copyFileSync(path.join(here, "node_modules/skinview3d/bundles/skinview3d.bundle.js"), path.join(out, "skinview3d.bundle.js"));
 write("editor/index.html", page({
@@ -581,7 +582,8 @@ write("paint/index.html", page({
 </ol>
 <p><small>Keys: B pen, E eraser, G fill, I take colour, L lighter, D darker, Ctrl+Z undo, Ctrl+Y redo.</small></p>
 </article></div>
-<script src="../paint.js?v=${ver("paint.js")}"></script>`,
+<script src="../paint.js?v=${ver("paint.js")}"></script>
+<script src="../ui.js?v=${ver("ui.js")}"></script>`,
 }));
 // ---- shared parts of the "3D Model" and "Animation" pages (studio.js) ----
 const MOVE_OPTS = [["idle", "Standing"], ["walk", "Walking"], ["run", "Running"], ["wave", "Waving"], ["cheer", "Cheer"], ["dance", "Dance"], ["jacks", "Jumping jacks"], ["clap", "Clap"], ["dab", "Dab"], ["sit", "Sit"], ["look", "Look around"], ["tpose", "T-pose"]]
@@ -619,7 +621,8 @@ const studioView = (extra) => `<section class="panel ecard">
     <p><small id="smsg" role="status"></small></p>
   </section>`;
 const studioScripts = `<script src="../player.js?v=${ver("player.js")}"></script>
-<script src="../studio.js?v=${ver("studio.js")}"></script>`;
+<script src="../studio.js?v=${ver("studio.js")}"></script>
+<script src="../ui.js?v=${ver("ui.js")}"></script>`;
 
 // ---- Minecraft 3D Model: its own page (skin -> animated .gltf file) ----
 write("model/index.html", page({
