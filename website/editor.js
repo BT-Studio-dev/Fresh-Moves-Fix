@@ -89,6 +89,7 @@
       const slim = original.data[idx(54, 20) + 3] === 0;
       $("fmtslim").checked = slim; $("fmtwide").checked = !slim;
       setStatus(`Loaded ${name}.`);
+      if (!preset && oldEyes) preset = oldEyes; // a skin that already has moving eyes keeps their shape and place
       if (preset && TYPES[preset.type]) { // start skins that already have eyes choose the matching shape and place
         $("type").value = preset.type; fillPositions();
         if (TYPES[preset.type].variants[preset.pos]) $("pos").value = preset.pos;
@@ -127,11 +128,11 @@
   // Returns { cells: [[col,row]], lid, white, pupil } or null.
   function findOldEyes(d) {
     const solid = (x, y, w, h) => { for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) if (!d[idx(xx, yy) + 3]) return false; return true; };
-    const make = (rows, mx, my) => ({
+    const make = (rows, mx, my, type, pos) => ({ type, pos,
       cells: rows.flatMap((r) => [1, 2, 5, 6].map((c) => [c, r])),
       lid: hex(d, idx(mx, my)), white: hex(d, idx(mx, my + 1)), pupil: hex(d, idx(mx + 1, my + 1)) });
-    for (const my of [0, 2, 4, 6]) if (solid(4, my, 4, 2)) return make([3 + my / 2], 4, my);
-    for (const [mx, my, r] of [[28, 2, 2], [28, 5, 3], [24, 2, 4], [24, 5, 5]]) if (solid(mx, my, 4, 3)) return make([r, r + 1], mx, my);
+    for (const my of [0, 2, 4, 6]) if (solid(4, my, 4, 2)) return make([3 + my / 2], 4, my, "2x1", ["top", "upper", "lower", "bottom"][my / 2]);
+    for (const [mx, my, r, pos] of [[28, 2, 2, "top"], [28, 5, 3, "upper"], [24, 2, 4, "lower"], [24, 5, 5, "bottom"]]) if (solid(mx, my, 4, 3)) return make([r, r + 1], mx, my, "2x2", pos);
     return null;
   }
   const far = (a, b) => { const x = rgb(a), y = rgb(b); return Math.abs(x[0] - y[0]) + Math.abs(x[1] - y[1]) + Math.abs(x[2] - y[2]) > 60; };
