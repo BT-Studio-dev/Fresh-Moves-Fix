@@ -87,7 +87,13 @@ if(!t){try{var m=document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/);if(m)t=m[1]
 if(["system","light","dark","oled","glass"].indexOf(t)<0)t="glass";
 if(t==="system")t=window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
 document.documentElement.setAttribute("data-theme",t)})()</script>
-<link rel="icon" href="${up}pack.png">
+<link rel="icon" href="${up}favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="192x192" href="${up}icon-192.png">
+<link rel="apple-touch-icon" href="${up}icon-180.png">
+<link rel="manifest" href="${up}site.webmanifest">
+<link rel="yandex-tableau-widget" href="${up}tableau.json">
+<meta name="application-name" content="Fresh Moves Fix">
+<meta name="apple-mobile-web-app-title" content="Fresh Moves Fix">
 <link rel="stylesheet" href="${up}style.css?v=${ver("style.css")}">
 </head>
 <body>
@@ -161,6 +167,18 @@ fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 fs.copyFileSync(path.join(root, "pack.png"), path.join(out, "pack.png"));
 fs.copyFileSync(path.join(here, "title.png"), path.join(out, "title.png"));
+// icons for browser start pages, bookmarks and "add to home screen"
+for (const f of ["favicon.ico", "icon-180.png", "icon-192.png", "icon-512.png", "tile-logo.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
+const SITE = "https://fresh-moves-fix.vercel.app/";
+fs.writeFileSync(path.join(out, "site.webmanifest"), JSON.stringify({
+  name: "Fresh Moves Fix", short_name: "Fresh Moves", start_url: "/", display: "browser",
+  background_color: "#0f1412", theme_color: "#17362a",
+  icons: [{ src: "/icon-192.png", sizes: "192x192", type: "image/png" }, { src: "/icon-512.png", sizes: "512x512", type: "image/png" }],
+}));
+fs.writeFileSync(path.join(out, "tableau.json"), JSON.stringify({
+  version: "1.0", api_version: 1,
+  layout: { logo: SITE + "tile-logo.png", color: "#17362a", show_title: true },
+}));
 for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png", "icon-painted.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
