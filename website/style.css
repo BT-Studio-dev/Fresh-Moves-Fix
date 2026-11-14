@@ -58,7 +58,7 @@ img { max-width: 100%; height: auto; border-radius: 6px; }
 header.top {
   border-bottom: 1px solid var(--line);
   background: var(--header);
-  position: sticky; top: 0; z-index: 5;
+  position: sticky; top: 0; z-index: 50; /* above cards with an open list or colour card (z-index 30) */
 }
 header.top .bar { display: flex; align-items: center; gap: 16px; height: 64px; }
 .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 19px; color: var(--text); text-decoration: none; }
