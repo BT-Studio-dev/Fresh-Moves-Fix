@@ -80,7 +80,7 @@ function page({ title, body, depth = 0, description = "", active = "" }) {
 <meta name="twitter:card" content="summary_large_image">
 <script>(function(){var t="";try{t=localStorage.getItem("fmf-theme")||""}catch(e){}
 if(!t){try{var m=document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/);if(m)t=m[1]}catch(e){}}
-if(["system","light","dark","oled","glass"].indexOf(t)<0)t="system";
+if(["system","light","dark","oled","glass"].indexOf(t)<0)t="glass";
 if(t==="system")t=window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
 document.documentElement.setAttribute("data-theme",t)})()</script>
 <link rel="icon" href="${up}pack.png">
@@ -723,7 +723,7 @@ write("settings/index.html", page({
 <script>(function(){
   var key="fmf-theme", cur=""; try{cur=localStorage.getItem(key)||""}catch(e){}
   if(!cur){ try{ var m=document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/); if(m) cur=m[1]; }catch(e){} } // second place the choice is kept
-  if(!cur) cur="system";
+  if(!cur) cur="glass"; // the theme new visitors start with
   function keep(v){ try{ document.cookie=key+"="+v+"; path=/; max-age=31536000"+(location.protocol==="https:"?"; SameSite=None; Secure":"; SameSite=Lax"); return document.cookie.indexOf(key+"="+v)>=0; }catch(e){ return false; } }
   function apply(t){ var r=t; if(t==="system") r=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"; document.documentElement.setAttribute("data-theme",r); }
   var note=document.getElementById("theme-saved");
