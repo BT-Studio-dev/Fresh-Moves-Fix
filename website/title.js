@@ -255,7 +255,7 @@
   }
 
   // ---- render: the 3D view as a clean picture (no arrows, no cross), fitted into the chosen picture size ----
-  function render() {
+  function render(full) { // full = real size (for saving); otherwise a smaller preview, so big sizes stay fast
     const cv = $("trender"); if (!cv || !cv.getContext) return;
     const info = $("trinfo"), mode = val("trmode", "normal"), size = Number(val("trsize", "1024")) || 1024, pad = Math.max(0, Math.min(400, Number(val("trpad", "0")) || 0));
     const show = (id, yes) => { const e = $(id); if (e && e.style) e.style.display = yes ? "" : "none"; };
@@ -270,11 +270,16 @@
     if (mode === "square") W = H = size; else if (mode === "custom") { W = lim(val("trw", "1920")); H = lim(val("trh", "1080")); } else if (mode === "minecraft") { W = 1024; H = 256; }
     else { W = size; H = Math.max(16, Math.ceil(bh * Math.max(0.01, (W - 2 * pad) / bw) + 2 * pad)); }
     const k = Math.max(0.01, Math.min((W - 2 * pad) / bw, (H - 2 * pad) / bh));
-    cv.width = W; cv.height = H;
-    const ctx = cv.getContext("2d"); ctx.clearRect(0, 0, W, H);
-    if (on("trbg", false)) { ctx.fillStyle = val("trbgc", "#1d3c2d"); ctx.fillRect(0, 0, W, H); }
-    paint(ctx, letters, k, W / 2 - (x1 + x2) / 2 * k, H / 2 - (y1 + y2) / 2 * k);
-    if (info) info.textContent = W + " x " + H + " pixels" + (on("trbg", false) ? "" : ", see-through background");
+    const q = full === true ? 1 : Math.min(1, 1024 / Math.max(W, H)), cw = Math.max(1, Math.round(W * q)), ch = Math.max(1, Math.round(H * q)), smooth = on("traa", true);
+    cv.width = cw; cv.height = ch;
+    if (cv.style) cv.style.imageRendering = smooth ? "auto" : "pixelated";
+    const ctx = cv.getContext("2d"); ctx.clearRect(0, 0, cw, ch);
+    paint(ctx, letters, k * q, cw / 2 - (x1 + x2) / 2 * k * q, ch / 2 - (y1 + y2) / 2 * k * q);
+    if (!smooth && ctx.getImageData) { // antialiasing off: hard edges, every pixel fully there or fully see-through
+      try { const im = ctx.getImageData(0, 0, cw, ch), d = im.data; for (let i = 3; i < d.length; i += 4) d[i] = d[i] < 128 ? 0 : 255; ctx.putImageData(im, 0, 0); } catch (e) {}
+    }
+    if (on("trbg", false)) { ctx.globalCompositeOperation = "destination-over"; ctx.fillStyle = val("trbgc", "#1d3c2d"); ctx.fillRect(0, 0, cw, ch); ctx.globalCompositeOperation = "source-over"; }
+    if (info) info.textContent = W + " x " + H + " pixels" + (on("trbg", false) ? "" : ", see-through background") + (smooth ? "" : ", hard edges");
   }
 
   (function () { // 3D view controls
@@ -316,13 +321,13 @@
     let start = "flat"; try { start = localStorage.getItem("fmf-title-view") || "flat"; } catch (e) {}
     openView(start === "3d" ? "3d" : "flat");
     // render card
-    ["trmode", "trsize", "trw", "trh", "trpad", "trbg", "trbgc"].forEach((id) => { const e = $(id); if (e) { e.addEventListener("input", render); e.addEventListener("change", render); } });
+    ["trmode", "trsize", "trw", "trh", "trpad", "trbg", "trbgc", "traa"].forEach((id) => { const e = $(id); if (e) { e.addEventListener("input", () => render()); e.addEventListener("change", () => render()); } });
     const rc = $("trender"), say = (t) => { const i = $("trmsg"); if (i) i.textContent = t; };
     const save = $("trsave");
-    if (save && rc) save.addEventListener("click", () => { render(); const a = document.createElement("a"); a.href = rc.toDataURL("image/png"); a.download = "title-render.png"; document.body.appendChild(a); a.click(); a.remove(); say("Downloaded title-render.png."); });
+    if (save && rc) save.addEventListener("click", () => { render(true); const a = document.createElement("a"); a.href = rc.toDataURL("image/png"); a.download = "title-render.png"; document.body.appendChild(a); a.click(); a.remove(); say("Downloaded title-render.png."); });
     const copy = $("trcopy");
     if (copy && rc) copy.addEventListener("click", () => {
-      render();
+      render(true);
       try {
         if (!navigator.clipboard || !window.ClipboardItem || !rc.toBlob) throw new Error("no clipboard");
         rc.toBlob((bl) => navigator.clipboard.write([new ClipboardItem({ "image/png": bl })]).then(() => say("Copied. Paste it with Ctrl+V."), () => say("The browser did not allow copying. Use Save render.")), "image/png");

@@ -541,9 +541,9 @@ write("title/index.html", page({
   <section class="panel ecard">
     <h3 class="ehead"><span class="tool-ic">${ICON.down}</span><span><b>Render</b><small>The 3D view as a clean picture</small></span></h3>
     <p class="prow"><label>Mode <select id="trmode"><option value="normal" selected>Normal</option><option value="square">Square</option><option value="custom">Custom</option><option value="minecraft">Minecraft (1024 x 256)</option></select></label>
-      <label id="trsizerow">Size <select id="trsize"><option value="640">SD (640)</option><option value="1280">HD (1280)</option><option value="1024" selected>1K (1024)</option><option value="2048">2K (2048)</option></select></label></p>
+      <label id="trsizerow">Size <select id="trsize"><option value="640">SD (640)</option><option value="1280">HD (1280)</option><option value="1024" selected>1K (1024)</option><option value="2048">2K (2048)</option><option value="4096">4K (4096)</option></select></label></p>
     <p class="prow" id="trcustom"><label>Resolution <input type="number" id="trw" class="tlsecs" min="16" max="4096" value="1920"></label> <label>x <input type="number" id="trh" class="tlsecs" min="16" max="4096" value="1080"></label></p>
-    <p class="prow"><label><input type="checkbox" id="trbg"> Background colour</label> <span id="trbgc-wrap"><input type="color" id="trbgc" value="#1d3c2d" aria-label="Render background colour"></span> <label>Padding <input type="number" id="trpad" class="tlsecs" min="0" max="400" value="0"></label></p>
+    <p class="prow"><label><input type="checkbox" id="trbg"> Background colour</label> <span id="trbgc-wrap"><input type="color" id="trbgc" value="#1d3c2d" aria-label="Render background colour"></span> <label><input type="checkbox" id="traa" checked> Antialiasing</label> <label>Padding <input type="number" id="trpad" class="tlsecs" min="0" max="400" value="0"></label></p>
     <div class="tprev"><canvas id="trender" width="16" height="16"></canvas></div>
     <p><small id="trinfo"></small></p>
     <p class="prow"><button type="button" class="btn" id="trsave">${ICON.down} Save render (.png)</button> <button type="button" class="btn ghost" id="trcopy">Copy render</button></p>
