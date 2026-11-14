@@ -149,7 +149,7 @@
     if (oldEyes) { lid = oldEyes.lid; white = oldEyes.white; pupil = oldEyes.pupil; }
     if (w) {
       if (!far(white, lid) || !far(white, pupil)) white = "#ffffff";
-      if (!far(pupil, white)) pupil = "#2b2b2b";
+      if (!far(pupil, white) || !far(pupil, lid)) pupil = ["#2b2b2b", "#3b82c4", "#ffffff"].find((x) => far(x, white) && far(x, lid)) || "#2b2b2b"; // a pupil in the skin colour cannot be seen
     } else if (!far(pupil, lid)) pupil = dark(lid) ? "#ffffff" : "#2b2b2b";
     $("lid").value = lid; $("white").value = white; $("pupil").value = pupil;
   }
