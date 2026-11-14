@@ -291,19 +291,39 @@ write("editor/index.html", page({
 
   </section>
   <section class="panel ecard">
-    <h3 class="ehead"><span class="tool-ic">${ICON.eye}</span><span><b>2. Eyes</b><small>Shape and place of the eyes</small></span></h3>
+    <h3 class="ehead"><span class="tool-ic">${ICON.eye}</span><span><b>2. Eyes</b><small>Shape and place of the eyes, eyebrows, eyelashes</small></span></h3>
     <p><label>Eye shape
       <select id="type"></select></label></p>
     <p><label>Position on the face
       <select id="pos"></select></label></p>
+    <p><label>Eyebrows
+      <select id="brow">
+        <option value="keep">Do not change</option>
+        <option value="none">No moving eyebrows</option>
+        <option value="f2">Top (row 3 of the face)</option>
+        <option value="f3">Upper middle (row 4)</option>
+        <option value="f4">Lower middle (row 5)</option>
+        <option value="f5">Bottom (row 6)</option>
+        <option value="h2">On the hat layer, top</option>
+        <option value="h3">On the hat layer, upper middle</option>
+        <option value="h4">On the hat layer, lower middle</option>
+        <option value="h5">On the hat layer, bottom</option>
+        <option value="villager">Villager (one long eyebrow)</option>
+      </select></label></p>
+    <label class="pickb wide" id="lashwrap"><input type="checkbox" id="lash"><span><b>Eyelashes</b><small>Only with the eye shape "2 wide, 2 tall" at the position "Bottom".</small></span></label>
+    <p class="ehint">${ICON.info} <span>Put the eyebrows on the row just above the eyes. Hat-layer eyebrows and eyelashes are drawn by the pack in the game, so the preview here does not show them. Not tested in-game.</span></p>
 
   </section>
   <section class="panel ecard">
-    <h3 class="ehead"><span class="tool-ic">${ICON.brush}</span><span><b>3. Colours</b><small>Eyelid, eye white and pupil</small></span></h3>
+    <h3 class="ehead"><span class="tool-ic">${ICON.brush}</span><span><b>3. Colours</b><small>Eyelid, eyes, eyebrows and eyelashes</small></span></h3>
     <p class="row"><label>Eyelid <input type="hidden" id="lid" value="#9b6349"><button type="button" class="sw" data-for="lid" aria-label="Choose colour"></button></label></p>
     <p class="row">
       <label id="whitewrap">Eye white <input type="hidden" id="white" value="#ffffff"><button type="button" class="sw" data-for="white" aria-label="Choose colour"></button></label>
       <label><span id="pupilname">Pupil</span> <input type="hidden" id="pupil" value="#523d89"><button type="button" class="sw" data-for="pupil" aria-label="Choose colour"></button></label>
+    </p>
+    <p class="row">
+      <label id="browwrap">Eyebrows <input type="hidden" id="browcol" value="#3a2616"><button type="button" class="sw" data-for="browcol" aria-label="Choose colour"></button></label>
+      <label id="lashcolwrap">Eyelashes <input type="hidden" id="lashcol" value="#1c1c1c"><button type="button" class="sw" data-for="lashcol" aria-label="Choose colour"></button></label>
     </p>
     <label class="pickb wide"><input type="checkbox" id="custom" checked><span><b>Draw the eyes on the face</b><small>On: the old eyes are removed and the new ones are drawn in these colours. Off: the face is not changed and the eyes already drawn on your skin are used.</small></span></label>
 
@@ -404,7 +424,7 @@ write("editor/index.html", page({
 <li><b>3 wide (enderman)</b>: the eyes touch the sides of the face.</li>
 <li><b>Simple</b> (1 wide): no moving pupil, the eyes only blink.</li>
 </ul>
-<p>The positions of 2 wide 1 tall and 2 wide 2 tall come from the example skins in the pack. The other shapes were worked out from the pack's model file and are less certain; the derp layout is the least certain. Eyebrows, eyelashes and fox eyes are not in the editor yet; see the <a href="../guides/">guides</a>.</p>
+<p>The positions of 2 wide 1 tall and 2 wide 2 tall come from the example skins in the pack. The other shapes were worked out from the pack's model file and are less certain; the derp layout is the least certain. Eyebrows and eyelashes were also worked out from the model file and are not tested in the game. Fox eyes are not in the editor (the guide marks them as unfinished); see the <a href="../guides/">guides</a>.</p>
 </article></div>
 <script src="../skinview3d.bundle.js"></script>
 <script src="../player.js?v=${ver("player.js")}"></script>

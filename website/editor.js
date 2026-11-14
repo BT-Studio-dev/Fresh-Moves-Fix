@@ -192,7 +192,36 @@
       if (typeof src === "string") put(x, y, colour[src]);
       else { const i = idx(8 + src[0], 8 + src[1]); put(x, y, [d[i], d[i + 1], d[i + 2]]); }
     }
+    // ---- eyebrows: the pack draws them itself from two rows of pixels in the top-right corner of the skin file
+    const brow = $("brow").value, wipe = (ax, ay, w, h) => { for (let y = ay; y < ay + h; y++) for (let x = ax; x < ax + w; x++) { const i = idx(x, y); d[i] = d[i + 1] = d[i + 2] = d[i + 3] = 0; } };
+    if (brow !== "keep") {
+      wipe(60, 0, 4, 8); wipe(56, 4, 4, 4); wipe(24, 0, 5, 2);
+      const bc = rgb($("browcol").value), r = Number(brow.slice(1));
+      if (brow[0] === "f") { // on the face: a cover row in the skin colour (so the drawn eyebrow is not seen twice), then the eyebrow
+        const cy = (r - 2) * 2;
+        for (let k = 0; k < 4; k++) { put(60 + k, cy, colour.lid); put(60 + k, cy + 1, bc); }
+        if (custom) for (const col of [1, 2, 5, 6]) put(8 + col, 8 + r, bc);
+      } else if (brow[0] === "h") { // in front of the hat layer: only the eyebrow row
+        for (let k = 0; k < 4; k++) put(56 + k, r + 2, bc);
+      } else if (brow === "villager") {
+        for (let k = 0; k < 5; k++) { put(24 + k, 0, colour.lid); put(24 + k, 1, bc); }
+        if (custom) for (let col = 1; col <= 6; col++) put(8 + col, 8 + 3, bc);
+      }
+    }
+    // ---- eyelashes (only for 2 wide, 2 tall eyes at the bottom)
+    if (lashOk() && $("lash").checked) {
+      wipe(56, 0, 4, 4);
+      const lc = rgb($("lashcol").value);
+      for (let k = 0; k < 4; k++) put(56 + k, 0, lc);
+      for (const x of [56, 59]) { put(x, 1, lc); put(x, 2, lc); }
+    }
     return { out, c };
+  }
+  const lashOk = () => $("type").value === "2x2" && $("pos").value === "bottom";
+  function syncExtras() { // show only the controls that do something
+    const ok = lashOk(); $("lash").disabled = !ok; $("lashwrap").style.opacity = ok ? "" : ".5";
+    $("lashcolwrap").style.display = ok && $("lash").checked ? "" : "none";
+    const b = $("brow").value; $("browwrap").style.display = b === "keep" || b === "none" ? "none" : "";
   }
 
   function draw(canvas, data, sx, sy, sw, sh, mark) {
@@ -488,6 +517,7 @@
 
   let current = null;
   function render() {
+    syncExtras();
     if (!loaded) return;
     syncSwatches();
     const { out, c } = build();
@@ -587,7 +617,8 @@
   $("type").value = "2x1";
   fillPositions();
   $("type").addEventListener("change", () => { fillPositions(); syncMenus(); pickDefaults(); render(); });
-  ["type", "pos", "anim"].forEach((id) => enhance($(id)));
+  ["type", "pos", "anim", "brow"].forEach((id) => enhance($(id)));
+  $("brow").addEventListener("change", render); $("lash").addEventListener("input", render);
   $("pos").addEventListener("change", () => { pickDefaults(); render(); });
   $("custom").addEventListener("input", render);
 
