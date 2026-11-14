@@ -23,11 +23,14 @@
     "?": R(F, 2, RT, 2, "..XXXXX", 2, "..XXX..", 1, ".......", 1, "..XXX..", 2), ":": R("...", 2, "XXX", 2, "...", 2, "XXX", 2, "...", 2),
   };
   // sizes in small cells; one small cell = 4 picture pixels at scale 1 (so one letter block = 16 pixels)
-  const U = 4, OX = 2, OY = 3, D = 11, GAP = 12, VGAP = 3;
+  // text types, as in the Blockbench Title Generator: Top = the big "Minecraft" text, Bottom = the update text, Small = the edition text
+  const KIND = { top: { U: 4, OX: 2, OY: 3, D: 11 }, bottom: { U: 3, OX: 2, OY: 2, D: 8 }, small: { U: 2, OX: 1, OY: 2, D: 5 } };
+  const VGAP = 3, IDS = [1, 2, 3];
   const clean = (t) => t.toUpperCase().split("").filter((c) => c === " " || G[c]).join("").replace(/\s+/g, " ").trim().slice(0, 24);
 
   // one line of text -> grid of 0 (empty), 1 (outline), 2 (shade), 3 (face)
-  function line(text) {
+  function line(text, kind) {
+    const { U, OX, OY, D } = KIND[kind] || KIND.top, GAP = 3 * U;
     let w = 0; const at = [];
     for (const c of text) { if (c === " ") { w += GAP - U; continue; } at.push([c, w]); w += (G[c][0].length + 1) * U; }
     w -= U; if (w < 1) return null;
@@ -46,12 +49,13 @@
     }
     return { W, H, g };
   }
+  const FIELDS = ["tt1", "tc1", "tk1", "tt2", "tc2", "tk2", "tt3", "tc3", "tk3", "tsize"];
   const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
   const css = (c) => "rgb(" + c.map((v) => Math.round(v)).join(",") + ")";
 
   function draw() {
-    const rowsIn = [[clean($("tt1").value), $("tc1").value], [clean($("tt2").value), $("tc2").value]].filter((r) => r[0]);
-    const lines = rowsIn.map((r) => ({ l: line(r[0]), col: hexRgb(r[1]) })).filter((r) => r.l);
+    const rowsIn = IDS.map((n) => [clean($("tt" + n).value), $("tc" + n).value, $("tk" + n).value]).filter((r) => r[0]);
+    const lines = rowsIn.map((r) => ({ l: line(r[0], r[2]), col: hexRgb(r[1]) })).filter((r) => r.l);
     const cv = $("tcanvas"), sc = Number($("tsize").value) || 4;
     if (!lines.length) { cv.width = 16; cv.height = 16; $("tsave").disabled = true; $("tinfo").textContent = "Type a text first."; return; }
     const W = Math.max(...lines.map((r) => r.l.W)), H = lines.reduce((a, r) => a + r.l.H, 0) + VGAP * (lines.length - 1);
@@ -70,16 +74,18 @@
     }
     $("tsave").disabled = false;
     $("tinfo").textContent = "Picture size: " + cv.width + " x " + cv.height + " pixels, see-through background.";
-    try { localStorage.setItem("fmf-title", JSON.stringify([$("tt1").value, $("tc1").value, $("tt2").value, $("tc2").value, $("tsize").value])); } catch (e) {}
+    try { localStorage.setItem("fmf-title2", JSON.stringify(FIELDS.map((id) => $(id).value))); } catch (e) {}
   }
 
-  try { const s = JSON.parse(localStorage.getItem("fmf-title") || "null"); if (s) ["tt1", "tc1", "tt2", "tc2", "tsize"].forEach((id, i) => { if (typeof s[i] === "string") $(id).value = s[i]; }); } catch (e) {}
-  ["tt1", "tt2", "tc1", "tc2", "tsize"].forEach((id) => { $(id).addEventListener("input", draw); $(id).addEventListener("change", draw); });
+  try { const s = JSON.parse(localStorage.getItem("fmf-title2") || "null"); if (s) FIELDS.forEach((id, i) => { if (typeof s[i] === "string") $(id).value = s[i]; }); } catch (e) {}
+  FIELDS.forEach((id) => { $(id).addEventListener("input", draw); $(id).addEventListener("change", draw); });
   document.querySelectorAll("[data-title]").forEach((b) => b.addEventListener("click", () => {
-    const [a, ca, c, cc] = b.dataset.title.split("|"); $("tt1").value = a; $("tc1").value = ca; $("tt2").value = c; $("tc2").value = cc; draw();
+    const parts = b.dataset.title.split(";"); // per line: text|colour|type
+    IDS.forEach((n, i) => { const [t, c, k] = (parts[i] || "|#ffffff|small").split("|"); $("tt" + n).value = t; $("tc" + n).value = c; $("tk" + n).value = k; });
+    draw();
   }));
   $("tsave").addEventListener("click", () => {
-    const name = (clean($("tt1").value) + " " + clean($("tt2").value)).trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "title";
+    const name = IDS.map((n) => clean($("tt" + n).value)).join(" ").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "title";
     const done = (url) => { const a = document.createElement("a"); a.href = url; a.download = "title-" + name + ".png"; document.body.appendChild(a); a.click(); a.remove(); $("tinfo").textContent = "Downloaded " + a.download + "."; };
     const cv = $("tcanvas");
     if (cv.toBlob) cv.toBlob((bl) => { const u = URL.createObjectURL(bl); done(u); setTimeout(() => URL.revokeObjectURL(u), 2000); }, "image/png"); else done(cv.toDataURL("image/png"));

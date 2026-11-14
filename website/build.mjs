@@ -462,15 +462,16 @@ write("title/index.html", page({
 <div class="ed paint">
   <div class="ed-col">
   <section class="panel ecard">
-    <h3 class="ehead"><img class="tool-img" src="../icon-title.png" alt="" width="44" height="44"><span><b>1. Text</b><small>One or two lines, each with its own colour</small></span></h3>
-    <p class="prow"><label>Line 1 <input type="text" id="tt1" class="ttext" maxlength="24" value="MINECRAFT" spellcheck="false"></label> <input type="color" id="tc1" value="#ffffff" aria-label="Colour of line 1"></p>
-    <p class="prow"><label>Line 2 <input type="text" id="tt2" class="ttext" maxlength="24" value="HEROBRINE" spellcheck="false"></label> <input type="color" id="tc2" value="#63ff54" aria-label="Colour of line 2"></p>
-    <p class="ehint">${ICON.info} <span>Letters A to Z, numbers and ! ? . - : work. Other signs are left out. Leave line 2 empty for a one-line title.</span></p>
+    <h3 class="ehead"><img class="tool-img" src="../icon-title.png" alt="" width="44" height="44"><span><b>1. Text</b><small>Up to three lines, each with its own type and colour</small></span></h3>
+    <p class="prow"><label>Line 1 <input type="text" id="tt1" class="ttext" maxlength="24" value="MINECRAFT" spellcheck="false"></label> <input type="color" id="tc1" value="#ffffff" aria-label="Colour of line 1"> <label>Type <select id="tk1"><option value="top" selected>Top</option><option value="bottom">Bottom</option><option value="small">Small</option></select></label></p>
+    <p class="prow"><label>Line 2 <input type="text" id="tt2" class="ttext" maxlength="24" value="HEROBRINE" spellcheck="false"></label> <input type="color" id="tc2" value="#63ff54" aria-label="Colour of line 2"> <label>Type <select id="tk2"><option value="top">Top</option><option value="bottom" selected>Bottom</option><option value="small">Small</option></select></label></p>
+    <p class="prow"><label>Line 3 <input type="text" id="tt3" class="ttext" maxlength="24" value="JAVA EDITION" spellcheck="false"></label> <input type="color" id="tc3" value="#ffd24a" aria-label="Colour of line 3"> <label>Type <select id="tk3"><option value="top">Top</option><option value="bottom">Bottom</option><option value="small" selected>Small</option></select></label></p>
+    <p class="ehint">${ICON.info} <span>Type: <b>Top</b> is the big "Minecraft" text, <b>Bottom</b> is the smaller update text under it, <b>Small</b> is the little edition text. Letters A to Z, numbers and ! ? . - : work. Leave a line empty to skip it.</span></p>
     <p class="elabel">Ready-made</p>
     <p class="prow">
-      <button type="button" class="btn ghost" data-title="MINECRAFT|#ffffff|HEROBRINE|#63ff54">Minecraft Herobrine</button>
-      <button type="button" class="btn ghost" data-title="FRESH MOVES|#ffffff|FIX|#63ff54">Fresh Moves Fix</button>
-      <button type="button" class="btn ghost" data-title="MY SERVER|#ffd24a||#ffffff">My Server</button>
+      <button type="button" class="btn ghost" data-title="MINECRAFT|#ffffff|top;HEROBRINE|#63ff54|bottom;JAVA EDITION|#ffd24a|small">Minecraft Herobrine</button>
+      <button type="button" class="btn ghost" data-title="FRESH MOVES|#ffffff|top;FIX|#63ff54|top">Fresh Moves Fix</button>
+      <button type="button" class="btn ghost" data-title="MY SERVER|#ffd24a|top;SEASON 2|#ffffff|bottom">My Server</button>
     </p>
   </section>
   <section class="panel ecard">
