@@ -167,7 +167,6 @@ fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 fs.copyFileSync(path.join(root, "pack.png"), path.join(out, "pack.png"));
 fs.copyFileSync(path.join(here, "title.png"), path.join(out, "title.png"));
-fs.copyFileSync(path.join(here, "title-herobrine.png"), path.join(out, "title-herobrine.png"));
 // icons for browser start pages, bookmarks and "add to home screen"
 for (const f of ["favicon.ico", "icon-180.png", "icon-192.png", "icon-512.png", "tile-logo.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 const SITE = "https://fresh-moves-fix.vercel.app/";
@@ -272,6 +271,7 @@ fs.copyFileSync(path.join(here, "paint.js"), path.join(out, "paint.js"));
 fs.copyFileSync(path.join(here, "player.js"), path.join(out, "player.js"));
 fs.copyFileSync(path.join(here, "studio.js"), path.join(out, "studio.js"));
 fs.copyFileSync(path.join(here, "ui.js"), path.join(out, "ui.js"));
+fs.copyFileSync(path.join(here, "title.js"), path.join(out, "title.js"));
 // 3D preview library (skinview3d, MIT licence), served from this site
 fs.copyFileSync(path.join(here, "node_modules/skinview3d/bundles/skinview3d.bundle.js"), path.join(out, "skinview3d.bundle.js"));
 write("editor/index.html", page({
@@ -453,21 +453,49 @@ const BB = "https://web.blockbench.net/?plugins=minecraft_title_generator";
 write("title/index.html", page({
   title: "Minecraft title - Fresh Moves Fix",
   active: "title",
-  description: "Make a Minecraft title or paint a skin with the real Blockbench web app, right on this page.",
+  description: "Type a text and download a Minecraft-style block-letter title picture, right in your browser.",
   depth: 1,
   body: `<div class="wrap"><article class="editor">
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <h1>${ICON.tag} Minecraft title</h1>
+<p>Type your text and get a block-letter title picture, in the style of the "Fresh Moves Fix" title. Everything happens in your browser. It works without 3D graphics (WebGL).</p>
+<div class="ed paint">
+  <div class="ed-col">
+  <section class="panel ecard">
+    <h3 class="ehead"><img class="tool-img" src="../icon-title.png" alt="" width="44" height="44"><span><b>1. Text</b><small>One or two lines, each with its own colour</small></span></h3>
+    <p class="prow"><label>Line 1 <input type="text" id="tt1" class="ttext" maxlength="24" value="MINECRAFT" spellcheck="false"></label> <input type="color" id="tc1" value="#ffffff" aria-label="Colour of line 1"></p>
+    <p class="prow"><label>Line 2 <input type="text" id="tt2" class="ttext" maxlength="24" value="HEROBRINE" spellcheck="false"></label> <input type="color" id="tc2" value="#63ff54" aria-label="Colour of line 2"></p>
+    <p class="ehint">${ICON.info} <span>Letters A to Z, numbers and ! ? . - : work. Other signs are left out. Leave line 2 empty for a one-line title.</span></p>
+    <p class="elabel">Ready-made</p>
+    <p class="prow">
+      <button type="button" class="btn ghost" data-title="MINECRAFT|#ffffff|HEROBRINE|#63ff54">Minecraft Herobrine</button>
+      <button type="button" class="btn ghost" data-title="FRESH MOVES|#ffffff|FIX|#63ff54">Fresh Moves Fix</button>
+      <button type="button" class="btn ghost" data-title="MY SERVER|#ffd24a||#ffffff">My Server</button>
+    </p>
+  </section>
+  <section class="panel ecard">
+    <h3 class="ehead"><span class="tool-ic">${ICON.down}</span><span><b>2. Save</b><small>A .png picture with a see-through background</small></span></h3>
+    <p class="prow"><label>Size <select id="tsize"><option value="2">Small</option><option value="4" selected>Normal</option><option value="8">Big</option></select></label></p>
+    <p class="prow"><button type="button" class="btn" id="tsave">${ICON.down} Download title (.png)</button></p>
+    <p><small id="tinfo"></small></p>
+  </section>
+  </div>
+  <div class="ed-col">
+  <section class="panel ecard">
+    <h3 class="ehead"><span class="tool-ic">${ICON.eye}</span><span><b>Preview</b><small>Changes while you type</small></span></h3>
+    <div class="tprev"><canvas id="tcanvas" width="16" height="16"></canvas></div>
+  </section>
+  </div>
+</div>
+<h2>${ICON.box} Blockbench</h2>
 <p>This is the real <b>Blockbench</b> web app, shown inside this page. Press <b>New</b>, then <b>Minecraft Title</b> to make a title, or <b>Minecraft Skin</b> to paint a skin.</p>
 <p><a class="btn" rel="noopener" target="_blank" href="${BB}">${ICON.right} Open Blockbench in a new tab</a>
 <a class="btn ghost" rel="noopener" target="_blank" href="${REPO}/blob/main/model.bbmodel">${ICON.down} Our title model (.bbmodel)</a></p>
 <p><small>The "Fresh Moves Fix" title on the home page was made this way. Open the model file in Blockbench with File &rarr; Open Model.</small></p>
-<h2>Title "Minecraft Herobrine"</h2>
-<p><img src="../title-herobrine.png" width="1168" height="468" alt="Minecraft Herobrine" style="max-width:100%;height:auto;image-rendering:pixelated"></p>
-<p><a class="btn" href="../title-herobrine.png" download="minecraft-herobrine-title.png">${ICON.down} Download this title (.png)</a></p>
-<p><small>Drawn in the same style as the "Fresh Moves Fix" title, with a see-through background. Free to use.</small></p>
 <div class="note">If the box below stays empty, or "Minecraft Title" is missing from the New list, use the button above. In Blockbench you can also add it by hand: File &rarr; Plugins &rarr; Available &rarr; "Minecraft Title Generator" &rarr; Install. Blockbench is made by JannisX11 and the Title Generator plugin by Ewan Howell; they are not part of Fresh Moves Fix.</div>
 </article></div>
+<script src="../title.js?v=${ver("title.js")}"></script>
+<script src="../ui.js?v=${ver("ui.js")}"></script>
 <div class="wrap"><div class="bb-help" id="bbhelp" hidden>
   <h2>${ICON.info} Blockbench cannot start in this browser</h2>
   <p>Blockbench needs 3D graphics (WebGL), and your browser has it switched off right now. That is why it says "Error creating WebGL context". This is a browser setting on your computer, not a fault of this website, so it has to be switched on there:</p>
@@ -880,8 +908,8 @@ write("index.html", page({
       <span class="tags"><i class="g">Minecraft</i><i>Skin</i><i>Paint</i><i>3D</i></span>
     </a>
     <a class="tool" href="title/">
-      <span class="tool-head"><img class="tool-img" src="icon-title.png" alt="" width="48" height="48"><span><b>Minecraft Title</b><small>Blockbench + Title Generator</small></span></span>
-      <span class="tool-text">Make a real 3D Minecraft title in Blockbench, right on this website.</span>
+      <span class="tool-head"><img class="tool-img" src="icon-title.png" alt="" width="48" height="48"><span><b>Minecraft Title</b><small>Type a text, get the picture</small></span></span>
+      <span class="tool-text">Type your text and download a block-letter title picture. Blockbench is on the same page.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Title</i><i>Logo</i></span>
     </a>
     <a class="tool" href="model/">

@@ -677,3 +677,10 @@ header.top nav { min-width: 0; overflow-x: auto; }
 .ed .dd-list::-webkit-scrollbar-track { background: transparent; }
 .ed .dd-list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
 .ed .dd-list::-webkit-scrollbar-button { display: none; height: 0; }
+
+/* title maker */
+.paint .ttext { width: min(260px, 60vw); background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font: inherit; font-weight: 700; text-transform: uppercase; }
+.paint .ttext:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.tprev { padding: 18px; border-radius: 12px; border: 1px solid var(--line); overflow: auto; text-align: center;
+  background: repeating-conic-gradient(rgba(127,127,127,.22) 0% 25%, rgba(127,127,127,.08) 0% 50%) 0 0 / 24px 24px; }
+.tprev canvas { max-width: 100%; height: auto; image-rendering: pixelated; }
