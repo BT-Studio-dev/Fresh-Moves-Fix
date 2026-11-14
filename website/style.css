@@ -704,3 +704,16 @@ header.top nav { min-width: 0; overflow-x: auto; }
 
 .tol-chips button.sel { background: var(--accent); color: var(--on-accent); border-color: var(--accent); opacity: 1; }
 .tprev #trender { image-rendering: auto; }
+
+/* title maker: wider page, so the cards are not squeezed */
+.wrap.twide { max-width: 1240px; }
+.ed.ted { grid-template-columns: minmax(340px, 440px) minmax(0, 1fr); }
+@media (max-width: 900px) { .ed.ted { grid-template-columns: 1fr; } }
+.ted .ed-col { min-width: 0; }
+.ted .ttabs { flex-wrap: nowrap; overflow-x: auto; }
+.ted .ttabs button { padding: 8px 6px; white-space: nowrap; }
+.paint .tline { flex-wrap: nowrap; align-items: flex-end; gap: 8px; }
+.paint .tline > label:first-child { flex: 1 1 auto; min-width: 0; white-space: nowrap; }
+.paint .tline .ttext { width: 100%; min-width: 0; flex: 1 1 auto; }
+.paint .tline input[type="color"] { flex: none; }
+@media (max-width: 420px) { .paint .tline { flex-wrap: wrap; } }

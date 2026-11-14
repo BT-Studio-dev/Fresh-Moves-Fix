@@ -455,11 +455,11 @@ write("title/index.html", page({
   active: "title",
   description: "Type a text and download a Minecraft-style block-letter title picture, right in your browser.",
   depth: 1,
-  body: `<div class="wrap"><article class="editor">
+  body: `<div class="wrap twide"><article class="editor">
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <h1>${ICON.tag} Minecraft title</h1>
 <p>Type your text and get a block-letter title picture, in the style of the "Fresh Moves Fix" title. Everything happens in your browser. It works without 3D graphics (WebGL).</p>
-<div class="ed paint">
+<div class="ed paint ted">
   <div class="ed-col">
   <section class="panel ecard">
     <h3 class="ehead"><img class="tool-img" src="../icon-title.png" alt="" width="44" height="44"><span><b>1. Title</b><small>Text, texture, overlay, style and settings</small></span></h3>
@@ -471,9 +471,9 @@ write("title/index.html", page({
       <button type="button" role="tab" data-ttab="settings">Settings</button>
     </div>
     <div id="tp-text">
-    <p class="prow"><label>Line 1 <input type="text" id="tt1" class="ttext" maxlength="24" value="MINECRAFT" spellcheck="false"></label> <input type="color" id="tc1" value="#ffffff" aria-label="Colour of line 1"> <label>Type <select id="tk1"><option value="top" selected>Top</option><option value="bottom">Bottom</option><option value="small">Small</option></select></label></p>
-    <p class="prow"><label>Line 2 <input type="text" id="tt2" class="ttext" maxlength="24" value="HEROBRINE" spellcheck="false"></label> <input type="color" id="tc2" value="#63ff54" aria-label="Colour of line 2"> <label>Type <select id="tk2"><option value="top">Top</option><option value="bottom" selected>Bottom</option><option value="small">Small</option></select></label></p>
-    <p class="prow"><label>Line 3 <input type="text" id="tt3" class="ttext" maxlength="24" value="JAVA EDITION" spellcheck="false"></label> <input type="color" id="tc3" value="#ffd24a" aria-label="Colour of line 3"> <label>Type <select id="tk3"><option value="top">Top</option><option value="bottom">Bottom</option><option value="small" selected>Small</option></select></label></p>
+    <p class="prow tline"><label>Line 1 <input type="text" id="tt1" class="ttext" maxlength="24" value="MINECRAFT" spellcheck="false"></label> <input type="color" id="tc1" value="#ffffff" aria-label="Colour of line 1"> <label>Type <select id="tk1"><option value="top" selected>Top</option><option value="bottom">Bottom</option><option value="small">Small</option></select></label></p>
+    <p class="prow tline"><label>Line 2 <input type="text" id="tt2" class="ttext" maxlength="24" value="HEROBRINE" spellcheck="false"></label> <input type="color" id="tc2" value="#63ff54" aria-label="Colour of line 2"> <label>Type <select id="tk2"><option value="top">Top</option><option value="bottom" selected>Bottom</option><option value="small">Small</option></select></label></p>
+    <p class="prow tline"><label>Line 3 <input type="text" id="tt3" class="ttext" maxlength="24" value="JAVA EDITION" spellcheck="false"></label> <input type="color" id="tc3" value="#ffd24a" aria-label="Colour of line 3"> <label>Type <select id="tk3"><option value="top">Top</option><option value="bottom">Bottom</option><option value="small" selected>Small</option></select></label></p>
     <p class="ehint">${ICON.info} <span>Type: <b>Top</b> is the big "Minecraft" text, <b>Bottom</b> is the smaller update text under it, <b>Small</b> is the little edition text. Letters A to Z, numbers and ! ? . - : work. Leave a line empty to skip it.</span></p>
     <p class="elabel">Ready-made</p>
     <p class="prow">
