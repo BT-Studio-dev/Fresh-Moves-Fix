@@ -155,7 +155,7 @@ fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 fs.copyFileSync(path.join(root, "pack.png"), path.join(out, "pack.png"));
 fs.copyFileSync(path.join(here, "title.png"), path.join(out, "title.png"));
-for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
+for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png", "icon-painted.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
@@ -272,6 +272,7 @@ write("editor/index.html", page({
       <button type="button" class="pickb" data-name="Alex" data-type="2x1" data-pos="upper" data-skin="${skinData("slim/alex.png")}"><img src="../icon-alex.png" alt="" width="36" height="36"><span><b>Alex</b><small>Default skin</small></span></button>
       <button type="button" class="pickb" data-name="Dummy (tall eyes)" data-type="1x2" data-pos="bottom" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "dummy.png")).toString("base64")}"><img src="../icon-dummy.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Tall eyes</small></span></button>
       <button type="button" class="pickb" data-name="Dummy (dot eyes)" data-type="1x1" data-pos="outer_bottom" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "dummy2.png")).toString("base64")}"><img src="../icon-dummy2.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Dot eyes</small></span></button>
+      <button type="button" class="pickb" data-name="Dummy (blank face)" data-type="2x1" data-pos="upper" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "painted.png")).toString("base64")}"><img src="../icon-painted.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Blank face</small></span></button>
     </div>
     <p class="elabel">Format</p>
     <div class="pick">
@@ -485,6 +486,7 @@ write("paint/index.html", page({
       <button type="button" class="pickb" data-name="Alex" data-slim="1" data-skin="${skinData("slim/alex.png")}"><img src="../icon-alex.png" alt="" width="36" height="36"><span><b>Alex</b><small>Default skin</small></span></button>
       <button type="button" class="pickb" data-name="Dummy (tall eyes)" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "dummy.png")).toString("base64")}"><img src="../icon-dummy.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Tall eyes</small></span></button>
       <button type="button" class="pickb" data-name="Dummy (dot eyes)" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "dummy2.png")).toString("base64")}"><img src="../icon-dummy2.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Dot eyes</small></span></button>
+      <button type="button" class="pickb" data-name="Dummy (blank face)" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "painted.png")).toString("base64")}"><img src="../icon-painted.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Blank face</small></span></button>
     </div>
     <p class="prow"><label>Format <select id="pformat"><option value="wide">Wide arms (Steve)</option><option value="slim">Slim arms (Alex)</option></select></label> <button type="button" class="btn ghost" id="pclear">Empty skin</button></p>
     <p class="prow"><button type="button" class="btn" id="psave">${ICON.down} Save skin (.png)</button> <a class="btn ghost" href="../editor/">${ICON.eye} Add moving eyes</a></p>
