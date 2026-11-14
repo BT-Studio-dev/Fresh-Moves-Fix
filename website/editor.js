@@ -431,8 +431,8 @@
     }
     function frame(now) {
       if (dead) return;
-      const dt = Math.min(0.1, (now - (last || now)) / 1000); last = now; t += dt;
-      if (self.autoRotate && !drag) yaw += dt * 0.9;
+      const dt = Math.min(0.1, (now - (last || now)) / 1000); last = now; if (!self.paused) t += dt;
+      if (self.autoRotate && !drag && !self.paused) yaw += dt * 0.9;
       try { draw(); } catch (e) {}
       raf = requestAnimationFrame(frame);
     }
@@ -539,12 +539,53 @@
     try {
       tex.getContext("2d").putImageData(data, 0, 0);
       viewer.loadSkin(tex, { model: $("fmtslim").checked ? "slim" : "default" });
+      eyeState = ""; applyPause();
     } catch (e) { $("msg3d").textContent = "3D preview could not show this skin."; }
   }
   ["fmtwide", "fmtslim"].forEach((id) => $(id).addEventListener("change", () => { if (current) update3d(current); }));
   window.fmfCleanup = () => { try { if (viewer) { const r = viewer.renderer; viewer.dispose(); if (r && r.forceContextLoss) r.forceContextLoss(); } } catch (e) {} viewer = null; try { blobUrls.forEach((u) => URL.revokeObjectURL(u)); } catch (e) {} };
-  $("anim").addEventListener("change", setAnim);
-  $("spin").addEventListener("change", () => { if (viewer) viewer.autoRotate = $("spin").checked; });
+  // ---- play / pause, and eyes that blink and look around like the pack does in the game (simplified) ----
+  let paused3d = false, eyeState = "", eyeT0 = Date.now();
+  function applyPause() {
+    if (!viewer) return;
+    if (viewer.soft) viewer.paused = paused3d;
+    else { if (viewer.animation) viewer.animation.paused = paused3d; viewer.autoRotate = !paused3d && $("spin").checked; }
+  }
+  function eyeFrame(state) { // the skin with the eyes closed or looking to one side
+    const c = choice(), out = new ImageData(new Uint8ClampedArray(current.data), 64, 64), d = out.data;
+    const get = (col, row) => { const i = idx(8 + col, 8 + row); return [d[i], d[i + 1], d[i + 2]]; };
+    const put = (col, row, v) => { const i = idx(8 + col, 8 + row); d[i] = v[0]; d[i + 1] = v[1]; d[i + 2] = v[2]; d[i + 3] = 255; };
+    if (state === "shut") { const lid = rgb($("lid").value); for (const [col, row] of c.face) put(col, row, lid); return out; }
+    const w = c.face.find((f) => f[2] === "white"), pu = c.face.find((f) => f[2] === "pupil");
+    if (!w || !pu) return out; // eyes without a white part only blink
+    const white = get(w[0], w[1]), pupil = get(pu[0], pu[1]);
+    for (const row of [...new Set(c.face.map((f) => f[1]))]) for (const half of [0, 1]) {
+      const cols = c.face.filter((f) => f[1] === row && (f[0] >= 4) === !!half).map((f) => f[0]).sort((x, y) => x - y);
+      if (cols.length < 2) continue;
+      const at = state === "left" ? cols[0] : cols[cols.length - 1];
+      for (const col of cols) put(col, row, col === at ? pupil : white);
+    }
+    return out;
+  }
+  function eyeTick() {
+    if (!viewer || !current || !loaded) return;
+    let st = "";
+    if ($("eyes3d").checked && !paused3d) {
+      const t = ((Date.now() - eyeT0) / 1000) % 6.4;
+      st = t < 0.16 ? "shut" : t > 1.8 && t < 2.7 ? "left" : t >= 2.7 && t < 2.86 ? "shut" : t > 4.2 && t < 5.1 ? "right" : "";
+    }
+    if (st === eyeState) return;
+    eyeState = st;
+    try { tex.getContext("2d").putImageData(st ? eyeFrame(st) : current, 0, 0); viewer.loadSkin(tex, { model: $("fmtslim").checked ? "slim" : "default" }); } catch (e) {}
+  }
+  const eyeTimer = setInterval(eyeTick, 80);
+  { const clean = window.fmfCleanup; window.fmfCleanup = () => { clearInterval(eyeTimer); clean(); }; }
+  $("play3d").addEventListener("click", () => {
+    paused3d = !paused3d; applyPause();
+    $("play3d").textContent = paused3d ? "Play" : "Pause"; $("play3d").setAttribute("aria-pressed", paused3d ? "true" : "false");
+  });
+  $("anim").addEventListener("change", () => { setAnim(); applyPause(); });
+  $("spin").addEventListener("change", () => { if (viewer) viewer.autoRotate = $("spin").checked; applyPause(); });
   $("zoom").addEventListener("input", () => { if (viewer) viewer.zoom = Number($("zoom").value); });
 
   // ---- colour picker card (replaces the browser's own colour dialog) ----

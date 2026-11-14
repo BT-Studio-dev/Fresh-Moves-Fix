@@ -345,6 +345,8 @@ write("editor/index.html", page({
           <option value="look">Look around</option>
           <option value="tpose">T-pose</option>
         </select></label>
+        <button type="button" class="btn ghost" id="play3d" aria-pressed="false" title="Stop or start the movement">Pause</button>
+        <label title="The eyes blink and look left and right, like the pack does in the game"><input type="checkbox" id="eyes3d" checked> Eyes blink and move</label>
         <label><input type="checkbox" id="spin"> Spin</label>
         <label title="Shows the second skin layer (hat, jacket, sleeves) as little 3D blocks, like the 3D Skin Layers mod"><input type="checkbox" id="layers3d"> 3D skin layers</label>
         <label>Zoom <input type="range" id="zoom" min="0.6" max="2.4" step="0.05" value="0.9"></label>
