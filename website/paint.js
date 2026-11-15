@@ -100,6 +100,14 @@
         }
       }
     }
+    if (cape && !fly) { // cape on the back: a sheet of 10 x 16 pixels hanging from the shoulders
+      const xr = 0.12 + (sneak ? 0.5 : 0) + (walk ? 0.3 + Math.sin(phase * 2) * 0.06 : 0), c = Math.cos(xr), sn = Math.sin(xr);
+      const P = (i, j) => cam(5 - i, 8 - j * c, -2.4 - j * sn);
+      for (let j = 0; j < 16; j++) for (let i = 0; i < 10; i++) {
+        const a = P(i, j), b = P(i + 1, j), d = P(i + 1, j + 1), e = P(i, j + 1), o = (j * 10 + i) * 3;
+        quads.push([(a[2] + b[2] + d[2] + e[2]) / 4 - 0.01, a, b, d, e, "rgb(" + Math.round(cape[o] * 0.92) + "," + Math.round(cape[o + 1] * 0.92) + "," + Math.round(cape[o + 2] * 0.92) + ")"]);
+      }
+    }
     if (fly) { // elytra wings, spread open (plain grey, they are not part of the skin file)
       const flap = walk ? Math.sin(phase * 0.6) * 0.12 : 0, zr = 1.15 + flap, xr = 0.3, zc = Math.cos(zr), zs = Math.sin(zr), xc = Math.cos(xr), xs = Math.sin(xr);
       const wd = (t) => 10 * (1 - 0.6 * Math.pow(t, 1.6));
@@ -373,6 +381,47 @@
   document.querySelectorAll("input[name=player]").forEach((r) => r.addEventListener("change", () => { if (r.checked) { target = Number(r.value); if (target === 1 && !showOuter) { showOuter = true; $("pshow").checked = true; } dirty = true; } }));
   $("pshow").addEventListener("change", (e) => { showOuter = e.target.checked; if (!showOuter && target === 1) { target = 0; document.querySelector("input[name=player][value='0']").checked = true; } dirty = true; });
   document.querySelectorAll("#pparts input").forEach((c) => c.addEventListener("change", () => { hidden[c.value] = !c.checked; dirty = true; }));
+  // ---------- capes: own simple designs drawn by code, or your own cape file ----------
+  const CAPES = {
+    red: (i, j) => j < 3 ? (i % 3 === 1 ? [240, 200, 60] : [40, 44, 60]) : [200 - j * 4, 36, 40],
+    leaf: (i, j) => j < 5 + ((i * 7) % 3) ? [60, 150 + ((i + j) % 2) * 20, 60] : [110 - ((i + j) % 2) * 12, 78, 50],
+    blossom: (i, j) => (i * 5 + j * 3) % 7 === 0 ? [255, 235, 245] : [240, 150 + ((i + j) % 2) * 14, 200],
+    ice: (i, j) => Math.abs(i - 4.5) < 2 && Math.abs(j - 7.5) < 3.2 ? [255, 250, 250] : [150 + j * 3, 215, 235],
+    sunset: (i, j) => [250 - j * 6, 120 + j * 2, 70 + j * 9],
+    checker: (i, j) => ((i >> 1) + (j >> 1)) % 2 ? [30, 30, 36] : [235, 235, 240],
+    night: (i, j) => (i * 13 + j * 7) % 11 === 0 ? [255, 255, 200] : [24, 28 + j, 70 + j * 3],
+    star: (i, j) => { const x = Math.abs(i - 4.5), y = Math.abs(j - 7.5); return x + y < 3.6 || (x < 0.6 && y < 5.5) || (y < 0.6 && x < 4.6) ? [250, 205, 60] : [70, 40, 130]; },
+    green: (i, j) => i === 0 || i === 9 || j === 0 || j === 15 ? [40, 110, 70] : [90, 230 - ((i + j) % 2) * 22, 150],
+  };
+  let cape = null; // 10 x 16 colours, or null = no cape
+  function capeFile() { // the cape as a normal 64 x 32 cape picture
+    const c = document.createElement("canvas"); c.width = 64; c.height = 32; const x = c.getContext("2d");
+    const edge = "rgb(" + Math.round(cape[0] * 0.7) + "," + Math.round(cape[1] * 0.7) + "," + Math.round(cape[2] * 0.7) + ")";
+    x.fillStyle = edge; x.fillRect(0, 0, 22, 17);
+    for (let j = 0; j < 16; j++) for (let i = 0; i < 10; i++) { const o = (j * 10 + i) * 3; x.fillStyle = "rgb(" + cape[o] + "," + cape[o + 1] + "," + cape[o + 2] + ")"; x.fillRect(1 + i, 1 + j, 1, 1); x.fillRect(12 + (9 - i), 1 + j, 1, 1); }
+    return c;
+  }
+  (function () {
+    const sel = $("pcape"), up = $("pcapefile"), dl = $("pcapesave"); if (!sel) return;
+    const sync = () => { if (dl) dl.disabled = !cape; dirty = true; };
+    sel.addEventListener("change", () => {
+      const v = sel.value;
+      if (v === "file") { if (up) up.click(); return; }
+      const f = CAPES[v]; cape = null;
+      if (f) { cape = new Uint8ClampedArray(480); for (let j = 0; j < 16; j++) for (let i = 0; i < 10; i++) { const q = f(i, j), o = (j * 10 + i) * 3; cape[o] = q[0]; cape[o + 1] = q[1]; cape[o + 2] = q[2]; } }
+      sync();
+    });
+    if (up) up.addEventListener("change", () => { const f = up.files && up.files[0]; if (!f) return;
+      const r = new FileReader(); r.onload = () => { const im = new Image(); im.onload = () => {
+        if (im.width < 22 || im.height < 17 || im.width !== im.height * 2) { say("This picture is " + im.width + " x " + im.height + ". A cape file is 64 x 32 pixels (twice as wide as high).", true); return; }
+        const c = document.createElement("canvas"); c.width = 64; c.height = 32; const x = c.getContext("2d"); x.imageSmoothingEnabled = false; x.drawImage(im, 0, 0, 64, 32);
+        const d = x.getImageData(1, 1, 10, 16).data; cape = new Uint8ClampedArray(480);
+        for (let n = 0; n < 160; n++) { cape[n * 3] = d[n * 4]; cape[n * 3 + 1] = d[n * 4 + 1]; cape[n * 3 + 2] = d[n * 4 + 2]; }
+        say("Cape loaded: " + f.name); sync();
+      }; im.onerror = () => say("This file is not a picture.", true); im.src = r.result; }; r.readAsDataURL(f); up.value = ""; });
+    if (dl) dl.addEventListener("click", () => { if (!cape) return; capeFile().toBlob((b) => { const a = document.createElement("a"), u = URL.createObjectURL(b); a.href = u; a.download = "cape.png"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 3000); say("Saved as cape.png."); }, "image/png"); });
+    sync();
+  })();
   (function () { // small icon bar under the 3D model
     const press = (id, yes, tip) => { const b = $(id); if (b) { b.classList.toggle("on", yes); b.setAttribute("aria-pressed", yes ? "true" : "false"); b.dataset.tip = tip; b.setAttribute("aria-label", tip); } };
     const sync = () => { press("pbsneak", sneak, sneak ? "Stand up" : "Sneak"); press("pblayer", showOuter, showOuter ? "Hide outer layer" : "Show outer layer"); press("pbfly", fly, fly ? "Stop Flying" : "Start Flying"); press("pbplay", walk, walk ? "Pause" : "Play"); };
