@@ -215,13 +215,26 @@
       for (let k = 0; k < 4; k++) put(56 + k, 0, lc);
       for (const x of [56, 59]) { put(x, 1, lc); put(x, 2, lc); }
     }
+    // ---- mouth (lips area): painted on the first layer in the row under the eyes; it does not move in the game
+    const mouth = $("mouth").value;
+    if (mouth !== "keep") {
+      const low = Math.max(...c.face.map((f) => f[1])), row = low < 5 ? 6 : low + 1; // face rows 0..7
+      if (row <= 7) {
+        const mc = rgb($("mouthcol").value), bc = rgb($("browcol").value), skin = colour.lid;
+        for (let r = row; r <= 7; r++) for (let col = 2; col <= 5; col++) put(8 + col, 8 + r, skin); // clear the old mouth and beard
+        const cols = mouth === "wide" ? [2, 3, 4, 5] : mouth === "none" ? [] : [3, 4];
+        for (const col of cols) put(8 + col, 8 + row, mc);
+        if (mouth === "beard") { put(8 + 2, 8 + row, bc); put(8 + 5, 8 + row, bc); if (row < 7) for (let col = 2; col <= 5; col++) put(8 + col, 8 + row + 1, bc); }
+      }
+    }
     return { out, c };
   }
   const lashOk = () => $("type").value === "2x2" && $("pos").value === "bottom";
   function syncExtras() { // show only the controls that do something
     const ok = lashOk(); $("lash").disabled = !ok; $("lashwrap").style.opacity = ok ? "" : ".5";
     $("lashcolwrap").style.display = ok && $("lash").checked ? "" : "none";
-    const b = $("brow").value; $("browwrap").style.display = b === "keep" || b === "none" ? "none" : "";
+    const b = $("brow").value, m = $("mouth").value; $("browwrap").style.display = (b === "keep" || b === "none") && m !== "beard" ? "none" : "";
+    $("mouthwrap").style.display = m === "keep" || m === "none" ? "none" : "";
   }
 
   function draw(canvas, data, sx, sy, sw, sh, mark) {
@@ -617,7 +630,7 @@
   $("type").value = "2x1";
   fillPositions();
   $("type").addEventListener("change", () => { fillPositions(); syncMenus(); pickDefaults(); render(); });
-  ["type", "pos", "anim", "brow"].forEach((id) => enhance($(id)));
+  ["type", "pos", "anim", "brow", "mouth"].forEach((id) => enhance($(id)));
   function eyePreset(type, pos, brow, lash) { // "Boy eyes" / "Girl eyes"
     $("type").value = type; fillPositions(); $("pos").value = pos;
     $("brow").value = brow; $("lash").checked = lash; $("custom").checked = true;
@@ -625,6 +638,7 @@
   }
   $("eyeboy").addEventListener("click", () => eyePreset("2x1", "upper", "f3", false));
   $("eyegirl").addEventListener("click", () => eyePreset("2x2", "bottom", "none", true));
+  $("mouth").addEventListener("change", () => { const m = $("mouth").value; if (m === "boy") $("mouthcol").value = "#c4826a"; else if (m === "girl") $("mouthcol").value = "#efbbb1"; else if (m === "beard") $("mouthcol").value = "#a9604f"; syncSwatches(); render(); });
   $("brow").addEventListener("change", render); $("lash").addEventListener("input", render);
   $("pos").addEventListener("change", () => { pickDefaults(); render(); });
   $("custom").addEventListener("input", render);
