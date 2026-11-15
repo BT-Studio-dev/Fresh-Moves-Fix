@@ -100,12 +100,22 @@
         }
       }
     }
-    if (cape && !fly) { // cape on the back: a sheet of 10 x 16 pixels hanging from the shoulders
-      const xr = 0.12 + (sneak ? 0.5 : 0) + (walk ? 0.3 + Math.sin(phase * 2) * 0.06 : 0), c = Math.cos(xr), sn = Math.sin(xr);
-      const P = (i, j) => cam(5 - i, 8 - j * c, -2.4 - j * sn);
-      for (let j = 0; j < 16; j++) for (let i = 0; i < 10; i++) {
-        const a = P(i, j), b = P(i + 1, j), d = P(i + 1, j + 1), e = P(i, j + 1), o = (j * 10 + i) * 3;
-        quads.push([(a[2] + b[2] + d[2] + e[2]) / 4 - 0.01, a, b, d, e, "rgb(" + Math.round(cape[o] * 0.92) + "," + Math.round(cape[o + 1] * 0.92) + "," + Math.round(cape[o + 2] * 0.92) + ")"]);
+    if (cape && !fly) { // cape like in Minecraft: a 10 x 16 x 1 box, hinged at the shoulders, hanging away from the back
+      const xr = 0.11 + (sneak ? 0.55 : 0) + (walk ? 0.32 + Math.sin(phase * 2) * 0.07 : 0), c = Math.cos(xr), sn = Math.sin(xr);
+      const P = (x, j, t) => cam(x, 8 - j * c + t * sn, -2.02 - j * sn - t * c); // t: 0 = side towards the body, 1 = outside
+      const bias = (cam(0, 8, -10)[2] - cam(0, 8, 0)[2]) * 0.3; // seen from behind the cape is in front of the body, from the front it is behind
+      const add = (a, b2, d, e, o, k) => quads.push([(a[2] + b2[2] + d[2] + e[2]) / 4 + bias, a, b2, d, e, "rgb(" + Math.round(cape[o] * k) + "," + Math.round(cape[o + 1] * k) + "," + Math.round(cape[o + 2] * k) + ")"]);
+      for (let j = 0; j < 16; j++) {
+        for (let i = 0; i < 10; i++) { const o = (j * 10 + i) * 3;
+          add(P(5 - i, j, 1), P(4 - i, j, 1), P(4 - i, j + 1, 1), P(5 - i, j + 1, 1), o, 0.95); // outside
+          add(P(5 - i, j, 0), P(4 - i, j, 0), P(4 - i, j + 1, 0), P(5 - i, j + 1, 0), o, 0.55); // inside
+        }
+        add(P(5, j, 0), P(5, j, 1), P(5, j + 1, 1), P(5, j + 1, 0), j * 30, 0.7); // the two thin sides
+        add(P(-5, j, 0), P(-5, j, 1), P(-5, j + 1, 1), P(-5, j + 1, 0), (j * 10 + 9) * 3, 0.7);
+      }
+      for (let i = 0; i < 10; i++) { // top and bottom edge
+        add(P(5 - i, 0, 0), P(4 - i, 0, 0), P(4 - i, 0, 1), P(5 - i, 0, 1), i * 3, 0.8);
+        add(P(5 - i, 16, 0), P(4 - i, 16, 0), P(4 - i, 16, 1), P(5 - i, 16, 1), (150 + i) * 3, 0.6);
       }
     }
     if (fly) { // elytra wings, spread open (plain grey, they are not part of the skin file)
