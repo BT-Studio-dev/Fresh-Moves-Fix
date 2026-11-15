@@ -10,7 +10,7 @@ Resource pack builds of Fresh Moves Fix, a fork of [Fresh Moves](https://github.
 
 These builds have not been tested in-game. On Minecraft 1.21.5 and newer the cape and elytra animations may not work correctly.
 
-**New in 3.1-fix5:** a sit emote. Stand still, sneak and look straight down, and the player sits on the ground. Not tested in-game.
+**New in 3.1-fix5:** six more emotes. Stand still, look straight up and tap sneak: 1 wave, 2 cheer, 3 clap, 4 dab, 5 dance, 6 jumping jacks, 7 T-pose. Look away or walk to stop. Also a sit emote. Stand still, sneak and look straight down, and the player sits on the ground. Not tested in-game.
 
 **New in 3.1-fix4:** an "Eyes only" pack (`Fresh-Moves-Fix-Eyes-Only.zip`): blinking and moving eyes, eyebrows and eyelashes, without the body animations and without the wave emote. Not tested in-game. The normal pack files are unchanged.
 
