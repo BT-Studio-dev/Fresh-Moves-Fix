@@ -22,7 +22,13 @@ INSTALL
 2. Put this zip (do not unzip it) in the "resourcepacks" folder.
 3. In Minecraft: Options > Resource Packs, move the pack to the right, Done.
 
-WAVE EMOTE
-Stand still, sneak and look straight up: the right arm waves.
+EMOTES
+Stand still and look straight up. Every tap on sneak is the next emote:
+1 wave, 2 cheer, 3 clap, 4 dab, 5 dance, 6 jumping jacks, 7 T-pose.
+Look away or walk to stop.
+
+SIT EMOTE
+Stand still, sneak and look straight down: the player sits on the ground.
+Look up again or let go of sneak to stand up.
 
 Based on Fresh Moves by IthanMendoza (CC0).

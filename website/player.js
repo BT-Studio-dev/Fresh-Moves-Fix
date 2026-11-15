@@ -3,12 +3,12 @@
 (function () {
   // ---- emotes: one description for both 3D viewers. t = seconds; each part gets [turn x, turn y, turn z]; lift moves the whole player up ----
   const EMOTES = {
-    cheer: (t) => ({ ra: [0, 0, -2.6 + Math.sin(t * 8) * 0.2], la: [0, 0, 2.6 - Math.sin(t * 8) * 0.2], head: [-0.25, 0, 0], lift: Math.abs(Math.sin(t * 4)) * 2 }),
+    cheer: (t) => { const w = Math.sin(t * 8) * 0.18; return { ra: [0.15, 0, -2.7 + w], la: [0.15, 0, 2.7 - w], head: [-0.3, 0, 0], rl: [0, 0, -0.07], ll: [0, 0, 0.07], lift: Math.abs(Math.sin(t * 4)) * 2 }; },
     jacks: (t) => { const p = (1 - Math.cos(t * 6)) / 2; return { ra: [0, 0, -p * 2.7], la: [0, 0, p * 2.7], rl: [0, 0, -p * 0.4], ll: [0, 0, p * 0.4], lift: Math.sin(Math.min(1, p * 1.2) * Math.PI) * 1.5 }; },
-    clap: (t) => { const c = 0.32 + Math.max(0, Math.sin(t * 11)) * 0.3; return { ra: [-1.35, 0, c], la: [-1.35, 0, -c], head: [0.12, 0, 0] }; },
-    dance: (t) => { const w = Math.sin(t * 6); return { ra: [-2.7 + w * 0.5, 0, -0.25], la: [-2.7 - w * 0.5, 0, 0.25], rl: [w * 0.45, 0, 0], ll: [-w * 0.45, 0, 0], head: [0, 0, w * 0.18], lift: Math.abs(w) * 1.2 }; },
-    dab: (t) => { const b = Math.sin(t * 3) * 0.04; return { head: [0.45, 0.35, 0], ra: [0, 0, -2.05 + b], la: [-1.75, -0.2, -0.95 + b], rl: [0, 0, -0.08], ll: [0, 0, 0.08] }; },
-    sit: (t) => { const b = Math.sin(t * 1.6) * 0.03; return { rl: [-1.45, 0.12, 0], ll: [-1.45, -0.12, 0], ra: [-0.55 + b, 0, -0.08], la: [-0.55 - b, 0, 0.08], lift: -10 }; },
+    clap: (t) => { const k = Math.max(0, Math.sin(t * 11)), c = 0.42 - k * 0.24; return { ra: [-1.15, 0, c], la: [-1.15, 0, -c], head: [0.1 + k * 0.05, 0, 0] }; },
+    dance: (t) => { const w = Math.sin(t * 6), u = Math.max(0, w), v = Math.max(0, -w); return { ra: [-1.3 - w * 0.9, 0, -0.35], la: [-1.3 + w * 0.9, 0, 0.35], rl: [-u * 0.5, 0, -0.08 - u * 0.12], ll: [-v * 0.5, 0, 0.08 + v * 0.12], head: [0, w * 0.3, w * 0.12], body: [0, w * 0.12, 0], lift: Math.abs(w) * 1.2 }; },
+    dab: (t) => { const b = Math.sin(t * 3) * 0.04; return { head: [0.5, -0.45, 0], ra: [0.1, 0, -2.1 + b], la: [-1.9, 0, -0.6 + b], rl: [0, 0, -0.12], ll: [0, 0, 0.12] }; },
+    sit: (t) => { const b = Math.sin(t * 1.6) * 0.03; return { rl: [-1.45, 0.14, 0], ll: [-1.45, -0.14, 0], ra: [-0.8 + b, 0, 0.12], la: [-0.8 - b, 0, -0.12], head: [b, 0, 0], lift: -10 }; },
     look: (t) => ({ head: [Math.sin(t * 0.9) * 0.25, Math.sin(t * 1.5) * 0.9, 0], ra: [0, 0, -0.05], la: [0, 0, 0.05] }),
     tpose: () => ({ ra: [0, 0, -Math.PI / 2], la: [0, 0, Math.PI / 2] }),
   };

@@ -974,7 +974,8 @@ write("index.html", page({
     <a class="card feat" href="#download"><h3>${ICON.run} Player animations</h3><p>Reworked walking, sprinting, sneaking, swimming, crawling and sleeping, in the style of Fresh Animations.</p><span class="more">Download ${ICON.right}</span></a>
     <a class="card feat" href="guides/"><h3>${ICON.eye} Animated eyes</h3><p>Eyes blink and look around when your skin has the marker pixels described in the guides.</p><span class="more">Eye guides ${ICON.right}</span></a>
     <a class="card feat" rel="noopener" href="${REPO}#changes-from-the-original-pack"><h3>${ICON.wrench} Changes in this fork</h3><p>Eyes stay closed while sleeping and after death, and the second skin layer no longer moves twice on 1.21.2+.</p><span class="more">Changes ${ICON.ext}</span></a>
-    <a class="card feat" href="editor/"><h3>${ICON.hand} Wave emote</h3><p>Stand still, sneak and look straight up, and your right arm waves.</p><span class="more">3D preview ${ICON.right}</span></a>
+    <a class="card feat" href="editor/"><h3>${ICON.hand} Seven emotes</h3><p>Stand still, look straight up and tap sneak. Each tap is the next emote: wave, cheer, clap, dab, dance, jumping jacks, T-pose. Look away or walk to stop. All but the wave are new in 3.1-fix5 and not tested in the game.</p><span class="more">3D preview ${ICON.right}</span></a>
+    <a class="card feat" href="editor/"><h3>${ICON.hand} Sit emote</h3><p>Stand still, sneak and look straight down, and you sit on the ground. New in 3.1-fix5, not tested in the game.</p><span class="more">3D preview ${ICON.right}</span></a>
   </div>
 </section>
 <section>
@@ -1024,7 +1025,7 @@ write("index.html", page({
   <h2>${ICON.down} Download</h2>
   <p><a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">${ICON.down} Fresh-Moves-Fix.zip - all versions</a>
     <a class="btn ghost" href="${dl("Fresh-Moves-Fix-Eyes-Only.zip")}">${ICON.down} Eyes only - all versions</a></p>
-  <p><strong>Eyes only</strong> is the same pack without the body animations: the eyes blink and look around, and walking, running and the arms stay as in normal Minecraft. It has no wave emote. Use one of the two packs, not both. New and not tested in the game.</p>
+  <p><strong>Eyes only</strong> is the same pack without the body animations: the eyes blink and look around, and walking, running and the arms stay as in normal Minecraft. It has no emotes. Use one of the two packs, not both. New and not tested in the game.</p>
   <p class="reltime" id="reltime"${releaseTime ? "" : " hidden"}>${ICON.tag} <span>Release <b>v${version}</b> · updated <time datetime="${releaseTime}">${releaseTime ? releaseTime.replace("T", " ").replace(/:\d\dZ$/, " UTC") : ""}</time></span></p>
   <script>(function(){
     var p=document.getElementById("reltime"); if(!p) return; var t=p.querySelector("time");
