@@ -47,7 +47,7 @@
   function draw3d() {
     const W = cv3.width, H = cv3.height; g3.clearRect(0, 0, W, H);
     const sc = (H / 46) * zoom, cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch), A = POSES[pose] || POSES.stand;
-    const quads = []; picks = [];
+    const quads = [], over = []; picks = []; capeBox = null;
     const sw = walk && !fly ? Math.sin(phase) * (sneak ? 0.45 : 0.7) : 0, SW = { ra: sw, la: -sw, rl: -sw, ll: sw }, OFF = {};
     let tilt = 0;
     if (fly) { tilt = 1.0; SW.head = -0.75; } // flying: the whole body lies forward, the head looks ahead
@@ -104,7 +104,9 @@
       const xr = 0.11 + (sneak ? 0.55 : 0) + (walk ? 0.32 + Math.sin(phase * 2) * 0.07 : 0), c = Math.cos(xr), sn = Math.sin(xr);
       const P = (x, j, t) => cam(x, 8 - j * c + t * sn, -2.02 - j * sn - t * c); // t: 0 = side towards the body, 1 = outside
       const bias = (cam(0, 8, -10)[2] - cam(0, 8, 0)[2]) * 0.3; // seen from behind the cape is in front of the body, from the front it is behind
-      const add = (a, b2, d, e, o, k) => quads.push([(a[2] + b2[2] + d[2] + e[2]) / 4 + bias, a, b2, d, e, "rgb(" + Math.round(cape[o] * k) + "," + Math.round(cape[o + 1] * k) + "," + Math.round(cape[o + 2] * k) + ")"]);
+      const front = bias > 1.5, list = front ? over : quads; // seen from behind: drawn last, over the body and over the pixel grid
+      if (front) capeBox = [P(5, 0, 1), P(-5, 0, 1), P(-5, 16, 1), P(5, 16, 1)];
+      const add = (a, b2, d, e, o, k) => list.push([(a[2] + b2[2] + d[2] + e[2]) / 4 + bias, a, b2, d, e, "rgb(" + Math.round(cape[o] * k) + "," + Math.round(cape[o + 1] * k) + "," + Math.round(cape[o + 2] * k) + ")"]);
       for (let j = 0; j < 16; j++) {
         for (let i = 0; i < 10; i++) { const o = (j * 10 + i) * 3;
           add(P(5 - i, j, 1), P(4 - i, j, 1), P(4 - i, j + 1, 1), P(5 - i, j + 1, 1), o, 0.95); // outside
@@ -131,11 +133,12 @@
     }
     quads.sort((p, q) => p[0] - q[0]);
     g3.lineJoin = "round"; g3.lineWidth = 0.7;
-    for (const q of quads) {
+    const paintQuads = (L) => { g3.lineWidth = 0.7; for (const q of L) {
       g3.fillStyle = g3.strokeStyle = q[5];
       g3.beginPath(); g3.moveTo(q[1][0], q[1][1]); g3.lineTo(q[2][0], q[2][1]); g3.lineTo(q[3][0], q[3][1]); g3.lineTo(q[4][0], q[4][1]); g3.closePath();
       g3.fill(); g3.stroke();
-    }
+    } };
+    paintQuads(quads);
     picks.sort((p, q) => q[0] - p[0]); // nearest first
     if (hover && grid) { const L = locate(hover[0], hover[1]);
       if (L) { const r = L[4]; g3.lineWidth = 1; g3.strokeStyle = "rgba(255,255,255,.28)"; g3.beginPath();
@@ -146,9 +149,13 @@
       g3.lineWidth = 1; g3.strokeStyle = "#000"; g3.stroke();
       break;
     }
+    if (over.length) { over.sort((p, q) => p[0] - q[0]); paintQuads(over); }
   }
   const side = (p, a, b) => (b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0]);
+  let capeBox = null; // the cape's outline on the screen while it covers the back
   function pick(p) { // which skin pixel is under this point of the 3D picture
+    if (capeBox) { const c = capeBox, t = [side(p, c[0], c[1]), side(p, c[1], c[2]), side(p, c[2], c[3]), side(p, c[3], c[0])];
+      if (t.every((v) => v >= 0) || t.every((v) => v <= 0)) return null; } // the cape is in the way: nothing to paint here
     for (const q of picks) {
       const s1 = side(p, q[1], q[2]), s2 = side(p, q[2], q[3]), s3 = side(p, q[3], q[4]), s4 = side(p, q[4], q[1]);
       if ((s1 >= 0 && s2 >= 0 && s3 >= 0 && s4 >= 0) || (s1 <= 0 && s2 <= 0 && s3 <= 0 && s4 <= 0)) return [q[5], q[6]];
@@ -401,6 +408,9 @@
     checker: (i, j) => ((i >> 1) + (j >> 1)) % 2 ? [30, 30, 36] : [235, 235, 240],
     night: (i, j) => (i * 13 + j * 7) % 11 === 0 ? [255, 255, 200] : [24, 28 + j, 70 + j * 3],
     star: (i, j) => { const x = Math.abs(i - 4.5), y = Math.abs(j - 7.5); return x + y < 3.6 || (x < 0.6 && y < 5.5) || (y < 0.6 && x < 4.6) ? [250, 205, 60] : [70, 40, 130]; },
+    gem: (i, j) => { const x = Math.abs(i - 4.5), y = Math.abs(j - 8); if (j < 2) return i === 2 || i === 7 ? [245, 205, 70] : [30, 60, 110]; if (x + y * 0.7 < 2.2) return [200, 250, 255]; if (x + y * 0.7 < 3.6) return [70, 210, 230]; if (x < 4 && y < 6 && (x > 3 || y > 5)) return [245, 205, 70]; return [40, 95 + j * 2, 170]; },
+    flowers: (i, j) => { const a = (i + (j >> 2) * 3) % 5, b2 = j % 4; if (a === 1 && b2 === 1) return [255, 225, 90]; if ((a === 1 && (b2 === 0 || b2 === 2)) || (b2 === 1 && (a === 0 || a === 2))) return [255, 250, 252]; return [236, 130 + j * 3, 180]; },
+    smile: (i, j) => { if (j < 2) return [50, 120, 60]; const eye = (j === 5 || j === 6) && (i === 2 || i === 3 || i === 6 || i === 7), mouth = (j === 10 && i >= 3 && i <= 6) || (j === 9 && (i === 2 || i === 7)); return eye || mouth ? [20, 50, 25] : ((i >> 1) + (j >> 1)) % 2 ? [110, 205, 95] : [130, 225, 110]; },
     green: (i, j) => i === 0 || i === 9 || j === 0 || j === 15 ? [40, 110, 70] : [90, 230 - ((i + j) % 2) * 22, 150],
   };
   let cape = null; // 10 x 16 colours, or null = no cape
@@ -417,7 +427,11 @@
     sel.addEventListener("change", () => {
       const v = sel.value;
       if (v === "file") { if (up) up.click(); return; }
-      const f = CAPES[v]; cape = null;
+      const f0 = CAPES[v]; cape = null;
+      const f = f0 && ((i, j) => { // every cape gets the same finish: darker border, a little grain, shading towards the bottom
+        let q = f0(i, j).slice(); const edge = i === 0 || i === 9 || j === 15, grain = ((i * 7 + j * 13) % 5 - 2) * 3, k = (edge ? 0.72 : 1) * (1 - j * 0.012);
+        return q.map((c) => Math.max(0, Math.min(255, Math.round((c + grain) * k))));
+      });
       if (f) { cape = new Uint8ClampedArray(480); for (let j = 0; j < 16; j++) for (let i = 0; i < 10; i++) { const q = f(i, j), o = (j * 10 + i) * 3; cape[o] = q[0]; cape[o + 1] = q[1]; cape[o + 2] = q[2]; } }
       sync();
     });
