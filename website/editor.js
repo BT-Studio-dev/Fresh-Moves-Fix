@@ -219,6 +219,9 @@
     const mouth = $("mouth").value;
     if (mouth !== "keep") {
       const low = Math.max(...c.face.map((f) => f[1])), row = low < 5 ? 6 : low + 1; // face rows 0..7
+      // marker for the pack (3.1-fix6): two pixels at (60,32) give the colour of the open mouth; the pack only knows the mouth in face row 7
+      for (const x of [60, 61]) { const i = idx(x, 32); d[i] = d[i + 1] = d[i + 2] = d[i + 3] = 0; }
+      if (row === 6 && mouth !== "none") { put(60, 32, [74, 26, 26]); put(61, 32, [74, 26, 26]); }
       if (row <= 7) {
         const mc = rgb($("mouthcol").value), bc = rgb($("browcol").value), skin = colour.lid;
         for (let r = row; r <= 7; r++) for (let col = 2; col <= 5; col++) put(8 + col, 8 + r, skin); // clear the old mouth and beard
