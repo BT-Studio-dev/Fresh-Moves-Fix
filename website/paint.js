@@ -9,6 +9,7 @@
   const sctx = skin.getContext("2d", { willReadFrequently: true });
   let px = new Uint8ClampedArray(64 * 64 * 4); // the skin pixels being painted
 
+  let alpha = 255; // 255 = solid, lower = see-through (glass)
   let tool = "pen", color = [59, 130, 196], slim = false, target = 0, showOuter = true, pose = "stand";
   let yaw = 0.55, pitch = 0.15, zoom = 0.9, hover = null, dirty = true, dead = false, raf = 0;
   const hidden = {};
@@ -128,7 +129,18 @@
   const hex = (c) => "#" + c.map((n) => (n < 16 ? "0" : "") + n.toString(16)).join("");
   function setColor(c, keep) {
     color = [c[0] | 0, c[1] | 0, c[2] | 0];
-    const h = hex(color); $("pcolor").value = h; if (!keep) $("phex").value = h; $("pnow").style.background = h;
+    const h = hex(color); $("pcolor").value = h; if (!keep) $("phex").value = h; showNow();
+  }
+  function showNow() { // the colour square: see-through colours show the checker behind them
+    const c = "rgba(" + color[0] + "," + color[1] + "," + color[2] + "," + (alpha / 255) + ")";
+    $("pnow").style.background = "linear-gradient(" + c + "," + c + "), repeating-conic-gradient(#8a8a8a 0% 25%, #c4c4c4 0% 50%) 0 0 / 12px 12px";
+  }
+  function setAlpha(a) { // a = 1..255
+    alpha = Math.max(1, Math.min(255, Math.round(a)));
+    const pc = Math.max(1, Math.round(alpha / 2.55)), e = $("palpha"), o = $("palphav");
+    if (e && document.activeElement !== e) e.value = String(pc);
+    if (o) o.textContent = pc + "%";
+    showNow();
   }
   function useTool(t) {
     tool = t;
@@ -138,18 +150,18 @@
     let box = [0, 0, 64, 64];
     for (const r of faceRects()) if (x >= r[0] && y >= r[1] && x < r[0] + r[2] && y < r[1] + r[3]) { box = r; break; }
     if (box.length > 4) { // on the model: the whole side of that body part gets the colour
-      for (let b2 = box[1]; b2 < box[1] + box[3]; b2++) for (let a2 = box[0]; a2 < box[0] + box[2]; a2++) { const o = (b2 * 64 + a2) * 4; px[o] = color[0]; px[o + 1] = color[1]; px[o + 2] = color[2]; px[o + 3] = 255; }
+      for (let b2 = box[1]; b2 < box[1] + box[3]; b2++) for (let a2 = box[0]; a2 < box[0] + box[2]; a2++) { const o = (b2 * 64 + a2) * 4; px[o] = color[0]; px[o + 1] = color[1]; px[o + 2] = color[2]; px[o + 3] = alpha; }
       return true;
     }
     const o0 = (y * 64 + x) * 4, from = [px[o0], px[o0 + 1], px[o0 + 2], px[o0 + 3]];
-    if (from[3] === 255 && from[0] === color[0] && from[1] === color[1] && from[2] === color[2]) return false;
+    if (from[3] === alpha && from[0] === color[0] && from[1] === color[1] && from[2] === color[2]) return false;
     const same = (o) => px[o + 3] === from[3] && (from[3] === 0 || (px[o] === from[0] && px[o + 1] === from[1] && px[o + 2] === from[2]));
     const todo = [[x, y]];
     while (todo.length) {
       const [a, b] = todo.pop();
       if (a < box[0] || b < box[1] || a >= box[0] + box[2] || b >= box[1] + box[3]) continue;
       const o = (b * 64 + a) * 4; if (!same(o)) continue;
-      px[o] = color[0]; px[o + 1] = color[1]; px[o + 2] = color[2]; px[o + 3] = 255;
+      px[o] = color[0]; px[o + 1] = color[1]; px[o + 2] = color[2]; px[o + 3] = alpha;
       todo.push([a + 1, b], [a - 1, b], [a, b + 1], [a, b - 1]);
     }
     return true;
@@ -157,9 +169,9 @@
   function apply(x, y) {
     if (x < 0 || y < 0 || x > 63 || y > 63 || !stroke) return;
     const o = (y * 64 + x) * 4, key = y * 64 + x;
-    if (tool === "pick") { if (px[o + 3]) { setColor([px[o], px[o + 1], px[o + 2]]); remember(); } return; }
+    if (tool === "pick") { if (px[o + 3]) { setColor([px[o], px[o + 1], px[o + 2]]); setAlpha(px[o + 3]); remember(); } return; }
     if (stroke.seen[key]) return; stroke.seen[key] = 1;
-    if (tool === "pen") { px[o] = color[0]; px[o + 1] = color[1]; px[o + 2] = color[2]; px[o + 3] = 255; }
+    if (tool === "pen") { px[o] = color[0]; px[o + 1] = color[1]; px[o + 2] = color[2]; px[o + 3] = alpha; }
     else if (tool === "erase") { px[o] = px[o + 1] = px[o + 2] = px[o + 3] = 0; }
     else if (tool === "fill") { if (!fill(x, y)) return; }
     else if (tool === "light" || tool === "dark") { if (!px[o + 3]) return; const k = tool === "light" ? 16 : -16; px[o] += k; px[o + 1] += k; px[o + 2] += k; }
@@ -279,6 +291,8 @@
   // ---------- buttons ----------
   document.querySelectorAll("#ptools button").forEach((b) => b.addEventListener("click", () => useTool(b.dataset.tool)));
   $("pcolor").addEventListener("input", (e) => setColor(fromHex(e.target.value)));
+  if ($("palpha")) $("palpha").addEventListener("input", (e) => setAlpha((Number(e.target.value) || 100) * 2.55));
+  document.querySelectorAll("[data-palpha]").forEach((b) => b.addEventListener("click", () => { setAlpha(Number(b.dataset.palpha) * 2.55); if (tool === "erase" || tool === "pick") useTool("pen"); }));
   $("phex").addEventListener("input", (e) => { let v = e.target.value.trim(); if (v[0] !== "#") v = "#" + v; if (/^#[0-9a-fA-F]{6}$/.test(v)) setColor(fromHex(v), true); });
   const swatch = (e) => { const c = e.target && e.target.dataset && e.target.dataset.c; if (c) { setColor(fromHex(c)); if (tool === "erase" || tool === "pick") useTool("pen"); } };
   $("ppalette").addEventListener("click", swatch); $("precent").addEventListener("click", swatch);
