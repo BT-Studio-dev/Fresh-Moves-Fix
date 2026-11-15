@@ -311,7 +311,7 @@ write("editor/index.html", page({
 
   </section>
   <section class="panel ecard">
-    <h3 class="ehead"><span class="tool-ic">${ICON.eye}</span><span><b>2. Eyes</b><small>Shape and place of the eyes, eyebrows, eyelashes</small></span></h3>
+    <h3 class="ehead"><span class="tool-ic">${ICON.eye}</span><span><b>2. Eyes</b><small>Shape and place of the eyes, eyebrows, eyelashes, mouth</small></span></h3>
     <p class="elabel">Quick choice</p>
     <p class="row"><button type="button" class="btn ghost" id="eyeboy">Boy eyes</button> <button type="button" class="btn ghost" id="eyegirl">Girl eyes</button></p>
     <p class="ehint">${ICON.info} <span>Boy: small eyes, 2 wide and 1 tall, with eyebrows. Girl: big eyes, 2 wide and 2 tall, with eyelashes. You can still change everything below.</span></p>
@@ -333,12 +333,22 @@ write("editor/index.html", page({
         <option value="h5">On the hat layer, bottom</option>
         <option value="villager">Villager (one long eyebrow)</option>
       </select></label></p>
+    <p><label>Mouth
+      <select id="mouth">
+        <option value="keep">Do not change</option>
+        <option value="boy">Boy mouth (small, brown)</option>
+        <option value="girl">Girl mouth (small, pink)</option>
+        <option value="wide">Wide mouth</option>
+        <option value="beard">Mouth with beard (like Steve)</option>
+        <option value="none">No mouth (plain skin)</option>
+      </select></label></p>
     <label class="pickb wide" id="lashwrap"><input type="checkbox" id="lash"><span><b>Eyelashes</b><small>Only with the eye shape "2 wide, 2 tall" at the position "Bottom".</small></span></label>
     <p class="ehint">${ICON.info} <span>Put the eyebrows on the row just above the eyes. Hat-layer eyebrows and eyelashes are drawn by the pack in the game, so the preview here does not show them. Not tested in-game.</span></p>
+    <p class="ehint">${ICON.info} <span>The mouth is the lips area in the two bottom rows of the face. With pack 3.1-fix6 or newer the mouth opens in the game when you get hurt, cheer or wave (two hidden pixels in the skin file tell the pack; not tested in the game). It is drawn under the eyes; with eyes at the very bottom there is no room and it is left out. The beard uses the eyebrow colour.</span></p>
 
   </section>
   <section class="panel ecard">
-    <h3 class="ehead"><span class="tool-ic">${ICON.brush}</span><span><b>3. Colours</b><small>Eyelid, eyes, eyebrows and eyelashes</small></span></h3>
+    <h3 class="ehead"><span class="tool-ic">${ICON.brush}</span><span><b>3. Colours</b><small>Eyelid, eyes, eyebrows, eyelashes and mouth</small></span></h3>
     <p class="row"><label>Eyelid <input type="hidden" id="lid" value="#9b6349"><button type="button" class="sw" data-for="lid" aria-label="Choose colour"></button></label></p>
     <p class="row">
       <label id="whitewrap">Eye white <input type="hidden" id="white" value="#ffffff"><button type="button" class="sw" data-for="white" aria-label="Choose colour"></button></label>
@@ -346,6 +356,7 @@ write("editor/index.html", page({
     </p>
     <p class="row">
       <label id="browwrap">Eyebrows <input type="hidden" id="browcol" value="#3a2616"><button type="button" class="sw" data-for="browcol" aria-label="Choose colour"></button></label>
+      <label id="mouthwrap">Mouth <input type="hidden" id="mouthcol" value="#c4826a"><button type="button" class="sw" data-for="mouthcol" aria-label="Choose colour"></button></label>
       <label id="lashcolwrap">Eyelashes <input type="hidden" id="lashcol" value="#1c1c1c"><button type="button" class="sw" data-for="lashcol" aria-label="Choose colour"></button></label>
     </p>
     <label class="pickb wide"><input type="checkbox" id="custom" checked><span><b>Draw the eyes on the face</b><small>On: the old eyes are removed and the new ones are drawn in these colours. Off: the face is not changed and the eyes already drawn on your skin are used.</small></span></label>
@@ -983,8 +994,8 @@ write("index.html", page({
   <div class="tools">
     <a class="tool" href="editor/">
       <span class="tool-head"><img class="tool-img" src="icon-skin.png" alt="" width="48" height="48"><span><b>Minecraft Skin</b><small>by Fresh Moves Fix</small></span></span>
-      <span class="tool-text">Add blinking, moving eyes to your skin and see it in 3D.</span>
-      <span class="tags"><i class="g">Minecraft</i><i>Skin</i><i>Eyes</i></span>
+      <span class="tool-text">Add blinking, moving eyes and a mouth to your skin and see it in 3D.</span>
+      <span class="tags"><i class="g">Minecraft</i><i>Skin</i><i>Eyes</i><i>Mouth</i></span>
     </a>
     <a class="tool" href="paint/">
       <span class="tool-head"><img class="tool-img" src="icon-paint.png" alt="" width="48" height="48"><span><b>Skin Painter 3D</b><small>by Fresh Moves Fix</small></span></span>

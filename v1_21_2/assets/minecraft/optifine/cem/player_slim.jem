@@ -153,6 +153,22 @@
 					],
 					"submodels": [
 						{
+							"id": "mouth",
+							"invertAxis": "xy",
+							"translate": [0, 25.5, -4],
+							"boxes": [
+								{
+									"coordinates": [-1, -0.5, -0.15, 2, 1, 0.25],
+									"uvNorth": [60, 32, 62, 33],
+									"uvEast": [60, 32, 61, 33],
+									"uvSouth": [60, 32, 62, 33],
+									"uvWest": [61, 32, 62, 33],
+									"uvUp": [60, 32, 62, 33],
+									"uvDown": [60, 32, 62, 33]
+								}
+							]
+						},
+						{
 							"id": "right_brow",
 							"invertAxis": "xy",
 							"translate": [2, 26.5, -4],
@@ -5437,6 +5453,12 @@
 					"left_eyelid20.sy": " left_eyelid13.sy",
 					"left_eyelid20.sz": " left_eyelid13.sz",
 					"left_eyelid20.tz": " left_eyelid13.tz"
+				},
+				{
+					"var.mouth_to": "if(is_hurt, 1, var.em2 > 0.5, 1, var.emote_wave > 0.5, 0.5 + 0.5*sin(age*0.9), 0)",
+					"var.mouth": "clamp(var.mouth + (var.mouth_to - var.mouth)*0.35, 0, 1)",
+					"mouth.visible": "var.mouth > 0.06",
+					"mouth.sy": "clamp(var.mouth, 0.05, 1)"
 				}
 			]
 		},

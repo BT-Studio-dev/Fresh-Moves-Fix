@@ -24,6 +24,7 @@ On Minecraft 26.1, 26.1.1 and 26.1.2 use EMF 3.3.2 or newer (older versions do n
 - `v1_21_2/` overlay (loaded automatically on Minecraft 1.21.2+): the second skin layer (hat, jacket, sleeves, pants) no longer moves twice (upstream issues #211, #309).
 - `pack.mcmeta` declares the overlay and the `min_format` / `max_format` fields that Minecraft 1.21.9+ expects.
 - Sit emote (new in 3.1-fix5, untested): stand still, sneak and look straight down, and the player sits on the ground. Other players with the pack see it too.
+- Moving mouth (new in 3.1-fix6, untested): skins made with the Mouth option of the eye editor open the mouth when the player is hurt, cheers or waves. Marker: two pixels at x 60-61, y 32 of the skin file, in the colour of the open mouth.
 - More emotes (new in 3.1-fix5, untested): stand still, look straight up and tap sneak: 1 wave, 2 cheer, 3 clap, 4 dab, 5 dance, 6 jumping jacks, 7 T-pose. Look away or walk to stop.
 - Wave emote (new in 3.1-fix2): stand still, sneak and look straight up, and the right arm waves. Other players with the pack see it too.
 - Added example skins `herobrine.png` and `alex_white_eyes.png`.
