@@ -704,3 +704,32 @@ header.top nav { min-width: 0; overflow-x: auto; }
 
 .tol-chips button.sel { background: var(--accent); color: var(--on-accent); border-color: var(--accent); opacity: 1; }
 .tprev #trender { image-rendering: auto; }
+
+/* title maker: wider page, so the cards are not squeezed */
+.wrap.twide { max-width: 1240px; }
+.ed.ted { grid-template-columns: minmax(340px, 440px) minmax(0, 1fr); }
+@media (max-width: 900px) { .ed.ted { grid-template-columns: 1fr; } }
+.ted .ed-col { min-width: 0; }
+.ted .ttabs { flex-wrap: nowrap; overflow-x: auto; }
+.ted .ttabs button { padding: 8px 6px; white-space: nowrap; }
+.paint .tline { flex-wrap: nowrap; align-items: flex-end; gap: 8px; }
+.paint .tline > label:first-child { flex: 1 1 auto; min-width: 0; white-space: nowrap; }
+.paint .tline .ttext { width: 100%; min-width: 0; flex: 1 1 auto; }
+.paint .tline input[type="color"] { flex: none; }
+@media (max-width: 420px) { .paint .tline { flex-wrap: wrap; } }
+
+/* icon bar under the painter's 3D model */
+.paint .pbar { display: flex; gap: 6px; width: max-content; max-width: 100%; margin: 10px auto 4px; padding: 6px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; }
+.paint .pbar button { width: 38px; height: 38px; display: grid; place-items: center; background: none; color: var(--muted); border: 1px solid transparent; border-radius: 8px; cursor: pointer; }
+.paint .pbar button svg { width: 20px; height: 20px; }
+.paint .pbar button:hover:not(:disabled), .paint .pbar button:focus-visible { color: var(--text); border-color: var(--accent); outline: none; }
+.paint .pbar button.on { background: var(--panel); color: var(--accent); border-color: var(--line); }
+.paint .pbar button:disabled { opacity: .4; cursor: default; }
+
+.paint .pbar button { position: relative; }
+.paint .pbar button[data-tip]:hover::after, .paint .pbar button[data-tip]:focus-visible::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); white-space: nowrap; padding: 6px 10px; border-radius: 8px; background: var(--panel); color: var(--text); border: 1px solid var(--line); font-size: 13px; font-weight: 600; pointer-events: none; z-index: 5; }
+.paint .pbar .pb-play, .paint .pbar .pb-pause { display: grid; place-items: center; }
+.paint .pbar button .pb-pause, .paint .pbar button.on .pb-play { display: none; }
+.paint .pbar button.on .pb-pause { display: grid; }
+
+.paint .psize button.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
