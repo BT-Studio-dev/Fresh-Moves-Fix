@@ -11,6 +11,7 @@
 
   let alpha = 255; // 255 = solid, lower = see-through (glass)
   let tool = "pen", color = [59, 130, 196], slim = false, target = 0, showOuter = true, pose = "stand";
+  let walk = false, paused = false, phase = 0, lastT = 0; // walking movement of the 3D model
   let yaw = 0.55, pitch = 0.15, zoom = 0.9, hover = null, dirty = true, dead = false, raf = 0;
   const hidden = {};
   const undo = [], redo = [];
@@ -46,10 +47,13 @@
     const W = cv3.width, H = cv3.height; g3.clearRect(0, 0, W, H);
     const sc = (H / 46) * zoom, cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch), A = POSES[pose] || POSES.stand;
     const quads = []; picks = [];
+    const sw = walk ? Math.sin(phase) * 0.7 : 0, SW = { ra: sw, la: -sw, rl: -sw, ll: sw };
     const pt = (name, x, y, z) => {
       const a = A[name] || 0, pv = PIV[name];
-      let X = x - pv[0], Y = y - pv[1]; const Z = z - pv[2];
+      let X = x - pv[0], Y = y - pv[1], Z = z - pv[2];
       if (a) { const c = Math.cos(a), s = Math.sin(a), x2 = X * c - Y * s; Y = X * s + Y * c; X = x2; }
+      const w = SW[name]; // walking: arms and legs swing forwards and backwards
+      if (w) { const c = Math.cos(w), s = Math.sin(w), y2 = Y * c - Z * s; Z = Y * s + Z * c; Y = y2; }
       X += pv[0]; Y += pv[1] - 16;
       const x3 = X * cy + Z * sy, z3 = -X * sy + Z * cy, y4 = Y * cp - z3 * sp, z4 = Y * sp + z3 * cp, f = 90 / (90 - z4);
       return [W / 2 + x3 * f * sc, H / 2 - y4 * f * sc, z4];
@@ -123,7 +127,9 @@
     }
     if (hover) { g2.strokeStyle = "#fff"; g2.lineWidth = 2; g2.strokeRect(hover[0] * S, hover[1] * S, S, S); g2.strokeStyle = "#000"; g2.lineWidth = 1; g2.strokeRect(hover[0] * S + 0.5, hover[1] * S + 0.5, S - 1, S - 1); }
   }
-  function frame() { if (dead) return; if (dirty) { dirty = false; try { draw3d(); draw2d(); } catch (e) {} } raf = requestAnimationFrame(frame); }
+  function frame() { if (dead) return;
+    if (walk && !paused) { const now = Date.now(); if (now - lastT >= 50) { phase += Math.min(200, now - lastT) * 0.007; lastT = now; dirty = true; } } // about 20 pictures a second, easy on slow PCs
+    if (dirty) { dirty = false; try { draw3d(); draw2d(); } catch (e) {} } raf = requestAnimationFrame(frame); }
 
   // ---------- painting ----------
   const hex = (c) => "#" + c.map((n) => (n < 16 ? "0" : "") + n.toString(16)).join("");
@@ -311,6 +317,17 @@
   document.querySelectorAll("input[name=player]").forEach((r) => r.addEventListener("change", () => { if (r.checked) { target = Number(r.value); if (target === 1 && !showOuter) { showOuter = true; $("pshow").checked = true; } dirty = true; } }));
   $("pshow").addEventListener("change", (e) => { showOuter = e.target.checked; if (!showOuter && target === 1) { target = 0; document.querySelector("input[name=player][value='0']").checked = true; } dirty = true; });
   document.querySelectorAll("#pparts input").forEach((c) => c.addEventListener("change", () => { hidden[c.value] = !c.checked; dirty = true; }));
+  (function () { // small icon bar under the 3D model
+    const press = (id, yes) => { const b = $(id); if (b) { b.classList.toggle("on", yes); b.setAttribute("aria-pressed", yes ? "true" : "false"); } };
+    const sync = () => { press("pbwalk", walk); press("pblayer", showOuter); press("pbpause", paused); const b = $("pbpause"); if (b) b.disabled = !walk; };
+    if ($("pbwalk")) $("pbwalk").addEventListener("click", () => { walk = !walk; paused = false; phase = 0; lastT = Date.now(); dirty = true; sync(); });
+    if ($("pblayer")) $("pblayer").addEventListener("click", () => { $("pshow").click(); sync(); });
+    if ($("pbback")) $("pbback").addEventListener("click", () => { yaw += Math.PI; dirty = true; });
+    if ($("pbpause")) $("pbpause").addEventListener("click", () => { if (!walk) return; paused = !paused; lastT = Date.now(); sync(); });
+    $("pshow").addEventListener("change", () => setTimeout(sync, 0));
+    document.querySelectorAll("input[name=player]").forEach((r) => r.addEventListener("change", () => setTimeout(sync, 0)));
+    sync();
+  })();
   $("ppose").addEventListener("change", (e) => { pose = e.target.value; dirty = true; });
   $("pzoom").addEventListener("input", (e) => { zoom = Number(e.target.value); dirty = true; });
   document.querySelectorAll("#pviews button").forEach((b) => b.addEventListener("click", () => { const v = b.dataset.v.split(","); yaw = Number(v[0]); pitch = Number(v[1]); dirty = true; }));
