@@ -731,3 +731,5 @@ header.top nav { min-width: 0; overflow-x: auto; }
 .paint .pbar .pb-play, .paint .pbar .pb-pause { display: grid; place-items: center; }
 .paint .pbar button .pb-pause, .paint .pbar button.on .pb-play { display: none; }
 .paint .pbar button.on .pb-pause { display: grid; }
+
+.paint .psize button.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
