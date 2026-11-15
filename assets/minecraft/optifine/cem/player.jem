@@ -5493,7 +5493,10 @@
 					"left_eyelid20.tz": " left_eyelid13.tz"
 				},
 				{
-					"var.mouth_to": "if(is_hurt, 1, var.em2 > 0.5, 1, var.emote_wave > 0.5, 0.5 + 0.5*sin(age*0.9), 0)",
+					"varb.talk_tap": "varb.em_edge && head_pitch > -45 && head_pitch < 45 && age - var.talk_last > 0.5 && age - var.talk_last < 8",
+					"var.talk_last": "if(varb.talk_tap, -100, varb.em_edge, age, var.talk_last)",
+					"var.talk": "if(varb.talk_tap, 1 - var.talk, var.talk)",
+					"var.mouth_to": "if(is_hurt, 1, var.em2 > 0.5, 1, var.emote_wave > 0.5, 0.5 + 0.5*sin(age*0.9), var.talk > 0.5, 0.5 + 0.5*sin(age*1.1)*cos(age*0.23), 0)",
 					"var.mouth": "clamp(var.mouth + (var.mouth_to - var.mouth)*0.35, 0, 1)",
 					"mouth.visible": "var.mouth > 0.06",
 					"mouth.sy": "clamp(var.mouth, 0.05, 1)"

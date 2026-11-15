@@ -27,6 +27,10 @@ Stand still and look straight up. Every tap on sneak is the next emote:
 1 wave, 2 cheer, 3 clap, 4 dab, 5 dance, 6 jumping jacks, 7 T-pose.
 Look away or walk to stop.
 
+TALKING MOUTH (skins with a mouth from the website eye editor)
+Look forward and tap sneak twice quickly: the mouth moves as if talking.
+Double tap again to stop. It does not follow your real voice.
+
 SIT EMOTE
 Stand still, sneak and look straight down: the player sits on the ground.
 Look up again or let go of sneak to stand up.
