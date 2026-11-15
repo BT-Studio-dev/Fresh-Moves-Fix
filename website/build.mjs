@@ -669,7 +669,7 @@ write("paint/index.html", page({
     </div>
     <p class="prow"><label>Cape <select id="pcape"><option value="none">No cape</option><option value="red">Red and gold</option><option value="leaf">Leaf</option><option value="blossom">Blossom</option><option value="ice">Ice</option><option value="sunset">Sunset</option><option value="checker">Checker</option><option value="night">Night sky</option><option value="star">Gold cross</option><option value="green">Fresh green</option><option value="file">Your own cape file...</option></select></label>
       <input type="file" id="pcapefile" accept="image/png" hidden> <button type="button" class="btn ghost" id="pcapesave" disabled>Save cape (.png)</button></p>
-    <p class="ehint">${ICON.info} <span>The cape is only a preview on the model. It is not part of the skin file: in Minecraft a cape belongs to your account, or comes from a mod such as OptiFine.</span></p>
+    <p class="ehint">${ICON.info} <span>The cape is only a preview on the model. It is not part of the skin file: in Minecraft a cape belongs to your account, or comes from a mod such as OptiFine. The official Minecraft capes can be looked at on <a href="https://laby.net/capes" target="_blank" rel="noopener">laby.net/capes</a>.</span></p>
     <p class="prow" id="pparts">Show: <label><input type="checkbox" value="head" checked> Head</label> <label><input type="checkbox" value="body" checked> Body</label> <label><input type="checkbox" value="arms" checked> Arms</label> <label><input type="checkbox" value="legs" checked> Legs</label></p>
   </section>
   <section class="panel ecard">
