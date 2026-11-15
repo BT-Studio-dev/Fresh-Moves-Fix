@@ -725,3 +725,9 @@ header.top nav { min-width: 0; overflow-x: auto; }
 .paint .pbar button:hover:not(:disabled), .paint .pbar button:focus-visible { color: var(--text); border-color: var(--accent); outline: none; }
 .paint .pbar button.on { background: var(--panel); color: var(--accent); border-color: var(--line); }
 .paint .pbar button:disabled { opacity: .4; cursor: default; }
+
+.paint .pbar button { position: relative; }
+.paint .pbar button[data-tip]:hover::after, .paint .pbar button[data-tip]:focus-visible::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); white-space: nowrap; padding: 6px 10px; border-radius: 8px; background: var(--panel); color: var(--text); border: 1px solid var(--line); font-size: 13px; font-weight: 600; pointer-events: none; z-index: 5; }
+.paint .pbar .pb-play, .paint .pbar .pb-pause { display: grid; place-items: center; }
+.paint .pbar button .pb-pause, .paint .pbar button.on .pb-play { display: none; }
+.paint .pbar button.on .pb-pause { display: grid; }

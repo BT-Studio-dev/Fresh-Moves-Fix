@@ -652,10 +652,10 @@ write("paint/index.html", page({
     <h3 class="ehead"><span><b>3D model</b><small>Click the model to paint. Drag next to it (or with the right mouse button) to turn it. Mouse wheel = zoom.</small></span></h3>
     <canvas id="p3d" class="p3d" width="460" height="560"></canvas>
     <div class="pbar" role="group" aria-label="3D model buttons">
-      <button type="button" id="pbwalk" title="Walk" aria-label="Walk" aria-pressed="false">${svg('<circle cx="12" cy="4.5" r="2"/><path d="M12 7v7"/><path d="M12 9l-4 3"/><path d="M12 9l4 3"/><path d="M12 14l-3 6"/><path d="M12 14l3 6"/>')}</button>
-      <button type="button" id="pblayer" title="Outer layer on / off" aria-label="Outer layer on or off" aria-pressed="true">${svg('<rect x="3" y="8" width="13" height="13" rx="2"/><path d="M8 8V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-3"/>')}</button>
-      <button type="button" id="pbback" title="Turn around" aria-label="Turn around">${svg('<path d="M4 12a8 8 0 0 1 14-5"/><path d="M18 3v4h-4"/><path d="M20 12a8 8 0 0 1-14 5"/><path d="M6 21v-4h4"/>')}</button>
-      <button type="button" id="pbpause" title="Pause / play the walking" aria-label="Pause or play the walking" aria-pressed="false" disabled>${svg('<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>')}</button>
+      <button type="button" id="pbsneak" data-tip="Sneak" aria-label="Sneak" aria-pressed="false">${svg('<circle cx="9" cy="5" r="2.2"/><path d="M3 21v-2a5 5 0 0 1 5-5h2a5 5 0 0 1 3 1"/><path d="M18 11v9"/><path d="M14.5 17l3.5 3.5 3.5-3.5"/>')}</button>
+      <button type="button" id="pblayer" data-tip="Hide outer layer" aria-label="Hide outer layer" aria-pressed="true">${svg('<rect x="3" y="8" width="13" height="13" rx="2"/><path d="M8 8V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-3"/>')}</button>
+      <button type="button" id="pbfly" data-tip="Start Flying" aria-label="Start Flying" aria-pressed="false">${svg('<path d="M11 4C7 4 5 7 5 11c0 4 2 7 4 9 1.5-2 2-5 2-8z"/><path d="M13 4c4 0 6 3 6 7 0 4-2 7-4 9-1.5-2-2-5-2-8z"/>')}</button>
+      <button type="button" id="pbplay" data-tip="Play" aria-label="Play" aria-pressed="false"><span class="pb-play">${svg('<path d="M7 4.5v15l12-7.5z"/>')}</span><span class="pb-pause">${svg('<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>')}</span></button>
     </div>
     <div class="row ctl">
       <span id="pviews" class="pviews"><button type="button" data-v="0.55,0.15">Front</button><button type="button" data-v="3.7,0.15">Back</button><button type="button" data-v="1.5708,0">Left</button><button type="button" data-v="-1.5708,0">Right</button><button type="button" data-v="0.4,1.3">Top</button><button type="button" data-v="0.4,-1.3">Bottom</button></span>

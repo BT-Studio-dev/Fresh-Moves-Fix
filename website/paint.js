@@ -11,7 +11,7 @@
 
   let alpha = 255; // 255 = solid, lower = see-through (glass)
   let tool = "pen", color = [59, 130, 196], slim = false, target = 0, showOuter = true, pose = "stand";
-  let walk = false, paused = false, phase = 0, lastT = 0; // walking movement of the 3D model
+  let walk = false, sneak = false, fly = false, phase = 0, lastT = 0; // walking movement of the 3D model
   let yaw = 0.55, pitch = 0.15, zoom = 0.9, hover = null, dirty = true, dead = false, raf = 0;
   const hidden = {};
   const undo = [], redo = [];
@@ -47,16 +47,25 @@
     const W = cv3.width, H = cv3.height; g3.clearRect(0, 0, W, H);
     const sc = (H / 46) * zoom, cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch), A = POSES[pose] || POSES.stand;
     const quads = []; picks = [];
-    const sw = walk ? Math.sin(phase) * 0.7 : 0, SW = { ra: sw, la: -sw, rl: -sw, ll: sw };
+    const sw = walk && !fly ? Math.sin(phase) * (sneak ? 0.45 : 0.7) : 0, SW = { ra: sw, la: -sw, rl: -sw, ll: sw }, OFF = {};
+    let tilt = 0;
+    if (fly) { tilt = 1.0; SW.head = -0.75; } // flying: the whole body lies forward, the head looks ahead
+    else if (sneak) { SW.body = 0.5; SW.ra += 0.4; SW.la += 0.4; OFF.rl = OFF.ll = [1.47, -5.75]; OFF.head = [-1, 0]; } // sneaking: body bent forward, legs set back
+    const tc = Math.cos(tilt), ts = Math.sin(tilt);
+    const cam = (X, Y, Z) => { // whole-body tilt, then the camera
+      if (tilt) { const y2 = Y * tc - Z * ts; Z = Y * ts + Z * tc; Y = y2; }
+      const x3 = X * cy + Z * sy, z3 = -X * sy + Z * cy, y4 = Y * cp - z3 * sp, z4 = Y * sp + z3 * cp, f = 90 / (90 - z4);
+      return [W / 2 + x3 * f * sc, H / 2 - y4 * f * sc, z4];
+    };
     const pt = (name, x, y, z) => {
       const a = A[name] || 0, pv = PIV[name];
       let X = x - pv[0], Y = y - pv[1], Z = z - pv[2];
       if (a) { const c = Math.cos(a), s = Math.sin(a), x2 = X * c - Y * s; Y = X * s + Y * c; X = x2; }
       const w = SW[name]; // walking: arms and legs swing forwards and backwards
       if (w) { const c = Math.cos(w), s = Math.sin(w), y2 = Y * c - Z * s; Z = Y * s + Z * c; Y = y2; }
-      X += pv[0]; Y += pv[1] - 16;
-      const x3 = X * cy + Z * sy, z3 = -X * sy + Z * cy, y4 = Y * cp - z3 * sp, z4 = Y * sp + z3 * cp, f = 90 / (90 - z4);
-      return [W / 2 + x3 * f * sc, H / 2 - y4 * f * sc, z4];
+      X += pv[0]; Y += pv[1] - 16; Z += pv[2];
+      const of = OFF[name]; if (of) { Y += of[0]; Z += of[1]; }
+      return cam(X, Y, Z);
     };
     for (const [name, u, v, w, h, dp, cx, cyy, cz, inf, layer] of parts()) {
       if (hidden[GROUP[name]]) continue;
@@ -87,6 +96,17 @@
           const z = (a[2] + b[2] + c[2] + e[2]) / 4;
           if (front && layer === target) picks.push([z, a, b, c, e, tx, ty]);
           if (px[o + 3]) quads.push([z, a, b, c, e, "rgba(" + Math.round(px[o] * shade) + "," + Math.round(px[o + 1] * shade) + "," + Math.round(px[o + 2] * shade) + "," + (px[o + 3] / 255) + ")"]);
+        }
+      }
+    }
+    if (fly) { // elytra wings, spread open (plain grey, they are not part of the skin file)
+      const flap = walk ? Math.sin(phase * 0.6) * 0.12 : 0, zr = 1.15 + flap, xr = 0.3, zc = Math.cos(zr), zs = Math.sin(zr), xc = Math.cos(xr), xs = Math.sin(xr);
+      const wd = (t) => 10 * (1 - 0.6 * Math.pow(t, 1.6));
+      for (const side of [-1, 1]) {
+        const P = (u, t) => { const x = u * wd(t), y = -20 * t, x1 = x * zc - y * zs, y1 = x * zs + y * zc; return cam(side * (1 + x1), 7.5 + y1 * xc, -2.6 + y1 * xs); };
+        for (let j = 0; j < 8; j++) for (let i = 0; i < 4; i++) {
+          const a = P(i / 4, j / 8), b = P((i + 1) / 4, j / 8), c = P((i + 1) / 4, (j + 1) / 8), e = P(i / 4, (j + 1) / 8), v = 150 - (j % 2) * 18 - i * 7;
+          quads.push([(a[2] + b[2] + c[2] + e[2]) / 4, a, b, c, e, "rgb(" + (v - 10) + "," + v + "," + (v + 10) + ")"]);
         }
       }
     }
@@ -128,7 +148,7 @@
     if (hover) { g2.strokeStyle = "#fff"; g2.lineWidth = 2; g2.strokeRect(hover[0] * S, hover[1] * S, S, S); g2.strokeStyle = "#000"; g2.lineWidth = 1; g2.strokeRect(hover[0] * S + 0.5, hover[1] * S + 0.5, S - 1, S - 1); }
   }
   function frame() { if (dead) return;
-    if (walk && !paused) { const now = Date.now(); if (now - lastT >= 50) { phase += Math.min(200, now - lastT) * 0.007; lastT = now; dirty = true; } } // about 20 pictures a second, easy on slow PCs
+    if (walk) { const now = Date.now(); if (now - lastT >= 50) { phase += Math.min(200, now - lastT) * 0.007; lastT = now; dirty = true; } } // about 20 pictures a second, easy on slow PCs
     if (dirty) { dirty = false; try { draw3d(); draw2d(); } catch (e) {} } raf = requestAnimationFrame(frame); }
 
   // ---------- painting ----------
@@ -318,12 +338,13 @@
   $("pshow").addEventListener("change", (e) => { showOuter = e.target.checked; if (!showOuter && target === 1) { target = 0; document.querySelector("input[name=player][value='0']").checked = true; } dirty = true; });
   document.querySelectorAll("#pparts input").forEach((c) => c.addEventListener("change", () => { hidden[c.value] = !c.checked; dirty = true; }));
   (function () { // small icon bar under the 3D model
-    const press = (id, yes) => { const b = $(id); if (b) { b.classList.toggle("on", yes); b.setAttribute("aria-pressed", yes ? "true" : "false"); } };
-    const sync = () => { press("pbwalk", walk); press("pblayer", showOuter); press("pbpause", paused); const b = $("pbpause"); if (b) b.disabled = !walk; };
-    if ($("pbwalk")) $("pbwalk").addEventListener("click", () => { walk = !walk; paused = false; phase = 0; lastT = Date.now(); dirty = true; sync(); });
-    if ($("pblayer")) $("pblayer").addEventListener("click", () => { $("pshow").click(); sync(); });
-    if ($("pbback")) $("pbback").addEventListener("click", () => { yaw += Math.PI; dirty = true; });
-    if ($("pbpause")) $("pbpause").addEventListener("click", () => { if (!walk) return; paused = !paused; lastT = Date.now(); sync(); });
+    const press = (id, yes, tip) => { const b = $(id); if (b) { b.classList.toggle("on", yes); b.setAttribute("aria-pressed", yes ? "true" : "false"); b.dataset.tip = tip; b.setAttribute("aria-label", tip); } };
+    const sync = () => { press("pbsneak", sneak, sneak ? "Stand up" : "Sneak"); press("pblayer", showOuter, showOuter ? "Hide outer layer" : "Show outer layer"); press("pbfly", fly, fly ? "Stop Flying" : "Start Flying"); press("pbplay", walk, walk ? "Pause" : "Play"); };
+    const on = (id, fn) => { const b = $(id); if (b) b.addEventListener("click", () => { fn(); dirty = true; sync(); }); };
+    on("pbsneak", () => { sneak = !sneak; if (sneak) fly = false; });
+    on("pblayer", () => { $("pshow").click(); });
+    on("pbfly", () => { fly = !fly; if (fly) sneak = false; });
+    on("pbplay", () => { walk = !walk; lastT = Date.now(); });
     $("pshow").addEventListener("change", () => setTimeout(sync, 0));
     document.querySelectorAll("input[name=player]").forEach((r) => r.addEventListener("change", () => setTimeout(sync, 0)));
     sync();
