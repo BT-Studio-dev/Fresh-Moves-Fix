@@ -185,7 +185,7 @@
       if (oldEyes) for (const [col, row] of oldEyes.cells) put(8 + col, 8 + row, rgb(oldEyes.lid));
       for (const [col, row, role] of c.face) {
         put(8 + col, 8 + row, colour[role]);
-        d[idx(40 + col, 8 + row) + 3] = 0; // nothing from the second layer (hat) over the eye
+        if (d[idx(40 + col, 8 + row) + 3] > 127) d[idx(40 + col, 8 + row) + 3] = 0; // nothing solid from the second layer (hat) over the eye; see-through glass may stay
       }
     }
     for (const [x, y, src] of c.marker) {
