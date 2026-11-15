@@ -425,12 +425,12 @@ write("editor/index.html", page({
 <ol class="steps">
   <li><strong>Download the skin.</strong> Press "Download skin (.png)" in card 4. Keep your old skin file as a copy.</li>
   <li><strong>Put the skin on your account.</strong> Open the Minecraft Launcher, go to "Skins", "New skin", "Browse", choose the downloaded file, pick Wide or Slim arms, then "Save &amp; Use".</li>
-  <li><strong>Install the two mods.</strong> You need a mod loader (Fabric or NeoForge) plus <a href="https://modrinth.com/mod/entity-model-features" rel="noopener">Entity Model Features</a> and <a href="https://modrinth.com/mod/entitytexturefeatures" rel="noopener">Entity Texture Features</a> for your Minecraft version. Put both files in the "mods" folder.</li>
+  <li><strong>Install the two mods.</strong> You need a mod loader (Fabric or NeoForge) plus <a href="https://modrinth.com/mod/entity-model-features" rel="noopener">Entity Model Features</a> and <a href="https://modrinth.com/mod/entitytexturefeatures" rel="noopener">Entity Texture Features</a> for your Minecraft version. Put both files in the "mods" folder. On Fabric also add <a href="https://modrinth.com/mod/fabric-api" rel="noopener">Fabric API</a>, download the Fabric files (not Forge or NeoForge), and start the game with the Fabric profile. Fabric has no "Mods" button on the title screen unless you add Mod Menu; that is normal.</li>
   <li><strong>Add the pack.</strong> <a href="../#download">Download the pack</a>, put the zip in the "resourcepacks" folder, then in the game: Options, Resource Packs, move the pack to the right, Done.</li>
   <li><strong>Look at yourself.</strong> Open a world and press F5 twice to see your face from the front.</li>
   <li><strong>Check the eyes.</strong> Wait a few seconds: the eyes should blink. Turn your head left and right: with 2 wide or 3 wide eyes the pupils should move.</li>
 </ol>
-<p><strong>If something is wrong:</strong> black eyes - see <a href="../guides/fix-black-eyes/">Fix Black Eyes</a>. Eyes do not blink - try another position in card 2 (the eyes must sit exactly where your skin has them) and download again. Nothing moves at all - the mods or the pack are not switched on.</p>
+<p><strong>If something is wrong:</strong> the body moves but the eyes do not - your account uses a skin without the eye pixels; download the skin from this editor and put it on your account, then press F3 + T in the game. Black eyes - see <a href="../guides/fix-black-eyes/">Fix Black Eyes</a>. Eyes do not blink - try another position in card 2 (the eyes must sit exactly where your skin has them) and download again. Nothing moves at all - the mods or the pack are not switched on.</p>
 
 <h2>${ICON.info} How it works</h2>
 <p>Choose the eye shape and the position that match the eyes on your skin. The editor writes an eyelid colour and, for eyes with pupils, the eye colours into an unused corner of the skin file (outlined in green). The pack reads that corner to animate the eyes.</p>
@@ -440,6 +440,8 @@ write("editor/index.html", page({
 <li><b>3 wide (enderman)</b>: the eyes touch the sides of the face.</li>
 <li><b>Simple</b> (1 wide): no moving pupil, the eyes only blink.</li>
 </ul>
+<p><b>Keep the face on the first skin layer.</b> The pack animates the first layer only. Eyes or eyebrows painted on the outer layer (the hat layer) stay still in front of the moving eyes, so the editor removes solid outer-layer pixels over the eyes; see-through glass is kept. Do not erase the face of your skin: players without the pack and the mods still see your normal face.</p>
+<p>${ICON.ext} Video by Laynce that shows the eye types, eyebrows and eyelashes of the original Fresh Moves pack: <a href="https://www.youtube.com/watch?v=uDccyv7FROs" target="_blank" rel="noopener">The Animation Update</a> (YouTube, not made by us).</p>
 <p>The positions of 2 wide 1 tall and 2 wide 2 tall come from the example skins in the pack. The other shapes were worked out from the pack's model file and are less certain; the derp layout is the least certain. Eyebrows and eyelashes were also worked out from the model file and are not tested in the game. Fox eyes are not in the editor (the guide marks them as unfinished); see the <a href="../guides/">guides</a>.</p>
 </article></div>
 <script src="../skinview3d.bundle.js"></script>
@@ -1013,13 +1015,16 @@ write("index.html", page({
     <a class="btn ghost" rel="noopener" href="https://modrinth.com/mod/entity-model-features">${ICON.ext} Entity Model Features (EMF)</a>
     <a class="btn ghost" rel="noopener" href="https://modrinth.com/mod/entitytexturefeatures">${ICON.ext} Entity Texture Features (ETF)</a>
   </p>
+  <p>Helpful, not required: <a rel="noopener" href="https://modrinth.com/mod/modmenu">Mod Menu</a> and <a rel="noopener" href="https://modrinth.com/mod/cloth-config">Cloth Config</a>, to open the settings of the mods in the game. Custom Skin Loader and Alpha Skins from old guides are no longer needed.</p>
   <p>On Minecraft 1.21.9 and newer armour only follows the animations with a recent EMF (3.0.5 or newer; 3.0.12 fixes armour lag).</p>
   <p>On Minecraft 26.1, 26.1.1 and 26.1.2 use EMF 3.3.2 or newer (older versions do not start or crash there). On 26.3 use EMF 3.3.6 or newer. EMF for 26.x exists for Fabric and NeoForge.</p>
 </section>
 
 <section id="download">
   <h2>${ICON.down} Download</h2>
-  <p><a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">${ICON.down} Fresh-Moves-Fix.zip - all versions</a></p>
+  <p><a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">${ICON.down} Fresh-Moves-Fix.zip - all versions</a>
+    <a class="btn ghost" href="${dl("Fresh-Moves-Fix-Eyes-Only.zip")}">${ICON.down} Eyes only - all versions</a></p>
+  <p><strong>Eyes only</strong> is the same pack without the body animations: the eyes blink and look around, and walking, running and the arms stay as in normal Minecraft. It has no wave emote. Use one of the two packs, not both. New and not tested in the game.</p>
   <p class="reltime" id="reltime"${releaseTime ? "" : " hidden"}>${ICON.tag} <span>Release <b>v${version}</b> · updated <time datetime="${releaseTime}">${releaseTime ? releaseTime.replace("T", " ").replace(/:\d\dZ$/, " UTC") : ""}</time></span></p>
   <script>(function(){
     var p=document.getElementById("reltime"); if(!p) return; var t=p.querySelector("time");
