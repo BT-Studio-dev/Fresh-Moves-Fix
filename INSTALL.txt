@@ -25,4 +25,8 @@ INSTALL
 WAVE EMOTE
 Stand still, sneak and look straight up: the right arm waves.
 
+SIT EMOTE
+Stand still, sneak and look straight down: the player sits on the ground.
+Look up again or let go of sneak to stand up.
+
 Based on Fresh Moves by IthanMendoza (CC0).

@@ -4637,7 +4637,7 @@
 					"varb.is_sleeping": "         is_riding && between(right_leg.ry,torad(-0.05),torad(0.05)) && between(left_leg.ry,torad(-0.05),torad(0.05)) && between(right_leg.rz,torad(-0.05),torad(0.05)) && between(left_leg.rz,torad(-0.05),torad(0.05))",
 					"varb.is_aiming_crossbow": "  equals(left_arm.ry - torad(40), right_arm.ry + torad(40), torad(30))",
 					"varb.personality_sit": "     varb.is_on_land && !is_riding && (limb_speed < 0.15) && between(right_leg.rx,torad(-81.1),torad(-45)) && between(left_leg.rx,torad(-81.1),torad(-45)) && between(right_leg.ry,torad(12),torad(18.01)) && between(left_leg.ry,torad(-18.01),torad(-12)) && between(right_leg.rz,torad(2),torad(4.51)) && between(left_leg.rz,torad(-4.51),torad(-2))",
-					"varb.is_sitting": "          (is_riding || varb.personality_sit) && !varb.is_sleeping",
+					"varb.is_sitting": "          (is_riding || varb.personality_sit || var.emote_sit > 0.5) && !varb.is_sleeping",
 					"varb.is_parcool_sliding": "  varb.is_on_land  && is_crawling && between(right_arm.rx,torad(42),torad(55)) && (between(left_arm.rx,torad(17),torad(27)) &&  between(left_arm.rz,torad(-110),torad(-95)))",
 					"varb.is_parcool_diving": "   varb.is_airborne && (between(right_arm.rz,torad(130),torad(205))) && (between(left_arm.rz,torad(-205),torad(-130)))",
 					"varb.is_parcool_skydiving": "varb.is_airborne && (between(right_arm.rx,torad(7),torad(33)) && between(right_arm.rz,torad(39),torad(107))) && (between(left_arm.rx,torad(7),torad(33)) && between(left_arm.rz,torad(-107),torad(-39)))",
@@ -4676,7 +4676,7 @@
 					"var.LIMBS_ANIMATIONS": "1"
 				},
 				{
-					"head.ty": " 0.25 + if(is_sneaking, 4.5, 0)                                                       + ( 1*var.player_sprinting)*var.limb_speed + var.limb_speed*var.walk - var.CIS*sin(torad(if(var.limb_speed>0.5, -45, 45))+var.ls*2)*var.limb_speed +sin(var.breathe)/6 +( cos(var.breathe +sin(var.breathe)*1.5)/2 +0.5 )*var.nov2 ",
+					"head.ty": " 0.25 + if(is_sneaking, 4.5, 0)                                                       + ( 1*var.player_sprinting)*var.limb_speed + var.limb_speed*var.walk - var.CIS*sin(torad(if(var.limb_speed>0.5, -45, 45))+var.ls*2)*var.limb_speed +sin(var.breathe)/6 +( cos(var.breathe +sin(var.breathe)*1.5)/2 +0.5 )*var.nov2 + 4.75*var.emote_sit",
 					"head.tz": "        if(is_sneaking,  -4, 0) + if(is_crawling,-2.5,0) + if(varb.is_sleeping, -1.5, 0) + (-2*var.player_sprinting)*var.limb_speed - sin(var.breathe)/6     - var.CIS*cos(var.ls*2)/2*clamp(var.limb_speed*3, 0, 1) + (sin(limb_swing/2) +2)*if(is_hurt, - sin(hurt_time*pi/5)/6*hurt_time, 0)  + 1*(1-var.CIS) ",
 					"head.rx": " if(varb.is_sleeping, clamp((head.rx),torad(0),torad(0)), clamp((head.rx),torad(-80),torad(80))    )",
 					"head.ry": " wraprad(head.ry)"
@@ -4685,7 +4685,7 @@
 					"body.tx": "head.tx",
 					"body.ty": "head.ty + if(is_sneaking,-1.25, 0)",
 					"body.tz": "head.tz + if(is_sneaking,  0.5, 0)",
-					"body.rx": "torad(-2) + if(is_sneaking, torad(40), 0) + (torad(20)*var.player_sprinting)*var.limb_speed - torad(0.5)*sin(var.breathe) + cos(var.ls*2)/18*var.limb_speed + torad(-2.5)*clamp(1-var.limb_speed*2, 0, 1) + (cos(var.breathe +sin(var.breathe))/12 )*var.nov2 -  (sin(limb_swing/2)/2 +torad(20))/3*if(is_hurt, -sin(hurt_time*pi/5)/6*hurt_time, 0) ",
+					"body.rx": "torad(-2) + if(is_sneaking, torad(40), 0) + (torad(20)*var.player_sprinting)*var.limb_speed - torad(0.5)*sin(var.breathe) + cos(var.ls*2)/18*var.limb_speed + torad(-2.5)*clamp(1-var.limb_speed*2, 0, 1) + (cos(var.breathe +sin(var.breathe))/12 )*var.nov2 -  (sin(limb_swing/2)/2 +torad(20))/3*if(is_hurt, -sin(hurt_time*pi/5)/6*hurt_time, 0) - torad(38)*var.emote_sit",
 					"body.ry": "body.ry + if(is_sprinting, torad(1), is_sneaking, torad(0), torad(6.5))*cos(var.ls + torad(30))*var.limb_speed  "
 				},
 				{
@@ -4700,14 +4700,15 @@
 					"right_arm.ry": " if(varb.IFPH, right_arm.ry,                                                                      torad( -10)*limb_speed*(var.player_sprinting) + wraprad(right_arm.ry)  )",
 					"left_arm.ry": "  if(varb.IFPH,  left_arm.ry,                                                                      torad(  10)*limb_speed*(var.player_sprinting) + wraprad( left_arm.ry)  )",
 					"var.emote_wave": "clamp(var.emote_wave + if(is_sneaking && head_pitch < -60 && limb_speed < 0.1 && !varb.is_sleeping && !is_riding, 0.15, -0.15), 0, 1)",
+					"var.emote_sit": "clamp(var.emote_sit + if(is_sneaking && head_pitch > 60 && limb_speed < 0.1 && is_on_ground && !is_in_water && !varb.is_sleeping && !is_riding, 0.15, -0.15), 0, 1)",
 					"right_arm.rz": " if(varb.IFPH, right_arm.rz, var.emote_wave*(torad(150) + torad(20)*sin(age*0.6)) + if(is_sneaking, torad( 5), 0) + if(varb.is_sleeping, torad( 5), 0) + torad( 7.5)*limb_speed*(var.player_sprinting) + wraprad(right_arm.rz)  )",
 					"left_arm.rz": "  if(varb.IFPH,  left_arm.rz, if(is_sneaking, torad(-5), 0) + if(varb.is_sleeping, torad(-5), 0) + torad(-7.5)*limb_speed*(var.player_sprinting) + wraprad( left_arm.rz)  )"
 				},
 				{
 					"right_leg.tx": "-1.9 + if(is_sneaking,    0, 0) + clamp(-0.1 + var.limb_speed, -0.1, 0  )  ",
 					"left_leg.tx": "  1.9 + if(is_sneaking,    0, 0) + clamp( 0.1 - var.limb_speed,  0  , 0.1)  ",
-					"right_leg.ty": " 0.1 + if(is_sneaking,   -2, 0) + clamp(12 + cos(if(var.limb_speed >= 0.6, torad(-30), 0)+var.ls)*2*clamp(var.limb_speed*2, 0, 2)                                 + clamp(-1+var.limb_speed*1.5, 0, 1) , 0, 12.2) + if(varb.is_sitting, -1, 0) + clamp( (-sin(var.ls) +body.ty)* clamp(-cos(var.limb_speed*pi), 0, 1), -4, 0)",
-					"left_leg.ty": "  0.1 + if(is_sneaking,   -2, 0) + clamp(12 - cos(if(var.limb_speed >= 0.6, torad(-30), 0)+var.ls)*2*clamp(var.limb_speed*2, 0, 2)                                 + clamp(-1+var.limb_speed*1.5, 0, 1) , 0, 12.2) + if(varb.is_sitting, -1, 0) + clamp( ( sin(var.ls) +body.ty)* clamp(-cos(var.limb_speed*pi), 0, 1), -4, 0)",
+					"right_leg.ty": " 0.1 + if(is_sneaking,   -2, 0) + clamp(12 + cos(if(var.limb_speed >= 0.6, torad(-30), 0)+var.ls)*2*clamp(var.limb_speed*2, 0, 2)                                 + clamp(-1+var.limb_speed*1.5, 0, 1) , 0, 12.2) + if(varb.is_sitting, -1, 0) + clamp( (-sin(var.ls) +body.ty)* clamp(-cos(var.limb_speed*pi), 0, 1), -4, 0) + 10.9*var.emote_sit",
+					"left_leg.ty": "  0.1 + if(is_sneaking,   -2, 0) + clamp(12 - cos(if(var.limb_speed >= 0.6, torad(-30), 0)+var.ls)*2*clamp(var.limb_speed*2, 0, 2)                                 + clamp(-1+var.limb_speed*1.5, 0, 1) , 0, 12.2) + if(varb.is_sitting, -1, 0) + clamp( ( sin(var.ls) +body.ty)* clamp(-cos(var.limb_speed*pi), 0, 1), -4, 0) + 10.9*var.emote_sit",
 					"right_leg.tz": "                             if(varb.is_sitting,          -2, -0.1 + if(varb.is_sleeping, -1.5, 0) + if(is_crawling, -3,0) + 12*sin(torad(-1))*sin(var.breathe) + if(is_sneaking, clamp(  12*sin(torad(7.5)) - var.limb_speed*2, 0, 12*sin(torad(-7.5))), 0)           + if(is_sprinting, clamp(-1.5+var.limb_speed*6, -1.5, 0), clamp(-1.5+var.limb_speed*2, -1.5, -0.5)) )  + clamp(3 + 6*cos(var.ls)*clamp(var.limb_speed*2, 0, 1), -6, 1)*if(is_sprinting,1.2,0.75)       ",
 					"left_leg.tz": "                              if(varb.is_sitting,          -2, -0.1 + if(varb.is_sleeping, -1.5, 0) + if(is_crawling, -3,0) + 12*sin(torad(-1))*sin(var.breathe) + if(is_sneaking, clamp(  12*sin(torad(7.5)) - var.limb_speed*2, 0, 12*sin(torad(-7.5))), 0)           + if(is_sprinting, clamp(-1.5+var.limb_speed*6, -1.5, 0), clamp(-1.5+var.limb_speed*2, -1.5, -0.5)) )  + clamp(3 - 6*cos(var.ls)*clamp(var.limb_speed*2, 0, 1), -6, 1)*if(is_sprinting,1.2,0.75)       ",
 					"right_leg.rx": " if(varb.UVLA, right_leg.rx, if(varb.is_sitting, torad( -81), right_leg.rx*var.SAO + torad(2) +                              torad(1) *sin(var.breathe) + if(is_sneaking, clamp(torad(7.5) - torad(7.5)*var.limb_speed*6, 0, torad(7.5)), 0) + ( sin(var.ls)*if(is_sprinting, torad(55), is_sneaking, torad(75), torad(45)) + if(is_sprinting, torad(15), is_sneaking, torad( 2.5), torad( 0)))*var.limb_speed))",

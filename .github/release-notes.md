@@ -10,6 +10,8 @@ Resource pack builds of Fresh Moves Fix, a fork of [Fresh Moves](https://github.
 
 These builds have not been tested in-game. On Minecraft 1.21.5 and newer the cape and elytra animations may not work correctly.
 
+**New in 3.1-fix5:** a sit emote. Stand still, sneak and look straight down, and the player sits on the ground. Not tested in-game.
+
 **New in 3.1-fix4:** an "Eyes only" pack (`Fresh-Moves-Fix-Eyes-Only.zip`): blinking and moving eyes, eyebrows and eyelashes, without the body animations and without the wave emote. Not tested in-game. The normal pack files are unchanged.
 
 **New in 3.1-fix3:** the install notes inside the zips name the EMF version needed on Minecraft 26.x (26.1 - 26.1.2: EMF 3.3.2 or newer; 26.3: EMF 3.3.6 or newer). The pack files themselves are unchanged.
