@@ -994,8 +994,8 @@ write("index.html", page({
   <div class="tools">
     <a class="tool" href="editor/">
       <span class="tool-head"><img class="tool-img" src="icon-skin.png" alt="" width="48" height="48"><span><b>Minecraft Skin</b><small>by Fresh Moves Fix</small></span></span>
-      <span class="tool-text">Add blinking, moving eyes to your skin and see it in 3D.</span>
-      <span class="tags"><i class="g">Minecraft</i><i>Skin</i><i>Eyes</i></span>
+      <span class="tool-text">Add blinking, moving eyes and a mouth to your skin and see it in 3D.</span>
+      <span class="tags"><i class="g">Minecraft</i><i>Skin</i><i>Eyes</i><i>Mouth</i></span>
     </a>
     <a class="tool" href="paint/">
       <span class="tool-head"><img class="tool-img" src="icon-paint.png" alt="" width="48" height="48"><span><b>Skin Painter 3D</b><small>by Fresh Moves Fix</small></span></span>
