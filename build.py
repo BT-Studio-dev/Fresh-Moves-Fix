@@ -142,6 +142,48 @@ def build_version(mc):
     write_zip(f"{NAME}-mc{mc}.zip", entries)
 
 
+# ---- "Eyes only" variant: the eyes blink and move, the body keeps Minecraft's own movements ----
+BODY_PARTS = {"head", "body", "right_arm", "left_arm", "right_leg", "left_leg",
+              "headwear", "jacket", "right_sleeve", "left_sleeve", "right_pants", "left_pants", "cloak"}
+SKIP_EYES_ONLY = ("player_cape.jem", "elytra.jem")  # these only make the cape and elytra follow the body animations
+
+
+def eyes_only_jem(text):
+    """Remove every animation line that moves a body part; keep variables and the eye parts."""
+    model = json.loads(text)
+    removed = 0
+    for part in model.get("models", []):
+        blocks = []
+        for block in part.get("animations") or []:
+            kept = {k: v for k, v in block.items() if k.split(".")[0] not in BODY_PARTS}
+            removed += len(block) - len(kept)
+            if kept:
+                blocks.append(kept)
+        if "animations" in part:
+            part["animations"] = blocks
+    if not removed:
+        fail("eyes-only build: no body animation lines found to remove")
+    return json.dumps(model, separators=(",", ":"), ensure_ascii=False), removed
+
+
+def build_eyes_only(folders):
+    entries = {}
+    total = 0
+    for arc, f in collect(folders).items():
+        if arc.endswith(SKIP_EYES_ONLY):
+            continue
+        if arc.endswith(("player.jem", "player_slim.jem")):
+            entries[arc], n = eyes_only_jem(f.read_text(encoding="utf-8"))
+            total += n
+        else:
+            entries[arc] = f
+    meta = json.loads((ROOT / "pack.mcmeta").read_text(encoding="utf-8"))
+    meta["pack"]["description"] = "\u00a7a\u2611 Animated eyes only \u00a7b\n\u2756 No body animations"
+    entries["pack.mcmeta"] = json.dumps(meta, indent=4, ensure_ascii=False) + "\n"
+    print(f"Eyes only: removed {total} body animation lines")
+    write_zip(f"{NAME}-Eyes-Only.zip", entries)
+
+
 if __name__ == "__main__":
     wanted = sys.argv[1:]
     unknown = [v for v in wanted if v not in VERSIONS]
@@ -150,5 +192,6 @@ if __name__ == "__main__":
     folders = check()
     if not wanted:
         build_universal(folders)
+        build_eyes_only(folders)
     for mc in wanted or VERSIONS:
         build_version(mc)
