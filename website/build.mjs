@@ -323,27 +323,27 @@ write("editor/index.html", page({
       <select id="brow">
         <option value="keep">Do not change</option>
         <option value="none">No moving eyebrows</option>
-        <option value="f2">Top (row 3 of the face)</option>
-        <option value="f3">Upper middle (row 4)</option>
-        <option value="f4">Lower middle (row 5)</option>
-        <option value="f5">Bottom (row 6)</option>
-        <option value="h2">On the hat layer, top</option>
-        <option value="h3">On the hat layer, upper middle</option>
-        <option value="h4">On the hat layer, lower middle</option>
-        <option value="h5">On the hat layer, bottom</option>
-        <option value="villager">Villager (one long eyebrow)</option>
+        <option value="f2">Top (row 3 of the face, above the eyes)</option>
+        <option value="f3">Upper middle (row 4, above the eyes)</option>
+        <option value="f4">Lower middle (row 5, above the eyes)</option>
+        <option value="f5">Bottom (row 6, above the eyes)</option>
+        <option value="h2">On the hat layer, top (above the eyes)</option>
+        <option value="h3">On the hat layer, upper middle (above the eyes)</option>
+        <option value="h4">On the hat layer, lower middle (above the eyes)</option>
+        <option value="h5">On the hat layer, bottom (above the eyes)</option>
+        <option value="villager">Villager (one long eyebrow, above the eyes)</option>
       </select></label></p>
     <p><label>Mouth
       <select id="mouth">
         <option value="keep">Do not change</option>
-        <option value="boy">Boy mouth (small, brown)</option>
-        <option value="girl">Girl mouth (small, pink)</option>
-        <option value="wide">Wide mouth</option>
-        <option value="beard">Mouth with beard (like Steve)</option>
-        <option value="none">No mouth (plain skin)</option>
+        <option value="boy">Boy mouth (small, brown, under the eyes)</option>
+        <option value="girl">Girl mouth (small, pink, under the eyes)</option>
+        <option value="wide">Wide mouth (under the eyes)</option>
+        <option value="beard">Mouth with beard (like Steve, under the eyes)</option>
+        <option value="none">No mouth (plain skin, under the eyes)</option>
       </select></label></p>
     <label class="pickb wide" id="lashwrap"><input type="checkbox" id="lash"><span><b>Eyelashes</b><small>Only with the eye shape "2 wide, 2 tall" at the position "Bottom".</small></span></label>
-    <p class="ehint">${ICON.info} <span>Put the eyebrows on the row just above the eyes. Hat-layer eyebrows and eyelashes are drawn by the pack in the game, so the preview here does not show them. Not tested in-game.</span></p>
+    <p class="ehint">${ICON.info} <span>Eyebrows are drawn just above the eyes, and the mouth is drawn under the eyes. Hat-layer eyebrows and eyelashes are drawn by the pack in the game, so the preview here does not show them. Not tested in-game.</span></p>
     <p class="ehint">${ICON.info} <span>The mouth is the lips area in the two bottom rows of the face. With pack 3.1-fix6 or newer the mouth opens in the game when you get hurt, cheer or wave. With 3.1-fix7 or newer you can also switch a talking mouth on and off: tap sneak twice quickly while looking forward. It does not follow your real voice; a pack cannot hear Simple Voice Chat (two hidden pixels in the skin file tell the pack; not tested in the game). It is drawn under the eyes; with eyes at the very bottom there is no room and it is left out. The beard uses the eyebrow colour.</span></p>
 
   </section>

@@ -192,7 +192,7 @@
       if (typeof src === "string") put(x, y, colour[src]);
       else { const i = idx(8 + src[0], 8 + src[1]); put(x, y, [d[i], d[i + 1], d[i + 2]]); }
     }
-    // ---- eyebrows: the pack draws them itself from two rows of pixels in the top-right corner of the skin file
+    // ---- eyebrows: the pack draws them itself from two rows of pixels in the top-right corner of the skin file; they are drawn just above the eyes
     const brow = $("brow").value, wipe = (ax, ay, w, h) => { for (let y = ay; y < ay + h; y++) for (let x = ax; x < ax + w; x++) { const i = idx(x, y); d[i] = d[i + 1] = d[i + 2] = d[i + 3] = 0; } };
     if (brow !== "keep") {
       wipe(60, 0, 4, 8); wipe(56, 4, 4, 4); wipe(24, 0, 5, 2);
@@ -215,7 +215,7 @@
       for (let k = 0; k < 4; k++) put(56 + k, 0, lc);
       for (const x of [56, 59]) { put(x, 1, lc); put(x, 2, lc); }
     }
-    // ---- mouth (lips area): painted on the first layer in the row under the eyes; it does not move in the game
+    // ---- mouth (lips area): painted on the first layer in the row under the eyes; the pack opens it in the game
     const mouth = $("mouth").value;
     if (mouth !== "keep") {
       const low = Math.max(...c.face.map((f) => f[1])), row = low < 5 ? 6 : low + 1; // face rows 0..7
