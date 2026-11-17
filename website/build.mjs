@@ -167,6 +167,9 @@ fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 fs.copyFileSync(path.join(root, "pack.png"), path.join(out, "pack.png"));
 fs.copyFileSync(path.join(here, "title.png"), path.join(out, "title.png"));
+// Serve the separately built experimental Fabric mod directly from this website.
+fs.mkdirSync(path.join(out, "downloads"), { recursive: true });
+fs.copyFileSync(path.join(here, "downloads/herobrine-watcher-fabric-26.3.jar"), path.join(out, "downloads/herobrine-watcher-fabric-26.3.jar"));
 // icons for browser start pages, bookmarks and "add to home screen"
 for (const f of ["favicon.ico", "icon-180.png", "icon-192.png", "icon-512.png", "tile-logo.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 const SITE = "https://fresh-moves-fix.vercel.app/";
@@ -973,12 +976,12 @@ write("herobrine/index.html", page({
 <p>A separate experimental Fabric mod for Minecraft Java 26.3. It tries to make a silent figure appear near you, watch you and disappear. It does not attack.</p>
 <div class="note"><strong>Prototype — not tested in Minecraft.</strong> Back up your world before trying it. This is an armor stand with placeholder armor and a player-profile head, not a finished Herobrine model. The head may not have white eyes or may not load.</div>
 <h2>${ICON.down} Get the test build</h2>
-<p><a class="btn" href="https://github.com/BT-Studio-dev/Fresh-Moves-Fix/actions/runs/44133450533">${ICON.ext} Open the GitHub build</a></p>
-<p>On GitHub, open <strong>Artifacts</strong>, download <strong>herobrine-watcher-fabric-26.3</strong> and extract the JAR from the ZIP. You may need to sign in. GitHub Actions artifacts can expire; this is not a permanent release download.</p>
+<p><a class="btn" href="../downloads/herobrine-watcher-fabric-26.3.jar" download>${ICON.down} Download Herobrine mod (.jar)</a></p>
+<p>Download the JAR directly here; no GitHub account is needed. This is an experimental test build, not a finished release.</p>
 <h2>${ICON.wrench} Install</h2>
 <ol>
 <li>Use Minecraft Java 26.3 with Fabric Loader 0.20.1 or newer and Java 25.</li>
-<li>Install a Fabric API version for Minecraft 26.3. Put its JAR and the extracted Herobrine Watcher JAR in your <code>mods</code> folder.</li>
+<li>Install a Fabric API version for Minecraft 26.3. Put its JAR and the downloaded Herobrine Watcher JAR in your <code>mods</code> folder.</li>
 <li>Start the Fabric profile. The figure is intended to appear after about five minutes of server runtime and disappear after 20 seconds. In multiplayer, the server needs the mod.</li>
 </ol>
 <p>Windows 7 support for Minecraft 26.3 and Java 25 is not assured. This mod is separate from the Fresh Moves Fix resource pack; the pack ZIP goes in <code>resourcepacks</code>, not <code>mods</code>.</p>
