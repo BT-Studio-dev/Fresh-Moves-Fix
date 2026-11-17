@@ -6,7 +6,7 @@ Fabric Loader 0.20.1+, Fabric API 0.166.2+26.3, and Java 25. The GitHub Actions 
 The prototype uses an invulnerable, silent armor stand, not a custom mob or
 player model. Every five minutes of server runtime it tries to appear eight
 blocks from players, turn toward a nearby player, and disappear 20 seconds
-later. It does not attack. Its head uses the Minecraft profile named
+later. It plays Minecraft’s cave ambience sound once when it appears, and does not attack. Its head uses the Minecraft profile named
 `Herobrine`, whose appearance is not controlled by this mod and might not have
 white eyes (or might not resolve). Armor is a placeholder. Terrain, multiplayer,
 commands, and appearance all need real game testing; sightings can be obstructed.
