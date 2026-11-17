@@ -976,13 +976,14 @@ write("herobrine/index.html", page({
 <p>A separate experimental Fabric mod for Minecraft Java 26.3. It tries to make a figure appear near you with a spooky Minecraft cave sound, watch you and disappear. It does not attack.</p>
 <div class="note"><strong>Prototype — not tested in Minecraft.</strong> Back up your world before trying it. This is an armor stand with placeholder armor and a player-profile head, not a finished Herobrine model. Its head uses the MHF_Herobrine profile, with white eyes. The skin needs to load online; the eyes do not glow in the dark.</div>
 <h2>${ICON.down} Get the test build</h2>
-<p><a class="btn" href="../downloads/herobrine-watcher-fabric-26.3.jar?v=0.1.2" download>${ICON.down} Download Herobrine mod (.jar)</a></p>
+<p><a class="btn" href="../downloads/herobrine-watcher-fabric-26.3.jar?v=0.1.3" download>${ICON.down} Download Herobrine mod (.jar)</a></p>
 <p>Download the JAR directly here; no GitHub account is needed. This is an experimental test build, not a finished release.</p>
 <h2>${ICON.wrench} Install</h2>
 <ol>
 <li>Use Minecraft Java 26.3 with Fabric Loader 0.20.1 or newer and Java 25.</li>
 <li>Install a Fabric API version for Minecraft 26.3. Put its JAR and the downloaded Herobrine Watcher JAR in your <code>mods</code> folder.</li>
 <li>Start the Fabric profile. The figure is intended to appear after about five minutes of server runtime and disappear after 20 seconds. In multiplayer, the server needs the mod.</li>
+<li>To try summoning it immediately, enable cheats (or use an operator account on a server), open chat and type <code>/herobrine</code>. The command is not tested in-game.</li>
 </ol>
 <p>Windows 7 support for Minecraft 26.3 and Java 25 is not assured. This mod is separate from the Fresh Moves Fix resource pack; the pack ZIP goes in <code>resourcepacks</code>, not <code>mods</code>.</p>
 <p><a href="${REPO}/pull/14">${ICON.code} View the mod changes on GitHub</a></p>
