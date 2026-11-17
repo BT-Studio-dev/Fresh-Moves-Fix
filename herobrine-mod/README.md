@@ -20,3 +20,5 @@ server needs the mod. Do not install sources or the Gradle build files as mods.
 
 This is separate from the Fresh Moves Fix resource pack. Windows 7 compatibility
 with Java 25 and Minecraft 26.3 is not assured.
+
+You can also type `/herobrine` in chat to try to summon the watcher nearby. Enable cheats in single-player or use an operator account on a server. The command and appearance are untested in-game.
