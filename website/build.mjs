@@ -962,6 +962,30 @@ write("404.html", page({
 </article></div>`,
 }).replace("<head>", '<head>\n<base href="/">'));
 
+// Herobrine is a separate Fabric mod, not part of the resource pack.
+write("herobrine/index.html", page({
+  title: "Herobrine Watcher mod - Fresh Moves Fix",
+  description: "An experimental, non-hostile Herobrine-inspired watcher for Minecraft Java 26.3 Fabric.",
+  depth: 1,
+  body: `<div class="wrap"><article class="editor">
+<div class="crumb"><a href="../">${ICON.home} Home</a></div>
+<h1>${ICON.eye} Herobrine Watcher</h1>
+<p>A separate experimental Fabric mod for Minecraft Java 26.3. It tries to make a silent figure appear near you, watch you and disappear. It does not attack.</p>
+<div class="note"><strong>Prototype — not tested in Minecraft.</strong> Back up your world before trying it. This is an armor stand with placeholder armor and a player-profile head, not a finished Herobrine model. The head may not have white eyes or may not load.</div>
+<h2>${ICON.down} Get the test build</h2>
+<p><a class="btn" href="https://github.com/BT-Studio-dev/Fresh-Moves-Fix/actions/runs/44133450533">${ICON.ext} Open the GitHub build</a></p>
+<p>On GitHub, open <strong>Artifacts</strong>, download <strong>herobrine-watcher-fabric-26.3</strong> and extract the JAR from the ZIP. You may need to sign in. GitHub Actions artifacts can expire; this is not a permanent release download.</p>
+<h2>${ICON.wrench} Install</h2>
+<ol>
+<li>Use Minecraft Java 26.3 with Fabric Loader 0.20.1 or newer and Java 25.</li>
+<li>Install a Fabric API version for Minecraft 26.3. Put its JAR and the extracted Herobrine Watcher JAR in your <code>mods</code> folder.</li>
+<li>Start the Fabric profile. The figure is intended to appear after about five minutes of server runtime and disappear after 20 seconds. In multiplayer, the server needs the mod.</li>
+</ol>
+<p>Windows 7 support for Minecraft 26.3 and Java 25 is not assured. This mod is separate from the Fresh Moves Fix resource pack; the pack ZIP goes in <code>resourcepacks</code>, not <code>mods</code>.</p>
+<p><a href="${REPO}/pull/14">${ICON.code} View the mod changes on GitHub</a></p>
+</article></div>`,
+}));
+
 write("index.html", page({
   title: "Fresh Moves Fix - player animations for Minecraft",
   active: "home",
@@ -1017,6 +1041,13 @@ write("index.html", page({
       <span class="tool-text">Put movements in a row with your own skin and save the animation as a video.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Animation</i><i>Video</i></span>
     </a>
+  </div>
+</section>
+
+<section>
+  <h2>${ICON.box} Mods</h2>
+  <div class="cards">
+    <a class="card feat" href="herobrine/"><h3>${ICON.eye} Herobrine Watcher</h3><p>Experimental Fabric mod: a silent figure tries to appear and watch you. Separate from the resource pack; not tested in-game.</p><span class="more">Mod details ${ICON.right}</span></a>
   </div>
 </section>
 

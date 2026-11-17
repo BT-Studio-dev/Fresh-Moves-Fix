@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "herobrine_watcher",
+  "version": "${version}",
+  "name": "Herobrine Watcher",
+  "description": "An experimental Herobrine-inspired figure that watches players without attacking.",
+  "environment": "*",
+  "entrypoints": { "main": ["dev.btstudio.herobrine.HerobrineWatcher"] },
+  "depends": {
+    "fabricloader": ">=0.20.1",
+    "minecraft": "~26.3",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}
