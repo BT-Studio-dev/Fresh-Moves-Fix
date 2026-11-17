@@ -1,8 +1,7 @@
 # Herobrine Watcher — experimental Fabric mod
 
-This is **source code, not a finished JAR**. It targets Minecraft Java 26.3,
-Fabric Loader 0.20.1+, Fabric API 0.166.2+26.3, and Java 25. Neither compilation
-nor gameplay has been verified. Back up worlds before testing.
+This is **experimental source code**. A test JAR was built by GitHub Actions. It targets Minecraft Java 26.3,
+Fabric Loader 0.20.1+, Fabric API 0.166.2+26.3, and Java 25. The GitHub Actions build compiled successfully, but gameplay has not been verified. Back up worlds before testing.
 
 The prototype uses an invulnerable, silent armor stand, not a custom mob or
 player model. Every five minutes of server runtime it tries to appear eight
