@@ -16,6 +16,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
+      - name: Test the pack build
+        run: python3 -m unittest discover -s tests -v
       - name: Check and zip the pack
         run: python3 build.py
       - uses: actions/upload-artifact@v4
