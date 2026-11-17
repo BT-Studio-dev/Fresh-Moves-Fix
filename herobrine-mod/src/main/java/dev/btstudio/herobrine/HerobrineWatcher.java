@@ -25,7 +25,7 @@ public final class HerobrineWatcher implements ModInitializer {
                 run(server, "execute as @e[type=minecraft:armor_stand,tag=" + TAG + ",tag=fmf_herobrine_new] at @s "
                         + "run playsound minecraft:ambient.cave ambient @a[distance=..32] ~ ~ ~ 1 0.7");
                 run(server, "tag @e[type=minecraft:armor_stand,tag=" + TAG + ",tag=fmf_herobrine_new] remove fmf_herobrine_new");
-                run(server, "execute as @e[type=minecraft:armor_stand,tag=" + TAG + "] run item replace entity @s armor.head with minecraft:player_head[minecraft:profile={name:\"Herobrine\"}]");
+                run(server, "execute as @e[type=minecraft:armor_stand,tag=" + TAG + "] run item replace entity @s armor.head with minecraft:player_head[minecraft:profile={name:\"MHF_Herobrine\"}]");
                 run(server, "execute as @e[type=minecraft:armor_stand,tag=" + TAG + "] run item replace entity @s armor.chest with minecraft:diamond_chestplate");
                 run(server, "execute as @e[type=minecraft:armor_stand,tag=" + TAG + "] run item replace entity @s armor.legs with minecraft:diamond_leggings");
             }
