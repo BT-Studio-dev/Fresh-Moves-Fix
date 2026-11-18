@@ -177,6 +177,17 @@ def build_eyes_only(folders):
             total += n
         else:
             entries[arc] = f
+    # This variant does not animate the body, so the normal pack's emote and
+    # sit instructions are misleading. Keep the shared installation steps.
+    install = (ROOT / "INSTALL.txt").read_text(encoding="utf-8")
+    start = install.index("\nEMOTES\n")
+    end = install.index("\nBased on Fresh Moves", start)
+    entries["INSTALL.txt"] = (install[:start] + "\nEYES ONLY\n"
+        "This pack keeps the normal Minecraft body movements. The wave, sit\n"
+        "and other body emotes are not available. Use the normal pack for them.\n\n"
+        "TALKING MOUTH (skins with a mouth from the website eye editor)\n"
+        "Look forward and tap sneak twice quickly to toggle the talking mouth.\n"
+        "It does not follow your real voice. Not tested in-game.\n" + install[end:])
     meta = json.loads((ROOT / "pack.mcmeta").read_text(encoding="utf-8"))
     meta["pack"]["description"] = "\u00a7a\u2611 Animated eyes only \u00a7b\n\u2756 No body animations"
     entries["pack.mcmeta"] = json.dumps(meta, indent=4, ensure_ascii=False) + "\n"

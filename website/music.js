@@ -2,10 +2,11 @@
 // No audio files: a calm song of 3:34 (64 bars) is made from notes and then repeats. Off by default.
 // A second, dark song ("Herobrine") can be chosen in Settings; it has the same length.
 // A third song ("Minecraft", soft piano) is 6:00 long (96 bars).
-// Saved in localStorage: "fmf-music" ("on"/"off"), "fmf-volume" (0..100) and "fmf-song" ("calm"/"herobrine").
+// A fourth, original upbeat track is called "Fresh Moves Fix".
+// Settings are stored in localStorage: fmf-music, fmf-volume and fmf-song.
 (function () {
   var on = false, vol = 40, song = "calm";
-  var INFO = { calm: { name: "Calm", len: 214, bars: 64 }, herobrine: { name: "Herobrine", len: 214, bars: 64 }, minecraft: { name: "Minecraft", len: 360, bars: 96 } };
+  var INFO = { calm: { name: "Calm", len: 214, bars: 64 }, herobrine: { name: "Herobrine", len: 214, bars: 64 }, minecraft: { name: "Minecraft", len: 360, bars: 96 }, fresh: { name: "Fresh Moves Fix", len: 160, bars: 64 } };
   try { var saved = localStorage.getItem("fmf-song"); if (INFO[saved]) song = saved; } catch (e) {}
   try { on = localStorage.getItem("fmf-music") === "on"; var v = parseInt(localStorage.getItem("fmf-volume"), 10); if (v >= 0 && v <= 100) vol = v; } catch (e) {}
   var AC = window.AudioContext || window.webkitAudioContext;
@@ -84,7 +85,17 @@
     { bars: 16, chords: M_WALK, layers: "pbams", arp: 4, level: 1, piano: true },    // everything
     { bars: 8, chords: M_HOME, layers: "a", arp: 3, level: 0.7, piano: true }        // the last notes
   ];
-  var SONGS = { calm: compose(SECTIONS, SCALE, 7), herobrine: compose(H_SECTIONS, H_SCALE, 13), minecraft: compose(M_SECTIONS, SCALE, 21) };
+  // Original upbeat theme: 64 bars, 2:40, with a light arpeggio and melody.
+  var FRESH_MAIN = [C, G, Am, F], FRESH_BRIDGE = [Dm, F, C, G];
+  var FRESH_SECTIONS = [
+    { bars: 8, chords: FRESH_MAIN, layers: "a", arp: 1, level: 0.65 },
+    { bars: 16, chords: FRESH_MAIN, layers: "pba", arp: 1, level: 0.8 },
+    { bars: 16, chords: FRESH_MAIN, layers: "pbam", arp: 2, level: 0.85 },
+    { bars: 8, chords: FRESH_BRIDGE, layers: "pms", arp: 0, level: 0.7 },
+    { bars: 8, chords: FRESH_MAIN, layers: "pbams", arp: 1, level: 0.85 },
+    { bars: 8, chords: FRESH_MAIN, layers: "pa", arp: 0, level: 0.6 }
+  ];
+  var SONGS = { calm: compose(SECTIONS, SCALE, 7), herobrine: compose(H_SECTIONS, H_SCALE, 13), minecraft: compose(M_SECTIONS, SCALE, 21), fresh: compose(FRESH_SECTIONS, SCALE, 31) };
   function freq(semi) { return 220 * Math.pow(2, semi / 12); }
   function tone(f, t, len, peak, type, attack, slideTo) {
     var o = ctx.createOscillator(), g = ctx.createGain();

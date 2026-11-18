@@ -10,6 +10,8 @@ Resource pack builds of Fresh Moves Fix, a fork of [Fresh Moves](https://github.
 
 These builds have not been tested in-game. On Minecraft 1.21.5 and newer the cape and elytra animations may not work correctly.
 
+**New in 3.1-fix8:** the Eyes Only ZIP now includes its own install notes, explaining that body emotes and sitting are not available in that variant. The model animations are unchanged and remain untested in-game.
+
 **New in 3.1-fix7:** a talking mouth switch for skins with the mouth marker. Tap sneak twice quickly while looking forward to start it, and again to stop. It does not follow real voice chat. Not tested in-game.
 
 **New in 3.1-fix6:** a moving mouth. Skins made with the Mouth option of the website eye editor open the mouth when the player is hurt, cheers or waves. Other skins look the same as before. Not tested in-game.
