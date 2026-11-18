@@ -988,6 +988,7 @@ write("index.html", page({
   <div class="txt">
     <h1 class="mc-title"><img src="title.png?2" width="1708" height="228" alt="Fresh Moves Fix"></h1>
     <p>Smoother, more expressive player animations and animated eyes for Minecraft. A fork of Fresh Moves with small fixes and builds for Minecraft ${versions[0].mc} to ${versions[versions.length - 1].mc}.</p>
+    <p><strong>Owner: lie_kg</strong></p>
     <a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">${ICON.down} Download ${esc(version)}</a>
     <a class="btn ghost" href="editor/">${ICON.eye} Skin eye editor</a>
     <a class="btn ghost" href="guides/">${ICON.book} Eye guides</a>
