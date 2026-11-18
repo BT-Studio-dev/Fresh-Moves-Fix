@@ -1,0 +1,27 @@
+name: Prepare Minecraft Skins JAR
+on:
+  push:
+    branches: [arena/bcd06987-fresh-moves-fix]
+    paths: ['.github/workflows/minecraft-skins-jar.yml']
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - name: Download pinned upstream release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download '6.16.2+26.3' --repo MineLittlePony/HDSkins --pattern 'hdskins-6.16.2+26.3.jar' --dir /tmp/hdskins
+      - name: Produce attributed JAR
+        run: python3 minecraft-skins/repackage.py '/tmp/hdskins/hdskins-6.16.2+26.3.jar' minecraft-skins/minecraft-skins-26.3.jar
+      - name: Store the JAR
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add minecraft-skins/minecraft-skins-26.3.jar
+          git diff --cached --quiet || git commit -m 'Build Minecraft Skins JAR from attributed upstream release'
+          git push origin HEAD:${{ github.ref_name }}
