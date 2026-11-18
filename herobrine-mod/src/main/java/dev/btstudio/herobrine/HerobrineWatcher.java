@@ -51,8 +51,9 @@ public final class HerobrineWatcher implements ModInitializer {
         String nearby = "@e[type=minecraft:armor_stand,tag=" + TAG + ",tag=fmf_herobrine_new,distance=..64]";
         run(server, atPlayer + "as " + nearby + " at @s run playsound minecraft:ambient.cave ambient @a[distance=..32] ~ ~ ~ 1 0.7");
         run(server, atPlayer + "as " + nearby + " run item replace entity @s armor.head with minecraft:player_head[minecraft:profile={name:\"MHF_Herobrine\"}]");
-        run(server, atPlayer + "as " + nearby + " run item replace entity @s armor.chest with minecraft:diamond_chestplate");
-        run(server, atPlayer + "as " + nearby + " run item replace entity @s armor.legs with minecraft:diamond_leggings");
+        run(server, atPlayer + "as " + nearby + " run item replace entity @s armor.chest with minecraft:leather_chestplate[minecraft:dyed_color=2781625]");
+        run(server, atPlayer + "as " + nearby + " run item replace entity @s armor.legs with minecraft:leather_leggings[minecraft:dyed_color=3757726]");
+        run(server, atPlayer + "as " + nearby + " run item replace entity @s armor.feet with minecraft:leather_boots[minecraft:dyed_color=4404279]");
         run(server, atPlayer + "run tag " + nearby + " remove fmf_herobrine_new");
     }
 

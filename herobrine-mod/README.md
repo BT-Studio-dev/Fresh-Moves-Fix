@@ -8,7 +8,7 @@ player model. Every five minutes of server runtime it tries to appear eight
 blocks from players, turn toward a nearby player, and disappear 20 seconds
 later. It plays Minecraft’s cave ambience sound once when it appears, and does not attack. Its head uses the `MHF_Herobrine` Minecraft profile, which has white eyes.
 The game must resolve its skin online; it may not load offline. The eyes are
-white pixels, not emissive (they do not glow in the dark). Armor is a placeholder. Terrain, multiplayer,
+white pixels, not emissive (they do not glow in the dark). Dyed leather armor provides a turquoise shirt and blue trousers, but remains a placeholder. Terrain, multiplayer,
 commands, and appearance all need real game testing; sightings can be obstructed.
 
 Build on a machine with Java 25 and Gradle 9.8.2 with access to the Fabric and
