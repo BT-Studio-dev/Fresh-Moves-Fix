@@ -432,25 +432,32 @@ write("editor/index.html", page({
 </div>
 
 <h2 id="test">${ICON.info} How to test it in the game</h2>
-<p>The website cannot test in Minecraft for you. This takes about ten minutes (Minecraft Java Edition):</p>
+<p>Use Minecraft Java Edition. The website preview is an approximation; it cannot test the pack in Minecraft. Keep a copy of your original skin.</p>
 <ol class="steps">
-  <li><strong>Download the skin.</strong> Press "Download skin (.png)" in card 4. Keep your old skin file as a copy.</li>
-  <li><strong>Put the skin on your account.</strong> Open the Minecraft Launcher, go to "Skins", "New skin", "Browse", choose the downloaded file, pick Wide or Slim arms, then "Save &amp; Use".</li>
-  <li><strong>Install the two mods.</strong> You need a mod loader (Fabric or NeoForge) plus <a href="https://modrinth.com/mod/entity-model-features" rel="noopener">Entity Model Features</a> and <a href="https://modrinth.com/mod/entitytexturefeatures" rel="noopener">Entity Texture Features</a> for your Minecraft version. Put both files in the "mods" folder. On Fabric also add <a href="https://modrinth.com/mod/fabric-api" rel="noopener">Fabric API</a>, download the Fabric files (not Forge or NeoForge), and start the game with the Fabric profile. Fabric has no "Mods" button on the title screen unless you add Mod Menu; that is normal.</li>
-  <li><strong>Add the pack.</strong> <a href="../#download">Download the pack</a>, put the zip in the "resourcepacks" folder, then in the game: Options, Resource Packs, move the pack to the right, Done.</li>
-  <li><strong>Look at yourself.</strong> Open a world and press F5 twice to see your face from the front.</li>
-  <li><strong>Check the eyes.</strong> Wait a few seconds: the eyes should blink. Turn your head left and right: with 2 wide or 3 wide eyes the pupils should move.</li>
+  <li><strong>Make and save your skin.</strong> In card 2 choose the eye shape and position matching your face. If you want a mouth, pick one from the Mouth list. In card 4, press <b>Download skin (.png)</b>.</li>
+  <li><strong>Use the skin.</strong> In the Minecraft Launcher open Skins, choose New skin and Browse, then select your downloaded PNG. Choose Wide or Slim to match your skin and select Save &amp; Use.</li>
+  <li><strong>Install the mods.</strong> Use a mod loader supported by your Minecraft version, plus matching versions of <a href="https://modrinth.com/mod/entity-model-features" rel="noopener">Entity Model Features (EMF)</a> and <a href="https://modrinth.com/mod/entitytexturefeatures" rel="noopener">Entity Texture Features (ETF)</a>. Put the mod JARs in the <code>mods</code> folder. For Fabric, also install a matching <a href="https://modrinth.com/mod/fabric-api" rel="noopener">Fabric API</a> and launch the Fabric profile. Fabric does not show a Mods button unless you add Mod Menu.</li>
+  <li><strong>Install one pack.</strong> <a href="../#download">Download Fresh Moves Fix</a>, put the ZIP in <code>resourcepacks</code> without unzipping it, then enable it in Options → Resource Packs. Choose either the normal pack or Eyes Only, not both. Eyes Only does not have body emotes.</li>
+  <li><strong>Check the eyes.</strong> Open a world and press F5 twice to face the camera. Wait for a blink and move around to check the eye animation. Simple eye types only blink.</li>
+  <li><strong>Try the mouth (optional).</strong> With a supported mouth skin, try getting hurt. To try the talking switch in pack 3.1-fix7 or newer, look forward and tap sneak twice quickly; repeat to stop. This is not linked to voice chat. Mouth animations and their placement are not tested in-game.</li>
 </ol>
-<p><strong>If something is wrong:</strong> the body moves but the eyes do not - your account uses a skin without the eye pixels; download the skin from this editor and put it on your account, then press F3 + T in the game. Black eyes - see <a href="../guides/fix-black-eyes/">Fix Black Eyes</a>. Eyes do not blink - try another position in card 2 (the eyes must sit exactly where your skin has them) and download again. Nothing moves at all - the mods or the pack are not switched on.</p>
+<h3>If something is wrong</h3>
+<ul>
+  <li><strong>Body moves, eyes do not:</strong> check that the downloaded skin is active on your account and that the selected eye shape and position match its face. Reload resources with F3 + T and try again.</li>
+  <li><strong>Nothing moves:</strong> check the game version, loader and mod versions, and that the pack is enabled. The Eyes Only pack intentionally leaves body movement unchanged.</li>
+  <li><strong>Black eyes:</strong> follow the <a href="../guides/fix-black-eyes/">Fix Black Eyes guide</a>.</li>
+  <li><strong>Mouth missing or misplaced:</strong> make sure you selected a mouth in the editor and saved the new skin. The moving mouth only supports face row 7; some eye positions leave no room or place it lower. Its in-game position is untested.</li>
+</ul>
 
 <h2>${ICON.info} How it works</h2>
-<p>Choose the eye shape and the position that match the eyes on your skin. The editor writes an eyelid colour and, for eyes with pupils, the eye colours into an unused corner of the skin file (outlined in green). The pack reads that corner to animate the eyes.</p>
+<p>Choose the eye shape and position that match your skin. The editor adds marker pixels to the skin file; the pack reads those pixels to animate the eyes. The green outline in <b>Added pixels</b> shows the eye marker area. Other marker pixels can be elsewhere in the skin.</p>
 <ul>
 <li><b>2 wide</b> (1, 2 or 3 tall): the eyes sit one pixel in from each side of the face; the pupils move and the eyes blink.</li>
 <li><b>Derp</b>: like 2 wide, 1 tall, with cross-eyed pupils.</li>
 <li><b>3 wide (enderman)</b>: the eyes touch the sides of the face.</li>
-<li><b>Simple</b> (1 wide): no moving pupil, the eyes only blink.</li>
+<li><b>Simple</b> (1 wide): no moving pupil; the eyes only blink.</li>
 </ul>
+<p><b>Eyebrows and mouth:</b> the editor can draw them on the face and add marker pixels for the pack. For a supported mouth in face row 7, the two pixels at x 60–61, y 32 give the open mouth colour. The website preview does not prove the in-game animation works.</p>
 <p><b>Keep the face on the first skin layer.</b> The pack animates the first layer only. Eyes or eyebrows painted on the outer layer (the hat layer) stay still in front of the moving eyes, so the editor removes solid outer-layer pixels over the eyes; see-through glass is kept. Do not erase the face of your skin: players without the pack and the mods still see your normal face.</p>
 <p>${ICON.ext} Video by Laynce that shows the eye types, eyebrows and eyelashes of the original Fresh Moves pack: <a href="https://www.youtube.com/watch?v=uDccyv7FROs" target="_blank" rel="noopener">The Animation Update</a> (YouTube, not made by us).</p>
 <p>The positions of 2 wide 1 tall and 2 wide 2 tall come from the example skins in the pack. The other shapes were worked out from the pack's model file and are less certain; the derp layout is the least certain. Eyebrows and eyelashes were also worked out from the model file and are not tested in the game. Fox eyes are not in the editor (the guide marks them as unfinished); see the <a href="../guides/">guides</a>.</p>
@@ -868,6 +875,14 @@ write("settings/index.html", page({
       <label class="mtile"><input type="radio" name="song" value="minecraft" data-music-song><span><b>Minecraft</b><small>Soft piano, 6:00</small></span></label>
       <label class="mtile"><input type="radio" name="song" value="fresh" data-music-song><span><b>Fresh Moves Fix</b><small>Original upbeat theme, 2:40</small></span></label>
     </div>
+    <details class="note">
+      <summary><b>Fresh Moves Fix — song lyrics</b></summary>
+      <p><b>Owner: lie_kg</b><br>The website track is instrumental; these words are not sung in the player.</p>
+      <p><b>Verse 1</b><br>Step into a world we know,<br>Watch the little pixels glow.<br>Blinking eyes and moves so new,<br>Every skin comes alive with you.</p>
+      <p><b>Chorus</b><br>Fresh Moves Fix, let’s move today,<br>Build and dance the blocks away!<br>Wave hello and take a look,<br>Make your story, write your book.</p>
+      <p><b>Verse 2</b><br>Through the mountains, through the trees,<br>Make your skin look how you please.<br>Every journey starts with you,<br>There’s a world of things to do.</p>
+      <p><b>Chorus</b><br>Fresh Moves Fix, let’s move today,<br>Build and dance the blocks away!<br>Wave hello and take a look,<br>Make your story, write your book.</p>
+    </details>
     <p class="elabel">Player</p>
     <div class="mtiles">
       <label class="mtile"><input type="checkbox" data-music-check><span><b>Play music</b><small data-music-state>Music: off</small></span><i data-music-time>0:00 / 3:34</i></label>
