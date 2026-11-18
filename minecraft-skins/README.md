@@ -1,34 +1,38 @@
 # Minecraft Skins (based on HD Skins)
 
-This is a renamed distribution of **HD Skins 6.16.2+26.3**, not a new mod
-written from scratch. HD Skins is by Mumfrey, Killjoy1221, Sollace and Mine
-Little Pony, licensed MIT; the upstream license is in `LICENSE.upstream` and
-inside the JAR. Source: https://github.com/MineLittlePony/HDSkins
+Minecraft Skins is a renamed distribution of **HD Skins** by Mumfrey,
+Killjoy1221, Sollace and Mine Little Pony, not a new mod written from scratch.
+HD Skins is MIT licensed; the upstream license is in `LICENSE.upstream` and
+inside each JAR. Source: https://github.com/MineLittlePony/HDSkins
 
-The only change to the pinned original JAR is the name and description in
-`fabric.mod.json`, plus a notice and a copy of the upstream license. Upstream
-code, assets, mod ID `hdskins`, dependencies and behavior are unchanged. Do not
-install this JAR alongside the original HD Skins: they have the same mod ID.
-The JAR is built for Minecraft Java 26.3 and Fabric; use the matching upstream
-requirements and mod versions. This renamed distribution is not an official
-upstream release and has not been tested in-game. Back up your game first.
+The only changes to each pinned upstream JAR are its display name and
+information in `fabric.mod.json`, plus a notice and a copy of the upstream
+license. Code, assets, mod ID `hdskins`, dependencies and behavior are unchanged.
+Do not install this JAR alongside the original HD Skins: both have the same ID.
 
-To reproduce, download `hdskins-6.16.2+26.3.jar` from the upstream GitHub release
-`6.16.2+26.3`, then run:
+## Download a build
 
-```
-python3 minecraft-skins/repackage.py path/to/hdskins-6.16.2+26.3.jar minecraft-skins/minecraft-skins-26.3.jar
-```
+In GitHub Actions, open a successful **Build Minecraft Skins JAR** run and
+choose the `minecraft-skins-fabric-versions` artifact. Extract the ZIP and pick
+**one** JAR matching your Minecraft Java version. Fabric Loader and a matching
+Fabric API are required. Consult upstream's version list and mod requirements
+for each release; a JAR's filename identifies the upstream build, not guaranteed
+support for every adjacent Minecraft patch. GitHub may require sign-in and
+artifacts can expire. The 26.3 JAR is also offered separately.
 
-The script verifies the pinned SHA-256, preserves upstream content and refuses
-to modify a signed JAR. Upload only the resulting JAR to your mods folder, not
-the Python file. Consult upstream instructions for skin servers and setup.
+JARs are prepared for upstream builds 1.20, 1.20.1, 1.20.2, 1.20.4, 1.20.5,
+1.21.1, 1.21.3, 1.21.4, 1.21.5, 1.21.7, 1.21.10, 1.21.11, 26.1, 26.2 and
+26.3. These are not verified as compatible with every Minecraft version displayed
+for the separate Fresh Moves Fix resource pack. In particular there is no
+separately verified 1.21.9 build in this bundle. These mods have not been tested
+in-game. Back up your game first.
 
-## GitHub Actions
+## Reproduce
 
-The **Build Minecraft Skins JAR** workflow downloads the pinned upstream release,
-checks its SHA-256 and creates an attributed renamed JAR. Open a successful run
-under Actions and download the `minecraft-skins-fabric-26.3` artifact. GitHub
-may require sign-in and artifacts expire. The artifact download is a ZIP: extract
-it, and put the JAR inside in the `mods` folder. This workflow does not test the
-mod in Minecraft and does not publish a GitHub release.
+With Python 3 and the GitHub CLI installed and authenticated, run
+`python3 minecraft-skins/build-all.py dist/minecraft-skins`. Each upstream release
+is pinned by asset name, tag and SHA-256 in `upstream-releases.json`. Hashes for
+older assets were computed from their upstream GitHub downloads; newer hashes are
+also recorded in upstream release metadata. The script refuses to modify signed
+or corrupt JARs and includes the upstream copyright and MIT license. The workflow
+does not publish a GitHub release.

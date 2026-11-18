@@ -1,22 +1,25 @@
 #!/usr/bin/env python3
-"""Create a clearly attributed Minecraft Skins JAR from the pinned HD Skins release."""
+"""Repackage one pinned upstream HD Skins release with attribution."""
 import hashlib
 import json
 import sys
 import zipfile
 from pathlib import Path
 
-EXPECTED_SHA256 = '5e8833c042492b944a7ece1bd15c7ed02810a218421b846d2691880ab202a9ad'
 source = Path(sys.argv[1])
 target = Path(sys.argv[2])
-if hashlib.sha256(source.read_bytes()).hexdigest() != EXPECTED_SHA256:
-    raise SystemExit('Unexpected upstream JAR hash; refusing to repackage')
-license_text = (Path(__file__).parent / 'LICENSE.upstream').read_bytes()
-notice = (b'Minecraft Skins is a renamed distribution of HD Skins 6.16.2+26.3.\n'
-          b'Copyright (c) 2019 Mine Little Pony; authors Mumfrey, Killjoy1221 and Sollace.\n'
-          b'Source: https://github.com/MineLittlePony/HDSkins\n'
-          b'The upstream MIT license is included in LICENSE.minecraft-skins-upstream.txt.\n'
-          b'This renamed distribution is not an official upstream release.\n')
+root = Path(__file__).parent
+releases = json.loads((root / 'upstream-releases.json').read_text(encoding='utf-8'))
+matches = [item for item in releases if item['asset'] == source.name]
+if len(matches) != 1 or hashlib.sha256(source.read_bytes()).hexdigest() != matches[0]['sha256']:
+    raise SystemExit('Unknown upstream JAR or unexpected SHA-256; refusing to repackage')
+entry = matches[0]
+license_text = (root / 'LICENSE.upstream').read_bytes()
+notice = (f'Minecraft Skins is a renamed distribution of {entry["asset"]}.\n'
+          'Copyright (c) 2019 Mine Little Pony; authors Mumfrey, Killjoy1221 and Sollace.\n'
+          'Source: https://github.com/MineLittlePony/HDSkins\n'
+          'The upstream MIT license is included in LICENSE.minecraft-skins-upstream.txt.\n'
+          'This renamed distribution is not an official upstream release.\n').encode()
 target.parent.mkdir(parents=True, exist_ok=True)
 with zipfile.ZipFile(source) as src, zipfile.ZipFile(target, 'w') as dst:
     if any(i.filename.upper().startswith('META-INF/') and i.filename.upper().endswith(('.SF', '.RSA', '.DSA', '.EC')) for i in src.infolist()):

@@ -2,76 +2,91 @@
   {
     "tag": "6.10.2+1.20",
     "asset": "hdskins-6.10.2+1.20.jar",
-    "sha256": ""
+    "sha256": "37643b031c860b38098e9133d3937e05bed3c73f91915868b0c71c6384d6882b",
+    "minecraft_build": "1.20"
   },
   {
     "tag": "6.10.6+1.20.1",
     "asset": "hdskins-6.10.6+1.20.1.jar",
-    "sha256": "8f92b3a4aeec218b096eec63ff9b405667ea258e0f57a0295d96257018148952"
+    "sha256": "8f92b3a4aeec218b096eec63ff9b405667ea258e0f57a0295d96257018148952",
+    "minecraft_build": "1.20.1"
   },
   {
     "tag": "6.11.2+1.20.2",
     "asset": "hdskins-6.11.2+1.20.2.jar",
-    "sha256": ""
+    "sha256": "b598af3d92405da7d55b9ac8a0c2fa24894a0d33b638b96a276c2cddabfaf597",
+    "minecraft_build": "1.20.2"
   },
   {
     "tag": "6.12.2+1.20.4",
     "asset": "hdskins-6.12.2+1.20.4.jar",
-    "sha256": ""
+    "sha256": "2e1145b29f8549b5cf589900996c3f4fd8059ebd10407b707db9b54cc786ee74",
+    "minecraft_build": "1.20.4"
   },
   {
     "tag": "6.12.3+1.20.5",
     "asset": "hdskins-6.12.3+1.20.5.jar",
-    "sha256": ""
+    "sha256": "82522ac3bcd4c2b3af23ccfb9a0d5a43f295394df6fba3c786be6d1bf9d08dc2",
+    "minecraft_build": "1.20.5"
   },
   {
     "tag": "6.15.1+1.21.1",
     "asset": "hdskins-6.15.1+1.21.1.jar",
-    "sha256": "30f18469326dffd74cdbbd15d124311c212ebf9ac6266dd3c91939665ce1c126"
+    "sha256": "30f18469326dffd74cdbbd15d124311c212ebf9ac6266dd3c91939665ce1c126",
+    "minecraft_build": "1.21.1"
   },
   {
     "tag": "6.15.1+1.21.1",
     "asset": "hdskins-6.15.1+1.21.3.jar",
-    "sha256": "8ecef8fbaa4a047965c7f935dbee40b0b1cf866e01672abfd5dc7d125d66274d"
+    "sha256": "8ecef8fbaa4a047965c7f935dbee40b0b1cf866e01672abfd5dc7d125d66274d",
+    "minecraft_build": "1.21.3"
   },
   {
     "tag": "6.15.1+1.21.1",
     "asset": "hdskins-6.15.1+1.21.4.jar",
-    "sha256": "96f99597f50bff8bba2b9137f46d95d1aa75f02ac4da6a701a249cd40fd1e294"
+    "sha256": "96f99597f50bff8bba2b9137f46d95d1aa75f02ac4da6a701a249cd40fd1e294",
+    "minecraft_build": "1.21.4"
   },
   {
     "tag": "6.15.1+1.21.1",
     "asset": "hdskins-6.15.1+1.21.5.jar",
-    "sha256": "556830beb005b4d63c18c8e1784c54b28905646d59ea5cb71a259d53b564cbc0"
+    "sha256": "556830beb005b4d63c18c8e1784c54b28905646d59ea5cb71a259d53b564cbc0",
+    "minecraft_build": "1.21.5"
   },
   {
     "tag": "6.15.1+1.21.1",
     "asset": "hdskins-6.15.1+1.21.7.jar",
-    "sha256": "5ee2139eefe0f4e02cad36a72cbc033e82cb8609e90769af138a468b11cfbea9"
+    "sha256": "5ee2139eefe0f4e02cad36a72cbc033e82cb8609e90769af138a468b11cfbea9",
+    "minecraft_build": "1.21.7"
   },
   {
     "tag": "6.16.1+1.21.10",
     "asset": "hdskins-6.16.1+1.21.10.jar",
-    "sha256": "2a007ab01fabc589879c530376b9963fbf98f37d2534d980af781d5f6fd2110a"
+    "sha256": "2a007ab01fabc589879c530376b9963fbf98f37d2534d980af781d5f6fd2110a",
+    "minecraft_build": "1.21.10"
   },
   {
     "tag": "6.16.1+1.21.10",
     "asset": "hdskins-6.16.1+1.21.11.jar",
-    "sha256": "148af29a4802a830c34645f745393f3287db98d5d1853c515b92279f4dcc8cf4"
+    "sha256": "148af29a4802a830c34645f745393f3287db98d5d1853c515b92279f4dcc8cf4",
+    "minecraft_build": "1.21.11"
   },
   {
     "tag": "6.16.2+26.3",
     "asset": "hdskins-6.16.1+26.1.jar",
-    "sha256": "7865d9d45b5f816cc477ab8b1b3e57bb2ae9f0f726a2f6ce3e0b36b3f6e03e28"
+    "sha256": "7865d9d45b5f816cc477ab8b1b3e57bb2ae9f0f726a2f6ce3e0b36b3f6e03e28",
+    "minecraft_build": "26.1"
   },
   {
     "tag": "6.16.2+26.3",
     "asset": "hdskins-6.16.1+26.2.jar",
-    "sha256": "3979d4429ed1a9c4a51ce65ef3fe357d43eb8a73bdd1833ae4a1c10ed76c60d0"
+    "sha256": "3979d4429ed1a9c4a51ce65ef3fe357d43eb8a73bdd1833ae4a1c10ed76c60d0",
+    "minecraft_build": "26.2"
   },
   {
     "tag": "6.16.2+26.3",
     "asset": "hdskins-6.16.2+26.3.jar",
-    "sha256": "5e8833c042492b944a7ece1bd15c7ed02810a218421b846d2691880ab202a9ad"
+    "sha256": "5e8833c042492b944a7ece1bd15c7ed02810a218421b846d2691880ab202a9ad",
+    "minecraft_build": "26.3"
   }
 ]
