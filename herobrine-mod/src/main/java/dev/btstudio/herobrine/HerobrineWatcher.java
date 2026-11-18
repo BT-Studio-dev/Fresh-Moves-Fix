@@ -1,5 +1,7 @@
 package dev.btstudio.herobrine;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -45,7 +47,12 @@ public final class HerobrineWatcher implements ModInitializer {
 
     private static void spawnFor(MinecraftServer server, String target) {
         String atPlayer = "execute as " + target + " at @s ";
-        run(server, atPlayer + "positioned ~8 ~ ~8 positioned over motion_blocking_no_leaves "
+        // Choose a direction for each sighting instead of always the same corner.
+        int[][] positions = {{12, 0}, {-12, 0}, {0, 12}, {0, -12},
+                             {9, 9}, {9, -9}, {-9, 9}, {-9, -9}};
+        int[] offset = positions[ThreadLocalRandom.current().nextInt(positions.length)];
+        run(server, atPlayer + "positioned ~" + offset[0] + " ~ ~" + offset[1]
+                + " positioned over motion_blocking_no_leaves "
                 + "unless entity @e[type=minecraft:armor_stand,tag=" + TAG + ",distance=..64] "
                 + "run summon minecraft:armor_stand ~ ~ ~ {Tags:[\"" + TAG + "\",\"fmf_herobrine_new\"],ShowArms:1b,NoBasePlate:1b,Invulnerable:1b,Silent:1b}");
         String nearby = "@e[type=minecraft:armor_stand,tag=" + TAG + ",tag=fmf_herobrine_new,distance=..64]";

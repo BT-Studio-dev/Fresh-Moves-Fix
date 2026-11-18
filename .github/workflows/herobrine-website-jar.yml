@@ -1,0 +1,32 @@
+name: Prepare Herobrine website download
+on:
+  push:
+    branches: [arena/d678431e-fresh-moves-fix]
+    paths: ['.github/workflows/herobrine-website-jar.yml']
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.8.2'
+      - name: Build mod
+        working-directory: herobrine-mod
+        run: gradle build --no-daemon
+      - name: Store the test JAR for the website
+        run: |
+          cp herobrine-mod/build/libs/herobrine-watcher-0.1.5.jar website/downloads/herobrine-watcher-fabric-26.3.jar
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add website/downloads/herobrine-watcher-fabric-26.3.jar
+          git diff --cached --quiet || git commit -m 'Build Herobrine sightings test JAR'
+          git push origin HEAD:${{ github.ref_name }}

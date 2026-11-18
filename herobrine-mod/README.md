@@ -4,8 +4,8 @@ This is **experimental source code**. A test JAR was built by GitHub Actions. It
 Fabric Loader 0.20.1+, Fabric API 0.166.2+26.3, and Java 25. The GitHub Actions build compiled successfully, but gameplay has not been verified. Back up worlds before testing.
 
 The prototype uses an invulnerable, silent armor stand, not a custom mob or
-player model. Every five minutes of server runtime it tries to appear eight
-blocks from players, turn toward a nearby player, and disappear 20 seconds
+player model. Every five minutes of server runtime it tries to appear about twelve
+blocks from players, in a randomly chosen direction, turn toward a nearby player, and disappear 20 seconds
 later. It plays Minecraft’s cave ambience sound once when it appears, and does not attack. Its head uses the `MHF_Herobrine` Minecraft profile, which has white eyes.
 The game must resolve its skin online; it may not load offline. The eyes are
 white pixels, not emissive (they do not glow in the dark). Dyed leather armor provides a turquoise shirt and blue trousers, but remains a placeholder. Terrain, multiplayer,

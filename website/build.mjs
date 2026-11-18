@@ -973,10 +973,10 @@ write("herobrine/index.html", page({
   body: `<div class="wrap"><article class="editor">
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <h1>${ICON.eye} Herobrine Watcher</h1>
-<p>A separate experimental Fabric mod for Minecraft Java 26.3. It tries to make a figure appear near you with a spooky Minecraft cave sound, watch you and disappear. It does not attack.</p>
+<p>A separate experimental Fabric mod for Minecraft Java 26.3. It tries to make a figure appear in different directions near you with a spooky Minecraft cave sound, watch you and disappear. It does not attack.</p>
 <div class="note"><strong>Prototype — not tested in Minecraft.</strong> Back up your world before trying it. This is an armor stand with turquoise and blue dyed armor and a player-profile head, not a finished Herobrine model. Its head uses the MHF_Herobrine profile, with white eyes. The skin needs to load online; the eyes do not glow in the dark.</div>
 <h2>${ICON.down} Get the test build</h2>
-<p><a class="btn" href="../downloads/herobrine-watcher-fabric-26.3.jar?v=0.1.4" download>${ICON.down} Download Herobrine mod (.jar)</a></p>
+<p><a class="btn" href="../downloads/herobrine-watcher-fabric-26.3.jar?v=0.1.5" download>${ICON.down} Download Herobrine mod (.jar)</a></p>
 <p>Download the JAR directly here; no GitHub account is needed. This is an experimental test build, not a finished release.</p>
 <h2>${ICON.wrench} Install</h2>
 <ol>
