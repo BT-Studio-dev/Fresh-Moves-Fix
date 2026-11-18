@@ -1,0 +1,27 @@
+name: Inspect upstream skin releases
+on:
+  push:
+    branches: [arena/bcd06987-fresh-moves-fix]
+    paths: ['.github/workflows/inspect-skins.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect release hashes and compatibility
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json, subprocess, hashlib, zipfile
+          from pathlib import Path
+          for entry in json.loads(Path('minecraft-skins/upstream-releases.json').read_text()):
+            subprocess.run(['gh','release','download',entry['tag'],'--repo','MineLittlePony/HDSkins','--pattern',entry['asset'],'--dir','/tmp/skins'],check=True)
+            p=Path('/tmp/skins')/entry['asset']; digest=hashlib.sha256(p.read_bytes()).hexdigest()
+            assert not entry['sha256'] or entry['sha256']==digest
+            with zipfile.ZipFile(p) as z:
+              m=json.loads(z.read('fabric.mod.json')); supported=m.get('depends',{}).get('minecraft','unspecified')
+              print('::notice::' + entry['asset'] + ' SHA256=' + digest + ' Minecraft=' + json.dumps(supported),flush=True)
+          PY
