@@ -283,7 +283,7 @@ write("editor/index.html", page({
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <h1>${ICON.eye} Skin eye editor</h1>
 <p>Adds the extra pixels that make the eyes blink and move, then lets you download the skin. Everything happens in your browser; the skin is not uploaded anywhere.</p>
-<div class="note"><strong>Not tested in-game.</strong> Some eye shapes are less certain than others (see "How it works" below). Keep a copy of your original skin. <a href="#test">How to test it in the game</a></div>
+<div class="note"><strong>Eyes tested in-game:</strong> a player reported that their eyes blink and move. Other eye shapes and features may behave differently and still need testing (see "How it works" below). Keep a copy of your original skin. <a href="#test">How to test it in the game</a></div>
 
 <div class="ed">
   <div class="ed-col">
@@ -432,7 +432,7 @@ write("editor/index.html", page({
 </div>
 
 <h2 id="test">${ICON.info} How to test it in the game</h2>
-<p>Use Minecraft Java Edition. The website preview is an approximation; it cannot test the pack in Minecraft. Keep a copy of your original skin.</p>
+<p>A player confirmed that blinking and moving eyes worked in their game. Results may differ with other skins, eye shapes or versions. Use Minecraft Java Edition; the website preview cannot test the pack for you. Keep a copy of your original skin.</p>
 <ol class="steps">
   <li><strong>Make and save your skin.</strong> In card 2 choose the eye shape and position matching your face. If you want a mouth, pick one from the Mouth list. In card 4, press <b>Download skin (.png)</b>.</li>
   <li><strong>Use the skin.</strong> In the Minecraft Launcher open Skins, choose New skin and Browse, then select your downloaded PNG. Choose Wide or Slim to match your skin and select Save &amp; Use.</li>
@@ -996,7 +996,7 @@ write("index.html", page({
 </div>
 
 <section>
-  <div class="note"><strong>Beta.</strong> These builds have not been tested in-game yet. On Minecraft 1.21.4 and newer the cape and elytra may not be animated.</div>
+  <div class="note"><strong>Beta.</strong> Blinking and moving eyes have worked in a player’s game; other features and versions still need testing. On Minecraft 1.21.4 and newer the cape and elytra may not be animated.</div>
   <h2>${ICON.star} What it does</h2>
   <div class="cards">
     <a class="card feat" href="#download"><h3>${ICON.run} Player animations</h3><p>Reworked walking, sprinting, sneaking, swimming, crawling and sleeping, in the style of Fresh Animations.</p><span class="more">Download ${ICON.right}</span></a>
