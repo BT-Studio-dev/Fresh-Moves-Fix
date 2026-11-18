@@ -283,7 +283,7 @@ write("editor/index.html", page({
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <h1>${ICON.eye} Skin eye editor</h1>
 <p>Adds the extra pixels that make the eyes blink and move, then lets you download the skin. Everything happens in your browser; the skin is not uploaded anywhere.</p>
-<div class="note"><strong>Not tested in-game.</strong> Some eye shapes are less certain than others (see "How it works" below). Keep a copy of your original skin. <a href="#test">How to test it in the game</a></div>
+<div class="note"><strong>Eyes tested in-game:</strong> a player reported that their eyes blink and move. Other eye shapes and features may behave differently and still need testing (see "How it works" below). Keep a copy of your original skin. <a href="#test">How to test it in the game</a></div>
 
 <div class="ed">
   <div class="ed-col">
@@ -432,7 +432,7 @@ write("editor/index.html", page({
 </div>
 
 <h2 id="test">${ICON.info} How to test it in the game</h2>
-<p>Use Minecraft Java Edition. The website preview is an approximation; it cannot test the pack in Minecraft. Keep a copy of your original skin.</p>
+<p>A player confirmed that blinking and moving eyes worked in their game. Results may differ with other skins, eye shapes or versions. Use Minecraft Java Edition; the website preview cannot test the pack for you. Keep a copy of your original skin.</p>
 <ol class="steps">
   <li><strong>Make and save your skin.</strong> In card 2 choose the eye shape and position matching your face. If you want a mouth, pick one from the Mouth list. In card 4, press <b>Download skin (.png)</b>.</li>
   <li><strong>Use the skin.</strong> In the Minecraft Launcher open Skins, choose New skin and Browse, then select your downloaded PNG. Choose Wide or Slim to match your skin and select Save &amp; Use.</li>
@@ -988,6 +988,7 @@ write("index.html", page({
   <div class="txt">
     <h1 class="mc-title"><img src="title.png?2" width="1708" height="228" alt="Fresh Moves Fix"></h1>
     <p>Smoother, more expressive player animations and animated eyes for Minecraft. A fork of Fresh Moves with small fixes and builds for Minecraft ${versions[0].mc} to ${versions[versions.length - 1].mc}.</p>
+    <p><strong>Owner: lie_kg</strong></p>
     <a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">${ICON.down} Download ${esc(version)}</a>
     <a class="btn ghost" href="editor/">${ICON.eye} Skin eye editor</a>
     <a class="btn ghost" href="guides/">${ICON.book} Eye guides</a>
@@ -995,7 +996,7 @@ write("index.html", page({
 </div>
 
 <section>
-  <div class="note"><strong>Beta.</strong> These builds have not been tested in-game yet. On Minecraft 1.21.4 and newer the cape and elytra may not be animated.</div>
+  <div class="note"><strong>Beta.</strong> Blinking and moving eyes have worked in a player’s game; other features and versions still need testing. On Minecraft 1.21.4 and newer the cape and elytra may not be animated.</div>
   <h2>${ICON.star} What it does</h2>
   <div class="cards">
     <a class="card feat" href="#download"><h3>${ICON.run} Player animations</h3><p>Reworked walking, sprinting, sneaking, swimming, crawling and sleeping, in the style of Fresh Animations.</p><span class="more">Download ${ICON.right}</span></a>
@@ -1043,6 +1044,7 @@ write("index.html", page({
     <a class="btn ghost" rel="noopener" href="https://modrinth.com/mod/entity-model-features">${ICON.ext} Entity Model Features (EMF)</a>
     <a class="btn ghost" rel="noopener" href="https://modrinth.com/mod/entitytexturefeatures">${ICON.ext} Entity Texture Features (ETF)</a>
   </p>
+  <p>On Fabric, also install a matching <a rel="noopener" href="https://modrinth.com/mod/fabric-api">Fabric API</a>. The mods and loader must match your Minecraft version; Fabric API is only for Fabric.</p>
   <p>Helpful, not required: <a rel="noopener" href="https://modrinth.com/mod/modmenu">Mod Menu</a> and <a rel="noopener" href="https://modrinth.com/mod/cloth-config">Cloth Config</a>, to open the settings of the mods in the game. Custom Skin Loader and Alpha Skins from old guides are no longer needed.</p>
   <p>On Minecraft 1.21.9 and newer armour only follows the animations with a recent EMF (3.0.5 or newer; 3.0.12 fixes armour lag).</p>
   <p>On Minecraft 26.1, 26.1.1 and 26.1.2 use EMF 3.3.2 or newer (older versions do not start or crash there). On 26.3 use EMF 3.3.6 or newer. EMF for 26.x exists for Fabric and NeoForge.</p>
@@ -1073,8 +1075,10 @@ ${versionLinks}
 <section>
   <h2>${ICON.list} How to install</h2>
   <ol class="steps">
-    <li>Install EMF and ETF.</li>
-    <li>Put the downloaded zip (do not unzip it) in your <code>resourcepacks</code> folder.</li>
+    <li>Install a mod loader for your Minecraft Java version, such as Fabric.</li>
+    <li>Download matching versions of <a href="https://modrinth.com/mod/entity-model-features" rel="noopener">Entity Model Features (EMF)</a> and <a href="https://modrinth.com/mod/entitytexturefeatures" rel="noopener">Entity Texture Features (ETF)</a>. For Fabric, also download <a href="https://modrinth.com/mod/fabric-api" rel="noopener">Fabric API</a>. Choose the files for your Minecraft version and loader.</li>
+    <li>Put the mod <strong>JAR</strong> files in your <code>mods</code> folder. Start Minecraft with the matching loader profile.</li>
+    <li>Put the downloaded Fresh Moves Fix <strong>ZIP</strong> (do not unzip it) in your <code>resourcepacks</code> folder. Choose either the normal pack or Eyes Only, not both.</li>
     <li>In Minecraft go to Options → Resource Packs, move the pack to the right and click Done.</li>
   </ol>
   <p>Black eyes? See <a href="guides/fix-black-eyes/">Fix Black Eyes</a>.</p>
