@@ -1,0 +1,30 @@
+name: Prepare website skin downloads
+on:
+  push:
+    branches: [arena/bcd06987-fresh-moves-fix]
+    paths: ['.github/workflows/prepare-skin-downloads.yml']
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Build pinned, attributed JARs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 minecraft-skins/build-all.py website/downloads/minecraft-skins
+      - name: Remove upstream inputs from workspace
+        run: rm -rf website/downloads/upstream-skins
+      - name: Store website downloads
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add website/downloads/minecraft-skins/*.jar
+          git diff --cached --quiet || git commit -m 'Add version-specific Minecraft Skins website downloads'
+          git push origin HEAD:${{ github.ref_name }}
