@@ -167,9 +167,6 @@ fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 fs.copyFileSync(path.join(root, "pack.png"), path.join(out, "pack.png"));
 fs.copyFileSync(path.join(here, "title.png"), path.join(out, "title.png"));
-// Serve the separately built experimental Fabric mod directly from this website.
-fs.mkdirSync(path.join(out, "downloads"), { recursive: true });
-fs.copyFileSync(path.join(here, "downloads/herobrine-watcher-fabric-26.3.jar"), path.join(out, "downloads/herobrine-watcher-fabric-26.3.jar"));
 // icons for browser start pages, bookmarks and "add to home screen"
 for (const f of ["favicon.ico", "icon-180.png", "icon-192.png", "icon-512.png", "tile-logo.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 const SITE = "https://fresh-moves-fix.vercel.app/";
@@ -965,31 +962,6 @@ write("404.html", page({
 </article></div>`,
 }).replace("<head>", '<head>\n<base href="/">'));
 
-// Herobrine is a separate Fabric mod, not part of the resource pack.
-write("herobrine/index.html", page({
-  title: "Herobrine Watcher mod - Fresh Moves Fix",
-  description: "An experimental, non-hostile Herobrine-inspired watcher for Minecraft Java 26.3 Fabric.",
-  depth: 1,
-  body: `<div class="wrap"><article class="editor">
-<div class="crumb"><a href="../">${ICON.home} Home</a></div>
-<h1>${ICON.eye} Herobrine Watcher</h1>
-<p>A separate experimental Fabric mod for Minecraft Java 26.3. It tries to make a figure appear in different directions near you with a spooky Minecraft cave sound, watch you and disappear. It does not attack.</p>
-<div class="note"><strong>Prototype — not tested in Minecraft.</strong> Back up your world before trying it. This is an armor stand with turquoise and blue dyed armor and a player-profile head, not a finished Herobrine model. Its head uses the MHF_Herobrine profile, with white eyes. The skin needs to load online; the eyes do not glow in the dark.</div>
-<h2>${ICON.down} Get the test build</h2>
-<p><a class="btn" href="../downloads/herobrine-watcher-fabric-26.3.jar?v=0.1.5" download>${ICON.down} Download Herobrine mod (.jar)</a></p>
-<p>Download the JAR directly here; no GitHub account is needed. This is an experimental test build, not a finished release.</p>
-<h2>${ICON.wrench} Install</h2>
-<ol>
-<li>Use Minecraft Java 26.3 with Fabric Loader 0.20.1 or newer and Java 25.</li>
-<li>Install a Fabric API version for Minecraft 26.3. Put its JAR and the downloaded Herobrine Watcher JAR in your <code>mods</code> folder.</li>
-<li>Start the Fabric profile. The figure is intended to appear after about five minutes of server runtime and disappear after 20 seconds. In multiplayer, the server needs the mod.</li>
-<li>To try summoning it immediately, enable cheats (or use an operator account on a server), open chat and type <code>/herobrine</code>. The command is not tested in-game.</li>
-</ol>
-<p>Windows 7 support for Minecraft 26.3 and Java 25 is not assured. This mod is separate from the Fresh Moves Fix resource pack; the pack ZIP goes in <code>resourcepacks</code>, not <code>mods</code>.</p>
-<p><a href="${REPO}/pull/14">${ICON.code} View the mod changes on GitHub</a></p>
-</article></div>`,
-}));
-
 write("index.html", page({
   title: "Fresh Moves Fix - player animations for Minecraft",
   active: "home",
@@ -1045,13 +1017,6 @@ write("index.html", page({
       <span class="tool-text">Put movements in a row with your own skin and save the animation as a video.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Animation</i><i>Video</i></span>
     </a>
-  </div>
-</section>
-
-<section>
-  <h2>${ICON.box} Mods</h2>
-  <div class="cards">
-    <a class="card feat" href="herobrine/"><h3>${ICON.eye} Herobrine Watcher</h3><p>Experimental Fabric mod: a silent figure tries to appear and watch you. Separate from the resource pack; not tested in-game.</p><span class="more">Mod details ${ICON.right}</span></a>
   </div>
 </section>
 
