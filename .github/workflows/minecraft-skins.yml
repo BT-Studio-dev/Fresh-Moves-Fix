@@ -1,0 +1,37 @@
+name: Build Minecraft Skins JAR
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'minecraft-skins/**'
+      - '.github/workflows/minecraft-skins.yml'
+  push:
+    paths:
+      - 'minecraft-skins/**'
+      - '.github/workflows/minecraft-skins.yml'
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Download, verify and prepare version-specific JARs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 minecraft-skins/build-all.py dist/minecraft-skins
+      - name: Upload all Minecraft Skins JARs
+        uses: actions/upload-artifact@v4
+        with:
+          name: minecraft-skins-fabric-versions
+          path: dist/minecraft-skins/*.jar
+          if-no-files-found: error
+      - name: Upload 26.3 JAR separately
+        uses: actions/upload-artifact@v4
+        with:
+          name: minecraft-skins-fabric-26.3
+          path: dist/minecraft-skins/minecraft-skins-fabric-26.3.jar
+          if-no-files-found: error

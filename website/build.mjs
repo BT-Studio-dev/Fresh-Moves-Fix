@@ -8,6 +8,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
 const out = path.join(here, "public");
 const REPO = "https://github.com/BT-Studio-dev/Fresh-Moves-Fix";
+const skinReleases = JSON.parse(fs.readFileSync(path.join(root, "minecraft-skins/upstream-releases.json"), "utf8"));
 
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 const version = read("VERSION").trim();
@@ -167,6 +168,14 @@ fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 fs.copyFileSync(path.join(root, "pack.png"), path.join(out, "pack.png"));
 fs.copyFileSync(path.join(here, "title.png"), path.join(out, "title.png"));
+// Direct downloads for the separate Minecraft Skins Fabric mod.
+const skinDownloads = path.join(out, "downloads", "minecraft-skins");
+fs.mkdirSync(skinDownloads, { recursive: true });
+for (const release of skinReleases) {
+  if (!/^\d+(?:\.\d+)*$/.test(release.minecraft_build)) throw new Error("Invalid skin build version");
+  const file = `minecraft-skins-fabric-${release.minecraft_build}.jar`;
+  fs.copyFileSync(path.join(here, "downloads", "minecraft-skins", file), path.join(skinDownloads, file));
+}
 // icons for browser start pages, bookmarks and "add to home screen"
 for (const f of ["favicon.ico", "icon-180.png", "icon-192.png", "icon-512.png", "tile-logo.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 const SITE = "https://fresh-moves-fix.vercel.app/";
@@ -867,11 +876,10 @@ write("settings/index.html", page({
     <button type="button" class="tab" data-tab="music">${ICON.music} Music</button></div>
   <div class="box" id="tab-music" hidden>
     <h2 class="shead"><span class="tool-ic">${ICON.music}</span><span><b>Music</b><small>Background song for the website</small></span></h2>
-    <p>Background music made by your browser (no music files). Choose Calm, Herobrine, Minecraft, or the new original Fresh Moves Fix song (2 minutes 40 seconds). Each song repeats. It is off until you turn it on, and saved in this browser only.</p>
+    <p>Background music made by your browser (no music files). Choose Calm, Minecraft, or the new original Fresh Moves Fix song (2 minutes 40 seconds). Each song repeats. It is off until you turn it on, and saved in this browser only.</p>
     <p class="elabel">Song</p>
     <div class="mtiles two">
       <label class="mtile"><input type="radio" name="song" value="calm" data-music-song checked><span><b>Calm</b><small>Soft and friendly</small></span></label>
-      <label class="mtile"><input type="radio" name="song" value="herobrine" data-music-song><span><b>Herobrine</b><small>Dark and creepy</small></span></label>
       <label class="mtile"><input type="radio" name="song" value="minecraft" data-music-song><span><b>Minecraft</b><small>Soft piano, 6:00</small></span></label>
       <label class="mtile"><input type="radio" name="song" value="fresh" data-music-song><span><b>Fresh Moves Fix</b><small>Original upbeat theme, 2:40</small></span></label>
     </div>
@@ -960,6 +968,15 @@ const versionLinks = groups.map((g) => {
   return `<a class="ver" download href="${dl(`Fresh-Moves-Fix-mc${last}.zip`)}" title="Download Fresh-Moves-Fix-mc${last}.zip">
     <span class="tool-head"><img class="ver-ic" src="pack.png" alt="" width="40" height="40" loading="lazy"><span><b>${label}</b><small>Minecraft</small></span></span>
     <span class="tags"><i>format ${g.format}</i><i class="dl">${ICON.down} .zip</i></span>${newest ? '<i class="ver-new">Newest</i>' : ""}
+  </a>`;
+}).join("\n");
+
+const skinVersionLinks = skinReleases.map((release) => {
+  const mc = esc(release.minecraft_build);
+  const file = `minecraft-skins-fabric-${mc}.jar`;
+  return `<a class="ver" download href="downloads/minecraft-skins/${file}" title="Download ${file}">
+    <span class="tool-head"><img class="ver-ic" src="icon-skin.png" alt="" width="40" height="40" loading="lazy"><span><b>${mc}</b><small>Minecraft build</small></span></span>
+    <span class="tags"><i>Fabric</i><i class="dl">${ICON.down} .jar</i></span>
   </a>`;
 }).join("\n");
 
@@ -1070,6 +1087,14 @@ write("index.html", page({
 ${versionLinks}
   </div>
   <p style="margin-top:16px"><a rel="noopener" href="${REPO}/releases">${ICON.tag} All releases on GitHub</a></p>
+</section>
+
+<section id="minecraft-skins-download">
+  <h2>${ICON.down} Download Minecraft Skins — Fabric</h2>
+  <p><strong>A separate mod, not the Fresh Moves Fix resource pack.</strong> Pick one JAR for your Minecraft version; put it in the <code>mods</code> folder with matching Fabric Loader and Fabric API. Do not install it together with HD Skins: they have the same mod ID.</p>
+  <div class="note">Minecraft Skins is a renamed distribution of <a href="https://github.com/MineLittlePony/HDSkins" rel="noopener">HD Skins</a> by Mine Little Pony and contributors (MIT). The code and skin-server behavior are unchanged. The JARs have not been tested in-game; back up your game before trying them.</div>
+  <p>These cards show the <strong>upstream Minecraft build version</strong>. Some adjacent versions may work, but have not been verified; there is no separately verified 1.21.9 build. Check the <a href="https://modrinth.com/mod/hd-skins/versions" rel="noopener">upstream version list</a> before choosing.</p>
+  <div class="versions">${skinVersionLinks}</div>
 </section>
 
 <section>
