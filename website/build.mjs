@@ -1044,6 +1044,7 @@ write("index.html", page({
     <a class="btn ghost" rel="noopener" href="https://modrinth.com/mod/entity-model-features">${ICON.ext} Entity Model Features (EMF)</a>
     <a class="btn ghost" rel="noopener" href="https://modrinth.com/mod/entitytexturefeatures">${ICON.ext} Entity Texture Features (ETF)</a>
   </p>
+  <p>On Fabric, also install a matching <a rel="noopener" href="https://modrinth.com/mod/fabric-api">Fabric API</a>. The mods and loader must match your Minecraft version; Fabric API is only for Fabric.</p>
   <p>Helpful, not required: <a rel="noopener" href="https://modrinth.com/mod/modmenu">Mod Menu</a> and <a rel="noopener" href="https://modrinth.com/mod/cloth-config">Cloth Config</a>, to open the settings of the mods in the game. Custom Skin Loader and Alpha Skins from old guides are no longer needed.</p>
   <p>On Minecraft 1.21.9 and newer armour only follows the animations with a recent EMF (3.0.5 or newer; 3.0.12 fixes armour lag).</p>
   <p>On Minecraft 26.1, 26.1.1 and 26.1.2 use EMF 3.3.2 or newer (older versions do not start or crash there). On 26.3 use EMF 3.3.6 or newer. EMF for 26.x exists for Fabric and NeoForge.</p>
@@ -1074,8 +1075,10 @@ ${versionLinks}
 <section>
   <h2>${ICON.list} How to install</h2>
   <ol class="steps">
-    <li>Install EMF and ETF.</li>
-    <li>Put the downloaded zip (do not unzip it) in your <code>resourcepacks</code> folder.</li>
+    <li>Install a mod loader for your Minecraft Java version, such as Fabric.</li>
+    <li>Download matching versions of <a href="https://modrinth.com/mod/entity-model-features" rel="noopener">Entity Model Features (EMF)</a> and <a href="https://modrinth.com/mod/entitytexturefeatures" rel="noopener">Entity Texture Features (ETF)</a>. For Fabric, also download <a href="https://modrinth.com/mod/fabric-api" rel="noopener">Fabric API</a>. Choose the files for your Minecraft version and loader.</li>
+    <li>Put the mod <strong>JAR</strong> files in your <code>mods</code> folder. Start Minecraft with the matching loader profile.</li>
+    <li>Put the downloaded Fresh Moves Fix <strong>ZIP</strong> (do not unzip it) in your <code>resourcepacks</code> folder. Choose either the normal pack or Eyes Only, not both.</li>
     <li>In Minecraft go to Options → Resource Packs, move the pack to the right and click Done.</li>
   </ol>
   <p>Black eyes? See <a href="guides/fix-black-eyes/">Fix Black Eyes</a>.</p>
