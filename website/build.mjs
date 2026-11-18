@@ -1092,8 +1092,7 @@ ${versionLinks}
 <section id="minecraft-skins-download">
   <h2>${ICON.down} Download Minecraft Skins — Fabric</h2>
   <p><strong>A separate mod, not the Fresh Moves Fix resource pack.</strong> Pick one JAR for your Minecraft version; put it in the <code>mods</code> folder with matching Fabric Loader and Fabric API. Do not install it together with HD Skins: they have the same mod ID.</p>
-  <div class="note">Minecraft Skins is a renamed distribution of <a href="https://github.com/MineLittlePony/HDSkins" rel="noopener">HD Skins</a> by Mine Little Pony and contributors (MIT). The code and skin-server behavior are unchanged. The JARs have not been tested in-game; back up your game before trying them.</div>
-  <p>These cards show the <strong>upstream Minecraft build version</strong>. Some adjacent versions may work, but have not been verified; there is no separately verified 1.21.9 build. Check the <a href="https://modrinth.com/mod/hd-skins/versions" rel="noopener">upstream version list</a> before choosing.</p>
+  <p>These cards show the <strong>upstream Minecraft build version</strong>. Some adjacent versions may work, but have not been verified; there is no separately verified 1.21.9 build.</p>
   <div class="versions">${skinVersionLinks}</div>
 </section>
 
