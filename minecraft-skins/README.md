@@ -23,3 +23,12 @@ python3 minecraft-skins/repackage.py path/to/hdskins-6.16.2+26.3.jar minecraft-s
 The script verifies the pinned SHA-256, preserves upstream content and refuses
 to modify a signed JAR. Upload only the resulting JAR to your mods folder, not
 the Python file. Consult upstream instructions for skin servers and setup.
+
+## GitHub Actions
+
+The **Build Minecraft Skins JAR** workflow downloads the pinned upstream release,
+checks its SHA-256 and creates an attributed renamed JAR. Open a successful run
+under Actions and download the `minecraft-skins-fabric-26.3` artifact. GitHub
+may require sign-in and artifacts expire. The artifact download is a ZIP: extract
+it, and put the JAR inside in the `mods` folder. This workflow does not test the
+mod in Minecraft and does not publish a GitHub release.

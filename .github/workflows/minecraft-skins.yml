@@ -1,0 +1,33 @@
+name: Build Minecraft Skins JAR
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'minecraft-skins/**'
+      - '.github/workflows/minecraft-skins.yml'
+  push:
+    paths:
+      - 'minecraft-skins/**'
+      - '.github/workflows/minecraft-skins.yml'
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Download pinned HD Skins release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download '6.16.2+26.3' --repo MineLittlePony/HDSkins --pattern 'hdskins-6.16.2+26.3.jar' --dir "$RUNNER_TEMP/upstream"
+      - name: Create and verify renamed JAR
+        run: python3 minecraft-skins/repackage.py "$RUNNER_TEMP/upstream/hdskins-6.16.2+26.3.jar" dist/minecraft-skins-26.3.jar
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: minecraft-skins-fabric-26.3
+          path: dist/minecraft-skins-26.3.jar
+          if-no-files-found: error
