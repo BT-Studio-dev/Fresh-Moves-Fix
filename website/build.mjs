@@ -87,7 +87,10 @@ function page({ title, body, depth = 0, description = "", active = "" }) {
 if(!t){try{var m=document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/);if(m)t=m[1]}catch(e){}}
 if(["system","light","dark","oled","glass","minecraft"].indexOf(t)<0)t="glass";
 if(t==="system")t=window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
-document.documentElement.setAttribute("data-theme",t)})()</script>
+document.documentElement.setAttribute("data-theme",t);
+var bg="";try{bg=localStorage.getItem("fmf-background")||""}catch(e){}
+if(!bg){try{var b=document.cookie.match(/(?:^|; )fmf-background=(on|off)/);if(b)bg=b[1]}catch(e){}}
+document.documentElement.setAttribute("data-background",bg==="off"?"off":"on")})()</script>
 <link rel="icon" href="${up}favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="192x192" href="${up}icon-192.png">
 <link rel="apple-touch-icon" href="${up}icon-180.png">
@@ -909,6 +912,9 @@ write("settings/index.html", page({
       ${themeCard("minecraft", "Minecraft", "linear-gradient(#50869a 0 52%, #63884e 52% 74%, #5b4532 74%)", "rgba(27,38,33,.84)", "rgba(200,226,207,.5)", "#f2f0dc")}
     </div>
     <p class="saved" id="theme-saved" role="status" hidden>${ICON.check || ""}<span></span></p>
+    <h3>Animated background</h3>
+    <label class="background-toggle"><input type="checkbox" id="background-toggle"> <span><b>Show animated background</b><small>Turn off the landscape and moving clouds on all themes. Saved in this browser.</small></span></label>
+    <p class="saved" id="background-saved" role="status" hidden></p>
   </div>
 </div>
 </article></div>
@@ -925,6 +931,16 @@ write("settings/index.html", page({
   document.querySelectorAll('input[name="theme"]').forEach(function(el){
     el.checked = el.value===cur;
     el.addEventListener("change",function(){ cur=el.value; var ok=true; try{localStorage.setItem(key,cur); ok=localStorage.getItem(key)===cur}catch(e){ok=false} if(keep(cur)) ok=true; apply(cur); told(el, ok); });
+  });
+  var background=document.getElementById("background-toggle"), bgNote=document.getElementById("background-saved"), bgKey="fmf-background";
+  background.checked=document.documentElement.getAttribute("data-background")!=="off";
+  background.addEventListener("change",function(){
+    var value=background.checked?"on":"off", saved=false;
+    document.documentElement.setAttribute("data-background",value);
+    try{localStorage.setItem(bgKey,value);saved=localStorage.getItem(bgKey)===value}catch(e){}
+    try{document.cookie=bgKey+"="+value+"; path=/; max-age=31536000"+(location.protocol==="https:"?"; SameSite=None; Secure":"; SameSite=Lax");if(document.cookie.indexOf(bgKey+"="+value)>=0)saved=true}catch(e){}
+    bgNote.textContent=saved?"Animated background " + value + ". Saved in this browser.":"Animated background " + value + ". Your browser could not save this setting.";
+    bgNote.classList.toggle("bad",!saved); bgNote.hidden=false;
   });
   matchMedia("(prefers-color-scheme: light)").addEventListener("change",function(){ if(cur==="system") apply(cur); });
 })()</script>

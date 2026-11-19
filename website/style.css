@@ -812,3 +812,19 @@ html[data-theme="minecraft"], html[data-theme="glass"] {
 [data-theme="minecraft"] :is(header.top .snd-box, .ed .dd-list, .ed .picker) { background: #1b2621; }
 [data-theme="minecraft"] header.top { background: #202e29; }
 [data-theme="minecraft"] footer { background: rgba(12, 21, 17, .9); }
+
+/* Turn the whole landscape off, including its cloud animation, for every theme. */
+html[data-background="off"] { background: #0a1210; }
+html[data-background="off"] body { background: var(--bg); }
+html[data-background="off"] body::before, html[data-background="off"] body::after {
+  display: none; animation: none;
+}
+.background-toggle {
+  display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+  cursor: pointer;
+}
+.background-toggle input { accent-color: var(--accent); margin: 5px 0 0; }
+.background-toggle span { display: flex; flex-direction: column; }
+.background-toggle small { color: var(--muted); }
+.background-toggle:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
