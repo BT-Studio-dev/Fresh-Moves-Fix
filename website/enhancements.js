@@ -36,7 +36,7 @@
   top.className = "fmf-top";
   top.setAttribute("aria-label", "Back to top");
   top.title = "Back to top";
-  top.textContent = "↑";
+  top.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 20V5M6 11l6-6 6 6"/></svg>';
   top.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); });
   body.appendChild(top);
 
@@ -148,7 +148,7 @@
     var toggle = document.createElement("button");
     toggle.type = "button";
     toggle.className = "fmf-settings-toggle";
-    toggle.textContent = "⚙";
+    toggle.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/><circle cx="12" cy="12" r="7"/></svg>';
     toggle.setAttribute("aria-label", "Quick settings");
     toggle.setAttribute("aria-controls", "fmf-quick-settings");
     toggle.setAttribute("aria-expanded", "false");
