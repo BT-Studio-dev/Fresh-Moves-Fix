@@ -741,3 +741,28 @@ header.top nav { min-width: 0; overflow-x: auto; }
   border: 1px solid var(--line); color: var(--text); cursor: not-allowed;
 }
 .ver.locked .tags .coming-soon { background: var(--line); color: var(--text); }
+
+/* Minecraft-inspired blocky theme: solid colors keep it fast on older computers. */
+[data-theme="minecraft"] {
+  --bg: #292b22;
+  --panel: #42453a;
+  --line: #747866;
+  --text: #f8f6e9;
+  --muted: #d4d6c6;
+  --accent: #a6dc69;
+  --on-accent: #17200f;
+  --header: #34372c;
+  --note-bg: #4d4029;
+  --note-line: #a4834e;
+  --note-text: #fff0c9;
+  --scroll-thumb: #747866;
+  color-scheme: dark;
+}
+[data-theme="minecraft"] :is(header.top, .ed .panel, .set .menu, .set .box, a.tool, .card, .versions a, .versions .ver.locked, .note, .guide-nav a, .themes label, .video, button, input, select, textarea) {
+  border-radius: 2px;
+}
+[data-theme="minecraft"] :is(.ed .panel, .set .menu, .set .box, a.tool, .card, .versions a, .versions .ver.locked, .themes label) {
+  box-shadow: inset 2px 2px 0 #777b69, inset -2px -2px 0 #24271e;
+}
+[data-theme="minecraft"] header.top { border-bottom: 4px solid #75a947; }
+[data-theme="minecraft"] .themes .pv i, [data-theme="minecraft"] .themes .pv b, [data-theme="minecraft"] .themes .pv u { border-radius: 1px; }

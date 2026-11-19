@@ -85,7 +85,7 @@ function page({ title, body, depth = 0, description = "", active = "" }) {
 <meta name="twitter:card" content="summary_large_image">
 <script>(function(){var t="";try{t=localStorage.getItem("fmf-theme")||""}catch(e){}
 if(!t){try{var m=document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/);if(m)t=m[1]}catch(e){}}
-if(["system","light","dark","oled","glass"].indexOf(t)<0)t="glass";
+if(["system","light","dark","oled","glass","minecraft"].indexOf(t)<0)t="glass";
 if(t==="system")t=window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
 document.documentElement.setAttribute("data-theme",t)})()</script>
 <link rel="icon" href="${up}favicon.ico" sizes="any">
@@ -898,7 +898,7 @@ write("settings/index.html", page({
     <div class="langs" id="langs"></div>
   </div>
   <div class="box" id="tab-appearance">
-    <h2 class="shead"><span class="tool-ic">${ICON.brush}</span><span><b>Color theme</b><small>Light, dark, OLED or glass</small></span></h2>
+    <h2 class="shead"><span class="tool-ic">${ICON.brush}</span><span><b>Color theme</b><small>Light, dark, OLED, glass or Minecraft</small></span></h2>
     <p>Select your preferred color theme for this website. It is saved in this browser only.</p>
     <div class="themes">
       ${themeCard("system", "Sync with system", "linear-gradient(90deg,#f4f6f5 50%,#0f1412 50%)", "#18201c", "#2a3630", "#9aa8a0")}
@@ -906,6 +906,7 @@ write("settings/index.html", page({
       ${themeCard("dark", "Dark", "#0f1412", "#18201c", "#2a3630", "#9aa8a0")}
       ${themeCard("oled", "OLED", "#000000", "#0d0f0e", "#222826", "#98a39d")}
       ${themeCard("glass", "Glass", "radial-gradient(circle at 20% 20%,#2fae78 0,transparent 55%),radial-gradient(circle at 85% 80%,#3b6fd0 0,transparent 55%),#0a1210", "rgba(255,255,255,.16)", "rgba(255,255,255,.34)", "#eef6f1")}
+      ${themeCard("minecraft", "Minecraft", "linear-gradient(#719e4b 0 22%, #66513b 22% 100%)", "#494940", "#77786b", "#f2f0dc")}
     </div>
     <p class="saved" id="theme-saved" role="status" hidden>${ICON.check || ""}<span></span></p>
   </div>
