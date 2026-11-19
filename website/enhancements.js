@@ -47,6 +47,7 @@
     '<button class="fmf-close" type="button" aria-label="Close settings">×</button>' +
     '<h2>Quick settings</h2>' +
     '<label>Theme <select data-fmf-theme><option value="glass">Glass</option><option value="dark">Dark</option><option value="light">Light</option><option value="oled">OLED</option><option value="minecraft">Minecraft</option><option value="system">System</option></select></label>' +
+    '<label><span>Glass card blur</span><input type="checkbox" data-fmf-glass-blur></label>' +
     '<label>Text size <select data-fmf-size><option value="normal">Normal</option><option value="large">Large</option></select></label>' +
     '<label><span>High contrast</span><input type="checkbox" data-fmf-contrast></label>' +
     '<label><span>Reduce motion</span><input type="checkbox" data-fmf-motion></label>' +
@@ -54,6 +55,7 @@
   body.appendChild(panel);
 
   var themeSelect = panel.querySelector("[data-fmf-theme]");
+  var glassBlur = panel.querySelector("[data-fmf-glass-blur]");
   var sizeSelect = panel.querySelector("[data-fmf-size]");
   var contrast = panel.querySelector("[data-fmf-contrast]");
   var motion = panel.querySelector("[data-fmf-motion]");
@@ -64,6 +66,18 @@
   sizeSelect.value = saved("fmf-extra-size","normal");
   contrast.checked = saved("fmf-extra-contrast","0") === "1";
   motion.checked = saved("fmf-extra-motion", reduce ? "1" : "0") === "1";
+  glassBlur.checked = saved("fmf-glass-blur", "1") === "1";
+  function syncGlassBlur() {
+    var isGlass = root.getAttribute("data-theme") === "glass";
+    body.classList.toggle("fmf-glass-blur", isGlass && glassBlur.checked);
+    glassBlur.disabled = !isGlass;
+    glassBlur.parentElement.style.opacity = isGlass ? "1" : ".55";
+  }
+  syncGlassBlur();
+  glassBlur.addEventListener("change", function () {
+    store("fmf-glass-blur", glassBlur.checked ? "1" : "0");
+    syncGlassBlur();
+  });
   if (sizeSelect.value === "large") body.classList.add("fmf-reading");
   if (contrast.checked) body.classList.add("fmf-contrast");
   if (motion.checked) body.classList.add("fmf-motion-off");
@@ -73,6 +87,7 @@
     var t = themeSelect.value;
     if (t === "system") t = window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
     root.setAttribute("data-theme", t);
+    syncGlassBlur();
     try { document.cookie = "fmf-theme=" + themeSelect.value + "; path=/; max-age=31536000; SameSite=Lax"; } catch (e) {}
   });
   sizeSelect.addEventListener("change", function () {
@@ -94,6 +109,8 @@
   window.__fmfKeyHandler = function (e) { if (e.key === "Escape") closePanel(); };
   document.addEventListener("keydown", window.__fmfKeyHandler);
 
+  var oldToggle = document.querySelector(".fmf-settings-toggle");
+  if (oldToggle) oldToggle.remove();
   var nav = document.querySelector("header.top .bar");
   if (nav) {
     var toggle = document.createElement("button");
