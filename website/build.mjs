@@ -912,6 +912,9 @@ write("settings/index.html", page({
       ${themeCard("glass", "Glass", "radial-gradient(circle at 20% 20%,#2fae78 0,transparent 55%),radial-gradient(circle at 85% 80%,#3b6fd0 0,transparent 55%),#0a1210", "rgba(255,255,255,.16)", "rgba(255,255,255,.34)", "#eef6f1")}
       ${themeCard("minecraft", "Minecraft", "linear-gradient(#50869a 0 52%, #63884e 52% 74%, #5b4532 74%)", "rgba(27,38,33,.84)", "rgba(200,226,207,.5)", "#f2f0dc")}
     </div>
+    <div class="fmf-blur-setting">
+      <label for="settings-glass-blur"><span><b>Glass card blur</b><small>Turn the frosted-glass blur on or off. This only affects the Glass theme.</small></span><input type="checkbox" id="settings-glass-blur" checked></label>
+    </div>
     <p class="saved" id="theme-saved" role="status" hidden>${ICON.check || ""}<span></span></p>
   </div>
 </div>
@@ -921,7 +924,10 @@ write("settings/index.html", page({
   if(!cur){ try{ var m=document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/); if(m) cur=m[1]; }catch(e){} } // second place the choice is kept
   if(!cur) cur="glass"; // the theme new visitors start with
   function keep(v){ try{ document.cookie=key+"="+v+"; path=/; max-age=31536000"+(location.protocol==="https:"?"; SameSite=None; Secure":"; SameSite=Lax"); return document.cookie.indexOf(key+"="+v)>=0; }catch(e){ return false; } }
-  function apply(t){ var r=t; if(t==="system") r=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"; document.documentElement.setAttribute("data-theme",r); }
+  function apply(t){ var r=t; if(t==="system") r=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"; document.documentElement.setAttribute("data-theme",r); applyBlur(); }
+  var blurControl=document.getElementById("settings-glass-blur");
+  function applyBlur(){ var on=true; try{on=localStorage.getItem("fmf-glass-blur")!=="0"}catch(e){} if(blurControl) blurControl.checked=on; document.documentElement.classList.toggle("fmf-glass-blur", document.documentElement.getAttribute("data-theme")==="glass" && on); if(blurControl) blurControl.disabled=document.documentElement.getAttribute("data-theme")!=="glass"; }
+  if(blurControl) blurControl.addEventListener("change",function(){try{localStorage.setItem("fmf-glass-blur",blurControl.checked?"1":"0")}catch(e){} applyBlur();});
   var note=document.getElementById("theme-saved");
   function told(el, ok){ if(!note) return; var name=(el.closest("label").textContent||"").trim();
     note.querySelector("span").textContent = ok ? "Saved: " + name + ". It stays when you close the page." : "Could not save: this browser blocks saving. The theme lasts until you close the page.";
