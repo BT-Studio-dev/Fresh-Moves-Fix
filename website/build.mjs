@@ -186,6 +186,7 @@ fs.writeFileSync(path.join(out, "tableau.json"), JSON.stringify({
 }));
 for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png", "icon-painted.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
+for (const f of ["night-stars.svg", "night-clouds.svg"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
 fs.copyFileSync(path.join(here, "nav.js"), path.join(out, "nav.js"));
@@ -915,7 +916,7 @@ write("settings/index.html", page({
     </div>
     <p class="saved" id="theme-saved" role="status" hidden>${ICON.check || ""}<span></span></p>
     <h3>Animated background</h3>
-    <label class="background-toggle"><input type="checkbox" id="background-toggle"> <span><b>Show animated background</b><small>Turn off the landscape and moving clouds on all themes. Saved in this browser.</small></span></label>
+    <label class="background-toggle"><input type="checkbox" id="background-toggle"> <span><b>Show animated background</b><small>Turn off the night sky and moving clouds on all themes. Saved in this browser.</small></span></label>
     <p class="saved" id="background-saved" role="status" hidden></p>
   </div>
 </div>
