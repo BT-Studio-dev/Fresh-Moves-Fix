@@ -733,3 +733,11 @@ header.top nav { min-width: 0; overflow-x: auto; }
 .paint .pbar button.on .pb-pause { display: grid; }
 
 .paint .psize button.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
+
+/* Minecraft Skins versions are not available for download yet. */
+.versions .ver.locked {
+  display: flex; flex-direction: column; gap: 10px; text-align: left;
+  padding: 14px; border-radius: 16px; background: var(--panel);
+  border: 1px solid var(--line); color: var(--text); cursor: not-allowed;
+}
+.ver.locked .tags .coming-soon { background: var(--line); color: var(--text); }

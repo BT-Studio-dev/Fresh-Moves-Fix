@@ -168,14 +168,7 @@ fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 fs.copyFileSync(path.join(root, "pack.png"), path.join(out, "pack.png"));
 fs.copyFileSync(path.join(here, "title.png"), path.join(out, "title.png"));
-// Direct downloads for the separate Minecraft Skins Fabric mod.
-const skinDownloads = path.join(out, "downloads", "minecraft-skins");
-fs.mkdirSync(skinDownloads, { recursive: true });
-for (const release of skinReleases) {
-  if (!/^\d+(?:\.\d+)*$/.test(release.minecraft_build)) throw new Error("Invalid skin build version");
-  const file = `minecraft-skins-fabric-${release.minecraft_build}.jar`;
-  fs.copyFileSync(path.join(here, "downloads", "minecraft-skins", file), path.join(skinDownloads, file));
-}
+// Minecraft Skins downloads are temporarily unavailable; keep the JARs out of the public build.
 // icons for browser start pages, bookmarks and "add to home screen"
 for (const f of ["favicon.ico", "icon-180.png", "icon-192.png", "icon-512.png", "tile-logo.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 const SITE = "https://fresh-moves-fix.vercel.app/";
@@ -973,11 +966,10 @@ const versionLinks = groups.map((g) => {
 
 const skinVersionLinks = skinReleases.map((release) => {
   const mc = esc(release.minecraft_build);
-  const file = `minecraft-skins-fabric-${mc}.jar`;
-  return `<a class="ver" download href="downloads/minecraft-skins/${file}" title="Download ${file}">
+  return `<div class="ver locked" aria-label="Minecraft ${mc}, Fabric, locked, coming soon">
     <span class="tool-head"><img class="ver-ic" src="icon-skin.png" alt="" width="40" height="40" loading="lazy"><span><b>${mc}</b><small>Minecraft build</small></span></span>
-    <span class="tags"><i>Fabric</i><i class="dl">${ICON.down} .jar</i></span>
-  </a>`;
+    <span class="tags"><i>Fabric</i><i class="coming-soon">🔒 Coming soon</i></span>
+  </div>`;
 }).join("\n");
 
 // "Page not found" page. Vercel shows 404.html for every address that does not exist,
@@ -1091,8 +1083,7 @@ ${versionLinks}
 
 <section id="minecraft-skins-download">
   <h2>${ICON.down} Download Minecraft Skins — Fabric</h2>
-  <p><strong>A separate mod, not the Fresh Moves Fix resource pack.</strong> Pick one JAR for your Minecraft version; put it in the <code>mods</code> folder with matching Fabric Loader and Fabric API. Do not install it together with HD Skins: they have the same mod ID.</p>
-  <p>These cards show the <strong>upstream Minecraft build version</strong>. Some adjacent versions may work, but have not been verified; there is no separately verified 1.21.9 build.</p>
+  <p><strong>Coming soon.</strong> Minecraft Skins downloads are temporarily locked. This is a separate mod, not the Fresh Moves Fix resource pack.</p>
   <div class="versions">${skinVersionLinks}</div>
 </section>
 
