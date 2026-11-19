@@ -87,3 +87,59 @@ body.fmf-motion-off *, body.fmf-motion-off *::before, body.fmf-motion-off *::aft
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+
+/* Glass blur can be switched independently from the Glass colour theme. */
+[data-theme="glass"].fmf-glass-blur :is(header.top, .ed .panel, .set .menu, .set .box, a.tool, .card, .versions a, .note, .guide-nav a, .themes label, .video) {
+  -webkit-backdrop-filter: blur(14px) saturate(145%);
+  backdrop-filter: blur(14px) saturate(145%);
+  background-color: rgba(18, 30, 27, .46);
+}
+[data-theme="glass"].fmf-glass-blur header.top {
+  background-color: rgba(8, 18, 15, .72);
+}
+[data-theme="glass"].fmf-glass-blur .card,
+[data-theme="glass"].fmf-glass-blur a.tool,
+[data-theme="glass"].fmf-glass-blur .ed .panel,
+[data-theme="glass"].fmf-glass-blur .set .box {
+  border-color: rgba(255,255,255,.22);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 8px 28px rgba(0,0,0,.18);
+}
+[data-theme="glass"]:not(.fmf-glass-blur) :is(header.top, .ed .panel, .set .menu, .set .box, a.tool, .card, .versions a, .note, .guide-nav a, .themes label, .video) {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+/* Reliable card layout: cards remain readable and tappable at every viewport width. */
+.cards { grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); align-items: stretch; }
+.card, a.tool, .guide-nav a, .versions a {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  -webkit-tap-highlight-color: transparent;
+}
+a.card, a.tool, .guide-nav a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--text);
+  text-decoration: none;
+}
+.card > *, a.tool > * { min-width: 0; }
+.card img, a.tool img { max-width: 100%; height: auto; }
+.card:focus-visible, a.tool:focus-visible, .versions a:focus-visible, .guide-nav a:focus-visible {
+  outline: 3px solid var(--fmf-focus);
+  outline-offset: 3px;
+}
+.card:hover, a.tool:hover, .versions a:hover, .guide-nav a:hover {
+  border-color: var(--accent);
+}
+@media (max-width: 560px) {
+  .cards { grid-template-columns: minmax(0, 1fr); }
+  .card, a.tool, .guide-nav a { padding: 14px; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  [data-theme="glass"].fmf-glass-blur :is(header.top, .ed .panel, .set .menu, .set .box, a.tool, .card, .versions a, .note, .guide-nav a, .themes label, .video) {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
