@@ -197,3 +197,12 @@ html[data-theme] header.top .snd-box { background: var(--fmf-popup); }
 .fmf-settings-toggle, .fmf-top { display: inline-flex; align-items: center; justify-content: center; }
 .fmf-settings-toggle { width: 42px; height: 42px; padding: 0; flex: none; }
 .fmf-settings-toggle svg, .fmf-top svg { width: 20px; height: 20px; display: block; flex: none; }
+
+/* Clickable installation resources, distinct from the steps above. */
+.install-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 12px; margin-top: 18px; }
+a.install-link { display: flex; align-items: center; gap: 12px; padding: 14px; }
+.install-link > span:nth-child(2) { flex: 1; min-width: 0; }
+.install-link b, .install-link small { display: block; }
+.install-link small { color: var(--muted); font-weight: 400; line-height: 1.4; margin-top: 3px; }
+.install-icon { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; flex: none; background: var(--bg); color: var(--accent); }
+.install-link > span:last-child { flex: none; color: var(--muted); }

@@ -1195,7 +1195,12 @@ ${versionLinks}
     <li>Put the downloaded Fresh Moves Fix <strong>ZIP</strong> (do not unzip it) in your <code>resourcepacks</code> folder. Choose either the normal pack or Eyes Only, not both.</li>
     <li>In Minecraft go to Options → Resource Packs, move the pack to the right and click Done.</li>
   </ol>
-  <p>Black eyes? See <a href="guides/fix-black-eyes/">Fix Black Eyes</a>.</p>
+  <div class="install-cards" aria-label="Installation downloads and help">
+    <a class="card install-link" href="https://modrinth.com/mod/entity-model-features" rel="noopener noreferrer"><span class="install-icon">${ICON.box}</span><span><b>Entity Model Features</b><small>Download EMF for your loader</small></span><span aria-hidden="true">${ICON.ext}</span></a>
+    <a class="card install-link" href="https://modrinth.com/mod/entitytexturefeatures" rel="noopener noreferrer"><span class="install-icon">${ICON.grid}</span><span><b>Entity Texture Features</b><small>Download ETF for your loader</small></span><span aria-hidden="true">${ICON.ext}</span></a>
+    <a class="card install-link" href="https://modrinth.com/mod/fabric-api" rel="noopener noreferrer"><span class="install-icon">${ICON.code}</span><span><b>Fabric API</b><small>Required when using Fabric</small></span><span aria-hidden="true">${ICON.ext}</span></a>
+    <a class="card install-link" href="guides/fix-black-eyes/"><span class="install-icon">${ICON.eye}</span><span><b>Fix Black Eyes</b><small>Open the troubleshooting guide</small></span><span aria-hidden="true">${ICON.right}</span></a>
+  </div>
 </section>
 </div>`,
 }));
