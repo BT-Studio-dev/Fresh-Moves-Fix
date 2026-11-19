@@ -96,6 +96,7 @@ document.documentElement.setAttribute("data-theme",t)})()</script>
 <meta name="application-name" content="Fresh Moves Fix">
 <meta name="apple-mobile-web-app-title" content="Fresh Moves Fix">
 <link rel="stylesheet" href="${up}style.css?v=${ver("style.css")}">
+<link rel="stylesheet" href="${up}refresh-2026.css?v=${ver("refresh-2026.css")}">
 </head>
 <body>
 <header class="top"><div class="bar">
@@ -153,6 +154,7 @@ ${body}
 <script src="${up}i18n.js?v=${ver("i18n.js")}"></script>
 <script src="${up}music.js?v=${ver("music.js")}"></script>
 <script src="${up}nav.js?v=${ver("nav.js")}"></script>
+<script src="${up}enhancements.js?v=${ver("enhancements.js")}"></script>
 </body>
 </html>
 `;
