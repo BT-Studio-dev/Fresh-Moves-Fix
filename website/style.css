@@ -825,3 +825,11 @@ html[data-background="off"] body::before, html[data-background="off"] body::afte
 .cape-canvas-wrap canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; touch-action: none; border: 0; border-radius: 0; cursor: crosshair; }
 #cape-status.bad { color: #ff8a7a; }
 @media (max-width: 700px) { .cape-builder { grid-template-columns: 1fr; } }
+.cape-settings { margin: 18px 0; }
+.cape-settings p { margin: 8px 0 12px; }
+.cape-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.cape-fields label { display: flex; flex-direction: column; gap: 4px; }
+.cape-fields input, #cape-projects { width: 100%; padding: 8px; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; font: inherit; }
+.cape-project-actions { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+.cape-project-actions .btn { margin: 0; }
+#cape-project-status.bad { color: #ff8a7a; }

@@ -977,9 +977,24 @@ write("cape/index.html", page({
 <h1>${ICON.brush} Cape Pack Builder</h1>
 <p>Draw or load your own 64 × 32 cape texture. Everything stays in your browser.</p>
 <div class="note"><strong>Java cape limitation:</strong> a resource pack cannot give you a wearable custom cape. Download the PNG for a compatible cape mod. The optional ZIP changes the normal elytra texture only, not your cape. Other players will not see your resource pack; an equipped cape or another pack may override the elytra texture.</div>
+<section class="cape-settings card">
+<h2>Pack settings</h2>
+<div class="cape-fields">
+<label>Pack name <input type="text" id="cape-name" value="My Elytra Pack" maxlength="60"></label>
+<label>Description <input type="text" id="cape-description" value="Custom elytra texture" maxlength="120"></label>
+</div>
+<p>The name is used for your saved project and ZIP filename. The description appears in Minecraft's resource pack list.</p>
+</section>
+<section class="cape-settings card">
+<h2>Saved projects</h2>
+<p>Save the current texture and settings in this browser only. Saving with the same name updates that project. Clearing browser data deletes these projects; download a PNG or ZIP as a backup.</p>
+<label>Projects <select id="cape-projects" aria-label="Saved projects"><option value="">No saved projects</option></select></label>
+<div class="cape-project-actions"><button type="button" class="btn small" id="cape-save-project">Save / update</button> <button type="button" class="btn small ghost" id="cape-load-project" disabled>Load selected</button> <button type="button" class="btn small ghost" id="cape-delete-project" disabled>Delete selected</button></div>
+<p id="cape-project-status" role="status" aria-live="polite"></p>
+</section>
 <div class="ed cape-builder"><section class="panel ecard">
 <h2>Paint cape texture</h2>
-<p>Draw on the flat texture. The shaded guide marks the two main cape faces; side and top edges are in the remaining texture area.</p>
+<p>Draw on the flat texture. The white outlines mark the two main cape faces; side and top edges are in the remaining texture area.</p>
 <label>Colour <input id="cape-color" type="color" value="#35c980"></label>
 <label>Tool <select id="cape-tool"><option value="pen">Pen</option><option value="erase">Eraser</option></select></label>
 <label><input type="checkbox" id="cape-grid" checked> Pixel grid</label>
