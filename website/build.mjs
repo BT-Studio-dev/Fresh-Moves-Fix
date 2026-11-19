@@ -906,7 +906,7 @@ write("settings/index.html", page({
       ${themeCard("dark", "Dark", "#0f1412", "#18201c", "#2a3630", "#9aa8a0")}
       ${themeCard("oled", "OLED", "#000000", "#0d0f0e", "#222826", "#98a39d")}
       ${themeCard("glass", "Glass", "radial-gradient(circle at 20% 20%,#2fae78 0,transparent 55%),radial-gradient(circle at 85% 80%,#3b6fd0 0,transparent 55%),#0a1210", "rgba(255,255,255,.16)", "rgba(255,255,255,.34)", "#eef6f1")}
-      ${themeCard("minecraft", "Minecraft", "linear-gradient(#719e4b 0 22%, #66513b 22% 100%)", "#494940", "#77786b", "#f2f0dc")}
+      ${themeCard("minecraft", "Minecraft", "linear-gradient(#50869a 0 52%, #63884e 52% 74%, #5b4532 74%)", "rgba(27,38,33,.84)", "rgba(200,226,207,.5)", "#f2f0dc")}
     </div>
     <p class="saved" id="theme-saved" role="status" hidden>${ICON.check || ""}<span></span></p>
   </div>
