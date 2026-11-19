@@ -767,28 +767,36 @@ header.top nav { min-width: 0; overflow-x: auto; }
 [data-theme="minecraft"] header.top { border-bottom: 4px solid #75a947; }
 [data-theme="minecraft"] .themes .pv i, [data-theme="minecraft"] .themes .pv b, [data-theme="minecraft"] .themes .pv u { border-radius: 1px; }
 
-/* Minecraft theme: original animated block landscape, with translucent glass cards.
+/* Shared animated block landscape. System uses its resolved light or dark theme.
    CSS only: no video download, WebGL or expensive backdrop blur. */
-html[data-theme="minecraft"] { background: #192c30; }
-[data-theme="minecraft"] body { background: transparent; }
-[data-theme="minecraft"] body::before {
+html[data-theme] { background: #192c30; }
+html[data-theme] body { background: transparent; }
+html[data-theme] body::before {
   content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background:
-    linear-gradient(rgba(9, 18, 20, .48), rgba(9, 18, 13, .68)),
+    linear-gradient(var(--landscape-top, rgba(9, 18, 20, .78)), var(--landscape-bottom, rgba(9, 18, 13, .84))),
     linear-gradient(to top, #5b4532 0 15%, #527844 15% 20%, transparent 20%) bottom / 100% 100% no-repeat,
     linear-gradient(to top, #4a6e3b 0 29%, transparent 29%) 0 100% / 16% 100% repeat-x,
     linear-gradient(to top, #63884e 0 36%, transparent 36%) 10% 100% / 28% 100% repeat-x,
     linear-gradient(#50869a, #8bb1ac 75%, #63884e 75%);
 }
-[data-theme="minecraft"] body::after {
+html[data-theme] body::after {
   content: ""; position: fixed; z-index: -1; pointer-events: none;
   top: 12%; left: -50%; width: 200%; height: 14%; opacity: .28;
   background: linear-gradient(to right, transparent 0 10%, #d9e6df 10% 20%, transparent 20% 46%, #d9e6df 46% 60%, transparent 60% 100%) 0 30% / 50% 22px repeat-x;
   animation: minecraft-clouds 80s linear infinite;
 }
+html[data-theme="light"] {
+  --landscape-top: rgba(248, 251, 248, .87);
+  --landscape-bottom: rgba(248, 251, 248, .91);
+}
+html[data-theme="minecraft"], html[data-theme="glass"] {
+  --landscape-top: rgba(9, 18, 20, .58);
+  --landscape-bottom: rgba(9, 18, 13, .73);
+}
 @keyframes minecraft-clouds { from { transform: translateX(0); } to { transform: translateX(25%); } }
 @media (prefers-reduced-motion: reduce) {
-  [data-theme="minecraft"] body::after { animation: none; }
+  html[data-theme] body::after { animation: none; }
 }
 [data-theme="minecraft"] {
   --panel: rgba(27, 38, 33, .84);
