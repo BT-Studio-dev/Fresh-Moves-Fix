@@ -69,7 +69,7 @@
   glassBlur.checked = saved("fmf-glass-blur", "1") === "1";
   function syncGlassBlur() {
     var isGlass = root.getAttribute("data-theme") === "glass";
-    body.classList.toggle("fmf-glass-blur", isGlass && glassBlur.checked);
+    root.classList.toggle("fmf-glass-blur", isGlass && glassBlur.checked);
     glassBlur.disabled = !isGlass;
     glassBlur.parentElement.style.opacity = isGlass ? "1" : ".55";
   }
