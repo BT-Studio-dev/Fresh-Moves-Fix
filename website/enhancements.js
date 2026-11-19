@@ -1,8 +1,12 @@
 /* Fresh Moves Fix — small progressive-enhancement layer. No dependencies. */
 (function () {
   "use strict";
-  if (window.__fmfEnhancements) return;
-  window.__fmfEnhancements = true;
+  if (window.__fmfScrollHandler) window.removeEventListener("scroll", window.__fmfScrollHandler);
+  if (window.__fmfResizeHandler) window.removeEventListener("resize", window.__fmfResizeHandler);
+  if (window.__fmfKeyHandler) document.removeEventListener("keydown", window.__fmfKeyHandler);
+  [".fmf-skip", ".fmf-progress", ".fmf-top", ".fmf-settings"].forEach(function (s) {
+    var old = document.querySelector(s); if (old) old.remove();
+  });
 
   var root = document.documentElement;
   var body = document.body;
@@ -87,7 +91,8 @@
   panel.querySelector(".fmf-close").addEventListener("click", closePanel);
   function closePanel() { panel.hidden = true; }
   function openPanel() { panel.hidden = false; panel.querySelector(".fmf-close").focus(); }
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closePanel(); });
+  window.__fmfKeyHandler = function (e) { if (e.key === "Escape") closePanel(); };
+  document.addEventListener("keydown", window.__fmfKeyHandler);
 
   var nav = document.querySelector("header.top .bar");
   if (nav) {
@@ -110,9 +115,11 @@
     top.classList.toggle("visible", window.scrollY > 500);
     ticking = false;
   }
-  window.addEventListener("scroll", function () {
+  window.__fmfScrollHandler = function () {
     if (!ticking) { ticking = true; window.requestAnimationFrame(updateScroll); }
-  }, { passive: true });
-  window.addEventListener("resize", updateScroll, { passive: true });
+  };
+  window.__fmfResizeHandler = updateScroll;
+  window.addEventListener("scroll", window.__fmfScrollHandler, { passive: true });
+  window.addEventListener("resize", window.__fmfResizeHandler, { passive: true });
   updateScroll();
 })();
