@@ -1060,6 +1060,11 @@ write("index.html", page({
       <span class="tool-text">Put movements in a row with your own skin and save the animation as a video.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Animation</i><i>Video</i></span>
     </a>
+    <a class="tool" href="https://mc-tools.net/cape-builder" rel="noopener noreferrer">
+      <span class="tool-head"><span class="tool-ic">${ICON.box}</span><span><b>Cape Pack Builder</b><small>by MC Tools · external site</small></span></span>
+      <span class="tool-text">Create a custom cape pack for Minecraft Bedrock on MC Tools.</span>
+      <span class="tags"><i class="g">New</i><i>Bedrock</i><i>Capes</i><i>External</i></span>
+    </a>
   </div>
 </section>
 
