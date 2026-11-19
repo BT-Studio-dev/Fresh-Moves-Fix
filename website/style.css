@@ -828,3 +828,12 @@ html[data-background="off"] body::before, html[data-background="off"] body::afte
 .background-toggle span { display: flex; flex-direction: column; }
 .background-toggle small { color: var(--muted); }
 .background-toggle:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Cape texture editor: pixelated preview, no WebGL required. */
+.cape-builder { grid-template-columns: minmax(0, 1.5fr) minmax(220px, 1fr); }
+.cape-builder label { display: inline-block; margin: 4px 10px 8px 0; }
+.cape-builder select, .cape-builder input[type="file"] { max-width: 100%; color: var(--text); background: var(--bg); }
+.cape-canvas-wrap { width: 100%; overflow: hidden; border: 1px solid var(--line); background: repeating-conic-gradient(#999 0% 25%, #ddd 0% 50%) 0 0 / 20px 20px; }
+.cape-canvas-wrap canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; touch-action: none; border: 0; border-radius: 0; cursor: crosshair; }
+#cape-status.bad { color: #ff8a7a; }
+@media (max-width: 700px) { .cape-builder { grid-template-columns: 1fr; } }

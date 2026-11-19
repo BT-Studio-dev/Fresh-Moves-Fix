@@ -277,6 +277,8 @@ fs.copyFileSync(path.join(here, "player.js"), path.join(out, "player.js"));
 fs.copyFileSync(path.join(here, "studio.js"), path.join(out, "studio.js"));
 fs.copyFileSync(path.join(here, "ui.js"), path.join(out, "ui.js"));
 fs.copyFileSync(path.join(here, "title.js"), path.join(out, "title.js"));
+fs.copyFileSync(path.join(here, "cape.js"), path.join(out, "cape.js"));
+fs.copyFileSync(path.join(here, "node_modules/jszip/dist/jszip.min.js"), path.join(out, "jszip.min.js"));
 // 3D preview library (skinview3d, MIT licence), served from this site
 fs.copyFileSync(path.join(here, "node_modules/skinview3d/bundles/skinview3d.bundle.js"), path.join(out, "skinview3d.bundle.js"));
 write("editor/index.html", page({
@@ -965,6 +967,36 @@ write("settings/index.html", page({
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",go); else go();})()</script>`,
 }));
 
+// Original browser-based Java cape texture and elytra resource pack builder.
+write("cape/index.html", page({
+  title: "Cape Pack Builder - Fresh Moves Fix", active: "", depth: 1,
+  description: "Paint a cape texture and create a Java elytra resource pack in your browser.",
+  body: `<div class="wrap"><article>
+<div class="crumb"><a href="../">${ICON.home} Home</a></div>
+<h1>${ICON.brush} Cape Pack Builder</h1>
+<p>Draw or load your own 64 × 32 cape texture. Everything stays in your browser.</p>
+<div class="note"><strong>Java cape limitation:</strong> a resource pack cannot give you a wearable custom cape. Download the PNG for a compatible cape mod. The optional ZIP changes the normal elytra texture only, not your cape. Other players will not see your resource pack; an equipped cape or another pack may override the elytra texture.</div>
+<div class="ed cape-builder"><section class="panel ecard">
+<h2>Paint cape texture</h2>
+<p>Draw on the flat texture. The shaded guide marks the two main cape faces; side and top edges are in the remaining texture area.</p>
+<label>Colour <input id="cape-color" type="color" value="#35c980"></label>
+<label>Tool <select id="cape-tool"><option value="pen">Pen</option><option value="erase">Eraser</option></select></label>
+<label><input type="checkbox" id="cape-grid" checked> Pixel grid</label>
+<div class="cape-canvas-wrap"><canvas id="cape-canvas" width="640" height="320" aria-label="Cape texture drawing area, 64 by 32 pixels"></canvas></div>
+<p><label>Load your 64 × 32 PNG <input id="cape-file" type="file" accept="image/png"></label></p>
+<p><button class="btn small" id="cape-clear" type="button">Clear</button> <button class="btn small" id="cape-png" type="button">Download cape PNG</button></p>
+<p id="cape-status" role="status" aria-live="polite"></p>
+</section><section class="panel ecard">
+<h2>Java elytra pack</h2>
+<p>Choose your Minecraft Java version, then download the resource pack ZIP. Put it in <code>resourcepacks</code> and enable it in Minecraft. Wings use the texture differently from the cape; the result may need editing and has not been tested in-game.</p>
+<label>Minecraft version <select id="cape-version">${versions.map((v) => `<option value="${v.format}" data-mc="${v.mc}"${v.mc === versions[versions.length - 1].mc ? " selected" : ""}>${v.mc}</option>`).join("")}</select></label>
+<p><button class="btn" id="cape-zip" type="button">Download elytra pack ZIP</button></p>
+<p><b>Note:</b> the pack is for elytra, not a custom wearable cape. Cape-mod installation and visibility depend on the mod.</p>
+</section></div>
+</article></div>
+<script src="../jszip.min.js"></script><script src="../cape.js?v=${ver("cape.js")}"></script>`,
+}));
+
 // ---------- home ----------
 const groups = [];
 for (const v of versions) {
@@ -1060,10 +1092,10 @@ write("index.html", page({
       <span class="tool-text">Put movements in a row with your own skin and save the animation as a video.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Animation</i><i>Video</i></span>
     </a>
-    <a class="tool" href="https://mc-tools.net/cape-builder" rel="noopener noreferrer">
-      <span class="tool-head"><span class="tool-ic">${ICON.box}</span><span><b>Cape Pack Builder</b><small>by MC Tools · external site</small></span></span>
-      <span class="tool-text">Create a custom cape pack for Minecraft Bedrock on MC Tools.</span>
-      <span class="tags"><i class="g">New</i><i>Bedrock</i><i>Capes</i><i>External</i></span>
+    <a class="tool" href="cape/">
+      <span class="tool-head"><span class="tool-ic">${ICON.box}</span><span><b>Cape Pack Builder</b><small>by Fresh Moves Fix</small></span></span>
+      <span class="tool-text">Paint a cape texture or make an elytra pack for Minecraft Java.</span>
+      <span class="tags"><i class="g">New</i><i>Java</i><i>Cape PNG</i><i>Elytra</i></span>
     </a>
   </div>
 </section>
