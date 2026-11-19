@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "flag-icons": "^7.6.0",
+    "jszip": "^3.10.1",
     "marked": "^14.1.4",
     "skinview3d": "^3.4.2"
   }

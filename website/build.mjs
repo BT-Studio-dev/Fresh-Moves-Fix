@@ -87,7 +87,13 @@ function page({ title, body, depth = 0, description = "", active = "" }) {
 if(!t){try{var m=document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/);if(m)t=m[1]}catch(e){}}
 if(["system","light","dark","oled","glass","minecraft"].indexOf(t)<0)t="glass";
 if(t==="system")t=window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
-document.documentElement.setAttribute("data-theme",t)})()</script>
+document.documentElement.setAttribute("data-theme",t);
+var bg="";try{bg=localStorage.getItem("fmf-background")||""}catch(e){}
+if(!bg){try{var b=document.cookie.match(/(?:^|; )fmf-background=(on|off)/);if(b)bg=b[1]}catch(e){}}
+document.documentElement.setAttribute("data-background",bg==="off"?"off":"on");
+var sb="";try{sb=localStorage.getItem("fmf-scrollbar")||""}catch(e){}
+if(!sb){try{var sm=document.cookie.match(/(?:^|; )fmf-scrollbar=(on|off)/);if(sm)sb=sm[1]}catch(e){}}
+document.documentElement.setAttribute("data-scrollbar",sb==="off"?"off":"on")})()</script>
 <link rel="icon" href="${up}favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="192x192" href="${up}icon-192.png">
 <link rel="apple-touch-icon" href="${up}icon-180.png">
@@ -185,6 +191,7 @@ fs.writeFileSync(path.join(out, "tableau.json"), JSON.stringify({
 }));
 for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png", "icon-painted.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
+for (const f of ["night-stars.svg", "night-clouds.svg"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "refresh-2026.css"), path.join(out, "refresh-2026.css"));
 fs.copyFileSync(path.join(here, "enhancements.js"), path.join(out, "enhancements.js"));
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
@@ -278,6 +285,8 @@ fs.copyFileSync(path.join(here, "player.js"), path.join(out, "player.js"));
 fs.copyFileSync(path.join(here, "studio.js"), path.join(out, "studio.js"));
 fs.copyFileSync(path.join(here, "ui.js"), path.join(out, "ui.js"));
 fs.copyFileSync(path.join(here, "title.js"), path.join(out, "title.js"));
+fs.copyFileSync(path.join(here, "cape.js"), path.join(out, "cape.js"));
+fs.copyFileSync(path.join(here, "node_modules/jszip/dist/jszip.min.js"), path.join(out, "jszip.min.js"));
 // 3D preview library (skinview3d, MIT licence), served from this site
 fs.copyFileSync(path.join(here, "node_modules/skinview3d/bundles/skinview3d.bundle.js"), path.join(out, "skinview3d.bundle.js"));
 write("editor/index.html", page({
@@ -916,6 +925,12 @@ write("settings/index.html", page({
       <label for="settings-glass-blur"><span><b>Glass card blur</b><small>Turn the frosted-glass blur on or off. This only affects the Glass theme.</small></span><input type="checkbox" id="settings-glass-blur" checked></label>
     </div>
     <p class="saved" id="theme-saved" role="status" hidden>${ICON.check || ""}<span></span></p>
+    <h3>Animated background</h3>
+    <label class="background-toggle"><input type="checkbox" id="background-toggle"> <span><b>Show animated background</b><small>Turn off the night sky and moving clouds on all themes. Saved in this browser.</small></span></label>
+    <p class="saved" id="background-saved" role="status" hidden></p>
+    <h3>Page scrollbar</h3>
+    <label class="background-toggle"><input type="checkbox" id="scrollbar-toggle"> <span><b>Show page scrollbar</b><small>When hidden, you can still scroll with the mouse wheel, keyboard or touch. Saved in this browser.</small></span></label>
+    <p class="saved" id="scrollbar-saved" role="status" hidden></p>
   </div>
 </div>
 </article></div>
@@ -935,6 +950,26 @@ write("settings/index.html", page({
   document.querySelectorAll('input[name="theme"]').forEach(function(el){
     el.checked = el.value===cur;
     el.addEventListener("change",function(){ cur=el.value; var ok=true; try{localStorage.setItem(key,cur); ok=localStorage.getItem(key)===cur}catch(e){ok=false} if(keep(cur)) ok=true; apply(cur); told(el, ok); });
+  });
+  var background=document.getElementById("background-toggle"), bgNote=document.getElementById("background-saved"), bgKey="fmf-background";
+  background.checked=document.documentElement.getAttribute("data-background")!=="off";
+  background.addEventListener("change",function(){
+    var value=background.checked?"on":"off", saved=false;
+    document.documentElement.setAttribute("data-background",value);
+    try{localStorage.setItem(bgKey,value);saved=localStorage.getItem(bgKey)===value}catch(e){}
+    try{document.cookie=bgKey+"="+value+"; path=/; max-age=31536000"+(location.protocol==="https:"?"; SameSite=None; Secure":"; SameSite=Lax");if(document.cookie.indexOf(bgKey+"="+value)>=0)saved=true}catch(e){}
+    bgNote.textContent=saved?"Animated background " + value + ". Saved in this browser.":"Animated background " + value + ". Your browser could not save this setting.";
+    bgNote.classList.toggle("bad",!saved); bgNote.hidden=false;
+  });
+  var scroll=document.getElementById("scrollbar-toggle"), scrollNote=document.getElementById("scrollbar-saved"), scrollKey="fmf-scrollbar";
+  scroll.checked=document.documentElement.getAttribute("data-scrollbar")!=="off";
+  scroll.addEventListener("change",function(){
+    var value=scroll.checked?"on":"off", saved=false;
+    document.documentElement.setAttribute("data-scrollbar",value);
+    try{localStorage.setItem(scrollKey,value);saved=localStorage.getItem(scrollKey)===value}catch(e){}
+    try{document.cookie=scrollKey+"="+value+"; path=/; max-age=31536000"+(location.protocol==="https:"?"; SameSite=None; Secure":"; SameSite=Lax");if(document.cookie.indexOf(scrollKey+"="+value)>=0)saved=true}catch(e){}
+    scrollNote.textContent=saved?"Page scrollbar " + value + ". Saved in this browser.":"Page scrollbar " + value + ". Your browser could not save this setting.";
+    scrollNote.classList.toggle("bad",!saved); scrollNote.hidden=false;
   });
   matchMedia("(prefers-color-scheme: light)").addEventListener("change",function(){ if(cur==="system") apply(cur); });
 })()</script>
@@ -957,6 +992,51 @@ write("settings/index.html", page({
   });
 }
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",go); else go();})()</script>`,
+}));
+
+// Original browser-based Java cape texture and elytra resource pack builder.
+write("cape/index.html", page({
+  title: "Cape Pack Builder - Fresh Moves Fix", active: "", depth: 1,
+  description: "Paint a cape texture and create a Java elytra resource pack in your browser.",
+  body: `<div class="wrap"><article>
+<div class="crumb"><a href="../">${ICON.home} Home</a></div>
+<h1>${ICON.brush} Cape Pack Builder</h1>
+<p>Draw or load your own 64 × 32 cape texture. Everything stays in your browser.</p>
+<div class="note"><strong>Java cape limitation:</strong> a resource pack cannot give you a wearable custom cape. Download the PNG for a compatible cape mod. The optional ZIP changes the normal elytra texture only, not your cape. Other players will not see your resource pack; an equipped cape or another pack may override the elytra texture.</div>
+<section class="cape-settings card">
+<h2>Pack settings</h2>
+<div class="cape-fields">
+<label>Pack name <input type="text" id="cape-name" value="My Elytra Pack" maxlength="60"></label>
+<label>Description <input type="text" id="cape-description" value="Custom elytra texture" maxlength="120"></label>
+</div>
+<p>The name is used for your saved project and ZIP filename. The description appears in Minecraft's resource pack list.</p>
+</section>
+<section class="cape-settings card">
+<h2>Saved projects</h2>
+<p>Save the current texture and settings in this browser only. Saving with the same name updates that project. Clearing browser data deletes these projects; download a PNG or ZIP as a backup.</p>
+<label>Projects <select id="cape-projects" aria-label="Saved projects"><option value="">No saved projects</option></select></label>
+<div class="cape-project-actions"><button type="button" class="btn small" id="cape-save-project">Save / update</button> <button type="button" class="btn small ghost" id="cape-load-project" disabled>Load selected</button> <button type="button" class="btn small ghost" id="cape-delete-project" disabled>Delete selected</button></div>
+<p id="cape-project-status" role="status" aria-live="polite"></p>
+</section>
+<div class="ed cape-builder"><section class="panel ecard">
+<h2>Paint cape texture</h2>
+<p>Draw on the flat texture. The white outlines mark the two main cape faces; side and top edges are in the remaining texture area.</p>
+<label>Colour <input id="cape-color" type="color" value="#35c980"></label>
+<label>Tool <select id="cape-tool"><option value="pen">Pen</option><option value="erase">Eraser</option></select></label>
+<label><input type="checkbox" id="cape-grid" checked> Pixel grid</label>
+<div class="cape-canvas-wrap"><canvas id="cape-canvas" width="640" height="320" aria-label="Cape texture drawing area, 64 by 32 pixels"></canvas></div>
+<p><label>Load your 64 × 32 PNG <input id="cape-file" type="file" accept="image/png"></label></p>
+<p><button class="btn small" id="cape-clear" type="button">Clear</button> <button class="btn small" id="cape-png" type="button">Download cape PNG</button></p>
+<p id="cape-status" role="status" aria-live="polite"></p>
+</section><section class="panel ecard">
+<h2>Java elytra pack</h2>
+<p>Choose your Minecraft Java version, then download the resource pack ZIP. Put it in <code>resourcepacks</code> and enable it in Minecraft. Wings use the texture differently from the cape; the result may need editing and has not been tested in-game.</p>
+<label>Minecraft version <select id="cape-version">${versions.map((v) => `<option value="${v.format}" data-mc="${v.mc}"${v.mc === versions[versions.length - 1].mc ? " selected" : ""}>${v.mc}</option>`).join("")}</select></label>
+<p><button class="btn" id="cape-zip" type="button">Download elytra pack ZIP</button></p>
+<p><b>Note:</b> the pack is for elytra, not a custom wearable cape. Cape-mod installation and visibility depend on the mod.</p>
+</section></div>
+</article></div>
+<script src="../jszip.min.js"></script><script src="../cape.js?v=${ver("cape.js")}"></script>`,
 }));
 
 // ---------- home ----------
@@ -1053,6 +1133,11 @@ write("index.html", page({
       <span class="tool-head"><img class="tool-img" src="icon-anim.png" alt="" width="48" height="48"><span><b>Minecraft Animation</b><small>by Fresh Moves Fix</small></span></span>
       <span class="tool-text">Put movements in a row with your own skin and save the animation as a video.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Animation</i><i>Video</i></span>
+    </a>
+    <a class="tool" href="cape/">
+      <span class="tool-head"><span class="tool-ic">${ICON.box}</span><span><b>Cape Pack Builder</b><small>by Fresh Moves Fix</small></span></span>
+      <span class="tool-text">Paint a cape texture or make an elytra pack for Minecraft Java.</span>
+      <span class="tags"><i class="g">New</i><i>Java</i><i>Cape PNG</i><i>Elytra</i></span>
     </a>
   </div>
 </section>

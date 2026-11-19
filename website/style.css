@@ -767,34 +767,22 @@ header.top nav { min-width: 0; overflow-x: auto; }
 [data-theme="minecraft"] header.top { border-bottom: 4px solid #75a947; }
 [data-theme="minecraft"] .themes .pv i, [data-theme="minecraft"] .themes .pv b, [data-theme="minecraft"] .themes .pv u { border-radius: 1px; }
 
-/* Shared animated block landscape. System uses its resolved light or dark theme.
-   CSS only: no video download, WebGL or expensive backdrop blur. */
-html[data-theme] { background: #192c30; }
+/* Pixel night sky: light CSS animation, no video, WebGL or backdrop blur. */
+html[data-theme] { background: #1a173f; }
 html[data-theme] body { background: transparent; }
 html[data-theme] body::before {
   content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background:
-    linear-gradient(var(--landscape-top, rgba(9, 18, 20, .78)), var(--landscape-bottom, rgba(9, 18, 13, .84))),
-    linear-gradient(to top, #5b4532 0 15%, #527844 15% 20%, transparent 20%) bottom / 100% 100% no-repeat,
-    linear-gradient(to top, #4a6e3b 0 29%, transparent 29%) 0 100% / 16% 100% repeat-x,
-    linear-gradient(to top, #63884e 0 36%, transparent 36%) 10% 100% / 28% 100% repeat-x,
-    linear-gradient(#50869a, #8bb1ac 75%, #63884e 75%);
+  background: linear-gradient(var(--sky-overlay, rgba(0, 0, 0, .06)), var(--sky-overlay, rgba(0, 0, 0, .06))), url("night-stars.svg") 0 0 / 480px 280px repeat, #1a173f;
 }
 html[data-theme] body::after {
   content: ""; position: fixed; z-index: -1; pointer-events: none;
-  top: 12%; left: -50%; width: 200%; height: 14%; opacity: .28;
-  background: linear-gradient(to right, transparent 0 10%, #d9e6df 10% 20%, transparent 20% 46%, #d9e6df 46% 60%, transparent 60% 100%) 0 30% / 50% 22px repeat-x;
-  animation: minecraft-clouds 80s linear infinite;
+  left: -100%; bottom: 5%; width: 200%; height: 160px;
+  background: url("night-clouds.svg") 0 0 / 720px 160px repeat-x;
+  animation: minecraft-clouds 90s linear infinite;
 }
-html[data-theme="light"] {
-  --landscape-top: rgba(248, 251, 248, .87);
-  --landscape-bottom: rgba(248, 251, 248, .91);
-}
-html[data-theme="minecraft"], html[data-theme="glass"] {
-  --landscape-top: rgba(9, 18, 20, .58);
-  --landscape-bottom: rgba(9, 18, 13, .73);
-}
-@keyframes minecraft-clouds { from { transform: translateX(0); } to { transform: translateX(25%); } }
+html[data-theme="light"] { --sky-overlay: rgba(248, 251, 248, .9); }
+html[data-theme="light"] body::after { opacity: .1; }
+@keyframes minecraft-clouds { from { transform: translateX(0); } to { transform: translateX(720px); } }
 @media (prefers-reduced-motion: reduce) {
   html[data-theme] body::after { animation: none; }
 }
@@ -812,3 +800,40 @@ html[data-theme="minecraft"], html[data-theme="glass"] {
 [data-theme="minecraft"] :is(header.top .snd-box, .ed .dd-list, .ed .picker) { background: #1b2621; }
 [data-theme="minecraft"] header.top { background: #202e29; }
 [data-theme="minecraft"] footer { background: rgba(12, 21, 17, .9); }
+
+/* Turn the night sky and its cloud animation off for every theme. */
+html[data-background="off"] { background: #0a1210; }
+html[data-background="off"] body { background: var(--bg); }
+html[data-background="off"] body::before, html[data-background="off"] body::after {
+  display: none; animation: none;
+}
+.background-toggle {
+  display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+  cursor: pointer;
+}
+.background-toggle input { accent-color: var(--accent); margin: 5px 0 0; }
+.background-toggle span { display: flex; flex-direction: column; }
+.background-toggle small { color: var(--muted); }
+.background-toggle:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Cape texture editor: pixelated preview, no WebGL required. */
+.cape-builder { grid-template-columns: minmax(0, 1.5fr) minmax(220px, 1fr); }
+.cape-builder label { display: inline-block; margin: 4px 10px 8px 0; }
+.cape-builder select, .cape-builder input[type="file"] { max-width: 100%; color: var(--text); background: var(--bg); }
+.cape-canvas-wrap { width: 100%; overflow: hidden; border: 1px solid var(--line); background: repeating-conic-gradient(#999 0% 25%, #ddd 0% 50%) 0 0 / 20px 20px; }
+.cape-canvas-wrap canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; touch-action: none; border: 0; border-radius: 0; cursor: crosshair; }
+#cape-status.bad { color: #ff8a7a; }
+@media (max-width: 700px) { .cape-builder { grid-template-columns: 1fr; } }
+.cape-settings { margin: 18px 0; }
+.cape-settings p { margin: 8px 0 12px; }
+.cape-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.cape-fields label { display: flex; flex-direction: column; gap: 4px; }
+.cape-fields input, #cape-projects { width: 100%; padding: 8px; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; font: inherit; }
+.cape-project-actions { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+.cape-project-actions .btn { margin: 0; }
+#cape-project-status.bad { color: #ff8a7a; }
+
+/* Hide only the main page scrollbar; keep scrolling and nested control scrollbars. */
+html[data-scrollbar="off"] { scrollbar-width: none; -ms-overflow-style: none; }
+html[data-scrollbar="off"]::-webkit-scrollbar { display: none; width: 0; height: 0; }
