@@ -1089,7 +1089,10 @@ write("index.html", page({
   <div class="versions">
 ${versionLinks}
   </div>
-  <p style="margin-top:16px"><a rel="noopener" href="${REPO}/releases">${ICON.tag} All releases on GitHub</a></p>
+  <a class="card go release-all" href="${REPO}/releases" target="_blank" rel="noopener noreferrer">
+    <span>${ICON.tag} <b>All releases on GitHub</b><small>Browse every version, release note and download</small></span>
+    <i aria-hidden="true">↗</i>
+  </a>
 </section>
 
 <section id="minecraft-skins-download">
