@@ -90,7 +90,10 @@ if(t==="system")t=window.matchMedia&&matchMedia("(prefers-color-scheme: light)")
 document.documentElement.setAttribute("data-theme",t);
 var bg="";try{bg=localStorage.getItem("fmf-background")||""}catch(e){}
 if(!bg){try{var b=document.cookie.match(/(?:^|; )fmf-background=(on|off)/);if(b)bg=b[1]}catch(e){}}
-document.documentElement.setAttribute("data-background",bg==="off"?"off":"on")})()</script>
+document.documentElement.setAttribute("data-background",bg==="off"?"off":"on");
+var sb="";try{sb=localStorage.getItem("fmf-scrollbar")||""}catch(e){}
+if(!sb){try{var sm=document.cookie.match(/(?:^|; )fmf-scrollbar=(on|off)/);if(sm)sb=sm[1]}catch(e){}}
+document.documentElement.setAttribute("data-scrollbar",sb==="off"?"off":"on")})()</script>
 <link rel="icon" href="${up}favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="192x192" href="${up}icon-192.png">
 <link rel="apple-touch-icon" href="${up}icon-180.png">
@@ -918,6 +921,9 @@ write("settings/index.html", page({
     <h3>Animated background</h3>
     <label class="background-toggle"><input type="checkbox" id="background-toggle"> <span><b>Show animated background</b><small>Turn off the night sky and moving clouds on all themes. Saved in this browser.</small></span></label>
     <p class="saved" id="background-saved" role="status" hidden></p>
+    <h3>Page scrollbar</h3>
+    <label class="background-toggle"><input type="checkbox" id="scrollbar-toggle"> <span><b>Show page scrollbar</b><small>When hidden, you can still scroll with the mouse wheel, keyboard or touch. Saved in this browser.</small></span></label>
+    <p class="saved" id="scrollbar-saved" role="status" hidden></p>
   </div>
 </div>
 </article></div>
@@ -944,6 +950,16 @@ write("settings/index.html", page({
     try{document.cookie=bgKey+"="+value+"; path=/; max-age=31536000"+(location.protocol==="https:"?"; SameSite=None; Secure":"; SameSite=Lax");if(document.cookie.indexOf(bgKey+"="+value)>=0)saved=true}catch(e){}
     bgNote.textContent=saved?"Animated background " + value + ". Saved in this browser.":"Animated background " + value + ". Your browser could not save this setting.";
     bgNote.classList.toggle("bad",!saved); bgNote.hidden=false;
+  });
+  var scroll=document.getElementById("scrollbar-toggle"), scrollNote=document.getElementById("scrollbar-saved"), scrollKey="fmf-scrollbar";
+  scroll.checked=document.documentElement.getAttribute("data-scrollbar")!=="off";
+  scroll.addEventListener("change",function(){
+    var value=scroll.checked?"on":"off", saved=false;
+    document.documentElement.setAttribute("data-scrollbar",value);
+    try{localStorage.setItem(scrollKey,value);saved=localStorage.getItem(scrollKey)===value}catch(e){}
+    try{document.cookie=scrollKey+"="+value+"; path=/; max-age=31536000"+(location.protocol==="https:"?"; SameSite=None; Secure":"; SameSite=Lax");if(document.cookie.indexOf(scrollKey+"="+value)>=0)saved=true}catch(e){}
+    scrollNote.textContent=saved?"Page scrollbar " + value + ". Saved in this browser.":"Page scrollbar " + value + ". Your browser could not save this setting.";
+    scrollNote.classList.toggle("bad",!saved); scrollNote.hidden=false;
   });
   matchMedia("(prefers-color-scheme: light)").addEventListener("change",function(){ if(cur==="system") apply(cur); });
 })()</script>

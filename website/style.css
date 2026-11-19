@@ -833,3 +833,7 @@ html[data-background="off"] body::before, html[data-background="off"] body::afte
 .cape-project-actions { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
 .cape-project-actions .btn { margin: 0; }
 #cape-project-status.bad { color: #ff8a7a; }
+
+/* Hide only the main page scrollbar; keep scrolling and nested control scrollbars. */
+html[data-scrollbar="off"] { scrollbar-width: none; -ms-overflow-style: none; }
+html[data-scrollbar="off"]::-webkit-scrollbar { display: none; width: 0; height: 0; }
