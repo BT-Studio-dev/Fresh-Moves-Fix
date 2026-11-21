@@ -261,6 +261,7 @@ write("guides/index.html", page({
   body: `<div class="wrap"><article>
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <h1>${ICON.book} Guides</h1>
+<div class="text-card">
 <h2>${ICON.list} How to animate the eyes</h2>
 <ol class="steps">
 <li>Get the skin you want to use (from your Minecraft account, NameMC, or any skin you like).</li>
@@ -268,11 +269,12 @@ write("guides/index.html", page({
 <li>Add the extra pixels for your eye type and size, following the matching guide below. Leave the face itself untouched, so players without the pack see a normal skin.</li>
 <li>Save the skin and upload it in the Minecraft launcher or on your Minecraft account.</li>
 </ol>
+</div>
 <h2>${ICON.wrench} Fixes</h2>
 ${cards(fixes)}
 <h2>${ICON.eye} Eye and eyebrow types</h2>
 ${cards(eyes)}
-<p style="margin-top:24px;color:var(--muted)">These guides are copied from the original Fresh Moves wiki. Images and videos are hosted on the original GitHub repository.</p>
+<p class="text-card guide-credit">These guides are copied from the original Fresh Moves wiki. Images and videos are hosted on the original GitHub repository.</p>
 </article></div>`,
 }));
 
@@ -1158,6 +1160,7 @@ write("index.html", page({
 
 <section class="home-section" id="requirements">
   <div class="home-heading"><div><span class="home-eyebrow">BEFORE YOU PLAY</span><h2>${ICON.wrench} Requirements</h2></div><p>Get the right mods for your version.</p></div>
+  <div class="text-card">
   <p>You need the <strong>latest</strong> versions of these two client-side mods (Fabric, Forge and NeoForge):</p>
   <p>
     <a class="btn ghost" rel="noopener" href="https://modrinth.com/mod/entity-model-features">${ICON.ext} Entity Model Features (EMF)</a>
@@ -1167,12 +1170,14 @@ write("index.html", page({
   <p>Helpful, not required: <a rel="noopener" href="https://modrinth.com/mod/modmenu">Mod Menu</a> and <a rel="noopener" href="https://modrinth.com/mod/cloth-config">Cloth Config</a>, to open the settings of the mods in the game. Custom Skin Loader and Alpha Skins from old guides are no longer needed.</p>
   <p>On Minecraft 1.21.9 and newer armour only follows the animations with a recent EMF (3.0.5 or newer; 3.0.12 fixes armour lag).</p>
   <p>On Minecraft 26.1, 26.1.1 and 26.1.2 use EMF 3.3.2 or newer (older versions do not start or crash there). On 26.3 use EMF 3.3.6 or newer. EMF for 26.x exists for Fabric and NeoForge.</p>
+  </div>
 </section>
 
 <section id="download" class="home-section">
   <div class="home-heading"><div><span class="home-eyebrow">READY TO PLAY?</span><h2>${ICON.down} Download</h2></div><p>Choose the pack and version that fit your game.</p></div>
   <p><a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">${ICON.down} Fresh-Moves-Fix.zip - all versions</a>
     <a class="btn ghost" href="${dl("Fresh-Moves-Fix-Eyes-Only.zip")}">${ICON.down} Eyes only - all versions</a></p>
+  <div class="text-card download-info">
   <p><strong>Eyes only</strong> is the same pack without the body animations: the eyes blink and look around, and walking, running and the arms stay as in normal Minecraft. It has no emotes. Use one of the two packs, not both. New and not tested in the game.</p>
   <p class="reltime" id="reltime"${releaseTime ? "" : " hidden"}>${ICON.tag} <span>Release <b>v${version}</b> · updated <time datetime="${releaseTime}">${releaseTime ? releaseTime.replace("T", " ").replace(/:\d\dZ$/, " UTC") : ""}</time></span></p>
   <script>(function(){
@@ -1185,6 +1190,7 @@ write("index.html", page({
       if(!j) return; var a=(j.assets||[]).map(function(x){return x.updated_at}).sort().pop()||j.published_at; if(a) show(a); }).catch(function(){}); }catch(e){}
   })()</script>
   <p>One zip for every supported version. Or pick the zip labelled for your Minecraft version:</p>
+  </div>
   <div class="versions">
 ${versionLinks}
   </div>
@@ -1195,12 +1201,15 @@ ${versionLinks}
 </section>
 
 <section id="minecraft-skins-download" class="home-section">
+  <div class="text-card">
   <h2>${ICON.down} Download Minecraft Skins — Fabric</h2>
   <p><strong>Coming soon.</strong> Minecraft Skins downloads are temporarily locked. This is a separate mod, not the Fresh Moves Fix resource pack.</p>
+  </div>
   <div class="versions">${skinVersionLinks}</div>
 </section>
 
 <section>
+  <div class="text-card">
   <h2>${ICON.list} How to install</h2>
   <ol class="steps">
     <li>Install a mod loader for your Minecraft Java version, such as Fabric.</li>
@@ -1209,6 +1218,7 @@ ${versionLinks}
     <li>Put the downloaded Fresh Moves Fix <strong>ZIP</strong> (do not unzip it) in your <code>resourcepacks</code> folder. Choose either the normal pack or Eyes Only, not both.</li>
     <li>In Minecraft go to Options → Resource Packs, move the pack to the right and click Done.</li>
   </ol>
+  </div>
   <div class="install-cards" aria-label="Installation downloads and help">
     <a class="card install-link" href="https://modrinth.com/mod/entity-model-features" rel="noopener noreferrer"><span class="install-icon">${ICON.box}</span><span><b>Entity Model Features</b><small>Download EMF for your loader</small></span><span aria-hidden="true">${ICON.ext}</span></a>
     <a class="card install-link" href="https://modrinth.com/mod/entitytexturefeatures" rel="noopener noreferrer"><span class="install-icon">${ICON.grid}</span><span><b>Entity Texture Features</b><small>Download ETF for your loader</small></span><span aria-hidden="true">${ICON.ext}</span></a>

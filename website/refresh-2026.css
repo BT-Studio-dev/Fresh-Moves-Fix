@@ -328,3 +328,11 @@ html[data-theme="nightsky"] { --fmf-popup: #252345; --fmf-popup-control: #171533
   .painter-page .paint .ecard { padding: 16px; }
   .painter-page .paint .ptools { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* Text blocks sit on readable, themed surfaces without obscuring their links. */
+.text-card { padding: clamp(18px, 3vw, 26px); margin: 0 0 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; }
+.text-card > :first-child { margin-top: 0; }
+.text-card > :last-child { margin-bottom: 0; }
+.text-card .steps { padding-left: 1.5em; }
+.guide-credit { margin-top: 24px; color: var(--muted); }
+[data-theme="minecraft"] .text-card { border-radius: 3px; }
