@@ -886,3 +886,5 @@ html[data-theme="livesky"][data-live-moon="on"] .fmf-live-moon { display: block;
 .live-sky-settings p { margin: 6px 0 10px; color: var(--muted); font-size: 13px; }
 .live-sky-settings [role="status"] { margin: 10px 0 0; }
 .live-sky-settings select { display: block; max-width: 100%; margin-top: 7px; padding: 8px 10px; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 7px; font: inherit; }
+/* Hide only the top-bar control, not the player or its playback. */
+html[data-music-button="off"] header.top .snd-wrap { display: none; }

@@ -95,7 +95,9 @@ if(!bg){try{var b=document.cookie.match(/(?:^|; )fmf-background=(on|off)/);if(b)
 document.documentElement.setAttribute("data-background",bg==="off"?"off":"on");
 var sb="";try{sb=localStorage.getItem("fmf-scrollbar")||""}catch(e){}
 if(!sb){try{var sm=document.cookie.match(/(?:^|; )fmf-scrollbar=(on|off)/);if(sm)sb=sm[1]}catch(e){}}
-document.documentElement.setAttribute("data-scrollbar",sb==="off"?"off":"on")})()</script>
+document.documentElement.setAttribute("data-scrollbar",sb==="off"?"off":"on");
+var mb="on";try{mb=localStorage.getItem("fmf-show-music-button")||"on"}catch(e){}
+document.documentElement.setAttribute("data-music-button",mb==="off"?"off":"on")})()</script>
 <link rel="icon" href="${up}favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="192x192" href="${up}icon-192.png">
 <link rel="apple-touch-icon" href="${up}icon-180.png">
@@ -931,10 +933,11 @@ write("settings/index.html", page({
     <p class="elabel">Player</p>
     <div class="mtiles">
       <label class="mtile"><input type="checkbox" data-music-check><span><b>Play music</b><small data-music-state>Music: off</small></span><i data-music-time>0:00 / 3:34</i></label>
+      <label class="mtile"><input type="checkbox" id="music-button-visibility" checked><span><b>Show music button</b><small>Show the music control in the top bar</small></span></label><p id="music-button-status" role="status" aria-live="polite" hidden></p>
       <label class="mtile"><span><b>Song position</b></span><input type="range" min="0" max="214" value="0" step="1" data-music-seek aria-label="Song position"></label>
       <label class="mtile"><span class="mt-ic">${ICON.music}</span><span><b>Volume</b></span><input type="range" min="0" max="100" value="40" data-music-volume><span data-music-volume-value>40%</span></label>
     </div>
-    <p class="shint">${ICON.info} Use the music button at the top of any page. Music continues as you browse the site.</p>
+    <p class="shint">${ICON.info} Music continues as you browse the site. The top-bar button can be hidden here.</p>
   </div>
   <div class="box" id="tab-language" hidden>
     <h2 class="shead"><span class="tool-ic">${ICON.globe}</span><span><b>Language</b><small>Language of menus and buttons</small></span></h2>
@@ -943,8 +946,8 @@ write("settings/index.html", page({
     <div class="langs" id="langs"></div>
   </div>
   <div class="box" id="tab-appearance">
-    <h2 class="shead"><span class="tool-ic">${ICON.brush}</span><span><b>Color theme</b><small>Light, dark, OLED, glass, Night Sky or Live Sky</small></span></h2>
-    <p>Select your preferred color theme for this website. It is saved in this browser only. Live Sky can use your location for the sun and moon. Without it, the background uses your local clock. It does not show live weather.</p>
+    <h2 class="shead"><span class="tool-ic">${ICON.brush}</span><span><b>Color theme</b><small>Light, dark, OLED, glass or Night Sky</small></span></h2>
+    <p>Select your preferred color theme for this website. It is saved in this browser only.</p>
     <div class="themes">
       ${themeCard("system", "Sync with system", "linear-gradient(90deg,#f4f6f5 50%,#121212 50%)", "#18201c", "#2a3630", "#9aa8a0")}
       ${themeCard("light", "Light", "#f4f6f5", "#ffffff", "#d5dcd8", "#17201b")}
@@ -952,15 +955,6 @@ write("settings/index.html", page({
       ${themeCard("oled", "OLED", "#000000", "#0d0f0e", "#222826", "#98a39d")}
       ${themeCard("glass", "Glass", "radial-gradient(circle at 20% 20%,#2fae78 0,transparent 55%),radial-gradient(circle at 85% 80%,#3b6fd0 0,transparent 55%),#0a1210", "rgba(255,255,255,.16)", "rgba(255,255,255,.34)", "#eef6f1")}
       ${themeCard("nightsky", "Night Sky", "radial-gradient(circle at 78% 25%, #f0f2fa 0 9%, transparent 10%), #1a173f", "#252249", "#4b4a76", "#eef0ff")}
-      ${themeCard("livesky", "Live Sky", "linear-gradient(#426d9b, #dba47b)", "#263849", "#7aa1b8", "#edf5ff")}
-    </div>
-    <div class="live-sky-settings">
-      <b>Live Sky location</b><p>Allow location for your real local sun and moon positions. Your approximate coordinates are saved only in this browser and are not sent to our server. The background is an illustration, not live weather.</p>
-      <div><button type="button" class="btn small" id="live-sky-use-location">Use my location</button> <button type="button" class="btn small ghost" id="live-sky-forget-location">Forget location</button></div>
-      <p id="live-sky-location-status" role="status" aria-live="polite"></p>
-      <label for="live-sky-speed"><b>Sky speed</b></label>
-      <select id="live-sky-speed"><option value="real">Real time</option><option value="fast">Fast cycle (one day in 2 minutes)</option></select>
-      <p>Fast cycle is a time-lapse, not the real current sky. Saved in this browser.</p>
     </div>
     <div class="fmf-blur-setting">
       <label for="settings-glass-blur"><span><b>Glass card blur</b><small>Turn the frosted-glass blur on or off. This only affects the Glass theme.</small></span><input type="checkbox" id="settings-glass-blur" checked></label>
@@ -976,6 +970,15 @@ write("settings/index.html", page({
 </div>
 </article></div>
 <script>(function(){
+  var musicButtonControl=document.getElementById("music-button-visibility"), musicButtonStatus=document.getElementById("music-button-status");
+  musicButtonControl.checked=document.documentElement.getAttribute("data-music-button")!=="off";
+  musicButtonControl.addEventListener("change",function(){
+    var value=musicButtonControl.checked?"on":"off", saved=false;
+    document.documentElement.setAttribute("data-music-button",value);
+    try{localStorage.setItem("fmf-show-music-button",value);saved=localStorage.getItem("fmf-show-music-button")===value}catch(e){}
+    musicButtonStatus.textContent=saved?"Music button setting saved in this browser.":"Music button changed for this page, but your browser could not save it.";
+    musicButtonStatus.hidden=false;
+  });
   var key="fmf-theme", cur=""; try{cur=localStorage.getItem(key)||""}catch(e){}
   if(!cur){ try{ var m=document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/); if(m) cur=m[1]; }catch(e){} } // second place the choice is kept
   if(["system","light","dark","oled","glass","minecraft","nightsky","livesky"].indexOf(cur)<0) cur="dark"; // new visitors start with Dark
