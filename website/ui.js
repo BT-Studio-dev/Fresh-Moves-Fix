@@ -148,7 +148,7 @@
   document.addEventListener("click", (e) => { if (!(e.target.closest && e.target.closest(".dd"))) closeAll(); });
   function start() {
     document.querySelectorAll(".ed select").forEach(enhance);
-    document.querySelectorAll('.ed input[type="color"]').forEach(colour);
+    document.querySelectorAll('.ed input[type="color"], .cape-inspector input[type="color"]').forEach(colour);
   }
   window.FMFUI = { enhance, colour, start };
   start();

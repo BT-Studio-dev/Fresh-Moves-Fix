@@ -5,6 +5,25 @@
   var canvas = $('cape-canvas'), view = canvas.getContext('2d');
   var texture = document.createElement('canvas'); texture.width = 64; texture.height = 32;
   var ctx = texture.getContext('2d'), status = $('cape-status'), drawing = false;
+  var undo = [], redo = [];
+  function snapshot() { return ctx.getImageData(0, 0, 64, 32); }
+  function saveUndo() { undo.push(snapshot()); if (undo.length > 30) undo.shift(); redo = []; }
+  function restore(from, to) { if (!from.length) return; to.push(snapshot()); ctx.putImageData(from.pop(), 0, 0); draw(); }
+  $('cape-undo').addEventListener('click', function () { restore(undo, redo); });
+  $('cape-redo').addEventListener('click', function () { restore(redo, undo); });
+  document.querySelectorAll('[data-cape-tool]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      $('cape-tool').value = button.dataset.capeTool;
+      document.querySelectorAll('[data-cape-tool]').forEach(function (b) { b.classList.toggle('active', b === button); });
+    });
+  });
+  var recent = [];
+  function remember() {
+    var color = $('cape-color').value; recent = [color].concat(recent.filter(function (c) { return c !== color; })).slice(0, 8);
+    var box = $('cape-recent'); box.textContent = '';
+    recent.forEach(function (c) { var button = document.createElement('button'); button.type = 'button'; button.style.background = c; button.title = c; button.setAttribute('aria-label', 'Use recent colour ' + c); button.addEventListener('click', function () { $('cape-color').value = c; remember(); }); box.appendChild(button); });
+  }
+  $('cape-color').addEventListener('change', remember); remember();
   function message(text, bad) { status.textContent = text; status.classList.toggle('bad', !!bad); }
   function draw() {
     view.clearRect(0, 0, 640, 320); view.imageSmoothingEnabled = false;
@@ -14,6 +33,8 @@
       for (var x = 0; x <= 64; x++) { view.moveTo(x * 10 + .5, 0); view.lineTo(x * 10 + .5, 320); }
       for (var y = 0; y <= 32; y++) { view.moveTo(0, y * 10 + .5); view.lineTo(640, y * 10 + .5); }
       view.stroke();
+    }
+    if ($('cape-template').checked) {
       view.strokeStyle = '#ffffff'; view.lineWidth = 2;
       view.strokeRect(10, 10, 100, 160); view.strokeRect(120, 10, 100, 160);
     }
@@ -22,16 +43,18 @@
     var r = canvas.getBoundingClientRect();
     var x = Math.floor((e.clientX - r.left) * 64 / r.width), y = Math.floor((e.clientY - r.top) * 32 / r.height);
     if (x < 0 || x >= 64 || y < 0 || y >= 32) return;
-    if ($('cape-tool').value === 'erase') ctx.clearRect(x, y, 1, 1);
-    else { ctx.fillStyle = $('cape-color').value; ctx.fillRect(x, y, 1, 1); }
+    var size = Number($('cape-size').value) || 1, startX = x - Math.floor((size - 1) / 2), startY = y - Math.floor((size - 1) / 2);
+    if ($('cape-tool').value === 'erase') ctx.clearRect(startX, startY, size, size);
+    else { ctx.fillStyle = $('cape-color').value; ctx.fillRect(startX, startY, size, size); }
     draw();
   }
-  canvas.addEventListener('pointerdown', function (e) { if (e.button !== 0) return; drawing = true; canvas.setPointerCapture(e.pointerId); pixel(e); });
+  canvas.addEventListener('pointerdown', function (e) { if (e.button !== 0) return; saveUndo(); remember(); drawing = true; canvas.setPointerCapture(e.pointerId); pixel(e); });
   canvas.addEventListener('pointermove', function (e) { if (drawing) pixel(e); });
   canvas.addEventListener('pointerup', function () { drawing = false; });
   canvas.addEventListener('pointercancel', function () { drawing = false; });
   $('cape-grid').addEventListener('change', draw);
-  $('cape-clear').addEventListener('click', function () { ctx.clearRect(0, 0, 64, 32); draw(); message('Texture cleared.'); });
+  $('cape-template').addEventListener('change', draw);
+  $('cape-clear').addEventListener('click', function () { saveUndo(); ctx.clearRect(0, 0, 64, 32); draw(); message('Texture cleared.'); });
   $('cape-file').addEventListener('change', function () {
     var file = this.files[0]; if (!file) return;
     if (file.type !== 'image/png') { message('Please choose a PNG image.', true); this.value = ''; return; }
@@ -39,7 +62,7 @@
     image.onload = function () {
       URL.revokeObjectURL(url);
       if (image.width !== 64 || image.height !== 32) { message('The PNG must be exactly 64 × 32 pixels.', true); return; }
-      ctx.clearRect(0, 0, 64, 32); ctx.drawImage(image, 0, 0); draw(); message('Texture loaded.');
+      saveUndo(); ctx.clearRect(0, 0, 64, 32); ctx.drawImage(image, 0, 0); draw(); message('Texture loaded.');
     };
     image.onerror = function () { URL.revokeObjectURL(url); message('Could not read that PNG.', true); };
     image.src = url; this.value = '';
@@ -89,7 +112,7 @@
       var image = new Image();
       image.onload = function () {
         if (image.width !== 64 || image.height !== 32) { projectMessage('Saved texture is not 64 × 32.', true); return; }
-        ctx.clearRect(0, 0, 64, 32); ctx.drawImage(image, 0, 0); draw();
+        saveUndo(); ctx.clearRect(0, 0, 64, 32); ctx.drawImage(image, 0, 0); draw();
         $('cape-name').value = project.name; $('cape-description').value = project.description || '';
         var options = $('cape-version').options;
         for (var i = 0; i < options.length; i++) if (options[i].getAttribute('data-mc') === project.mc) { $('cape-version').selectedIndex = i; break; }

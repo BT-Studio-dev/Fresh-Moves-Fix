@@ -536,3 +536,36 @@ a.project-card:focus-visible { outline: 2px solid var(--accent); outline-offset:
 .painter-basic-palette { margin: 10px 0; color: var(--muted); font-size: 13px; }
 .painter-basic-palette summary { cursor: pointer; }
 @media (max-width: 360px) { .painter-colour-card .painter-main-colour { grid-template-columns: 65px minmax(0, 1fr); } }
+
+/* Cape editor: a compact tool rail, texture workspace and inspector. */
+.cape-page { max-width: 1500px; }
+.cape-heading { margin: 22px 0; }
+.cape-heading h1 { margin-bottom: 4px; }
+.cape-heading p { color: var(--muted); margin: 0; }
+.cape-workspace { display: grid; grid-template-columns: 62px minmax(0, 1fr) 270px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--bg); margin-top: 20px; }
+.cape-toolbar { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 6px; border-right: 1px solid var(--line); }
+.cape-toolbar button { width: 44px; min-height: 43px; border: 1px solid transparent; border-radius: 7px; color: var(--text); background: transparent; cursor: pointer; font-size: 20px; }
+.cape-toolbar button.active { color: var(--accent); border-color: var(--accent); background: var(--surface); }
+.cape-toolbar button span { display: block; font-size: 9px; }
+.cape-toolbar button svg { width: 18px; height: 18px; }
+.cape-toolbar hr { width: 80%; border: 0; border-top: 1px solid var(--line); }
+.cape-stage { min-width: 0; display: flex; flex-direction: column; background-color: var(--surface); background-image: linear-gradient(rgba(128,128,128,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(128,128,128,.06) 1px, transparent 1px); background-size: 32px 32px; }
+.cape-stage-bar, .cape-stage-options { display: flex; justify-content: space-between; gap: 12px; padding: 12px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+.cape-stage-options { border-top: 1px solid var(--line); border-bottom: 0; justify-content: flex-start; }
+.cape-stage-center { flex: 1; display: flex; align-items: center; padding: 18px; min-height: 470px; }
+.cape-canvas-wrap { background: repeating-conic-gradient(#34363a 0% 25%, #292b2e 0% 50%) 0 0 / 20px 20px; }
+.cape-inspector { border-left: 1px solid var(--line); min-width: 0; }
+.cape-inspector section { padding: 16px; border-bottom: 1px solid var(--line); }
+.cape-inspector h2 { text-transform: uppercase; letter-spacing: .1em; font-size: 12px; color: var(--muted); margin: 0 0 14px; }
+.cape-inspector .inline-picker-wrap, .cape-inspector .inline-picker { display: block; width: 100%; position: static; padding: 0; background: transparent; border: 0; box-shadow: none; }
+.cape-inspector .pk-sv { width: 100%; height: 130px; }
+.cape-inspector .pk-hue { width: 100%; }
+.cape-inspector .pk-sws { display: none; }
+.cape-inspector .btn, .cape-upload { display: block; width: 100%; box-sizing: border-box; margin: 8px 0; text-align: center; }
+.cape-upload { border: 1px solid var(--line); border-radius: 6px; padding: 9px; cursor: pointer; font-size: 13px; }
+.cape-upload input { display: block; width: 100%; margin-top: 7px; font-size: 11px; }
+.cape-caption { color: var(--muted); font-size: 12px; text-transform: uppercase; }
+.cape-recent { display: flex; flex-wrap: wrap; gap: 5px; }
+.cape-recent button { width: 24px; height: 24px; border: 1px solid var(--line); border-radius: 4px; cursor: pointer; }
+.cape-extra { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+@media (max-width: 850px) { .cape-workspace { grid-template-columns: 54px minmax(0, 1fr); } .cape-inspector { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); } .cape-stage-center { min-height: 300px; padding: 10px; } }

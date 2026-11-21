@@ -1058,45 +1058,37 @@ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded"
 write("cape/index.html", page({
   title: "Cape Pack Builder - Fresh Moves Fix", active: "", depth: 1,
   description: "Paint a cape texture and create a Java elytra resource pack in your browser.",
-  body: `<div class="wrap"><article>
-<div class="crumb"><a href="../">${ICON.home} Home</a></div>
-<div class="text-card"><h1>${ICON.brush} Cape Pack Builder</h1>
-<p>Draw or load your own 64 × 32 cape texture. Everything stays in your browser.</p></div>
-<div class="note"><strong>Java cape limitation:</strong> a resource pack cannot give you a wearable custom cape. Download the PNG for a compatible cape mod. The optional ZIP changes the normal elytra texture only, not your cape. Other players will not see your resource pack; an equipped cape or another pack may override the elytra texture.</div>
-<section class="cape-settings card">
-<h2>Pack settings</h2>
-<div class="cape-fields">
-<label>Pack name <input type="text" id="cape-name" value="My Elytra Pack" maxlength="60"></label>
-<label>Description <input type="text" id="cape-description" value="Custom elytra texture" maxlength="120"></label>
+  body: `<div class="wrap cape-page"><article>
+<div class="crumb"><a href="../">${ICON.home} Home</a> / Cape editor</div>
+<header class="cape-heading"><h1>${ICON.brush} Cape Pack Builder</h1><p>Paint a Java cape texture and create an optional elytra pack, right in your browser.</p></header>
+<div class="note"><strong>Java cape limitation:</strong> a resource pack cannot give you a wearable custom cape. Download the PNG for a compatible cape mod. The optional ZIP changes the elytra texture only; other players will not see your resource pack.</div>
+<div class="cape-workspace">
+  <aside class="cape-toolbar" aria-label="Painting tools">
+    <button type="button" class="cape-tool active" data-cape-tool="pen" aria-label="Brush" title="Brush">${ICON.brush}<span>Brush</span></button>
+    <button type="button" class="cape-tool" data-cape-tool="erase" aria-label="Eraser" title="Eraser">✎<span>Erase</span></button>
+    <hr><button type="button" id="cape-undo" aria-label="Undo" title="Undo">↶<span>Undo</span></button>
+    <button type="button" id="cape-redo" aria-label="Redo" title="Redo">↷<span>Redo</span></button>
+    <button type="button" id="cape-clear" aria-label="Clear texture" title="Clear texture">×<span>Clear</span></button>
+    <select id="cape-tool" aria-label="Tool" hidden><option value="pen">Pen</option><option value="erase">Eraser</option></select>
+  </aside>
+  <section class="cape-stage" aria-label="Texture editor">
+    <div class="cape-stage-bar"><span>TEXTURE GRID</span><span>64 × 32 pixels</span></div>
+    <div class="cape-stage-center"><div class="cape-canvas-wrap"><canvas id="cape-canvas" width="640" height="320" aria-label="Cape texture drawing area, 64 by 32 pixels"></canvas></div></div>
+    <div class="cape-stage-options"><label><input type="checkbox" id="cape-grid" checked> Pixel grid</label><label><input type="checkbox" id="cape-template" checked> Face guides</label></div>
+  </section>
+  <aside class="cape-inspector">
+    <section><h2>Colour</h2><input id="cape-color" type="color" value="#35c980" data-inline-picker aria-label="Brush colour"><p class="cape-caption">Recent</p><div id="cape-recent" class="cape-recent" aria-label="Recent colours"></div></section>
+    <section><h2>Brush</h2><label for="cape-size">Size</label><select id="cape-size"><option value="1">1 pixel</option><option value="2">2 pixels</option><option value="3">3 pixels</option><option value="4">4 pixels</option></select></section>
+    <section><h2>Import / export</h2><label class="cape-upload">Import cape PNG (64 × 32)<input id="cape-file" type="file" accept="image/png"></label><button class="btn" id="cape-png" type="button">Download cape PNG</button><p id="cape-status" role="status" aria-live="polite"></p></section>
+  </aside>
 </div>
-<p>The name is used for your saved project and ZIP filename. The description appears in Minecraft's resource pack list.</p>
-</section>
-<section class="cape-settings card">
-<h2>Saved projects</h2>
-<p>Save the current texture and settings in this browser only. Saving with the same name updates that project. Clearing browser data deletes these projects; download a PNG or ZIP as a backup.</p>
-<label>Projects <select id="cape-projects" aria-label="Saved projects"><option value="">No saved projects</option></select></label>
-<div class="cape-project-actions"><button type="button" class="btn small" id="cape-save-project">Save / update</button> <button type="button" class="btn small ghost" id="cape-load-project" disabled>Load selected</button> <button type="button" class="btn small ghost" id="cape-delete-project" disabled>Delete selected</button></div>
-<p id="cape-project-status" role="status" aria-live="polite"></p>
-</section>
-<div class="ed cape-builder"><section class="panel ecard">
-<h2>Paint cape texture</h2>
-<p>Draw on the flat texture. The white outlines mark the two main cape faces; side and top edges are in the remaining texture area.</p>
-<label>Colour <input id="cape-color" type="color" value="#35c980"></label>
-<label>Tool <select id="cape-tool"><option value="pen">Pen</option><option value="erase">Eraser</option></select></label>
-<label><input type="checkbox" id="cape-grid" checked> Pixel grid</label>
-<div class="cape-canvas-wrap"><canvas id="cape-canvas" width="640" height="320" aria-label="Cape texture drawing area, 64 by 32 pixels"></canvas></div>
-<p><label>Load your 64 × 32 PNG <input id="cape-file" type="file" accept="image/png"></label></p>
-<p><button class="btn small" id="cape-clear" type="button">Clear</button> <button class="btn small" id="cape-png" type="button">Download cape PNG</button></p>
-<p id="cape-status" role="status" aria-live="polite"></p>
-</section><section class="panel ecard">
-<h2>Java elytra pack</h2>
-<p>Choose your Minecraft Java version, then download the resource pack ZIP. Put it in <code>resourcepacks</code> and enable it in Minecraft. Wings use the texture differently from the cape; the result may need editing and has not been tested in-game.</p>
-<label>Minecraft version <select id="cape-version">${versions.map((v) => `<option value="${v.format}" data-mc="${v.mc}"${v.mc === versions[versions.length - 1].mc ? " selected" : ""}>${v.mc}</option>`).join("")}</select></label>
-<p><button class="btn" id="cape-zip" type="button">Download elytra pack ZIP</button></p>
-<p><b>Note:</b> the pack is for elytra, not a custom wearable cape. Cape-mod installation and visibility depend on the mod.</p>
-</section></div>
+<div class="cape-extra">
+<section class="cape-settings card"><h2>Pack settings</h2><div class="cape-fields"><label>Pack name <input type="text" id="cape-name" value="My Elytra Pack" maxlength="60"></label><label>Description <input type="text" id="cape-description" value="Custom elytra texture" maxlength="120"></label></div><p>The name is used for your saved project and ZIP filename. The description appears in Minecraft's resource pack list.</p></section>
+<section class="cape-settings card"><h2>Saved projects</h2><p>Save the texture and settings in this browser. Clearing browser data deletes projects; download a PNG or ZIP as a backup.</p><label>Projects <select id="cape-projects" aria-label="Saved projects"><option value="">No saved projects</option></select></label><div class="cape-project-actions"><button type="button" class="btn small" id="cape-save-project">Save / update</button> <button type="button" class="btn small ghost" id="cape-load-project" disabled>Load selected</button> <button type="button" class="btn small ghost" id="cape-delete-project" disabled>Delete selected</button></div><p id="cape-project-status" role="status" aria-live="polite"></p></section>
+<section class="cape-settings card"><h2>Java elytra pack</h2><p>Choose your Minecraft Java version and put the ZIP in <code>resourcepacks</code>. Wings use the texture differently from the cape; the result may need editing and has not been tested in-game.</p><label>Minecraft version <select id="cape-version">${versions.map((v) => `<option value="${v.format}" data-mc="${v.mc}"${v.mc === versions[versions.length - 1].mc ? " selected" : ""}>${v.mc}</option>`).join("")}</select></label><p><button class="btn" id="cape-zip" type="button">Download elytra pack ZIP</button></p></section>
+</div>
 </article></div>
-<script src="../jszip.min.js"></script><script src="../cape.js?v=${ver("cape.js")}"></script>`,
+<script src="../jszip.min.js"></script><script src="../cape.js?v=${ver("cape.js")}"></script><script src="../ui.js?v=${ver("ui.js")}"></script>`,
 }));
 
 // ---------- projects ----------

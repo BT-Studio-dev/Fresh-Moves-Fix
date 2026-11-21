@@ -7,24 +7,28 @@ const elements = {}, downloads = [], objects = [];
 function element(id) {
   return elements[id] ||= { id, events: {}, value: '', checked: false, disabled: false,
     classList: { toggle() {} }, addEventListener(type, fn) { this.events[type] = fn; },
-    appendChild() {}, setPointerCapture() {}, getBoundingClientRect() { return { left: 0, top: 0, width: 640, height: 320 }; } };
+    style: {}, setAttribute() {}, appendChild() {}, setPointerCapture() {}, getBoundingClientRect() { return { left: 0, top: 0, width: 640, height: 320 }; } };
 }
-const context = { clearRect(){}, drawImage(){}, fillRect(){}, beginPath(){}, moveTo(){}, lineTo(){}, stroke(){}, strokeRect(){} };
+const context = { clearRect(){}, drawImage(){}, fillRect(){}, beginPath(){}, moveTo(){}, lineTo(){}, stroke(){}, strokeRect(){}, getImageData(){return {data:new Uint8ClampedArray(64*32*4)}}, putImageData(){} };
 element('cape-canvas').getContext = () => context;
-element('cape-grid').checked = true;
+element('cape-grid').checked = true; element('cape-template').checked = true; element('cape-size').value = '1';
 element('cape-name').value = 'My Cape'; element('cape-description').value = 'A starry design';
 element('cape-color').value = '#35c980'; element('cape-tool').value = 'pen';
 element('cape-version').value = '97'; element('cape-version').selectedIndex = 0;
 element('cape-version').options = [{ getAttribute: () => '26.3' }];
 const png = new Blob([new Uint8Array([137,80,78,71,13,10,26,10])], {type:'image/png'});
-const document = { getElementById: element, body: { appendChild(){} }, cookie: '',
+const document = { getElementById: element, querySelectorAll: () => [], body: { appendChild(){} }, cookie: '',
   createElement(tag) { if (tag === 'canvas') return {getContext:()=>context, toBlob: fn=>fn(png), toDataURL: ()=>'data:image/png;base64,iVBORw=='};
-    if (tag === 'option') return {}; if (tag === 'a') return {click(){downloads.push({name:this.download, url:this.href});},remove(){}}; throw Error(tag); } };
+    if (tag === 'button') return element('recent-button'); if (tag === 'option') return {}; if (tag === 'a') return {click(){downloads.push({name:this.download, url:this.href});},remove(){}}; throw Error(tag); } };
 const storage = {};
 function Image() { this.width=64; this.height=32; Object.defineProperty(this, 'src', {set:()=>this.onload()}); }
 const sandbox = {document, JSZip, Blob, Image, localStorage: {getItem:k=>storage[k]||null,setItem:(k,v)=>storage[k]=v}, URL: {createObjectURL(o){objects.push(o);return 'blob:'+(objects.length-1);},revokeObjectURL(){}}, setTimeout(){} };
 vm.runInNewContext(fs.readFileSync('website/cape.js','utf8'), sandbox);
 (async()=>{
+  element('cape-canvas').events.pointerdown({button:0, pointerId:1, clientX:20, clientY:20});
+  element('cape-canvas').events.pointerup();
+  element('cape-undo').events.click(); element('cape-redo').events.click();
+  element('cape-grid').events.change(); element('cape-template').events.change();
   await element('cape-png').events.click();
   assert.equal(downloads[0].name, 'cape.png');
   await element('cape-zip').events.click.call(element('cape-zip'));
