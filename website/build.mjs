@@ -297,13 +297,13 @@ write("editor/index.html", page({
   active: "editor",
   description: "Add the animated-eye pixels for Fresh Moves to your Minecraft skin and download the result.",
   depth: 1,
-  body: `<div class="wrap"><article class="editor">
+  body: `<div class="wrap editor-workspace-wrap"><article class="editor eye-workspace">
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <h1>${ICON.eye} Skin eye editor</h1>
 <p>Adds the extra pixels that make the eyes blink and move, then lets you download the skin. Everything happens in your browser; the skin is not uploaded anywhere.</p>
 <div class="note"><strong>Eyes tested in-game:</strong> a player reported that their eyes blink and move. Other eye shapes and features may behave differently and still need testing (see "How it works" below). Keep a copy of your original skin. <a href="#test">How to test it in the game</a></div>
 
-<div class="ed">
+<div class="ed workspace-layout">
   <div class="ed-col">
   <section class="panel ecard">
     <h3 class="ehead"><canvas id="skinicon" class="tool-img" width="8" height="8" style="background-image:url(../icon-skin.png)" aria-hidden="true"></canvas><span><b>1. Skin</b><small>Load your skin or start from Steve, Alex or a dummy</small></span></h3>
@@ -365,6 +365,8 @@ write("editor/index.html", page({
     <p class="ehint">${ICON.info} <span>The mouth is the lips area in the two bottom rows of the face. With pack 3.1-fix6 or newer the mouth opens in the game when you get hurt, cheer or wave. With 3.1-fix7 or newer you can also switch a talking mouth on and off: tap sneak twice quickly while looking forward. It does not follow your real voice; a pack cannot hear Simple Voice Chat (two hidden pixels in the skin file tell the pack; not tested in the game). It is drawn under the eyes; with eyes at the very bottom there is no room and it is left out. The beard uses the eyebrow colour.</span></p>
 
   </section>
+  </div>
+  <div class="ed-col workspace-side">
   <section class="panel ecard">
     <h3 class="ehead"><span class="tool-ic">${ICON.brush}</span><span><b>3. Colours</b><small>Eyelid, eyes, eyebrows, eyelashes and mouth</small></span></h3>
     <p class="row"><label>Eyelid <input type="hidden" id="lid" value="#9b6349"><button type="button" class="sw" data-for="lid" aria-label="Choose colour"></button></label></p>
@@ -398,7 +400,7 @@ write("editor/index.html", page({
   </section>
   </div>
 
-  <div class="ed-col">
+  <div class="ed-col workspace-preview">
   <section class="panel ecard">
     <h3 class="ehead"><span class="tool-ic">${ICON.box}</span><span><b>3D preview</b><small>Drag to turn, scroll to zoom</small></span></h3>
     <div id="wrap3d">
@@ -635,7 +637,7 @@ write("paint/index.html", page({
   active: "",
   description: "Paint a Minecraft skin on a 3D model or on the flat skin file, right in your browser.",
   depth: 1,
-  body: `<div class="wrap"><article class="editor painter-page">
+  body: `<div class="wrap editor-workspace-wrap"><article class="editor painter-page">
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <div class="painter-intro">
 <span class="home-eyebrow">CREATE IN YOUR BROWSER</span>
@@ -643,7 +645,7 @@ write("paint/index.html", page({
 <p>Paint your Minecraft skin pixel by pixel, on the 3D model or on the flat skin file. Everything happens in your browser; the skin is not uploaded anywhere. It works without 3D graphics (WebGL).</p>
 </div>
 
-<div class="ed paint">
+<div class="ed paint workspace-layout">
   <div class="ed-col">
   <section class="panel ecard">
     <h3 class="ehead"><img class="tool-img" src="../icon-paint.png" alt="" width="44" height="44"><span><b>Tools</b><small>Pick a tool, pick a colour, then click the model</small></span></h3>
@@ -673,6 +675,8 @@ write("paint/index.html", page({
     <p class="prow"><label><input type="radio" name="player" value="0" checked> Skin (first layer)</label> <label><input type="radio" name="player" value="1"> Outer layer (hat, jacket, sleeves)</label></p>
     <p class="prow"><label><input type="checkbox" id="pshow" checked> Show the outer layer</label></p>
   </section>
+  </div>
+  <div class="ed-col workspace-side">
   <section class="panel ecard">
     <h3 class="ehead"><img class="tool-img" src="../icon-skin.png" alt="" width="44" height="44"><span><b>Skin file</b><small>Load a skin, or start from one of these</small></span></h3>
     <label class="drop" id="pdrop">
@@ -699,7 +703,7 @@ write("paint/index.html", page({
     <p><small>Your painting is kept in this browser, so it is still here when you come back.</small></p>
   </section>
   </div>
-  <div class="ed-col">
+  <div class="ed-col workspace-preview">
   <section class="panel ecard">
     <h3 class="ehead"><span><b>3D model</b><small>Click the model to paint; right click paints with the second colour. Drag next to the model to turn it. Mouse wheel = zoom.</small></span></h3>
     <canvas id="p3d" class="p3d" width="460" height="560"></canvas>

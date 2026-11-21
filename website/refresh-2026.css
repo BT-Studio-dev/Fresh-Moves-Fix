@@ -374,3 +374,21 @@ a.project-card:focus-visible { outline: 2px solid var(--accent); outline-offset:
 [data-theme="minecraft"] .project-card, [data-theme="minecraft"] .project-card img, [data-theme="minecraft"] .project-icon { border-radius: 3px; }
 .owner-profile-model { display: block; width: 180px; height: 180px; max-width: 100%; pointer-events: none; }
 .owner-profile [hidden] { display: none; }
+
+/* Three-part editor workspaces: controls, canvas, and file/colour options. */
+.editor-workspace-wrap { max-width: 1440px; }
+.workspace-layout { grid-template-columns: minmax(240px, .9fr) minmax(320px, 1.45fr) minmax(240px, .9fr); gap: 14px; }
+.workspace-layout > .ed-col { min-width: 0; }
+.workspace-layout > .workspace-preview { order: 2; }
+.workspace-layout > .workspace-side { order: 3; }
+.workspace-layout .workspace-preview > .panel:first-child { background: var(--panel); }
+.workspace-layout .workspace-preview canvas { max-width: 100%; }
+@media (max-width: 1050px) {
+  .workspace-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .workspace-layout > .workspace-side { order: 0; }
+  .workspace-layout > .workspace-preview { order: 0; grid-column: 1 / -1; }
+}
+@media (max-width: 700px) {
+  .workspace-layout { grid-template-columns: minmax(0, 1fr); }
+  .workspace-layout > .workspace-preview { grid-column: auto; }
+}
