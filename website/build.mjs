@@ -1132,12 +1132,10 @@ write("pfp/index.html", page({
   body: `<div class="wrap render-page pfp-page"><h1>Minecraft PFP Maker</h1><p>Make a 3D avatar from your skin. No WebGL or account needed.</p>
   <div class="render-layout"><section class="card render-controls"><h2>Customize</h2>
   <label class="pfp-upload"><span><b>Upload skin PNG</b><small>Choose a skin from your device</small></span><input id="pfp-skin" type="file" accept="image/png,.png"></label><p id="pfp-status" role="status" aria-live="polite">Loading the example skin.</p>
-  <div class="pfp-paint-panel"><h3>Colour &amp; layers</h3><p>Choose a colour and paint on the skin map below.</p>
+  <div class="pfp-paint-panel"><h3>Colour &amp; layers</h3><p>Choose a colour and paint on the skin map beside the preview.</p>
     <div class="ed pfp-colour-picker"><input type="color" id="pfp-paint-color" data-inline-picker value="#3b82c4" aria-label="Paint colour"></div>
     <label>Colour code <input type="text" id="pfp-paint-hex" value="#3b82c4" maxlength="7" spellcheck="false" aria-label="Paint colour code"></label>
     <h3>Paint on</h3><div class="pfp-presets" role="group" aria-label="Paint layer"><button type="button" data-pfp-layer="base" aria-pressed="true"><b>Base</b></button><button type="button" data-pfp-layer="overlay" aria-pressed="false"><b>Overlay</b></button></div>
-    <p>Paint on the highlighted parts of the skin map. Right-click paints white. Overlay painting turns the outer layer on.</p>
-    <canvas id="pfp-paint-map" width="256" height="256" aria-label="Skin texture painting map"></canvas><p id="pfp-paint-status" role="status" aria-live="polite">Upload a skin or paint the example.</p>
   </div>
   <h3>Choose a preset</h3><div class="pfp-presets" aria-label="Profile picture presets">
     <button type="button" data-pfp-preset="headshot" aria-pressed="true"><b>Headshot</b><small>3D portrait</small></button>
@@ -1162,7 +1160,7 @@ write("pfp/index.html", page({
   <label class="pfp-layer"><span><b>Show outer skin layer</b><small>Include hats and clothing</small></span><input id="pfp-outer" type="checkbox" checked></label>
   <button class="btn" id="pfp-download" type="button" disabled>Download PNG</button>
   <p>Supports 64×64 and classic 64×32 PNG skins. Your skin stays in your browser. Output: 512×512.</p></section>
-  <section class="card render-preview"><h2>Preview</h2><p class="pfp-preview-help">In 3D, drag to rotate the camera or right-drag to turn the head. Scroll to zoom. The sliders also work.</p><canvas id="pfp-canvas" width="512" height="512" aria-label="Profile picture preview"></canvas>
+  <div class="pfp-workspace"><section class="card render-preview"><h2>Preview</h2><p class="pfp-preview-help">In 3D, drag to rotate the camera or right-drag to turn the head. Scroll to zoom. The sliders also work.</p><canvas id="pfp-canvas" width="512" height="512" aria-label="Profile picture preview"></canvas>
   <div class="pfp-quick-bar" role="group" aria-label="Quick preview controls"><span class="pfp-quick-label">Background</span>
     <button type="button" class="pfp-swatch" data-pfp-color="#ff5157" style="--swatch:#ff5157" aria-label="Red background" aria-pressed="false"></button>
     <button type="button" class="pfp-swatch" data-pfp-color="#27c96d" style="--swatch:#27c96d" aria-label="Green background" aria-pressed="false"></button>
@@ -1173,7 +1171,9 @@ write("pfp/index.html", page({
     <button type="button" class="pfp-swatch" data-pfp-color="#a47ad4" style="--swatch:#a47ad4" aria-label="Purple background" aria-pressed="false"></button>
     <button type="button" class="pfp-swatch" data-pfp-color="#161b29" style="--swatch:#161b29" aria-label="Dark background" aria-pressed="false"></button>
     <button type="button" id="pfp-quick-3d" aria-pressed="true" title="Switch between 3D and 2D">3D</button>
-  </div></section></div></div>
+  </div></section>
+  <section class="card pfp-map-panel"><h2>Skin paint map</h2><p>Paint on the highlighted parts of the skin map. Right-click paints white. Overlay painting turns the outer layer on.</p><canvas id="pfp-paint-map" width="256" height="256" aria-label="Skin texture painting map"></canvas><p id="pfp-paint-status" role="status" aria-live="polite">Upload a skin or paint the example.</p></section>
+  </div></div></div>
   <script src="../ui.js?v=${ver("ui.js")}"></script><script src="../pfp-3d.js?v=${ver("pfp-3d.js")}"></script><script src="../pfp.js?v=${ver("pfp.js")}"></script>`,
 }));
 

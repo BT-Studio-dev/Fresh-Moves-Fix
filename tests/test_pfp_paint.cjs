@@ -6,8 +6,8 @@ w.HTMLCanvasElement.prototype.getContext=function(){if(!contexts.has(this)){let 
 w.Image=class {constructor(){images.push(this)}set src(v){}};w.URL.createObjectURL=()=> 'blob:a';w.URL.revokeObjectURL=()=>{};
 w.eval(fs.readFileSync('website/pfp-3d.js','utf8'));w.eval(fs.readFileSync('website/pfp.js','utf8'));
 images[0].width=64;images[0].height=64;images[0].onload();
-const map=d.getElementById('pfp-paint-map');map.getBoundingClientRect=()=>({left:0,top:0,width:256,height:256});
-function p(type,x,y,button=0){let e=new w.MouseEvent(type,{clientX:x*4+1,clientY:y*4+1,button,bubbles:true,cancelable:true});Object.defineProperty(e,'pointerId',{value:1});map.dispatchEvent(e);}
+const map=d.getElementById('pfp-paint-map');assert(map.closest('.pfp-map-panel'));assert(!map.closest('.render-controls'));map.getBoundingClientRect=()=>({left:0,top:0,width:512,height:512});
+function p(type,x,y,button=0){let e=new w.MouseEvent(type,{clientX:x*8+1,clientY:y*8+1,button,bubbles:true,cancelable:true});Object.defineProperty(e,'pointerId',{value:1});map.dispatchEvent(e);}
 p('pointerdown',8,8);p('pointermove',10,8);p('pointerup',10,8);assert.deepEqual(painted.map(a=>a.slice(0,2)),[[8,8],[8,8],[9,8],[10,8]]);assert.equal(painted[0][2],'#3b82c4');
 let count=painted.length;p('pointerdown',40,8);p('pointerup',40,8);assert.equal(painted.length,count,'cannot paint overlay with base selected');
 d.querySelector('[data-pfp-layer=overlay]').click();d.getElementById('pfp-outer').checked=false;p('pointerdown',40,8,2);p('pointerup',40,8,2);assert.deepEqual(painted.at(-1),[40,8,'#ffffff']);assert(d.getElementById('pfp-outer').checked);
