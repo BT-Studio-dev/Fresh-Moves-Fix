@@ -47,7 +47,7 @@
   panel.innerHTML =
     '<button class="fmf-close" type="button" aria-label="Close settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button>' +
     '<h2>Quick settings</h2>' +
-    '<div class="fmf-setting-row fmf-option"><span><b>Theme</b><small>Choose your look</small></span><select aria-label="Theme" data-fmf-theme><option value="glass">Glass</option><option value="dark">Dark</option><option value="light">Light</option><option value="oled">OLED</option><option value="minecraft">Minecraft</option><option value="nightsky">Night Sky</option><option value="livesky">Live Sky</option><option value="system">System</option></select></div>' +
+    '<div class="fmf-setting-row fmf-option"><span><b>Theme</b><small>Choose your look</small></span><select aria-label="Theme" data-fmf-theme><option value="" disabled hidden>Current theme</option><option value="glass">Glass</option><option value="dark">Dark</option><option value="light">Light</option><option value="oled">OLED</option><option value="system">System</option></select></div>' +
     '<label class="fmf-option fmf-switch"><span><b>Glass card blur</b><small>Available with Glass theme</small></span><input type="checkbox" data-fmf-glass-blur></label>' +
     '<div class="fmf-setting-row fmf-option"><span><b>Text size</b><small>Make text easier to read</small></span><select aria-label="Text size" data-fmf-size><option value="normal">Normal</option><option value="large">Large</option></select></div>' +
     '<label class="fmf-option fmf-switch"><span><b>High contrast</b><small>Stronger text and borders</small></span><input type="checkbox" data-fmf-contrast></label>' +
@@ -67,7 +67,7 @@
   if (!savedTheme) {
     try { var themeCookie = document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/); if (themeCookie) savedTheme = themeCookie[1]; } catch (e) {}
   }
-  themeSelect.value = ["glass","dark","light","oled","minecraft","nightsky","livesky","system"].indexOf(savedTheme) >= 0 ? savedTheme : "dark";
+  themeSelect.value = ["glass","dark","light","oled","system"].indexOf(savedTheme) >= 0 ? savedTheme : (["minecraft","nightsky","livesky"].indexOf(savedTheme) >= 0 ? "" : "dark");
   var savedSize = saved("fmf-extra-size","normal");
   sizeSelect.value = savedSize === "large" ? "large" : "normal";
   contrast.checked = saved("fmf-extra-contrast","0") === "1";
@@ -116,6 +116,7 @@
     details.className = "fmf-choice"; summary.setAttribute("aria-label", select.getAttribute("aria-label"));
     list.className = "fmf-choice-list";
     Array.prototype.forEach.call(select.options, function (option) {
+      if (option.disabled || option.hidden) return;
       var button = document.createElement("button"); button.type = "button"; button.textContent = option.textContent;
       button.addEventListener("click", function () {
         select.value = option.value; select.dispatchEvent(new Event("change", {bubbles:true}));
@@ -126,6 +127,7 @@
     function sync() { summary.textContent = select.options[select.selectedIndex].textContent; }
     details.appendChild(summary); details.appendChild(list); select.parentNode.appendChild(details); select.hidden = true;
     select.addEventListener("change", sync);
+    select.fmfSyncChoice = sync;
     details.addEventListener("toggle", function () { if (details.open) panel.querySelectorAll(".fmf-choice").forEach(function (other) { if (other !== details) other.open = false; }); });
     details.addEventListener("keydown", function (e) { if (e.key === "Escape" && details.open) { e.stopPropagation(); details.open = false; summary.focus(); } });
     sync();
@@ -136,8 +138,9 @@
   window.__fmfSettingsSync = function (event) {
     var target = event.target;
     if (target.matches('input[name="theme"]')) {
-      themeSelect.value = target.value;
-      themeSelect.dispatchEvent(new Event("change", { bubbles: false }));
+      themeSelect.value = ["glass","dark","light","oled","system"].indexOf(target.value) >= 0 ? target.value : "";
+      if (themeSelect.fmfSyncChoice) themeSelect.fmfSyncChoice();
+      syncGlassBlur();
     } else if (target.id === "settings-glass-blur") {
       glassBlur.checked = target.checked;
       syncGlassBlur();

@@ -15,4 +15,12 @@ size.value='large'; change(size); assert(w.document.body.classList.contains('fmf
 contrast.checked=true; change(contrast); motion.checked=true; change(motion); assert(w.document.body.classList.contains('fmf-contrast')); assert(w.document.body.classList.contains('fmf-motion-off')); assert.equal(w.localStorage.getItem('fmf-extra-contrast'),'1'); assert.equal(w.localStorage.getItem('fmf-extra-motion'),'1');
 w.eval(source); assert($('[data-fmf-contrast]').checked); assert($('[data-fmf-motion]').checked); assert.equal($('[data-fmf-size]').value,'large'); assert(!$('[data-fmf-glass-blur]').checked);
 $('.fmf-settings-toggle').click(); $('.fmf-close').click(); assert($('.fmf-settings').hidden);
+// Removed menu choices must not reset a previously saved theme.
+w.localStorage.setItem('fmf-theme','livesky'); w.document.documentElement.setAttribute('data-theme','livesky'); w.eval(source);
+assert.equal(w.document.documentElement.getAttribute('data-theme'),'livesky'); assert.equal(w.localStorage.getItem('fmf-theme'),'livesky');
+assert.equal(w.document.querySelector('[data-fmf-theme]').value,'');
+assert(!Array.from(w.document.querySelectorAll('.fmf-choice-list button')).some(b => /^(Minecraft|Night Sky|Live Sky)$/.test(b.textContent)));
+const radio = w.document.createElement('input'); radio.type='radio'; radio.name='theme'; radio.value='nightsky'; w.document.body.appendChild(radio);
+w.document.documentElement.setAttribute('data-theme','nightsky'); w.localStorage.setItem('fmf-theme','nightsky'); change(radio);
+assert.equal(w.localStorage.getItem('fmf-theme'),'nightsky'); assert.equal(w.document.documentElement.getAttribute('data-theme'),'nightsky');
 console.log('Quick settings controls, persistence, navigation and sync passed');
