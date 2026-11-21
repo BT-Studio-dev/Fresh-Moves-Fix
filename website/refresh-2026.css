@@ -711,3 +711,4 @@ html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936;
 @media (max-width: 750px) { .render-layout { grid-template-columns: 1fr; } }
 .render-sliders { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .render-controls input[type=range] { accent-color: var(--accent); }
+#pfp-canvas { max-width: 512px; background: repeating-conic-gradient(#aaa 0 25%, #ddd 0 50%) 0 0 / 24px 24px; image-rendering: pixelated; }
