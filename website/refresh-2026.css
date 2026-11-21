@@ -712,3 +712,8 @@ html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936;
 .render-sliders { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .render-controls input[type=range] { accent-color: var(--accent); }
 #pfp-canvas { max-width: 512px; background: repeating-conic-gradient(#aaa 0 25%, #ddd 0 50%) 0 0 / 24px 24px; image-rendering: pixelated; }
+.pfp-presets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.pfp-presets button { cursor: pointer; text-align: left; border: 1px solid var(--line); border-radius: 9px; background: var(--panel); color: var(--text); padding: 12px; }
+.pfp-presets button small { display: block; color: var(--muted); margin-top: 4px; }
+.pfp-presets button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.pfp-presets button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

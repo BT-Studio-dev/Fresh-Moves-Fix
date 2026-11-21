@@ -301,6 +301,7 @@ fs.copyFileSync(path.join(here, "editor.js"), path.join(out, "editor.js"));
 fs.copyFileSync(path.join(here, "paint.js"), path.join(out, "paint.js"));
 fs.copyFileSync(path.join(here, "render.js"), path.join(out, "render.js"));
 fs.copyFileSync(path.join(here, "pfp.js"), path.join(out, "pfp.js"));
+fs.copyFileSync(path.join(here, "pfp-3d.js"), path.join(out, "pfp-3d.js"));
 fs.copyFileSync(path.join(here, "painter-dummy.png"), path.join(out, "render-dummy.png"));
 fs.copyFileSync(path.join(here, "backdrop.js"), path.join(out, "backdrop.js"));
 fs.copyFileSync(path.join(here, "player.js"), path.join(out, "player.js"));
@@ -1125,19 +1126,29 @@ write("render/index.html", page({
 // ---------- profile picture maker ----------
 write("pfp/index.html", page({
   title: "Minecraft PFP Maker - Fresh Moves Fix", active: "creations", depth: 1,
-  description: "Make a Minecraft skin face profile picture without WebGL.",
-  body: `<div class="wrap render-page"><h1>Minecraft PFP Maker</h1><p>Turn your skin’s face into a profile picture. No WebGL needed.</p>
+  description: "Make a Minecraft 3D skin profile picture without WebGL.",
+  body: `<div class="wrap render-page"><h1>Minecraft PFP Maker</h1><p>Make a 3D avatar from your skin. No WebGL or account needed.</p>
   <div class="render-layout"><section class="card render-controls"><h2>Customize</h2>
   <label>Upload skin PNG <input id="pfp-skin" type="file" accept="image/png,.png"></label><p id="pfp-status" role="status" aria-live="polite">Using the default skin.</p>
+  <h3>Choose a preset</h3><div class="pfp-presets" aria-label="Profile picture presets">
+    <button type="button" data-pfp-preset="headshot" aria-pressed="true"><b>Headshot</b><small>3D portrait</small></button>
+    <button type="button" data-pfp-preset="head" aria-pressed="false"><b>Head</b><small>3D close-up</small></button>
+    <button type="button" data-pfp-preset="full" aria-pressed="false"><b>Full body</b><small>3D standing</small></button>
+    <button type="button" data-pfp-preset="wave" aria-pressed="false"><b>Wave</b><small>3D pose</small></button>
+    <button type="button" data-pfp-preset="flat" aria-pressed="false"><b>Pixel face</b><small>2D classic</small></button>
+  </div><select id="pfp-preset" hidden aria-label="Selected preset"><option value="headshot">3D headshot</option><option value="head">3D head</option><option value="full">3D full body</option><option value="wave">3D wave</option><option value="flat">2D face</option></select>
+  <label>Arm size <select id="pfp-model"><option value="classic">Classic (4 pixels)</option><option value="slim">Slim (3 pixels)</option></select></label>
+  <label>Camera angle <input id="pfp-yaw" type="range" min="-180" max="180" value="25"></label>
+  <label>Camera height <input id="pfp-pitch" type="range" min="-45" max="45" value="10"></label>
   <label>Background <select id="pfp-background"><option value="color">Color</option><option value="transparent">Transparent</option></select></label>
   <label>Background color <input id="pfp-color" type="color" value="#486d92"></label>
   <label>Shape <select id="pfp-shape"><option value="square">Square</option><option value="circle">Circle</option></select></label>
-  <label>Face size <input id="pfp-size" type="range" min="50" max="100" value="80"></label>
+  <label>Zoom <input id="pfp-size" type="range" min="50" max="100" value="80"></label>
   <label><input id="pfp-outer" type="checkbox" checked> Show outer skin layer</label>
   <button class="btn" id="pfp-download" type="button" disabled>Download PNG</button>
   <p>Supports 64×64 and classic 64×32 PNG skins. Your skin stays in your browser. Output: 512×512.</p></section>
   <section class="card render-preview"><h2>Preview</h2><canvas id="pfp-canvas" width="512" height="512" aria-label="Profile picture preview"></canvas></section></div></div>
-  <script src="../pfp.js?v=${ver("pfp.js")}"></script>`,
+  <script src="../pfp-3d.js?v=${ver("pfp-3d.js")}"></script><script src="../pfp.js?v=${ver("pfp.js")}"></script>`,
 }));
 
 // ---------- projects ----------
@@ -1150,7 +1161,7 @@ write("creations/index.html", page({
   <a class="project-card" href="../#download"><img class="project-pack-image" src="../pack.png" alt="" width="112" height="112"><h2>Fresh Moves Fix</h2><p>Player animations and animated eyes for Minecraft Java.</p><span>View downloads ${ICON.right}</span></a>
   <a class="project-card" href="../paint/"><img src="../icon-paint-pixel.svg" alt="" width="112" height="112"><h2>Skin Painter 3D</h2><p>Paint a skin pixel by pixel in your browser.</p><span>Open painter ${ICON.right}</span></a>
   <a class="project-card" href="../editor/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Skin eye editor</h2><p>Add animated eye markers to your skin.</p><span>Open editor ${ICON.right}</span></a>
-  <a class="project-card" href="../pfp/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Minecraft PFP Maker</h2><p>Turn your skin’s face into a profile picture.</p><span>Open PFP maker ${ICON.right}</span></a>
+  <a class="project-card" href="../pfp/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Minecraft PFP Maker</h2><p>Create a 3D profile picture from your skin.</p><span>Open PFP maker ${ICON.right}</span></a>
   <a class="project-card" href="../render/"><img src="../icon-model-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Render</h2><p>Pose a 3D skin and make a thumbnail without WebGL.</p><span>Open render maker ${ICON.right}</span></a>
   <a class="project-card" href="../title/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Title</h2><p>Make and download a block-letter title picture.</p><span>Open title maker ${ICON.right}</span></a>
   <a class="project-card" href="../animation/"><img src="../icon-anim-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Animation</h2><p>Arrange movements and save an animation as a video.</p><span>Open animation tool ${ICON.right}</span></a>
