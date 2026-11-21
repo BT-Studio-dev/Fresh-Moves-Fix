@@ -333,6 +333,7 @@ write("editor/index.html", page({
       <button type="button" class="pickb" data-name="Dummy (tall eyes)" data-type="1x2" data-pos="bottom" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "dummy.png")).toString("base64")}"><img src="../icon-dummy.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Tall eyes</small></span></button>
       <button type="button" class="pickb" data-name="Dummy (dot eyes)" data-type="1x1" data-pos="outer_bottom" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "dummy2.png")).toString("base64")}"><img src="../icon-dummy2.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Dot eyes</small></span></button>
       <button type="button" class="pickb" data-name="Dummy (blank face)" data-type="2x1" data-pos="upper" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "painted.png")).toString("base64")}"><img src="../icon-painted.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Blank face</small></span></button>
+      <button type="button" class="pickb" data-name="Dummy (custom skin)" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "painter-dummy.png")).toString("base64")}"><img src="../icon-painter-dummy.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Custom skin</small></span></button>
     </div>
     <p class="elabel">Format</p>
     <div class="pick">
@@ -787,6 +788,7 @@ const studioSkin = `<section class="panel ecard">
       <button type="button" class="pickb" data-name="Dummy (tall eyes)" data-skin="${fileData("dummy.png")}"><img src="../icon-dummy.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Tall eyes</small></span></button>
       <button type="button" class="pickb" data-name="Dummy (dot eyes)" data-skin="${fileData("dummy2.png")}"><img src="../icon-dummy2.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Dot eyes</small></span></button>
       <button type="button" class="pickb" data-name="Dummy (blank face)" data-skin="${fileData("painted.png")}"><img src="../icon-painted.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Blank face</small></span></button>
+      <button type="button" class="pickb" data-name="Dummy (custom skin)" data-skin="${fileData("painter-dummy.png")}"><img src="../icon-painter-dummy.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Custom skin</small></span></button>
       <button type="button" class="pickb" id="smine" hidden><img src="../icon-paint-pixel.svg" alt="" width="36" height="36"><span><b>My painting</b><small>From the Skin Painter 3D</small></span></button>
     </div>
     <p class="prow"><label>Format <select id="sformat"><option value="wide">Wide arms (Steve)</option><option value="slim">Slim arms (Alex)</option></select></label></p>
