@@ -45,7 +45,7 @@
   panel.hidden = true;
   panel.setAttribute("aria-label", "Quick appearance settings");
   panel.innerHTML =
-    '<button class="fmf-close" type="button" aria-label="Close settings">×</button>' +
+    '<button class="fmf-close" type="button" aria-label="Close settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button>' +
     '<h2>Quick settings</h2>' +
     '<div class="fmf-setting-row"><span>Theme</span><select aria-label="Theme" data-fmf-theme><option value="glass">Glass</option><option value="dark">Dark</option><option value="light">Light</option><option value="oled">OLED</option><option value="minecraft">Minecraft</option><option value="system">System</option></select></div>' +
     '<label><span>Glass card blur</span><input type="checkbox" data-fmf-glass-blur></label>' +

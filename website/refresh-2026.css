@@ -206,3 +206,8 @@ a.install-link { display: flex; align-items: center; gap: 12px; padding: 14px; }
 .install-link small { color: var(--muted); font-weight: 400; line-height: 1.4; margin-top: 3px; }
 .install-icon { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; flex: none; background: var(--bg); color: var(--accent); }
 .install-link > span:last-child { flex: none; color: var(--muted); }
+/* SVG-only action icons keep the same appearance across browsers. */
+.fmf-settings .fmf-close { display: inline-grid; place-items: center; width: 32px; height: 32px; padding: 0; }
+.fmf-settings .fmf-close svg { width: 18px; height: 18px; }
+a.release-all > i svg { width: 18px; height: 18px; }
+.paint .tlrow button svg, .ed .pk-head button svg { display: inline-block; vertical-align: middle; pointer-events: none; }

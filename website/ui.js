@@ -75,7 +75,8 @@
     const el = (tag, cls, attrs) => { const e = document.createElement(tag); if (cls) e.className = cls; Object.assign(e, attrs || {}); return e; };
     const wrap = el("span", "dd"), sw = el("button", "sw", { type: "button" }), box = el("div", "picker uipick", { hidden: true });
     sw.setAttribute("aria-label", inp.getAttribute("aria-label") || "Choose colour");
-    const head = el("div", "pk-head"), title = el("b", "", { textContent: "Colour" }), x = el("button", "", { type: "button", textContent: "\u00d7" });
+    const head = el("div", "pk-head"), title = el("b", "", { textContent: "Colour" }), x = el("button", "", { type: "button" });
+    x.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg>';
     x.setAttribute("aria-label", "Close"); head.appendChild(title); head.appendChild(x);
     const sv = el("canvas", "pk-sv", { width: 220, height: 130 }), hue = el("input", "pk-hue", { type: "range", min: 0, max: 360, value: 0 });
     hue.setAttribute("aria-label", "Hue");
