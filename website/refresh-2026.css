@@ -469,3 +469,12 @@ a.project-card:focus-visible { outline: 2px solid var(--accent); outline-offset:
 .painter-layers input { accent-color: var(--accent); }
 .painter-flat-hint { color: var(--muted); font-size: 13px; }
 .painter-colour-card .inline-picker-wrap { display: block; width: 100%; }
+
+/* Center incomplete rows and keep all project cards consistently sized. */
+.projects-grid { display: flex; flex-wrap: wrap; justify-content: center; align-items: stretch; }
+.projects-grid .project-card { flex: 1 1 240px; max-width: calc((100% - 32px) / 3); min-height: 260px; }
+.projects-grid a.project-card { transition: border-color .12s, transform .12s; }
+@media (hover: hover) { .projects-grid a.project-card:hover { transform: translateY(-2px); } }
+@media (max-width: 820px) { .projects-grid .project-card { max-width: calc((100% - 16px) / 2); } }
+@media (max-width: 560px) { .projects-grid .project-card { flex-basis: 100%; max-width: 100%; } }
+@media (prefers-reduced-motion: reduce) { .projects-grid a.project-card { transition: none; } .projects-grid a.project-card:hover { transform: none; } }
