@@ -697,8 +697,8 @@ write("paint/index.html", page({
     <p class="prow"><label><input type="checkbox" id="pshow" checked> Show the outer layer</label></p>
     <div class="painter-layers">
       <h4>Part visibility</h4>
-      <p><small>Show or hide each part in the 3D preview. Hidden parts are not erased; the flat skin remains unchanged.</small></p>
-      <table><thead><tr><th scope="col">Part</th><th scope="col">Base</th><th scope="col">Outer</th></tr></thead><tbody>
+      <p><small>Show or hide each part in the 3D preview. Hidden parts are dimmed in 2D but are not erased from your skin.</small></p>
+      <table><thead><tr><th scope="col">Part</th><th scope="col"><label class="layer-master">Base <input type="checkbox" data-layer-all="0" aria-label="Show all base layer parts" checked></label></th><th scope="col"><label class="layer-master">Outer <input type="checkbox" data-layer-all="1" aria-label="Show all outer layer parts" checked></label></th></tr></thead><tbody>
       ${[["head","Head"],["body","Body"],["la","Left arm"],["ra","Right arm"],["ll","Left leg"],["rl","Right leg"]].map(([id,name]) => `<tr><th scope="row">${name}</th><td><label class="layer-eye"><input type="checkbox" data-part="${id}" data-layer="0" aria-label="Show ${name} base layer" checked>${ICON.eye}</label></td><td><label class="layer-eye outer"><input type="checkbox" data-part="${id}" data-layer="1" aria-label="Show ${name} outer layer" checked>${ICON.eye}</label></td></tr>`).join("")}
       </tbody></table>
     </div>
@@ -737,7 +737,7 @@ write("paint/index.html", page({
       <label><input type="checkbox" id="pgrid" checked> Pixel grid</label></p></div>
     ${backdropControls}
     <canvas id="p3d" class="p3d" width="460" height="560"></canvas>
-    <div id="p2d-view" hidden><p class="painter-flat-hint">Paint the flat skin file. Blue outlines are the base layer; orange outlines are the outer layer.</p><canvas id="p2d" class="p2d" width="512" height="512"></canvas></div>
+    <div id="p2d-view" hidden><p class="painter-flat-hint">Paint the flat skin file. Blue outlines are the base layer; orange outlines are the outer layer.</p><canvas id="p2d" class="p2d" width="512" height="512"></canvas><div class="painter-live-preview"><b>Live 3D preview</b><canvas id="p2d-preview" width="180" height="220" role="img" aria-label="Live 3D skin preview"></canvas></div></div>
     <div id="p3d-controls">
     <div class="pbar" role="group" aria-label="3D model buttons">
       <button type="button" id="pbsneak" data-tip="Sneak" aria-label="Sneak" aria-pressed="false">${svg('<circle cx="9" cy="5" r="2.2"/><path d="M3 21v-2a5 5 0 0 1 5-5h2a5 5 0 0 1 3 1"/><path d="M18 11v9"/><path d="M14.5 17l3.5 3.5 3.5-3.5"/>')}</button>

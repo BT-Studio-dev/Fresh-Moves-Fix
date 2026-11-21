@@ -170,6 +170,13 @@
     for (let y = 0; y < 32; y++) for (let x = 0; x < 32; x++) { g2.fillStyle = (x + y) % 2 ? "#8a8a8a" : "#a5a5a5"; g2.fillRect(x * S * 2, y * S * 2, S * 2, S * 2); }
     sctx.putImageData(new ImageData(px, 64, 64), 0, 0);
     g2.imageSmoothingEnabled = false; g2.drawImage(skin, 0, 0, cv2.width, cv2.height);
+    // Dim hidden faces in the flat editor without changing the saved pixels.
+    g2.fillStyle = 'rgba(128, 128, 128, 0.55)';
+    for (const [name, u, v, w, h, dp, , , , , layer] of parts()) {
+      if (hidden[GROUP[name]] || hiddenLayers[name + ':' + layer] || (layer === 1 && !showOuter)) {
+        for (const r of rects(u, v, w, h, dp)) g2.fillRect(r[0] * S, r[1] * S, r[2] * S, r[3] * S);
+      }
+    }
     g2.lineWidth = 1;
     for (const r of faceRects()) {
       g2.strokeStyle = r[4] ? "rgba(255,170,60,.85)" : "rgba(80,170,255,.85)";
@@ -179,7 +186,14 @@
   }
   function frame() { if (dead) return;
     if (walk) { const now = Date.now(); if (now - lastT >= 50) { phase += Math.min(200, now - lastT) * 0.007; lastT = now; dirty = true; } } // about 20 pictures a second, easy on slow PCs
-    if (dirty) { dirty = false; try { draw3d(); draw2d(); } catch (e) {} } raf = requestAnimationFrame(frame); }
+    if (dirty) { dirty = false; try {
+      draw3d(); draw2d();
+      if (!$('p2d-view').hidden) {
+        const preview = $('p2d-preview'), context = preview.getContext('2d');
+        context.clearRect(0, 0, preview.width, preview.height);
+        context.drawImage(cv3, 0, 0, preview.width, preview.height);
+      }
+    } catch (e) {} } raf = requestAnimationFrame(frame); }
 
   // ---------- painting ----------
   const hex = (c) => "#" + c.map((n) => (n < 16 ? "0" : "") + n.toString(16)).join("");
@@ -408,10 +422,27 @@
   document.querySelectorAll("input[name=player]").forEach((r) => r.addEventListener("change", () => { if (r.checked) { target = Number(r.value); if (target === 1 && !showOuter) { showOuter = true; $("pshow").checked = true; } dirty = true; } }));
   $("pshow").addEventListener("change", (e) => { showOuter = e.target.checked; if (!showOuter && target === 1) { target = 0; document.querySelector("input[name=player][value='0']").checked = true; } dirty = true; });
   document.querySelectorAll("#pparts input").forEach((c) => c.addEventListener("change", () => { hidden[c.value] = !c.checked; dirty = true; }));
+  function syncLayerMasters() {
+    document.querySelectorAll('[data-layer-all]').forEach((master) => {
+      const controls = Array.from(document.querySelectorAll('[data-part][data-layer="' + master.dataset.layerAll + '"]'));
+      const count = controls.filter((control) => control.checked).length;
+      master.checked = count === controls.length;
+      master.indeterminate = count > 0 && count < controls.length;
+    });
+  }
   document.querySelectorAll("[data-part][data-layer]").forEach((c) => c.addEventListener("change", () => {
     hiddenLayers[c.dataset.part + ":" + c.dataset.layer] = !c.checked;
-    dirty = true;
+    syncLayerMasters(); dirty = true;
   }));
+  document.querySelectorAll('[data-layer-all]').forEach((master) => master.addEventListener('change', () => {
+    document.querySelectorAll('[data-part][data-layer="' + master.dataset.layerAll + '"]').forEach((control) => {
+      control.checked = master.checked;
+      hiddenLayers[control.dataset.part + ':' + control.dataset.layer] = !control.checked;
+    });
+    if (master.dataset.layerAll === '1' && master.checked && !showOuter) $('pshow').click();
+    syncLayerMasters(); dirty = true;
+  }));
+  syncLayerMasters();
   document.querySelectorAll("[data-pview]").forEach((button) => button.addEventListener("click", () => {
     const flat = button.dataset.pview === "2d";
     cv3.hidden = flat; $("p3d-controls").hidden = flat; $("p2d-view").hidden = !flat;

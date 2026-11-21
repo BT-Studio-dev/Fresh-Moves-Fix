@@ -502,3 +502,8 @@ a.project-card:focus-visible { outline: 2px solid var(--accent); outline-offset:
 .layer-eye input:checked + .ic { opacity: 1; color: var(--text); }
 .layer-eye.outer input:checked + .ic { color: var(--accent); }
 .layer-eye input:focus-visible + .ic { outline: 2px solid var(--accent); outline-offset: 3px; }
+.painter-live-preview { display: grid; justify-items: center; gap: 6px; width: 150px; max-width: 100%; margin: 12px 0 0; padding: 10px; box-sizing: border-box; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; }
+.painter-live-preview b { color: var(--muted); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.painter-live-preview canvas { width: 120px; max-width: 100%; height: auto; border: 0; }
+.layer-master { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; cursor: pointer; }
+.layer-master input { margin: 0; accent-color: var(--accent); }
