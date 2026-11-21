@@ -368,7 +368,14 @@
     im.onerror = () => say("This file could not be read as a picture.", true);
     im.src = url;
   }
-  function loadFile(f) { if (!f) return; const r = new FileReader(); r.onload = () => loadUrl(r.result, f.name); r.readAsDataURL(f); }
+  function loadFile(f) {
+    if (!f) return;
+    if ((f.type && f.type !== "image/png") || (!f.type && !/\.png$/i.test(f.name))) { say("Choose a PNG skin file.", true); return; }
+    const r = new FileReader();
+    r.onload = () => loadUrl(r.result, f.name);
+    r.onerror = () => say("This file could not be read.", true);
+    r.readAsDataURL(f);
+  }
   function save() {
     sctx.putImageData(new ImageData(px, 64, 64), 0, 0);
     skin.toBlob((b) => {
@@ -431,7 +438,15 @@
   $("phex").addEventListener("change", () => { if (/^#?[0-9a-fA-F]{6}$/.test($("phex").value.trim())) remember(); });
   $("pundo").addEventListener("click", doUndo); $("predo").addEventListener("click", doRedo);
   $("psave-top").addEventListener("click", save);
-  $("pfile-top").addEventListener("click", () => $("pfile").click());
+  const uploadButton = $("pfile-top");
+  uploadButton.addEventListener("click", () => $("pfile").click());
+  uploadButton.addEventListener("dragover", (e) => { e.preventDefault(); if (e.dataTransfer) e.dataTransfer.dropEffect = "copy"; uploadButton.classList.add("over"); });
+  uploadButton.addEventListener("dragleave", () => uploadButton.classList.remove("over"));
+  uploadButton.addEventListener("drop", (e) => {
+    e.preventDefault(); uploadButton.classList.remove("over");
+    if (e.dataTransfer && e.dataTransfer.files.length) loadFile(e.dataTransfer.files[0]);
+    else say("Drop a PNG skin file here.", true);
+  });
   $("pfile").addEventListener("change", (e) => { loadFile(e.target.files[0]); e.target.value = ""; });
   document.querySelectorAll("#pstart button").forEach((b) => b.addEventListener("click", () => loadUrl(b.dataset.skin, b.dataset.name, b.dataset.slim ? b.dataset.slim === "1" : undefined)));
   $("pclear").addEventListener("click", () => { undo.push(new Uint8ClampedArray(px)); redo.length = 0; px = new Uint8ClampedArray(64 * 64 * 4); dirty = true; autosave(); buttons(); say("Empty skin. Use Undo to get the old one back."); });
