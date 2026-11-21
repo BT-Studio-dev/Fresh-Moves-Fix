@@ -1087,6 +1087,7 @@ write("index.html", page({
   description: "A fork of the Fresh Moves resource pack: smoother player animations and animated eyes, with builds for Minecraft 1.20 to 26.3.",
   body: `<div class="wrap home-page">
 <div class="hero home-hero">
+  <div class="hero-art"><img src="pack.png" alt="Fresh Moves Fix pack icon" width="180" height="180"></div>
   <div class="txt">
     <span class="hero-kicker"><span aria-hidden="true"></span> MINECRAFT JAVA RESOURCE PACK</span>
     <h1 class="mc-title"><img src="title.png?2" width="1708" height="228" alt="Fresh Moves Fix"></h1>
@@ -1097,9 +1098,6 @@ write("index.html", page({
       <a class="btn ghost" href="editor/">${ICON.eye} Open skin eye editor</a>
     </div>
     <div class="hero-meta"><span>${ICON.tag} ${esc(version)}</span><span>${ICON.person} Owner: lie_kg</span><a href="guides/">${ICON.book} Eye guides</a></div>
-  </div>
-  <div class="hero-art" aria-label="Fresh Moves Fix resource pack">
-    <div class="hero-art-inner"><span class="hero-art-label">PLAYER ANIMATIONS</span><img src="pack.png" alt="Fresh Moves Fix pack icon" width="180" height="180"><span class="hero-art-version">JAVA EDITION <b>${esc(version)}</b></span></div>
   </div>
 </div>
 
