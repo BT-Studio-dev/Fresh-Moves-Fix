@@ -32,6 +32,20 @@
     if ($('pfp-background').value === 'color') {
       ctx.fillStyle = $('pfp-color').value; ctx.fillRect(0, 0, 512, 512);
     }
+    var background = $('pfp-background').value;
+    if (background === 'day' || background === 'night') {
+      var night = background === 'night', sky = ctx.createLinearGradient(0, 0, 0, 512);
+      sky.addColorStop(0, night ? '#111b3b' : '#4789c1');
+      sky.addColorStop(1, night ? '#414b77' : '#c7dcf0');
+      ctx.fillStyle = sky; ctx.fillRect(0, 0, 512, 512);
+      if (night) {
+        ctx.fillStyle = '#e4ecff';
+        [[42,56],[119,97],[182,40],[304,64],[469,140],[67,205],[449,252],[323,171],[162,191],[90,310],[474,55]].forEach(function (star) {ctx.fillRect(star[0],star[1],3,3);});
+      }
+      // Pixel-style celestial body; intentionally static, not weather or real-time astronomy.
+      ctx.fillStyle = night ? '#e4e9f6' : '#fff2cb'; ctx.fillRect(385, 58, 62, 62);
+      if (night) {ctx.fillStyle='#bec8df';ctx.fillRect(396,69,10,10);ctx.fillRect(422,92,13,13);}
+    }
     if (image) {
       var preset = $('pfp-preset').value, zoom = Number($('pfp-size').value) / 80;
       if (preset === 'flat') {
@@ -42,7 +56,7 @@
       } else {
         var head = preset === 'head', full = preset === 'full' || preset === 'wave';
         window.drawPfp3d(ctx, skin, {slim: $('pfp-model').value === 'slim', outer: $('pfp-outer').checked, legacy: legacy,
-          yaw: +$('pfp-yaw').value, pitch: +$('pfp-pitch').value, angles: preset === 'wave' ? {ra: -135} : {},
+          yaw: +$('pfp-yaw').value, pitch: +$('pfp-pitch').value, headYaw: +$('pfp-head-yaw').value, headPitch: +$('pfp-head-pitch').value, angles: preset === 'wave' ? {ra: -135} : {},
           headOnly: head, scale: (head ? 36 : full ? 12 : 19) * zoom, centerY: head ? 12 : full ? 0 : 7});
       }
     }
@@ -101,7 +115,7 @@
     $('pfp-preset').value = $('pfp-preset').value === 'flat' ? last3d : 'flat';
     draw();
   });
-  ['pfp-background', 'pfp-color', 'pfp-shape', 'pfp-size', 'pfp-outer', 'pfp-preset', 'pfp-model', 'pfp-yaw', 'pfp-pitch'].forEach(function (id) {
+  ['pfp-background', 'pfp-color', 'pfp-shape', 'pfp-size', 'pfp-outer', 'pfp-preset', 'pfp-model', 'pfp-yaw', 'pfp-pitch', 'pfp-head-yaw', 'pfp-head-pitch'].forEach(function (id) {
     $(id).addEventListener('input', draw); $(id).addEventListener('change', draw);
   });
   download.addEventListener('click', function () {

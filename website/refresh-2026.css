@@ -734,3 +734,4 @@ html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936;
 .pfp-quick-bar #pfp-quick-3d { color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 5px 11px; cursor: pointer; }
 .pfp-quick-bar #pfp-quick-3d[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
 .pfp-quick-bar button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.pfp-page .render-controls label > small { display: block; color: var(--muted); font-size: 12px; font-weight: normal; }

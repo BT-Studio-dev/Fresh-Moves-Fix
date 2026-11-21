@@ -8,7 +8,14 @@ window.drawPfp3d = function (ctx, skin, options) {
     var layers=[[32,0],[16,32],[40,32],[48,48],[0,32],[0,48]];
     function point(name,x,y,z){
       var pv=piv[name], a=(options.angles[name] || 0)*Math.PI/180, c=Math.cos(a), t=Math.sin(a), X=x-pv[0], Y=y-pv[1];
-      x=X*c-Y*t+pv[0];y=X*t+Y*c+pv[1]-16;
+      x=X*c-Y*t+pv[0];y=X*t+Y*c+pv[1];
+      if (name === 'head') {
+        var hy=(options.headYaw || 0)*Math.PI/180, hp=(options.headPitch || 0)*Math.PI/180;
+        var yc=Math.cos(hp), ys=Math.sin(hp), hc=Math.cos(hy), hs=Math.sin(hy);
+        var localY=y-pv[1], y2=localY*yc-z*ys, z2=localY*ys+z*yc;
+        var x2=x*hc+z2*hs; z=-x*hs+z2*hc; x=x2; y=y2+pv[1];
+      }
+      y-=16;
       var xx=x*cy+z*sy, zz=-x*sy+z*cy, yy=y*cp-zz*sp, depth=y*sp+zz*cp;
       return [256+xx*options.scale,256-(yy-options.centerY)*options.scale,depth];
     }
