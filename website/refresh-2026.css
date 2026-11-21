@@ -626,3 +626,28 @@ a.eyes-download-card:focus-visible { outline: 2px solid var(--accent); outline-o
 .cape-player-options input[type="file"]::file-selector-button, .cape-upload input::file-selector-button { color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 7px 10px; cursor: pointer; }
 .cape-player-options input[type="text"] { width: min(100%, 170px); }
 .cape-player-options label { gap: 8px; }
+
+/* Theme-aware cape workspace and non-destructive texture guide. */
+.cape-workspace { background: var(--panel); border-radius: var(--fmf-radius); box-shadow: 0 8px 28px rgba(0,0,0,.12); }
+.cape-toolbar, .cape-inspector { background: var(--panel); }
+.cape-stage { background-color: var(--bg); }
+.cape-toolbar button.active { background: var(--bg); }
+.cape-toolbar button span { font-size: 10px; white-space: nowrap; }
+.cape-toolbar button:hover, .cape-preview-tabs button:hover { border-color: var(--accent); color: var(--accent); }
+.cape-stage-bar { align-items: center; flex-wrap: wrap; background: var(--panel); }
+.cape-stage-options { background: var(--panel); }
+.cape-preview { background: var(--panel); border-radius: 10px; }
+.cape-preview-view { border: 1px solid var(--line); box-sizing: border-box; }
+.cape-grid-area { flex: 1 1 55%; min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.cape-grid-title { display: flex; gap: 10px; align-items: baseline; justify-content: space-between; flex-wrap: wrap; margin: 0 0 10px; font-size: 13px; }
+.cape-grid-title small { color: var(--muted); font-size: 11px; }
+.cape-grid-viewport { width: 100%; max-height: 480px; border-radius: 4px; }
+.cape-guide-legend { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; margin-top: 10px; font-size: 11px; color: var(--muted); }
+.cape-guide-legend span { white-space: nowrap; }
+.cape-guide-legend span::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 5px; border-radius: 2px; background: #4ca064; }
+.cape-guide-legend .guide-inside::before { background: #4e7ab4; }
+.cape-guide-legend .guide-wing::before { background: #de8448; }
+.cape-guide-legend .guide-edge::before { background: #9f70ca; }
+.cape-guide-legend small { flex-basis: 100%; font-size: 10px; }
+.cape-guide-legend[hidden] { display: none; }
+@media (max-width: 1050px) { .cape-grid-area { flex: none; } }

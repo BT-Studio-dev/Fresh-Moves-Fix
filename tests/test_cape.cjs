@@ -11,7 +11,8 @@ function element(id) {
 }
 let fills = 0, clears = [], filledRects = [];
 const context = { clearRect(...args){clears.push(args)}, drawImage(){}, fillRect(...r){fills++; filledRects.push(r)}, beginPath(){}, moveTo(){}, lineTo(){}, stroke(){}, strokeRect(){}, getImageData(){return {data:new Uint8ClampedArray(64*32*4)}}, putImageData(){} };
-element('cape-canvas').getContext = () => context;
+const viewContext = { ...context, clearRect(){}, fillRect(){} };
+element('cape-canvas').getContext = () => viewContext;
 element('cape-grid').checked = true; element('cape-template').checked = true; element('cape-size').value = '1';
 element('cape-name').value = 'My Cape'; element('cape-description').value = 'A starry design';
 element('cape-color').value = '#35c980'; element('cape-tool').value = 'pen';
