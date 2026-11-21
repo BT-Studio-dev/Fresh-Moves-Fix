@@ -927,13 +927,14 @@ write("settings/index.html", page({
     <button type="button" class="tab" data-tab="music">${ICON.music} Music</button></div>
   <div class="box" id="tab-music" hidden>
     <h2 class="shead"><span class="tool-ic">${ICON.music}</span><span><b>Music</b><small>Background song for the website</small></span></h2>
-    <p>Background music made by your browser (no music files). Choose Calm, Minecraft, Fresh Moves Fix, or Night Sky. All are original instrumental tracks. Each song repeats. It is off until you turn it on, and saved in this browser only.</p>
+    <p>Background music made by your browser (no music files). Choose Calm, Minecraft, Fresh Moves Fix, Night Sky, or The End. All are original instrumental tracks. Each song repeats. It is off until you turn it on, and saved in this browser only.</p>
     <p class="elabel">Song</p>
     <div class="mtiles two">
       <label class="mtile"><input type="radio" name="song" value="calm" data-music-song checked><span><b>Calm</b><small>Soft and friendly</small></span></label>
       <label class="mtile"><input type="radio" name="song" value="minecraft" data-music-song><span><b>Minecraft</b><small>Soft piano, 6:00</small></span></label>
       <label class="mtile"><input type="radio" name="song" value="fresh" data-music-song><span><b>Fresh Moves Fix</b><small>Original upbeat theme, 2:40</small></span></label>
       <label class="mtile"><input type="radio" name="song" value="night" data-music-song><span><b>Night Sky</b><small>Original peaceful instrumental, 3:12</small></span></label>
+      <label class="mtile"><input type="radio" name="song" value="end" data-music-song><span><b>The End</b><small>Original sad instrumental, 4:00</small></span></label>
     </div>
     <p class="elabel">Player</p>
     <div class="mtiles">

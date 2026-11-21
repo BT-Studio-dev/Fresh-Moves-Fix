@@ -50,7 +50,7 @@
     '<div class="fmf-setting-row"><span>Theme</span><select aria-label="Theme" data-fmf-theme><option value="glass">Glass</option><option value="dark">Dark</option><option value="light">Light</option><option value="oled">OLED</option><option value="minecraft">Minecraft</option><option value="nightsky">Night Sky</option><option value="livesky">Live Sky</option><option value="system">System</option></select></div>' +
     '<label><span>Glass card blur</span><input type="checkbox" data-fmf-glass-blur></label>' +
     '<div class="fmf-setting-row"><span>Text size</span><select aria-label="Text size" data-fmf-size><option value="normal">Normal</option><option value="large">Large</option></select></div>' +
-    '<label><span>High contrast</span><input type="checkbox" data-fmf-contrast></label>' +
+    '<label class="fmf-contrast-control"><span><b>High contrast</b><small>Stronger text and borders</small></span><input type="checkbox" data-fmf-contrast></label>' +
     '<label><span>Reduce motion</span><input type="checkbox" data-fmf-motion></label>' +
     '<p class="fmf-hint">Settings are saved on this device. Your existing site settings remain available.</p>';
   body.appendChild(panel);
