@@ -114,7 +114,6 @@ document.documentElement.setAttribute("data-scrollbar",sb==="off"?"off":"on")})(
     ${nav("editor", up + "editor/", ICON.eye + " Eye editor")}
     ${nav("title", up + "title/", ICON.tag + " Title")}
     ${nav("settings", up + "settings/", ICON.gear + " Settings")}
-    <a rel="noopener" href="${REPO}">${ICON.code} GitHub</a>
   </nav>
   <span class="snd-wrap">
     <button type="button" class="snd" data-music-toggle aria-pressed="false" aria-label="Music">${ICON.music}</button>
