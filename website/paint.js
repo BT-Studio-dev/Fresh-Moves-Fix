@@ -383,7 +383,7 @@
   // ---------- mouse and touch ----------
   const at = (cv, e) => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * cv.width / r.width, (e.clientY - r.top) * cv.height / r.height]; };
   let mode = null, drag = null;
-  const alt = (yes) => { if (yes !== altOn) { altOn = yes; const t = color; color = color2; color2 = t; if (!yes) { setColor(color); show2(); } } }; // right button: paint with the second colour for this stroke
+  const alt = (yes) => { if (yes !== altOn) { altOn = yes; const t = color; color = color2; color2 = t; if (!yes) setColor(color); } }; // right button: paint with the second colour for this stroke
   const d3 = (e) => {
     e.preventDefault(); try { cv3.setPointerCapture(e.pointerId); } catch (x) {}
     const hit = e.button === 0 || e.button === 2 ? pick(at(cv3, e)) : null;
@@ -421,13 +421,9 @@
   // ---------- buttons ----------
   document.querySelectorAll("#ptools button").forEach((b) => b.addEventListener("click", () => useTool(b.dataset.tool)));
   $("pcolor").addEventListener("input", (e) => setColor(fromHex(e.target.value)));
-  const show2 = () => { const e = $("pnow2"), i = $("pcolor2"); if (e) e.style.background = hex(color2); if (i) i.value = hex(color2); };
-  if ($("pcolor2")) $("pcolor2").addEventListener("input", (e) => { color2 = fromHex(e.target.value); show2(); });
-  if ($("pswap")) $("pswap").addEventListener("click", () => { const a = color.slice(); setColor(color2); color2 = a; show2(); });
   document.querySelectorAll("[data-psize]").forEach((b) => b.addEventListener("click", () => { size = Number(b.dataset.psize) || 1; document.querySelectorAll("[data-psize]").forEach((q) => { const on = q === b; q.classList.toggle("on", on); q.setAttribute("aria-pressed", on ? "true" : "false"); }); }));
   if ($("psym")) $("psym").addEventListener("change", (e) => { symmetry = e.target.checked; });
   if ($("pgrid")) $("pgrid").addEventListener("change", (e) => { grid = e.target.checked; dirty = true; });
-  show2();
   if ($("palpha")) $("palpha").addEventListener("input", (e) => setAlpha((Number(e.target.value) || 100) * 2.55));
   $("phex").addEventListener("input", (e) => { let v = e.target.value.trim(); if (v[0] !== "#") v = "#" + v; if (/^#[0-9a-fA-F]{6}$/.test(v)) setColor(fromHex(v), true); });
   const swatch = (e) => { const c = e.target && e.target.dataset && e.target.dataset.c; if (c) { setColor(fromHex(c)); remember(); if (tool === "erase" || tool === "pick") useTool("pen"); } };

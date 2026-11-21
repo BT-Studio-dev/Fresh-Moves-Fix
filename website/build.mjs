@@ -682,7 +682,6 @@ write("paint/index.html", page({
     <h3 class="ehead"><span class="tool-ic">${ICON.brush}</span><span><b>Colour &amp; layers</b><small>Choose your colours and paint layer</small></span></h3>
     <p class="elabel">Colour</p>
     <p class="prow painter-main-colour"><span class="pnow" id="pnow"></span> <input type="color" id="pcolor" data-inline-picker value="#3b82c4" aria-label="Colour"> <input type="text" id="phex" class="phex" value="#3b82c4" maxlength="7" spellcheck="false" aria-label="Colour code"></p>
-    <details class="painter-second-colour"><summary>Second colour (right click)</summary><p class="prow"><span class="pnow" id="pnow2"></span> <input type="color" id="pcolor2" value="#ffffff" aria-label="Second colour"> <button type="button" class="btn ghost" id="pswap">Swap</button></p></details>
     <p class="elabel">Recent</p>
     <div class="psws" id="precent"></div>
     <p class="elabel">Skin palette</p>
@@ -693,7 +692,6 @@ write("paint/index.html", page({
     <p class="elabel">Shades</p>
     <div class="psws" id="pshades" aria-label="Shades of the selected colour"></div>
     <p class="prow"><input type="range" id="palpha" min="5" max="100" step="5" value="100" aria-label="Opacity"> <span class="tnum" id="palphav">100%</span></p>
-    <p class="ehint">${ICON.info} <span>Below 100% the Pen and Fill paint see-through pixels, for glass in glasses. <b>Take colour</b> also takes how see-through a pixel is. In Minecraft, see-through only works on the <b>outer layer</b>; on the first layer the game shows it solid.</span></p>
     <p class="elabel">Paint on</p>
     <div class="painter-layer-choice" role="group" aria-label="Paint layer"><label><input type="radio" name="player" value="0" checked><span>Base</span></label><label><input type="radio" name="player" value="1"><span>Overlay</span></label></div>
     <input type="checkbox" id="pshow" checked hidden tabindex="-1" aria-hidden="true">
