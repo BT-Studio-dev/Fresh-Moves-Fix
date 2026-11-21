@@ -344,12 +344,11 @@ article.editor > p:not([class]) { padding: 18px 22px; background: var(--panel); 
 [data-theme="minecraft"] article.editor > p:not([class]), [data-theme="minecraft"] .guides-index > h1, [data-theme="minecraft"] .guides-index > h2 { border-radius: 3px; }
 
 /* Owner profile */
-.owner-profile { display: flex; align-items: center; gap: 16px; padding: 20px 24px; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; }
-.owner-profile-icon { display: grid; place-items: center; flex: none; width: 52px; height: 52px; border-radius: 12px; background: var(--accent); color: var(--on-accent); }
-.owner-profile-icon .ic { width: 26px; height: 26px; margin: 0; }
-.owner-profile h2 { margin: 4px 0; font-size: 20px; }
+.owner-profile { box-sizing: border-box; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; width: min(100%, 300px); margin: 0 auto; padding: 24px; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; }
+.owner-profile-image { display: block; width: 120px; height: 120px; object-fit: contain; image-rendering: pixelated; border-radius: 12px; margin-bottom: 6px; }
+.owner-profile h2 { margin: 0; font-size: 22px; overflow-wrap: anywhere; }
 .owner-profile p { margin: 0; color: var(--muted); font-size: 14px; }
-[data-theme="minecraft"] .owner-profile, [data-theme="minecraft"] .owner-profile-icon { border-radius: 3px; }
+[data-theme="minecraft"] .owner-profile, [data-theme="minecraft"] .owner-profile-image { border-radius: 3px; }
 
 /* Give page titles their own themed surface, including individual guide pages. */
 .wrap > article:not(.nf) > h1 { padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; }

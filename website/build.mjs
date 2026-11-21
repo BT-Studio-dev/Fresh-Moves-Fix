@@ -1120,8 +1120,10 @@ write("index.html", page({
 </div>
 
 <aside class="owner-profile" aria-label="Owner profile">
-  <span class="owner-profile-icon" aria-hidden="true">${ICON.person}</span>
-  <div><span class="home-eyebrow">OWNER PROFILE</span><h2>lie_kg</h2><p>Owner of Fresh Moves Fix</p></div>
+  <img class="owner-profile-image" src="pack.png" alt="" width="120" height="120">
+  <span class="home-eyebrow">OWNER PROFILE</span>
+  <h2>lie_kg</h2>
+  <p>Owner of Fresh Moves Fix</p>
 </aside>
 
 <section class="home-section">
