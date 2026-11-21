@@ -88,7 +88,7 @@
   // A small 64×64 texture map keeps editing lightweight and works without WebGL.
   var map = $('pfp-paint-map'), mapCtx = map.getContext('2d'), paintLayer = 'base', paintDrag = null;
   var paintColour = $('pfp-paint-color'), paintHex = $('pfp-paint-hex');
-  if (window.FMFUI) window.FMFUI.colour(paintColour);
+  if (window.FMFUI) window.FMFUI.colour($('pfp-color'));
   function skinRects(layer) {
     var slim = $('pfp-model').value === 'slim', arm = slim ? 3 : 4;
     var boxes = layer === 'base' ? [[0,0,8,8,8],[16,16,8,12,4],[40,16,arm,12,4],[32,48,arm,12,4],[0,16,4,12,4],[16,48,4,12,4]] : [[32,0,8,8,8],[16,32,8,12,4],[40,32,arm,12,4],[48,48,arm,12,4],[0,32,4,12,4],[0,48,4,12,4]];
@@ -128,6 +128,11 @@
   function stopPaint(e) {if(paintDrag && e.pointerId===paintDrag.id)paintDrag=null;}
   map.addEventListener('pointerup',stopPaint);map.addEventListener('pointercancel',stopPaint);map.addEventListener('lostpointercapture',stopPaint);map.addEventListener('contextmenu',function(e){e.preventDefault();});
   Array.prototype.forEach.call(document.querySelectorAll('[data-pfp-layer]'),function(button){button.addEventListener('click',function(){paintLayer=button.getAttribute('data-pfp-layer');Array.prototype.forEach.call(document.querySelectorAll('[data-pfp-layer]'),function(item){item.setAttribute('aria-pressed',item===button?'true':'false');});mapDraw();});});
+  function backgroundColourChanged() { $('pfp-background').value='color'; $('pfp-bg-hex').value=$('pfp-color').value; draw(); }
+  $('pfp-color').addEventListener('input', backgroundColourChanged);
+  $('pfp-color').addEventListener('change', backgroundColourChanged);
+  $('pfp-bg-hex').addEventListener('input', function () { var value=this.value.trim(); if(value.charAt(0)!=='#') value='#'+value; if(/^#[0-9a-f]{6}$/i.test(value)){ $('pfp-color').value=value; $('pfp-background').value='color'; draw(); } });
+  $('pfp-bg-hex').addEventListener('change',function(){this.value=$('pfp-color').value;});
   paintColour.addEventListener('input',function(){paintHex.value=paintColour.value;});
   paintHex.addEventListener('input',function(){var value=paintHex.value.trim();if(value.charAt(0)!=='#')value='#'+value;if(/^#[0-9a-f]{6}$/i.test(value))paintColour.value=value;});
   paintHex.addEventListener('change',function(){paintHex.value=paintColour.value;});
@@ -184,6 +189,7 @@
   Array.prototype.forEach.call(document.querySelectorAll('[data-pfp-color]'), function (button) {
     button.addEventListener('click', function () {
       $('pfp-color').value = button.getAttribute('data-pfp-color');
+      $('pfp-bg-hex').value = $('pfp-color').value;
       $('pfp-background').value = 'color';
       draw();
     });

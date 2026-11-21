@@ -1132,9 +1132,11 @@ write("pfp/index.html", page({
   body: `<div class="wrap render-page pfp-page"><h1>Minecraft PFP Maker</h1><p>Make a 3D avatar from your skin. No WebGL or account needed.</p>
   <div class="render-layout"><section class="card render-controls"><h2>Customize</h2>
   <label class="pfp-upload"><span><b>Upload skin PNG</b><small>Choose a skin from your device</small></span><input id="pfp-skin" type="file" accept="image/png,.png"></label><p id="pfp-status" role="status" aria-live="polite">Loading the example skin.</p>
-  <div class="pfp-paint-panel"><h3>Colour &amp; layers</h3><p>Choose a colour and paint on the skin map beside the preview.</p>
-    <div class="ed pfp-colour-picker"><input type="color" id="pfp-paint-color" data-inline-picker value="#3b82c4" aria-label="Paint colour"></div>
-    <label>Colour code <input type="text" id="pfp-paint-hex" value="#3b82c4" maxlength="7" spellcheck="false" aria-label="Paint colour code"></label>
+  <div class="pfp-paint-panel"><h3>Background colour</h3><p>Choose a colour for the PFP background.</p>
+    <div class="ed pfp-colour-picker"><input type="color" id="pfp-color" data-inline-picker value="#486d92" aria-label="Background colour"></div>
+    <label>Background colour code <input type="text" id="pfp-bg-hex" value="#486d92" maxlength="7" spellcheck="false" aria-label="Background colour code"></label>
+    <h3>Skin painting</h3><label>Paint colour <input type="color" id="pfp-paint-color" value="#3b82c4" aria-label="Paint colour"></label>
+    <label>Paint colour code <input type="text" id="pfp-paint-hex" value="#3b82c4" maxlength="7" spellcheck="false" aria-label="Paint colour code"></label>
     <h3>Paint on</h3><div class="pfp-presets" role="group" aria-label="Paint layer"><button type="button" data-pfp-layer="base" aria-pressed="true"><b>Base</b></button><button type="button" data-pfp-layer="overlay" aria-pressed="false"><b>Overlay</b></button></div>
   </div>
   <h3>Choose a preset</h3><div class="pfp-presets" aria-label="Profile picture presets">
@@ -1152,7 +1154,6 @@ write("pfp/index.html", page({
   <label>Camera height <input id="pfp-pitch" type="range" min="-45" max="45" value="10"></label>
   <h3>Background</h3><div class="pfp-presets" role="group" aria-label="Background"><button type="button" data-pfp-target="pfp-background" data-value="color" aria-pressed="true"><b>Color</b><small>Solid background</small></button><button type="button" data-pfp-target="pfp-background" data-value="transparent" aria-pressed="false"><b>Transparent</b><small>No background</small></button><button type="button" data-pfp-target="pfp-background" data-value="day" aria-pressed="false"><b>Day sky</b><small>Sun</small></button><button type="button" data-pfp-target="pfp-background" data-value="night" aria-pressed="false"><b>Night sky</b><small>Moon and stars</small></button></div>
   <select id="pfp-background" hidden aria-label="Selected background"><option value="color">Color</option><option value="transparent">Transparent</option><option value="day">Day sky</option><option value="night">Night sky</option></select>
-  <label>Background color <input id="pfp-color" type="color" value="#486d92"></label>
   <label class="pfp-layer"><span><b>Blur sky details</b><small>Softens the sun, moon and stars; the avatar stays sharp. Off by default.</small></span><input id="pfp-blur" type="checkbox"></label><p id="pfp-blur-status" role="status" hidden></p>
   <h3>Shape</h3><div class="pfp-presets" role="group" aria-label="Shape"><button type="button" data-pfp-target="pfp-shape" data-value="square" aria-pressed="true"><b>Square</b></button><button type="button" data-pfp-target="pfp-shape" data-value="circle" aria-pressed="false"><b>Circle</b></button></div>
   <select id="pfp-shape" hidden aria-label="Selected shape"><option value="square">Square</option><option value="circle">Circle</option></select>
