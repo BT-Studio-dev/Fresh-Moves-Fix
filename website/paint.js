@@ -430,7 +430,6 @@
   $("pcolor").addEventListener("change", remember);
   $("phex").addEventListener("change", () => { if (/^#?[0-9a-fA-F]{6}$/.test($("phex").value.trim())) remember(); });
   $("pundo").addEventListener("click", doUndo); $("predo").addEventListener("click", doRedo);
-  $("psave").addEventListener("click", save);
   $("psave-top").addEventListener("click", save);
   $("pfile-top").addEventListener("click", () => $("pfile").click());
   $("pfile").addEventListener("change", (e) => { loadFile(e.target.files[0]); e.target.value = ""; });
@@ -537,10 +536,6 @@
   })();
   $("ppose").addEventListener("change", (e) => { pose = e.target.value; dirty = true; });
   $("pzoom").addEventListener("input", (e) => { zoom = Number(e.target.value); dirty = true; });
-  const drop = $("pdrop");
-  const over = (e) => { e.preventDefault(); drop.classList.add("over"); }, out = () => drop.classList.remove("over");
-  const dropped = (e) => { e.preventDefault(); out(); loadFile(e.dataTransfer.files[0]); };
-  drop.addEventListener("dragover", over); drop.addEventListener("dragleave", out); drop.addEventListener("drop", dropped);
   const KEYS = { t: "tone", b: "pen", p: "pen", e: "erase", g: "fill", f: "fill", i: "pick", l: "light", d: "dark" };
   const key = (e) => {
     const t = e.target && e.target.tagName; if (t === "INPUT" || t === "SELECT" || t === "TEXTAREA") return;
