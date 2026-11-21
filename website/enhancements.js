@@ -9,6 +9,7 @@
   });
 
   var root = document.documentElement;
+  root.classList.remove("fmf-quick-open"); // also reset after in-site navigation
   var body = document.body;
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -35,7 +36,7 @@
   top.className = "fmf-top";
   top.setAttribute("aria-label", "Back to top");
   top.title = "Back to top";
-  top.textContent = "↑";
+  top.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 20V5M6 11l6-6 6 6"/></svg>';
   top.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); });
   body.appendChild(top);
 
@@ -46,9 +47,9 @@
   panel.innerHTML =
     '<button class="fmf-close" type="button" aria-label="Close settings">×</button>' +
     '<h2>Quick settings</h2>' +
-    '<label>Theme <select data-fmf-theme><option value="glass">Glass</option><option value="dark">Dark</option><option value="light">Light</option><option value="oled">OLED</option><option value="minecraft">Minecraft</option><option value="system">System</option></select></label>' +
+    '<div class="fmf-setting-row"><span>Theme</span><select aria-label="Theme" data-fmf-theme><option value="glass">Glass</option><option value="dark">Dark</option><option value="light">Light</option><option value="oled">OLED</option><option value="minecraft">Minecraft</option><option value="system">System</option></select></div>' +
     '<label><span>Glass card blur</span><input type="checkbox" data-fmf-glass-blur></label>' +
-    '<label>Text size <select data-fmf-size><option value="normal">Normal</option><option value="large">Large</option></select></label>' +
+    '<div class="fmf-setting-row"><span>Text size</span><select aria-label="Text size" data-fmf-size><option value="normal">Normal</option><option value="large">Large</option></select></div>' +
     '<label><span>High contrast</span><input type="checkbox" data-fmf-contrast></label>' +
     '<label><span>Reduce motion</span><input type="checkbox" data-fmf-motion></label>' +
     '<p class="fmf-hint">Settings are saved on this device. Your existing site settings remain available.</p>';
@@ -103,9 +104,40 @@
     body.classList.toggle("fmf-motion-off", motion.checked);
   });
 
+  // Keep a working native select as the fallback, but use themed, keyboard-friendly
+  // buttons where JavaScript is available instead of the OS's grey dropdown.
+  function themedSelect(select) {
+    var details = document.createElement("details"), summary = document.createElement("summary"), list = document.createElement("div");
+    details.className = "fmf-choice"; summary.setAttribute("aria-label", select.getAttribute("aria-label"));
+    list.className = "fmf-choice-list";
+    Array.prototype.forEach.call(select.options, function (option) {
+      var button = document.createElement("button"); button.type = "button"; button.textContent = option.textContent;
+      button.addEventListener("click", function () {
+        select.value = option.value; select.dispatchEvent(new Event("change", {bubbles:true}));
+        sync(); details.open = false; summary.focus();
+      });
+      list.appendChild(button);
+    });
+    function sync() { summary.textContent = select.options[select.selectedIndex].textContent; }
+    details.appendChild(summary); details.appendChild(list); select.parentNode.appendChild(details); select.hidden = true;
+    select.addEventListener("change", sync);
+    details.addEventListener("toggle", function () { if (details.open) panel.querySelectorAll(".fmf-choice").forEach(function (other) { if (other !== details) other.open = false; }); });
+    details.addEventListener("keydown", function (e) { if (e.key === "Escape" && details.open) { e.stopPropagation(); details.open = false; summary.focus(); } });
+    sync();
+  }
+  themedSelect(themeSelect); themedSelect(sizeSelect);
+  panel.id = "fmf-quick-settings";
   panel.querySelector(".fmf-close").addEventListener("click", closePanel);
-  function closePanel() { panel.hidden = true; }
-  function openPanel() { panel.hidden = false; panel.querySelector(".fmf-close").focus(); }
+  function closePanel() {
+    panel.hidden = true; root.classList.remove("fmf-quick-open");
+    panel.querySelectorAll(".fmf-choice").forEach(function (d) { d.open = false; });
+    var button = document.querySelector(".fmf-settings-toggle"); if (button) button.setAttribute("aria-expanded", "false");
+  }
+  function openPanel() {
+    panel.hidden = false; root.classList.add("fmf-quick-open");
+    var button = document.querySelector(".fmf-settings-toggle"); if (button) button.setAttribute("aria-expanded", "true");
+    panel.querySelector(".fmf-close").focus();
+  }
   window.__fmfKeyHandler = function (e) { if (e.key === "Escape") closePanel(); };
   document.addEventListener("keydown", window.__fmfKeyHandler);
 
@@ -116,12 +148,22 @@
     var toggle = document.createElement("button");
     toggle.type = "button";
     toggle.className = "fmf-settings-toggle";
-    toggle.textContent = "⚙";
+    toggle.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/><circle cx="12" cy="12" r="7"/></svg>';
     toggle.setAttribute("aria-label", "Quick settings");
+    toggle.setAttribute("aria-controls", "fmf-quick-settings");
+    toggle.setAttribute("aria-expanded", "false");
     toggle.title = "Quick settings";
     toggle.addEventListener("click", function () { panel.hidden ? openPanel() : closePanel(); });
     var get = nav.querySelector(".get");
     if (get) nav.insertBefore(toggle, get); else nav.appendChild(toggle);
+  }
+
+  // Opening the music controls closes settings; while settings is open its CSS
+  // suppresses the hover popup so the two panels can never cover each other.
+  var music = document.querySelector(".snd-wrap");
+  if (music) {
+    music.addEventListener("pointerenter", function () { if (!panel.hidden) closePanel(); });
+    music.addEventListener("focusin", function () { if (!panel.hidden) closePanel(); });
   }
 
   var ticking = false;

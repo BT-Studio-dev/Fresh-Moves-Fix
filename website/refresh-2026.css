@@ -163,3 +163,46 @@ a.card, a.tool, .guide-nav a {
 .fmf-blur-setting small { color: var(--muted); font-size: 13px; }
 .fmf-blur-setting input { width: 20px; height: 20px; accent-color: var(--accent); flex: none; }
 .fmf-blur-setting input:disabled { opacity: .4; cursor: not-allowed; }
+
+/* Popup panels need an opaque surface: translucent page cards behind them
+   otherwise remain visible through controls. No backdrop blur is required. */
+html { --fmf-popup: #18201c; --fmf-popup-control: #0f1412; }
+html[data-theme="light"] { --fmf-popup: #ffffff; --fmf-popup-control: #f4f6f5; }
+html[data-theme="oled"] { --fmf-popup: #0d0f0e; --fmf-popup-control: #000000; }
+html[data-theme="glass"] { --fmf-popup: #15231e; --fmf-popup-control: #0c1612; }
+html[data-theme="minecraft"] { --fmf-popup: #1b2621; --fmf-popup-control: #101914; }
+.fmf-settings {
+  background: var(--fmf-popup); max-height: calc(100vh - 100px); overflow-y: auto;
+}
+@media (max-width: 760px) { .fmf-settings { max-height: calc(100vh - 128px); } }
+header.top .snd-box { background: var(--fmf-popup); }
+html.fmf-quick-open header.top .snd-card { display: none !important; }
+.fmf-setting-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; }
+.fmf-choice { position: relative; width: 130px; flex: none; }
+.fmf-choice summary {
+  list-style: none; cursor: pointer; padding: 7px 30px 7px 10px;
+  background: var(--fmf-popup-control); border: 1px solid var(--line); border-radius: 9px;
+}
+.fmf-choice summary::-webkit-details-marker { display: none; }
+.fmf-choice summary::after { content: "▾"; position: absolute; right: 10px; }
+.fmf-choice-list { position: absolute; z-index: 2; top: calc(100% + 4px); left: 0; right: 0; background: var(--fmf-popup); border: 1px solid var(--line); border-radius: 9px; overflow: hidden; box-shadow: 0 5px 14px rgba(0,0,0,.3); }
+.fmf-choice-list button { display: block; width: 100%; padding: 7px 10px; text-align: left; background: var(--fmf-popup); color: var(--text); border: 0; }
+.fmf-choice-list button:hover, .fmf-choice-list button:focus-visible { background: var(--fmf-popup-control); color: var(--accent); }
+/* Keep the release card's heading and description apart at every screen width. */
+a.release-all > span { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: center; }
+a.release-all > span .ic { grid-row: 1 / 3; margin: 0; }
+a.release-all > span small { display: block; color: var(--muted); font-weight: 400; }
+html[data-theme] header.top .snd-box { background: var(--fmf-popup); }
+/* Crisp, consistently sized icons for quick settings and back to top. */
+.fmf-settings-toggle, .fmf-top { display: inline-flex; align-items: center; justify-content: center; }
+.fmf-settings-toggle { width: 42px; height: 42px; padding: 0; flex: none; }
+.fmf-settings-toggle svg, .fmf-top svg { width: 20px; height: 20px; display: block; flex: none; }
+
+/* Clickable installation resources, distinct from the steps above. */
+.install-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 12px; margin-top: 18px; }
+a.install-link { display: flex; align-items: center; gap: 12px; padding: 14px; }
+.install-link > span:nth-child(2) { flex: 1; min-width: 0; }
+.install-link b, .install-link small { display: block; }
+.install-link small { color: var(--muted); font-weight: 400; line-height: 1.4; margin-top: 3px; }
+.install-icon { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; flex: none; background: var(--bg); color: var(--accent); }
+.install-link > span:last-child { flex: none; color: var(--muted); }
