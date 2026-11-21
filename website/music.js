@@ -5,7 +5,7 @@
 // Settings are stored in localStorage: fmf-music, fmf-volume and fmf-song.
 (function () {
   var on = false, vol = 40, song = "calm";
-  var INFO = { calm: { name: "Calm", len: 214, bars: 64 }, minecraft: { name: "Minecraft", len: 360, bars: 96 }, fresh: { name: "Fresh Moves Fix", len: 160, bars: 64 } };
+  var INFO = { calm: { name: "Calm", len: 214, bars: 64 }, minecraft: { name: "Minecraft", len: 360, bars: 96 }, fresh: { name: "Fresh Moves Fix", len: 160, bars: 64 }, night: { name: "Night Sky", len: 192, bars: 48 } };
   try { var saved = localStorage.getItem("fmf-song"); if (INFO[saved]) song = saved; } catch (e) {}
   try { on = localStorage.getItem("fmf-music") === "on"; var v = parseInt(localStorage.getItem("fmf-volume"), 10); if (v >= 0 && v <= 100) vol = v; } catch (e) {}
   var AC = window.AudioContext || window.webkitAudioContext;
@@ -79,7 +79,14 @@
     { bars: 8, chords: FRESH_MAIN, layers: "pbams", arp: 1, level: 0.85 },
     { bars: 8, chords: FRESH_MAIN, layers: "pa", arp: 0, level: 0.6 }
   ];
-  var SONGS = { calm: compose(SECTIONS, SCALE, 7), minecraft: compose(M_SECTIONS, SCALE, 21), fresh: compose(FRESH_SECTIONS, SCALE, 31) };
+  // Original gentle night track: 48 bars / 3:12, sparse notes and soft pads.
+  var NIGHT_SECTIONS = [
+    { bars: 8, chords: [Am, F, C, G], layers: "a", arp: 3, level: 0.6, piano: true },
+    { bars: 16, chords: [Am, F, C, G], layers: "pa", arp: 3, level: 0.65, piano: true },
+    { bars: 16, chords: [F, C, Em, Am], layers: "pam", arp: 4, level: 0.65, piano: true },
+    { bars: 8, chords: [Am, F, C, G], layers: "pas", arp: 3, level: 0.5, piano: true }
+  ];
+  var SONGS = { calm: compose(SECTIONS, SCALE, 7), minecraft: compose(M_SECTIONS, SCALE, 21), fresh: compose(FRESH_SECTIONS, SCALE, 31), night: compose(NIGHT_SECTIONS, SCALE, 67) };
   function freq(semi) { return 220 * Math.pow(2, semi / 12); }
   function tone(f, t, len, peak, type, attack, slideTo) {
     var o = ctx.createOscillator(), g = ctx.createGain();

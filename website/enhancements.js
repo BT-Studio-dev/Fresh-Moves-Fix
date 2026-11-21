@@ -47,7 +47,7 @@
   panel.innerHTML =
     '<button class="fmf-close" type="button" aria-label="Close settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button>' +
     '<h2>Quick settings</h2>' +
-    '<div class="fmf-setting-row"><span>Theme</span><select aria-label="Theme" data-fmf-theme><option value="glass">Glass</option><option value="dark">Dark</option><option value="light">Light</option><option value="oled">OLED</option><option value="minecraft">Minecraft</option><option value="system">System</option></select></div>' +
+    '<div class="fmf-setting-row"><span>Theme</span><select aria-label="Theme" data-fmf-theme><option value="glass">Glass</option><option value="dark">Dark</option><option value="light">Light</option><option value="oled">OLED</option><option value="minecraft">Minecraft</option><option value="nightsky">Night Sky</option><option value="system">System</option></select></div>' +
     '<label><span>Glass card blur</span><input type="checkbox" data-fmf-glass-blur></label>' +
     '<div class="fmf-setting-row"><span>Text size</span><select aria-label="Text size" data-fmf-size><option value="normal">Normal</option><option value="large">Large</option></select></div>' +
     '<label><span>High contrast</span><input type="checkbox" data-fmf-contrast></label>' +
@@ -63,7 +63,7 @@
   function saved(key, fallback) { try { return localStorage.getItem(key) || fallback; } catch (e) { return fallback; } }
   function store(key, value) { try { localStorage.setItem(key, value); } catch (e) {} }
 
-  themeSelect.value = ["glass","dark","light","oled","minecraft","system"].indexOf(saved("fmf-theme","glass")) >= 0 ? saved("fmf-theme","glass") : "glass";
+  themeSelect.value = ["glass","dark","light","oled","minecraft","nightsky","system"].indexOf(saved("fmf-theme","glass")) >= 0 ? saved("fmf-theme","glass") : "glass";
   sizeSelect.value = saved("fmf-extra-size","normal");
   contrast.checked = saved("fmf-extra-contrast","0") === "1";
   motion.checked = saved("fmf-extra-motion", reduce ? "1" : "0") === "1";

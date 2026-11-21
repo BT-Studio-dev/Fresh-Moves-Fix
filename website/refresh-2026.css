@@ -212,3 +212,70 @@ a.install-link { display: flex; align-items: center; gap: 12px; padding: 14px; }
 .fmf-settings .fmf-close svg { width: 18px; height: 18px; }
 a.release-all > i svg { width: 18px; height: 18px; }
 .paint .tlrow button svg, .ed .pk-head button svg { display: inline-block; vertical-align: middle; pointer-events: none; }
+
+/* 2026 homepage: a compact, block-inspired layout without heavy effects. */
+.home-page { max-width: 1120px; }
+.home-hero {
+  position: relative; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(210px, .8fr);
+  gap: 28px; margin: 32px 0 36px; padding: clamp(22px, 4vw, 46px);
+  background: var(--panel); border: 1px solid var(--line); border-radius: 20px;
+  overflow: hidden; text-align: left;
+}
+.home-hero .txt { min-width: 0; }
+.home-hero .hero-kicker, .home-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px; color: var(--accent);
+  font-size: 11px; font-weight: 800; letter-spacing: .12em;
+}
+.hero-kicker > span { display: block; width: 8px; height: 8px; background: var(--accent); }
+.home-hero h1.mc-title { margin: 18px 0; }
+.home-hero h1.mc-title img { max-width: 530px; filter: none; }
+.home-hero p.hero-lead { color: var(--text); font-size: clamp(20px, 2.4vw, 27px); font-weight: 700; line-height: 1.25; margin-bottom: 12px; }
+.home-hero .txt > p:not(.hero-lead) { max-width: 570px; font-size: 16px; line-height: 1.65; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 22px 0; }
+.home-hero .hero-actions .btn { margin: 0; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; color: var(--muted); font-size: 13px; }
+.hero-meta span, .hero-meta a { display: inline-flex; align-items: center; gap: 6px; }
+.hero-meta .ic { width: 15px; height: 15px; }
+.hero-art { display: flex; align-items: stretch; min-width: 0; }
+.hero-art-inner { display: flex; flex-direction: column; align-items: center; justify-content: space-between; width: 100%; min-height: 290px; padding: 22px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg); }
+.hero-art-label, .hero-art-version { align-self: stretch; color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .1em; }
+.hero-art-version { display: flex; justify-content: space-between; gap: 8px; }
+.hero-art-version b { color: var(--accent); }
+.home-hero .hero-art img { display: block; width: min(180px, 80%); height: auto; image-rendering: pixelated; border-radius: 12px; box-shadow: none; }
+.home-section { padding: 38px 0; }
+.home-heading { display: flex; justify-content: space-between; align-items: end; gap: 14px; margin-bottom: 20px; }
+.home-heading h2 { margin: 4px 0 0; }
+.home-heading > p { color: var(--muted); margin: 0; font-size: 14px; }
+.home-page .cards, .home-page .tools { align-items: stretch; }
+.home-page a.card.feat, .home-page a.tool { flex-direction: column; align-items: stretch; justify-content: flex-start; text-align: left; }
+.home-page a.card.feat { min-height: 165px; gap: 8px; }
+.home-page a.card.feat h3 { margin: 0; }
+.home-page a.tool .tool-text { flex: 1; }
+.home-page .versions a.ver, .home-page .versions .ver.locked { min-height: 112px; }
+.home-page .release-all { margin-top: 16px; }
+[data-theme="minecraft"] .home-hero, [data-theme="minecraft"] .hero-art-inner { border-radius: 3px; }
+@media (max-width: 760px) {
+  .home-hero { grid-template-columns: 1fr; margin-top: 18px; gap: 20px; }
+  .home-hero .txt { width: 100%; }
+  .hero-art-inner { min-height: 210px; }
+  .home-hero .hero-art img { width: 120px; }
+  .home-heading { align-items: start; flex-direction: column; gap: 4px; }
+  .home-section { padding: 30px 0; }
+}
+@media (max-width: 560px) {
+  .home-hero .hero-actions { display: grid; grid-template-columns: 1fr; }
+  .home-hero .hero-actions .btn { display: flex; justify-content: center; }
+}
+
+/* Shared pages use the same visual language as the new home page. */
+article.editor > h1, .set h1 { line-height: 1.2; letter-spacing: -.025em; }
+.ed .panel, .set .menu, .set .box { border: 1px solid var(--line); }
+.ed .panel h3.ehead, .set .box h2.shead { line-height: 1.25; }
+.crumb { margin-bottom: 20px; }
+.guide-nav a { min-height: 58px; }
+@media (max-width: 560px) {
+  .ed .panel { min-width: 0; }
+  .home-page .tools { grid-template-columns: minmax(0, 1fr); }
+  .home-page .versions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+html[data-theme="nightsky"] { --fmf-popup: #252345; --fmf-popup-control: #171533; }
