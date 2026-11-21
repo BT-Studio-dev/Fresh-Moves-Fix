@@ -9,4 +9,5 @@ const sandbox={window:{AudioContext},document,localStorage:{getItem:k=>storage[k
 vm.runInNewContext(fs.readFileSync('website/music.js','utf8'),sandbox);
 handlers.click({target:radio}); handlers.change({target:radio});
 assert.equal(storage['fmf-song'],'end'); assert.equal(storage['fmf-music'],'on'); assert.equal(name.textContent,'The End'); timers[0](); assert.match(time.textContent,/\/ 4:00/); timers[1]();
-console.log('The End song selection, playback scheduling and persistence passed');
+radio.value='left'; radio.checked=true; handlers.change({target:radio}); assert.equal(storage['fmf-song'],'left'); assert.equal(name.textContent,'Player Left'); timers[0](); assert.match(time.textContent,/\/ 3:20/); timers[1]();
+console.log('Sad song selection, playback scheduling and persistence passed');
