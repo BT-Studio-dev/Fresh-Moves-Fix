@@ -44,4 +44,9 @@ upload('skin.png','image/png');images[1].width=64;images[1].height=32;images[1].
 upload('bad.png','image/png');images[2].width=50;images[2].height=50;images[2].onload();assert.match($('pfp-status').textContent,/64×64/);
 upload('oops.jpg','image/jpeg');assert.match($('pfp-status').textContent,/PNG/);assert.equal(images.length,3);
 upload('old.png','image/png');upload('new.png','image/png');images[4].width=64;images[4].height=64;images[4].onload();images[3].width=64;images[3].height=64;images[3].onload();assert.match($('pfp-status').textContent,/Skin loaded/);assert.equal(revoked.length,4);
-console.log('PFP face, layer, transparency, circle, download and validation passed');
+// Background upload is local, center-cropped, selectable again, and rejects invalid files.
+const bgInput=$('pfp-bg-upload');function bgUpload(file){Object.defineProperty(bgInput,'files',{value:[file],configurable:true});change('pfp-bg-upload');}
+assert($('pfp-bg-image-button').disabled);bgUpload({name:'bg.jpg',type:'image/jpeg',size:100});const bg=images.at(-1);bg.width=800;bg.height=400;draws=[];bg.onload();assert.equal($('pfp-background').value,'image');assert(!$('pfp-bg-image-button').disabled);assert(draws.some(x=>x[0]===bg && x.slice(1).join(',')==='200,0,400,400,0,0,512,512'));assert.equal(revoked.length,5);
+w.document.querySelector('[data-pfp-target="pfp-background"][data-value="color"]').click();$('pfp-bg-image-button').click();assert.equal($('pfp-background').value,'image');
+bgUpload({name:'bad.txt',type:'text/plain',size:10});assert.match($('pfp-bg-status').textContent,/Choose a PNG/);assert.equal($('pfp-background').value,'image');
+console.log('PFP face, layer, transparency, circle, download, background upload and validation passed');

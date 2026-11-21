@@ -8,6 +8,7 @@
   var source = document.createElement('canvas'); source.width = source.height = 64;
   var skin = source.getContext('2d', { willReadFrequently: true }), legacy = false;
   var last3d = 'headshot';
+  var backgroundImage = null, backgroundVersion = 0;
   var image = null, version = 0, status = $('pfp-status'), download = $('pfp-download');
   function syncControls() {
     $('pfp-code-swatch').style.backgroundColor = $('pfp-color').value;
@@ -36,6 +37,13 @@
       ctx.fillStyle = $('pfp-color').value; ctx.fillRect(0, 0, 512, 512);
     }
     var background = $('pfp-background').value;
+    if (background === 'image' && backgroundImage) {
+      // Center-crop to fill the square, preserving the original aspect ratio.
+      var bw = backgroundImage.naturalWidth || backgroundImage.width, bh = backgroundImage.naturalHeight || backgroundImage.height;
+      var side = Math.min(bw, bh);
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(backgroundImage, (bw-side)/2, (bh-side)/2, side, side, 0, 0, 512, 512);
+    }
     if (background === 'day' || background === 'night') {
       var night = background === 'night', sky = ctx.createLinearGradient(0, 0, 0, 512);
       sky.addColorStop(0, night ? '#111b3b' : '#4789c1');
@@ -116,6 +124,22 @@
     if (!e.deltaY) return; e.preventDefault();
     var zoom = $('pfp-size'); zoom.value = clamp(+zoom.value + (e.deltaY < 0 ? 5 : -5), +zoom.min, +zoom.max); draw();
   }, {passive:false});
+  $('pfp-bg-upload').addEventListener('change', function () {
+    var file = this.files && this.files[0]; if (!file) return;
+    var current = ++backgroundVersion, message = $('pfp-bg-status');
+    if (!/^(image\/png|image\/jpeg|image\/webp)$/.test(file.type) || file.size > 10 * 1024 * 1024) {
+      message.textContent = 'Choose a PNG, JPEG or WebP image under 10 MB.'; this.value = ''; return;
+    }
+    var url = URL.createObjectURL(file), candidate = new Image();
+    candidate.onload = function () {
+      URL.revokeObjectURL(url); if (current !== backgroundVersion) return;
+      if (!candidate.width || !candidate.height) { message.textContent = 'Could not read that image.'; return; }
+      backgroundImage = candidate; $('pfp-bg-image-button').disabled = false;
+      $('pfp-background').value = 'image'; message.textContent = 'Background loaded in this browser.'; draw();
+    };
+    candidate.onerror = function () { URL.revokeObjectURL(url); if (current === backgroundVersion) message.textContent = 'Could not read that image. Try another file.'; };
+    candidate.src = url; this.value = '';
+  });
   $('pfp-skin').addEventListener('change', function () {
     var file = this.files && this.files[0]; if (!file) return;
     if (!/\.png$/i.test(file.name) || (file.type && file.type !== 'image/png')) { ++version; status.textContent = 'Please choose a PNG skin.'; return; }
