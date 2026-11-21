@@ -133,7 +133,24 @@
     }
   }
   function position() { return (step * BEAT) % LENGTH; } // seconds into the song
-  function setGain() { if (master) master.gain.setTargetAtTime(on ? (vol / 100) * 0.5 : 0, ctx.currentTime, 0.15); }
+  function setGain() {
+    if (!master) return;
+    var gain = master.gain, now = ctx.currentTime;
+    if (gain.cancelAndHoldAtTime) gain.cancelAndHoldAtTime(now);
+    else if (gain.cancelScheduledValues) gain.cancelScheduledValues(now);
+    gain.setTargetAtTime(on ? (vol / 100) * 0.5 : 0, now, 0.04);
+  }
+  function paintVolume() {
+    document.querySelectorAll("[data-music-volume]").forEach(function (r) { r.value = vol; r.setAttribute("aria-valuetext", vol + "%"); });
+    document.querySelectorAll("[data-music-volume-value]").forEach(function (e) { e.textContent = vol + "%"; });
+  }
+  function changeVolume(input) {
+    var value = Number(input.value);
+    if (!isFinite(value)) return;
+    vol = Math.max(0, Math.min(100, value));
+    try { localStorage.setItem("fmf-volume", String(vol)); } catch (err) {}
+    setGain(); paintVolume();
+  }
   function start() {
     if (!AC) return false;
     try {
@@ -157,7 +174,7 @@
     });
     document.querySelectorAll("[data-music-state]").forEach(function (e) { e.textContent = on ? "Music: on" : "Music: off"; });
     document.querySelectorAll("[data-music-check]").forEach(function (c) { c.checked = on; });
-    document.querySelectorAll("[data-music-volume]").forEach(function (r) { r.value = vol; });
+    paintVolume();
     document.querySelectorAll("[data-music-song]").forEach(function (r) { r.checked = r.value === song; });
     document.querySelectorAll("[data-music-name]").forEach(function (e) { e.textContent = INFO[song].name; });
   }
@@ -185,12 +202,13 @@
       if (e.target.matches && e.target.matches("[data-music-song]")) { if (e.target.value !== song) setSong(e.target.value); if (!on) set(true); }
     });
     document.addEventListener("change", function (e) {
+      if (e.target.matches && e.target.matches("[data-music-volume]")) changeVolume(e.target);
       if (e.target.matches && e.target.matches("[data-music-check]")) set(e.target.checked);
       if (e.target.matches && e.target.matches("[data-music-song]") && e.target.checked) setSong(e.target.value);
     });
     document.addEventListener("input", function (e) {
       if (!(e.target.matches && e.target.matches("[data-music-volume]"))) return;
-      vol = Number(e.target.value); try { localStorage.setItem("fmf-volume", String(vol)); } catch (err) {} setGain();
+      changeVolume(e.target);
     });
     // the music waits while a video on the page is playing
     var held = false;

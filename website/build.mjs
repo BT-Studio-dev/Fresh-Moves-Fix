@@ -122,7 +122,7 @@ document.documentElement.setAttribute("data-scrollbar",sb==="off"?"off":"on")})(
     <span class="snd-card"><span class="snd-box">
       <span class="snd-head">${ICON.music} <b data-music-state>Music: off</b> <i data-music-time>0:00 / 3:34</i></span>
       <label class="snd-line"><input type="checkbox" data-music-check> Play music <i data-music-name>Calm</i></label>
-      <label class="snd-line">Volume <input type="range" min="0" max="100" value="40" data-music-volume></label>
+      <label class="snd-line">Volume <input type="range" min="0" max="100" value="40" data-music-volume> <span data-music-volume-value>40%</span></label>
       <a class="snd-more" href="${up}settings/#music">${ICON.gear} Music settings</a>
     </span></span>
   </span>
@@ -940,7 +940,7 @@ write("settings/index.html", page({
     <p class="elabel">Player</p>
     <div class="mtiles">
       <label class="mtile"><input type="checkbox" data-music-check><span><b>Play music</b><small data-music-state>Music: off</small></span><i data-music-time>0:00 / 3:34</i></label>
-      <label class="mtile"><span class="mt-ic">${ICON.music}</span><span><b>Volume</b></span><input type="range" min="0" max="100" value="40" data-music-volume></label>
+      <label class="mtile"><span class="mt-ic">${ICON.music}</span><span><b>Volume</b></span><input type="range" min="0" max="100" value="40" data-music-volume><span data-music-volume-value>40%</span></label>
     </div>
     <p class="shint">${ICON.info} You can also use the music button at the top of every page. The music keeps playing while you move between pages of this site.</p>
   </div>
