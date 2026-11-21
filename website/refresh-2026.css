@@ -336,3 +336,9 @@ html[data-theme="nightsky"] { --fmf-popup: #252345; --fmf-popup-control: #171533
 .text-card .steps { padding-left: 1.5em; }
 .guide-credit { margin-top: 24px; color: var(--muted); }
 [data-theme="minecraft"] .text-card { border-radius: 3px; }
+/* Remaining page introductions and guide headings use the same text-card style. */
+article.editor > p:not([class]) { padding: 18px 22px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; }
+.guides-index > h1, .guides-index > h2 { padding: 16px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; }
+.guides-index > h2 { margin-top: 24px; }
+.guide-prose { overflow-wrap: anywhere; }
+[data-theme="minecraft"] article.editor > p:not([class]), [data-theme="minecraft"] .guides-index > h1, [data-theme="minecraft"] .guides-index > h2 { border-radius: 3px; }

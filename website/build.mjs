@@ -239,7 +239,7 @@ for (const [i, d] of docs.entries()) {
     body: `<div class="wrap"><article>
 <div class="crumb"><a href="../../">${ICON.home} Home</a> ${ICON.right} <a href="../">${ICON.book} Guides</a></div>
 <h1>${d.name.startsWith("Fix") ? ICON.wrench : ICON.eye} ${esc(d.name)}</h1>
-${renderDoc(md)}
+<div class="text-card guide-prose">${renderDoc(md)}</div>
 <div class="guide-nav">
   ${docs[i - 1] ? `<a class="card go back" href="../${docs[i - 1].slug}/">${ICON.left}<span>${esc(docs[i - 1].name)}</span></a>` : "<span></span>"}
   ${docs[i + 1] ? `<a class="card go" href="../${docs[i + 1].slug}/"><span>${esc(docs[i + 1].name)}</span>${ICON.right}</a>` : "<span></span>"}
@@ -258,7 +258,7 @@ write("guides/index.html", page({
   title: "Guides - Fresh Moves Fix",
   active: "guides",
   depth: 1,
-  body: `<div class="wrap"><article>
+  body: `<div class="wrap"><article class="guides-index">
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <h1>${ICON.book} Guides</h1>
 <div class="text-card">
@@ -448,6 +448,7 @@ write("editor/index.html", page({
   </div>
 </div>
 
+<section class="text-card">
 <h2 id="test">${ICON.info} How to test it in the game</h2>
 <p>A player confirmed that blinking and moving eyes worked in their game. Results may differ with other skins, eye shapes or versions. Use Minecraft Java Edition; the website preview cannot test the pack for you. Keep a copy of your original skin.</p>
 <ol class="steps">
@@ -465,6 +466,7 @@ write("editor/index.html", page({
   <li><strong>Black eyes:</strong> follow the <a href="../guides/fix-black-eyes/">Fix Black Eyes guide</a>.</li>
   <li><strong>Mouth missing or misplaced:</strong> make sure you selected a mouth in the editor and saved the new skin. The moving mouth only supports face row 7; some eye positions leave no room or place it lower. Its in-game position is untested.</li>
 </ul>
+</section>
 
 <section class="editor-info-card">
 <h2>${ICON.info} How it works</h2>
@@ -590,12 +592,14 @@ write("title/index.html", page({
   </section>
   </div>
 </div>
+<section class="text-card">
 <h2>${ICON.box} Blockbench</h2>
 <p>This is the real <b>Blockbench</b> web app, shown inside this page. Press <b>New</b>, then <b>Minecraft Title</b> to make a title, or <b>Minecraft Skin</b> to paint a skin.</p>
 <p><a class="btn" rel="noopener" target="_blank" href="${BB}">${ICON.right} Open Blockbench in a new tab</a>
 <a class="btn ghost" rel="noopener" target="_blank" href="${REPO}/blob/main/model.bbmodel">${ICON.down} Our title model (.bbmodel)</a></p>
 <p><small>The "Fresh Moves Fix" title on the home page was made this way. Open the model file in Blockbench with File &rarr; Open Model.</small></p>
 <div class="note">If the box below stays empty, or "Minecraft Title" is missing from the New list, use the button above. In Blockbench you can also add it by hand: File &rarr; Plugins &rarr; Available &rarr; "Minecraft Title Generator" &rarr; Install. Blockbench is made by JannisX11 and the Title Generator plugin by Ewan Howell; they are not part of Fresh Moves Fix.</div>
+</section>
 </article></div>
 <script src="../title.js?v=${ver("title.js")}"></script>
 <script src="../ui.js?v=${ver("ui.js")}"></script>
@@ -799,6 +803,7 @@ write("model/index.html", page({
   ${studioView("")}
   </div>
 </div>
+<section class="text-card">
 <h2>${ICON.info} How to open the file</h2>
 <ol class="steps">
   <li><strong>Blender:</strong> File, Import, glTF 2.0, pick the file. Press Space to play the movement.</li>
@@ -806,6 +811,7 @@ write("model/index.html", page({
   <li><strong>Windows:</strong> double-click the file; it opens in "3D Viewer" if that app is installed.</li>
 </ol>
 <p><small>The game itself does not use this file. It is for pictures, videos and 3D programs.</small></p>
+</section>
 </article></div>
 ${studioScripts}`,
 }));
@@ -842,6 +848,7 @@ write("animation/index.html", page({
   </div>
 </div>
 
+<section class="text-card">
 <h2>${ICON.info} Bigger animations: Blender</h2>
 <p><b>Blender</b> is a free 3D program for your computer. With the free <b>MCprep</b> add-on it gets ready-made Minecraft characters that you can pose, animate and turn into a video. Blender cannot run inside a web page, so this page is a guide: you download it and follow the steps.</p>
 <p><a class="btn" rel="noopener" target="_blank" href="https://www.blender.org/download/">${ICON.down} Download Blender</a>
@@ -873,6 +880,7 @@ write("animation/index.html", page({
 
 <h2>${ICON.info} What this page is not</h2>
 <p>This resource pack animates the player <em>inside the game</em>. Blender animations are separate <em>videos</em>; the two do not share files. MCprep is made by its own team (GPL-3.0 licence) and Blender by the Blender Foundation; they are not part of Fresh Moves Fix. Button and menu names can differ a little between Blender versions.</p>
+</section>
 </article></div>
 ${studioScripts}`,
 }));
@@ -1013,8 +1021,8 @@ write("cape/index.html", page({
   description: "Paint a cape texture and create a Java elytra resource pack in your browser.",
   body: `<div class="wrap"><article>
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
-<h1>${ICON.brush} Cape Pack Builder</h1>
-<p>Draw or load your own 64 × 32 cape texture. Everything stays in your browser.</p>
+<div class="text-card"><h1>${ICON.brush} Cape Pack Builder</h1>
+<p>Draw or load your own 64 × 32 cape texture. Everything stays in your browser.</p></div>
 <div class="note"><strong>Java cape limitation:</strong> a resource pack cannot give you a wearable custom cape. Download the PNG for a compatible cape mod. The optional ZIP changes the normal elytra texture only, not your cape. Other players will not see your resource pack; an equipped cape or another pack may override the elytra texture.</div>
 <section class="cape-settings card">
 <h2>Pack settings</h2>
