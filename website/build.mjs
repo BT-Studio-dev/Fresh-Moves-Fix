@@ -693,7 +693,7 @@ write("paint/index.html", page({
     <p class="ehint">${ICON.info} <span>Below 100% the Pen and Fill paint see-through pixels, for glass in glasses. <b>Take colour</b> also takes how see-through a pixel is. In Minecraft, see-through only works on the <b>outer layer</b>; on the first layer the game shows it solid.</span></p>
     <p class="elabel">Paint on</p>
     <div class="painter-layer-choice" role="group" aria-label="Paint layer"><label><input type="radio" name="player" value="0" checked><span>Base</span></label><label><input type="radio" name="player" value="1"><span>Overlay</span></label></div>
-    <p class="prow"><label><input type="checkbox" id="pshow" checked> Show the outer layer</label></p>
+    <input type="checkbox" id="pshow" checked hidden tabindex="-1" aria-hidden="true">
     <div class="painter-layers">
       <h4>Part visibility</h4>
       <p><small>Show or hide each part in the 3D preview. Hidden parts are dimmed in 2D but are not erased from your skin.</small></p>
