@@ -58,7 +58,7 @@ const ICON = {
   code: svg('<path d="M8 6l-6 6 6 6"/><path d="M16 6l6 6-6 6"/>'),
   ext: svg('<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v6H4V6h6"/>'),
   run: svg('<circle cx="14" cy="4.5" r="2"/><path d="M6 11l4-3 4 1 2 4 3 1"/><path d="M12 9l-2 6 4 3v4"/><path d="M10 15l-2 3H4"/>'),
-  wrench: svg('<path d="M14.5 6.5a4 4 0 0 0 5 5L11 20a2.1 2.1 0 0 1-3-3l8.5-8.5"/><path d="M14.5 6.5L17 4a4 4 0 0 0-5 5"/>'),
+  wrench: svg('<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3-3a6 6 0 0 1-7.7 7.7l-6.8 6.8a2.1 2.1 0 0 1-3-3l6.8-6.8a6 6 0 0 1 7.7-7.7z"/>'),
   hand: svg('<path d="M8 13V5a1.500 1.500 0 0 1 3 0v6"/><path d="M11 11V4a1.500 1.500 0 0 1 3 0v7"/><path d="M14 11V6a1.500 1.500 0 0 1 3 0v8"/><path d="M8 13l-1.500-2a1.500 1.500 0 0 0-2.500 1.700L7 18a5 5 0 0 0 4 2h2a4 4 0 0 0 4-4v-2"/>'),
   star: svg('<path d="M12 3l2.700 5.600 6.100.800-4.500 4.300 1.100 6.100L12 16.900 6.600 19.800l1.100-6.100L3.200 9.400l6.100-.800z"/>'),
   list: svg('<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/>'),
@@ -915,9 +915,9 @@ write("settings/index.html", page({
     <h2 class="shead"><span class="tool-ic">${ICON.brush}</span><span><b>Color theme</b><small>Light, dark, OLED, glass or Minecraft</small></span></h2>
     <p>Select your preferred color theme for this website. It is saved in this browser only.</p>
     <div class="themes">
-      ${themeCard("system", "Sync with system", "linear-gradient(90deg,#f4f6f5 50%,#0f1412 50%)", "#18201c", "#2a3630", "#9aa8a0")}
+      ${themeCard("system", "Sync with system", "linear-gradient(90deg,#f4f6f5 50%,#121212 50%)", "#18201c", "#2a3630", "#9aa8a0")}
       ${themeCard("light", "Light", "#f4f6f5", "#ffffff", "#d5dcd8", "#17201b")}
-      ${themeCard("dark", "Dark", "#0f1412", "#18201c", "#2a3630", "#9aa8a0")}
+      ${themeCard("dark", "Dark", "#121212", "#202020", "#383838", "#b0b0b0")}
       ${themeCard("oled", "OLED", "#000000", "#0d0f0e", "#222826", "#98a39d")}
       ${themeCard("glass", "Glass", "radial-gradient(circle at 20% 20%,#2fae78 0,transparent 55%),radial-gradient(circle at 85% 80%,#3b6fd0 0,transparent 55%),#0a1210", "rgba(255,255,255,.16)", "rgba(255,255,255,.34)", "#eef6f1")}
       ${themeCard("minecraft", "Minecraft", "linear-gradient(#50869a 0 52%, #63884e 52% 74%, #5b4532 74%)", "rgba(27,38,33,.84)", "rgba(200,226,207,.5)", "#f2f0dc")}
