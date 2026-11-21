@@ -927,7 +927,7 @@ write("settings/index.html", page({
     <button type="button" class="tab" data-tab="music">${ICON.music} Music</button></div>
   <div class="box" id="tab-music" hidden>
     <h2 class="shead"><span class="tool-ic">${ICON.music}</span><span><b>Music</b><small>Background song for the website</small></span></h2>
-    <p>Background music made by your browser (no music files). Choose Calm, Minecraft, Fresh Moves Fix, Night Sky, The End, or Player Left. All are original instrumental tracks. Each song repeats. It is off until you turn it on, and saved in this browser only.</p>
+    <p>Original instrumental music generated in your browser. Songs repeat; playback is off by default. Your choices are saved on this device.</p>
     <p class="elabel">Song</p>
     <div class="mtiles two">
       <label class="mtile"><input type="radio" name="song" value="calm" data-music-song checked><span><b>Calm</b><small>Soft and friendly</small></span></label>
@@ -942,7 +942,7 @@ write("settings/index.html", page({
       <label class="mtile"><input type="checkbox" data-music-check><span><b>Play music</b><small data-music-state>Music: off</small></span><i data-music-time>0:00 / 3:34</i></label>
       <label class="mtile"><span class="mt-ic">${ICON.music}</span><span><b>Volume</b></span><input type="range" min="0" max="100" value="40" data-music-volume><span data-music-volume-value>40%</span></label>
     </div>
-    <p class="shint">${ICON.info} You can also use the music button at the top of every page. The music keeps playing while you move between pages of this site.</p>
+    <p class="shint">${ICON.info} Use the music button at the top of any page. Music continues as you browse the site.</p>
   </div>
   <div class="box" id="tab-language" hidden>
     <h2 class="shead"><span class="tool-ic">${ICON.globe}</span><span><b>Language</b><small>Language of menus and buttons</small></span></h2>
