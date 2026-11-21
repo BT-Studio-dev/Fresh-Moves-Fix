@@ -95,7 +95,9 @@ if(!bg){try{var b=document.cookie.match(/(?:^|; )fmf-background=(on|off)/);if(b)
 document.documentElement.setAttribute("data-background",bg==="off"?"off":"on");
 var sb="";try{sb=localStorage.getItem("fmf-scrollbar")||""}catch(e){}
 if(!sb){try{var sm=document.cookie.match(/(?:^|; )fmf-scrollbar=(on|off)/);if(sm)sb=sm[1]}catch(e){}}
-document.documentElement.setAttribute("data-scrollbar",sb==="off"?"off":"on")})()</script>
+document.documentElement.setAttribute("data-scrollbar",sb==="off"?"off":"on");
+var mb="on";try{mb=localStorage.getItem("fmf-show-music-button")||"on"}catch(e){}
+document.documentElement.setAttribute("data-music-button",mb==="off"?"off":"on")})()</script>
 <link rel="icon" href="${up}favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="192x192" href="${up}icon-192.png">
 <link rel="apple-touch-icon" href="${up}icon-180.png">
@@ -297,6 +299,8 @@ const backdropControls = `<div class="backdrop-controls" role="group" aria-label
 const skinData = (p) => "data:image/png;base64," + fs.readFileSync(path.join(root, "assets/minecraft/textures/entity/player", p)).toString("base64");
 fs.copyFileSync(path.join(here, "editor.js"), path.join(out, "editor.js"));
 fs.copyFileSync(path.join(here, "paint.js"), path.join(out, "paint.js"));
+fs.copyFileSync(path.join(here, "render.js"), path.join(out, "render.js"));
+fs.copyFileSync(path.join(here, "painter-dummy.png"), path.join(out, "render-dummy.png"));
 fs.copyFileSync(path.join(here, "backdrop.js"), path.join(out, "backdrop.js"));
 fs.copyFileSync(path.join(here, "player.js"), path.join(out, "player.js"));
 fs.copyFileSync(path.join(here, "studio.js"), path.join(out, "studio.js"));
@@ -931,10 +935,11 @@ write("settings/index.html", page({
     <p class="elabel">Player</p>
     <div class="mtiles">
       <label class="mtile"><input type="checkbox" data-music-check><span><b>Play music</b><small data-music-state>Music: off</small></span><i data-music-time>0:00 / 3:34</i></label>
+      <label class="mtile"><input type="checkbox" id="music-button-visibility" checked><span><b>Show music button</b><small>Show the music control in the top bar</small></span></label><p id="music-button-status" role="status" aria-live="polite" hidden></p>
       <label class="mtile"><span><b>Song position</b></span><input type="range" min="0" max="214" value="0" step="1" data-music-seek aria-label="Song position"></label>
       <label class="mtile"><span class="mt-ic">${ICON.music}</span><span><b>Volume</b></span><input type="range" min="0" max="100" value="40" data-music-volume><span data-music-volume-value>40%</span></label>
     </div>
-    <p class="shint">${ICON.info} Use the music button at the top of any page. Music continues as you browse the site.</p>
+    <p class="shint">${ICON.info} Music continues as you browse the site. The top-bar button can be hidden here.</p>
   </div>
   <div class="box" id="tab-language" hidden>
     <h2 class="shead"><span class="tool-ic">${ICON.globe}</span><span><b>Language</b><small>Language of menus and buttons</small></span></h2>
@@ -943,8 +948,8 @@ write("settings/index.html", page({
     <div class="langs" id="langs"></div>
   </div>
   <div class="box" id="tab-appearance">
-    <h2 class="shead"><span class="tool-ic">${ICON.brush}</span><span><b>Color theme</b><small>Light, dark, OLED, glass, Night Sky or Live Sky</small></span></h2>
-    <p>Select your preferred color theme for this website. It is saved in this browser only. Live Sky can use your location for the sun and moon. Without it, the background uses your local clock. It does not show live weather.</p>
+    <h2 class="shead"><span class="tool-ic">${ICON.brush}</span><span><b>Color theme</b><small>Light, dark, OLED, glass or Night Sky</small></span></h2>
+    <p>Select your preferred color theme for this website. It is saved in this browser only.</p>
     <div class="themes">
       ${themeCard("system", "Sync with system", "linear-gradient(90deg,#f4f6f5 50%,#121212 50%)", "#18201c", "#2a3630", "#9aa8a0")}
       ${themeCard("light", "Light", "#f4f6f5", "#ffffff", "#d5dcd8", "#17201b")}
@@ -952,15 +957,6 @@ write("settings/index.html", page({
       ${themeCard("oled", "OLED", "#000000", "#0d0f0e", "#222826", "#98a39d")}
       ${themeCard("glass", "Glass", "radial-gradient(circle at 20% 20%,#2fae78 0,transparent 55%),radial-gradient(circle at 85% 80%,#3b6fd0 0,transparent 55%),#0a1210", "rgba(255,255,255,.16)", "rgba(255,255,255,.34)", "#eef6f1")}
       ${themeCard("nightsky", "Night Sky", "radial-gradient(circle at 78% 25%, #f0f2fa 0 9%, transparent 10%), #1a173f", "#252249", "#4b4a76", "#eef0ff")}
-      ${themeCard("livesky", "Live Sky", "linear-gradient(#426d9b, #dba47b)", "#263849", "#7aa1b8", "#edf5ff")}
-    </div>
-    <div class="live-sky-settings">
-      <b>Live Sky location</b><p>Allow location for your real local sun and moon positions. Your approximate coordinates are saved only in this browser and are not sent to our server. The background is an illustration, not live weather.</p>
-      <div><button type="button" class="btn small" id="live-sky-use-location">Use my location</button> <button type="button" class="btn small ghost" id="live-sky-forget-location">Forget location</button></div>
-      <p id="live-sky-location-status" role="status" aria-live="polite"></p>
-      <label for="live-sky-speed"><b>Sky speed</b></label>
-      <select id="live-sky-speed"><option value="real">Real time</option><option value="fast">Fast cycle (one day in 2 minutes)</option></select>
-      <p>Fast cycle is a time-lapse, not the real current sky. Saved in this browser.</p>
     </div>
     <div class="fmf-blur-setting">
       <label for="settings-glass-blur"><span><b>Glass card blur</b><small>Turn the frosted-glass blur on or off. This only affects the Glass theme.</small></span><input type="checkbox" id="settings-glass-blur" checked></label>
@@ -976,6 +972,15 @@ write("settings/index.html", page({
 </div>
 </article></div>
 <script>(function(){
+  var musicButtonControl=document.getElementById("music-button-visibility"), musicButtonStatus=document.getElementById("music-button-status");
+  musicButtonControl.checked=document.documentElement.getAttribute("data-music-button")!=="off";
+  musicButtonControl.addEventListener("change",function(){
+    var value=musicButtonControl.checked?"on":"off", saved=false;
+    document.documentElement.setAttribute("data-music-button",value);
+    try{localStorage.setItem("fmf-show-music-button",value);saved=localStorage.getItem("fmf-show-music-button")===value}catch(e){}
+    musicButtonStatus.textContent=saved?"Music button setting saved in this browser.":"Music button changed for this page, but your browser could not save it.";
+    musicButtonStatus.hidden=false;
+  });
   var key="fmf-theme", cur=""; try{cur=localStorage.getItem(key)||""}catch(e){}
   if(!cur){ try{ var m=document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/); if(m) cur=m[1]; }catch(e){} } // second place the choice is kept
   if(["system","light","dark","oled","glass","minecraft","nightsky","livesky"].indexOf(cur)<0) cur="dark"; // new visitors start with Dark
@@ -1095,6 +1100,27 @@ write("cape/index.html", page({
 <script src="../jszip.min.js"></script><script src="../cape-preview.bundle.js?v=${ver("cape-preview.js")}"></script><script src="../cape.js?v=${ver("cape.js")}"></script><script src="../ui.js?v=${ver("ui.js")}"></script><script src="../backdrop.js?v=${ver("backdrop.js")}"></script>`,
 }));
 
+// ---------- original lightweight thumbnail maker ----------
+write("render/index.html", page({
+  title: "Minecraft Render - Fresh Moves Fix", active: "creations", depth: 1,
+  description: "Create a Minecraft skin thumbnail without WebGL.",
+  body: `<div class="wrap render-page"><h1>Minecraft Render</h1><p>Create an original skin render and thumbnail. The software 3D preview works without WebGL.</p>
+  <div class="render-layout"><section class="card render-controls"><h2>Make your thumbnail</h2>
+  <label>Upload skin PNG <input id="render-skin" type="file" accept="image/png,.png"></label><p id="render-status" role="status" aria-live="polite">Using the default skin.</p>
+  <label>Arm size <select id="render-model"><option value="classic">Classic (4 pixels)</option><option value="slim">Slim (3 pixels)</option></select></label>
+  <label>View <select id="render-view"><option value="3d">3D model</option><option value="2d">2D fallback</option></select></label>
+  <label>Pose <select id="render-pose"><option value="standing">Standing</option><option value="wave">Wave</option><option value="running">Running</option><option value="custom">Custom</option></select></label>
+  <div class="render-sliders"><label>Right arm <input id="render-ra" type="range" min="-180" max="180" value="0"></label><label>Left arm <input id="render-la" type="range" min="-180" max="180" value="0"></label><label>Right leg <input id="render-rl" type="range" min="-90" max="90" value="0"></label><label>Left leg <input id="render-ll" type="range" min="-90" max="90" value="0"></label><label>Head tilt <input id="render-head" type="range" min="-60" max="60" value="0"></label></div>
+  <label>Camera angle <input id="render-yaw" type="range" min="-180" max="180" value="25"></label><label>Camera height <input id="render-pitch" type="range" min="-45" max="45" value="10"></label>
+  <label><input id="render-outer" type="checkbox" checked> Show outer skin layer</label>
+  <label>Title <input id="render-title" type="text" maxlength="60" placeholder="Your title"></label>
+  <label>Background <input id="render-color" type="color" value="#486d92"></label>
+  <button class="btn" id="render-download" type="button">Download PNG</button>
+  <p>Uploads stay in your browser. Supports 64×64 and classic 64×32 PNG skins. Output: 1280×720. Custom limb and camera controls apply to 3D view.</p></section>
+  <section class="card render-preview"><h2>Preview</h2><canvas id="render-canvas" width="1280" height="720" aria-label="Thumbnail preview"></canvas></section></div></div>
+  <script src="../render.js?v=${ver("render.js")}"></script>`,
+}));
+
 // ---------- projects ----------
 write("creations/index.html", page({
   title: "Projects - Fresh Moves Fix", active: "creations", depth: 1,
@@ -1105,6 +1131,7 @@ write("creations/index.html", page({
   <a class="project-card" href="../#download"><img class="project-pack-image" src="../pack.png" alt="" width="112" height="112"><h2>Fresh Moves Fix</h2><p>Player animations and animated eyes for Minecraft Java.</p><span>View downloads ${ICON.right}</span></a>
   <a class="project-card" href="../paint/"><img src="../icon-paint-pixel.svg" alt="" width="112" height="112"><h2>Skin Painter 3D</h2><p>Paint a skin pixel by pixel in your browser.</p><span>Open painter ${ICON.right}</span></a>
   <a class="project-card" href="../editor/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Skin eye editor</h2><p>Add animated eye markers to your skin.</p><span>Open editor ${ICON.right}</span></a>
+  <a class="project-card" href="../render/"><img src="../icon-model-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Render</h2><p>Pose a 3D skin and make a thumbnail without WebGL.</p><span>Open render maker ${ICON.right}</span></a>
   <a class="project-card" href="../title/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Title</h2><p>Make and download a block-letter title picture.</p><span>Open title maker ${ICON.right}</span></a>
   <a class="project-card" href="../animation/"><img src="../icon-anim-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Animation</h2><p>Arrange movements and save an animation as a video.</p><span>Open animation tool ${ICON.right}</span></a>
   <div class="project-card project-soon"><img src="../icon-lock-project-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Skins</h2><p>A separate Fabric mod. Downloads are temporarily locked.</p><span>Coming soon</span></div>
