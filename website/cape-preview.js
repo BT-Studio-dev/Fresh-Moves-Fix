@@ -1,5 +1,7 @@
 // Locally bundled three.js preview. The editor owns the source canvas and calls update on changes.
 import * as THREE from 'three';
+import { SkinObject, ElytraObject } from 'skinview3d/libs/model.js';
+import { loadSkinToCanvas } from 'skinview-utils';
 
 export const CAPE_UVS = {
   outside: [1, 1, 10, 16], inside: [12, 1, 10, 16],
@@ -44,9 +46,10 @@ export function createCapePreview(source) {
   } catch (e) {
     error.hidden = false;
     error.textContent = '3D preview needs WebGL. The 2D editor and downloads still work.';
-    return { update() {}, dispose() {} };
+    return { update() {}, setMode() {}, dispose() {} };
   }
   const scene = new THREE.Scene();
+  scene.add(new THREE.AmbientLight(0xffffff, 2));
   const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 200);
   const root = new THREE.Group(); scene.add(root);
   const texture = new THREE.CanvasTexture(source);
@@ -55,9 +58,10 @@ export function createCapePreview(source) {
   texture.colorSpace = THREE.SRGBColorSpace;
   const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, side: THREE.FrontSide, alphaTest: 0.01 });
   const geometries = [];
+  const capeGroup = new THREE.Group(); root.add(capeGroup);
   function face(name, w, h, position, rotation) {
     const g = new THREE.PlaneGeometry(w, h); mapUV(g, CAPE_UVS[name]); geometries.push(g);
-    const mesh = new THREE.Mesh(g, material); mesh.position.set(...position); mesh.rotation.set(...rotation); root.add(mesh);
+    const mesh = new THREE.Mesh(g, material); mesh.position.set(...position); mesh.rotation.set(...rotation); capeGroup.add(mesh);
   }
   face('outside', 10, 16, [0, 0, .5], [0, 0, 0]);
   face('inside', 10, 16, [0, 0, -.5], [0, Math.PI, 0]);
@@ -68,10 +72,62 @@ export function createCapePreview(source) {
   // A faint neutral backing makes fully transparent pixels and an empty cape visible.
   const backingGeometry = new THREE.BoxGeometry(10, 16, .95);
   const backingMaterial = new THREE.MeshBasicMaterial({ color: 0x43504b, transparent: true, opacity: .28, depthWrite: false });
-  root.add(new THREE.Mesh(backingGeometry, backingMaterial));
+  capeGroup.add(new THREE.Mesh(backingGeometry, backingMaterial));
+  // skinview3d's MIT-licensed geometry implements the Java elytra 64x32 UV layout.
+  const elytra = new ElytraObject(); elytra.map = texture;
+  elytra.position.set(0, 8, .6); elytra.rotation.y = Math.PI; elytra.visible = false; root.add(elytra);
   host.appendChild(renderer.domElement);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   const dummy = createDummy(); root.add(dummy.group);
+  const playerSkin = new SkinObject(); playerSkin.position.set(0, 8, -2.6); playerSkin.rotation.y = Math.PI; playerSkin.visible = false; root.add(playerSkin);
+  let skinTexture = null, usingSkin = false, mode = 'cape';
+  const skinStatus = document.getElementById('cape-skin-status');
+  const skinFile = document.getElementById('cape-skin-file');
+  const username = document.getElementById('cape-username');
+  const loadSkin = document.getElementById('cape-skin-load');
+  const resetSkin = document.getElementById('cape-skin-reset');
+  const pose = document.getElementById('cape-pose');
+  let request = 0;
+  function updatePlayer() {
+    dummy.group.visible = dummyToggle.checked && !usingSkin;
+    playerSkin.visible = dummyToggle.checked && usingSkin;
+  }
+  function setPose() {
+    const flying = mode === 'elytra' && pose.value === 'flying';
+    elytra.leftWing.rotation.z = flying ? 1.05 : .2617994;
+    elytra.leftWing.rotation.x = flying ? .35 : .2617994;
+    elytra.leftWing.rotation.y = flying ? .25 : .01;
+    elytra.updateRightWing(); schedule();
+  }
+  function setMode(nextMode) {
+    mode = nextMode; lastTime = 0;
+    document.getElementById('cape-preview-title').textContent = mode === 'elytra' ? '3D elytra preview' : '3D cape preview';
+    capeGroup.visible = mode !== 'elytra'; elytra.visible = mode === 'elytra';
+    document.getElementById('cape-pose-wrap').hidden = mode !== 'elytra';
+    document.getElementById('cape-preview-side').parentElement.hidden = mode === 'elytra';
+    setPose(); schedule();
+  }
+  function applySkin(url, revoke) {
+    const id = ++request, image = new Image();
+    if (!revoke) image.crossOrigin = 'anonymous';
+    image.onload = function () {
+      if (revoke) URL.revokeObjectURL(url);
+      if (disposed || id !== request) return;
+      if (image.width !== 64 || (image.height !== 64 && image.height !== 32)) { skinStatus.textContent = 'Use a 64 × 64 or 64 × 32 Minecraft skin PNG.'; return; }
+      try {
+        const skinCanvas = document.createElement('canvas'); loadSkinToCanvas(skinCanvas, image);
+        const next = new THREE.CanvasTexture(skinCanvas); next.magFilter = THREE.NearestFilter; next.minFilter = THREE.NearestFilter; next.generateMipmaps = false; next.colorSpace = THREE.SRGBColorSpace;
+        playerSkin.map = next; if (skinTexture) skinTexture.dispose(); skinTexture = next; usingSkin = true; updatePlayer();
+        skinStatus.textContent = 'Skin loaded for this preview.'; schedule();
+      } catch (e) { skinStatus.textContent = 'Could not read that skin.'; }
+    };
+    image.onerror = function () { if (revoke) URL.revokeObjectURL(url); if (!disposed && id === request) skinStatus.textContent = 'Could not load the skin. Check the username or try a PNG.'; };
+    image.src = url;
+  }
+  function onSkinFile() { const file = skinFile.files[0]; if (!file) return; if (file.type !== 'image/png') { skinStatus.textContent = 'Choose a PNG skin.'; return; } applySkin(URL.createObjectURL(file), true); skinFile.value = ''; }
+  function onSkinLoad() { const name = username.value.trim(); if (!/^[A-Za-z0-9_]{1,16}$/.test(name)) { skinStatus.textContent = 'Enter a valid Minecraft username.'; return; } skinStatus.textContent = 'Loading skin from mc-heads.net…'; applySkin('https://mc-heads.net/skin/' + encodeURIComponent(name), false); }
+  function onSkinReset() { ++request; usingSkin = false; updatePlayer(); skinStatus.textContent = 'Using grey dummy.'; schedule(); }
+  skinFile.addEventListener('change', onSkinFile); loadSkin.addEventListener('click', onSkinLoad); resetSkin.addEventListener('click', onSkinReset); pose.addEventListener('change', setPose);
   const dummyToggle = document.getElementById('cape-preview-dummy');
   dummy.group.visible = dummyToggle.checked;
   const side = document.getElementById('cape-preview-side');
@@ -86,18 +142,18 @@ export function createCapePreview(source) {
     if (renderer.domElement.width !== Math.floor(width * renderer.getPixelRatio()) || renderer.domElement.height !== Math.floor(height * renderer.getPixelRatio())) {
       renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix();
     }
-    if (auto.checked && lastTime) yaw += Math.min(time - lastTime, 50) * .0003;
-    lastTime = auto.checked ? time : 0;
-    root.rotation.set(pitch, yaw + (side.value === 'inside' ? Math.PI : 0), 0, 'YXZ');
+    if (auto.checked && mode !== '2d' && lastTime) yaw += Math.min(time - lastTime, 50) * .0003;
+    lastTime = auto.checked && mode !== '2d' ? time : 0;
+    root.rotation.set(pitch, yaw + (mode === 'cape' && side.value === 'inside' ? Math.PI : 0), 0, 'YXZ');
     camera.position.set(0, 0, distance); camera.lookAt(0, 0, 0);
     renderer.render(scene, camera);
-    if (auto.checked && !document.hidden) schedule();
+    if (auto.checked && mode !== '2d' && !document.hidden) schedule();
   }
   function schedule() { if (!disposed && !frame) frame = requestAnimationFrame(render); }
   function update() { texture.needsUpdate = true; schedule(); }
   function resetView() { yaw = -0.2; pitch = 0.1; distance = 58; schedule(); }
   function onSide() { resetView(); }
-  function onDummy() { dummy.group.visible = dummyToggle.checked; schedule(); }
+  function onDummy() { updatePlayer(); schedule(); }
   function onAuto() { lastTime = 0; schedule(); }
   function onVisibility() { lastTime = 0; if (!document.hidden) schedule(); }
   function onWheel(e) { e.preventDefault(); distance = Math.max(20, Math.min(80, distance * Math.exp(e.deltaY * .001))); schedule(); }
@@ -124,13 +180,16 @@ export function createCapePreview(source) {
   const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(schedule) : null;
   if (observer) observer.observe(host);
   schedule();
-  return { update, dispose() {
+  return { update, setMode, dispose() {
     disposed = true; if (frame) cancelAnimationFrame(frame);
     if (observer) observer.disconnect();
     document.removeEventListener('visibilitychange', onVisibility); window.removeEventListener('resize', schedule);
     dummyToggle.removeEventListener('change', onDummy); side.removeEventListener('change', onSide); auto.removeEventListener('change', onAuto); reset.removeEventListener('click', resetView);
     el.removeEventListener('pointerdown', onDown); el.removeEventListener('pointermove', onMove); el.removeEventListener('pointerup', onUp); el.removeEventListener('pointercancel', onUp); el.removeEventListener('wheel', onWheel);
-    dummy.dispose(); geometries.forEach(g => g.dispose()); backingGeometry.dispose(); material.dispose(); backingMaterial.dispose(); texture.dispose(); renderer.dispose(); el.remove();
+    ++request;
+    skinFile.removeEventListener('change', onSkinFile); loadSkin.removeEventListener('click', onSkinLoad); resetSkin.removeEventListener('click', onSkinReset); pose.removeEventListener('change', setPose);
+    [playerSkin, elytra].forEach(object => { const seen = new Set(); object.traverse(child => { if (child.geometry) child.geometry.dispose(); if (child.material) { const list = Array.isArray(child.material) ? child.material : [child.material]; list.forEach(m => { if (!seen.has(m)) { seen.add(m); m.dispose(); } }); } }); });
+    if (skinTexture) skinTexture.dispose(); dummy.dispose(); geometries.forEach(g => g.dispose()); backingGeometry.dispose(); material.dispose(); backingMaterial.dispose(); texture.dispose(); renderer.dispose(); el.remove();
   }};
 }
 window.FMFCapePreview = { create: createCapePreview };

@@ -7,6 +7,11 @@
   var ctx = texture.getContext('2d'), status = $('cape-status'), drawing = false;
   var preview = window.FMFCapePreview ? window.FMFCapePreview.create(texture) : null;
   if (preview) { var previousCleanup = window.fmfCleanup; window.fmfCleanup = function () { preview.dispose(); if (previousCleanup) previousCleanup(); }; }
+  document.querySelectorAll('[data-cape-view]').forEach(function (button) { button.addEventListener('click', function () {
+    var mode = button.dataset.capeView; document.querySelectorAll('[data-cape-view]').forEach(function (b) { b.setAttribute('aria-selected', String(b === button)); });
+    document.querySelector('.cape-preview').hidden = mode === '2d';
+    if (preview && preview.setMode) preview.setMode(mode);
+  }); });
   var undo = [], redo = [];
   function snapshot() { return ctx.getImageData(0, 0, 64, 32); }
   function saveUndo() { undo.push(snapshot()); if (undo.length > 30) undo.shift(); redo = []; }
@@ -42,19 +47,65 @@
       view.strokeRect(10, 10, 100, 160); view.strokeRect(120, 10, 100, 160);
     }
   }
-  function pixel(e) {
+  function point(e) {
     var r = canvas.getBoundingClientRect();
-    var x = Math.floor((e.clientX - r.left) * 64 / r.width), y = Math.floor((e.clientY - r.top) * 32 / r.height);
-    if (x < 0 || x >= 64 || y < 0 || y >= 32) return;
-    var size = Number($('cape-size').value) || 1, startX = x - Math.floor((size - 1) / 2), startY = y - Math.floor((size - 1) / 2);
-    if ($('cape-tool').value === 'erase') ctx.clearRect(startX, startY, size, size);
-    else { ctx.fillStyle = $('cape-color').value; ctx.fillRect(startX, startY, size, size); }
-    draw();
+    return { x: Math.max(0, Math.min(63, Math.floor((e.clientX - r.left) * 64 / r.width))), y: Math.max(0, Math.min(31, Math.floor((e.clientY - r.top) * 32 / r.height))) };
   }
-  canvas.addEventListener('pointerdown', function (e) { if (e.button !== 0) return; saveUndo(); remember(); drawing = true; canvas.setPointerCapture(e.pointerId); pixel(e); });
-  canvas.addEventListener('pointermove', function (e) { if (drawing) pixel(e); });
-  canvas.addEventListener('pointerup', function () { drawing = false; });
-  canvas.addEventListener('pointercancel', function () { drawing = false; });
+  function mirrorX(x) { if (x >= 1 && x <= 10) return 11 - x; if (x >= 12 && x <= 21) return 33 - x; return 63 - x; }
+  function dab(x, y, erase) {
+    var size = Number($('cape-size').value) || 1, sx = x - Math.floor((size - 1) / 2), sy = y - Math.floor((size - 1) / 2);
+    function put(px, py) { if (px < 0 || px >= 64 || py < 0 || py >= 32) return; if (erase) ctx.clearRect(px, py, 1, 1); else { ctx.fillStyle = $('cape-color').value; ctx.fillRect(px, py, 1, 1); } }
+    for (var j = 0; j < size; j++) for (var i = 0; i < size; i++) { var px = sx+i, py = sy+j; put(px, py); if ($('cape-mirror').checked && px >= 0 && px < 64) put(mirrorX(px), py); }
+  }
+  function line(a, b, erase) {
+    var x = a.x, y = a.y, dx = Math.abs(b.x-x), dy = Math.abs(b.y-y), sx = x < b.x ? 1 : -1, sy = y < b.y ? 1 : -1, err = dx-dy;
+    for (;;) { dab(x, y, erase); if (x === b.x && y === b.y) break; var e = 2*err; if (e > -dy) { err -= dy; x += sx; } if (e < dx) { err += dx; y += sy; } }
+  }
+  function rgb(hex) { return [parseInt(hex.slice(1,3),16), parseInt(hex.slice(3,5),16), parseInt(hex.slice(5,7),16)]; }
+  function fill(x, y) {
+    var image = ctx.getImageData(0, 0, 64, 32), data = image.data, at = (y * 64 + x) * 4;
+    var old = Array.from(data.slice(at, at+4)), c = rgb($('cape-color').value), colour = [c[0], c[1], c[2], 255];
+    if (old.every(function (v, i) { return v === colour[i]; })) return;
+    var queue = [y*64+x], seen = new Uint8Array(2048);
+    while (queue.length) { var p = queue.pop(); if (seen[p]) continue; seen[p] = 1; var n = p*4;
+      if (!old.every(function (v,i) { return data[n+i] === v; })) continue;
+      for (var i=0; i<4; i++) data[n+i] = colour[i];
+      var xx=p%64, yy=Math.floor(p/64); if (xx>0) queue.push(p-1); if (xx<63) queue.push(p+1); if (yy>0) queue.push(p-64); if (yy<31) queue.push(p+64);
+    }
+    ctx.putImageData(image, 0, 0);
+  }
+  function gradient(a, b) {
+    var image = ctx.createImageData(64,32), data = image.data, from = rgb($('cape-color').value), to = rgb($('cape-gradient-color').value);
+    var dx=b.x-a.x, dy=b.y-a.y, length=dx*dx+dy*dy || 1;
+    for (var y=0; y<32; y++) for (var x=0; x<64; x++) {
+      var sampleX = $('cape-mirror').checked && x > 31 ? 63-x : x;
+      var t=Math.max(0,Math.min(1,((sampleX-a.x)*dx+(y-a.y)*dy)/length)), p=(y*64+x)*4;
+      for (var c=0;c<3;c++) data[p+c]=Math.round(from[c]*(1-t)+to[c]*t); data[p+3]=255;
+    }
+    ctx.putImageData(image,0,0);
+  }
+  var start = null, last = null, base = null, panOrigin = null;
+  var viewport = $('cape-grid-viewport'), zoom = $('cape-grid-zoom');
+  zoom.addEventListener('input', function () { viewport.style.setProperty('--cape-grid-zoom', zoom.value + '%'); $('cape-grid-zoom-value').textContent = zoom.value + '%'; });
+  canvas.addEventListener('pointerdown', function (e) {
+    if (e.button !== 0) return; var tool = $('cape-tool').value, pos = point(e);
+    canvas.setPointerCapture(e.pointerId);
+    if (tool === 'pan') { drawing = true; panOrigin = {x:e.clientX,y:e.clientY,left:viewport.scrollLeft,top:viewport.scrollTop}; return; }
+    if (tool === 'pick') { var rgba = ctx.getImageData(pos.x,pos.y,1,1).data; if (rgba[3]) { $('cape-color').value = '#' + Array.from(rgba.slice(0,3)).map(function(v){return v.toString(16).padStart(2,'0');}).join(''); remember(); } else message('That pixel is transparent.'); return; }
+    saveUndo(); remember(); drawing = true; start = last = pos;
+    if (tool === 'fill') { fill(pos.x,pos.y); if ($('cape-mirror').checked) fill(mirrorX(pos.x),pos.y); drawing = false; draw(); return; }
+    if (tool === 'line' || tool === 'gradient') base = snapshot();
+    if (tool === 'gradient') gradient(start,pos); else dab(pos.x,pos.y,tool === 'erase'); draw();
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!drawing) return; var tool = $('cape-tool').value;
+    if (tool === 'pan') { viewport.scrollLeft = panOrigin.left-(e.clientX-panOrigin.x); viewport.scrollTop = panOrigin.top-(e.clientY-panOrigin.y); return; }
+    var pos = point(e);
+    if (tool === 'line' || tool === 'gradient') { ctx.putImageData(base,0,0); if (tool === 'line') line(start,pos,false); else gradient(start,pos); }
+    else line(last,pos,tool === 'erase'); last = pos; draw();
+  });
+  canvas.addEventListener('pointerup', function () { drawing = false; base = panOrigin = null; });
+  canvas.addEventListener('pointercancel', function () { drawing = false; base = panOrigin = null; });
   $('cape-grid').addEventListener('change', draw);
   $('cape-template').addEventListener('change', draw);
   $('cape-clear').addEventListener('click', function () { saveUndo(); ctx.clearRect(0, 0, 64, 32); draw(); message('Texture cleared.'); });
@@ -133,18 +184,16 @@
     } catch (e) { projectMessage('Could not delete that project.', true); }
   });
   refreshProjects('');
-  // A starter appears only once for a browser with no saved projects. It is ordinary
-  // texture pixels, not a saved project, and Clear removes it like any other drawing.
+  // A starter appears when no projects are saved. It is ordinary texture pixels,
+  // not a saved project, and Clear removes it like any other drawing.
   function addStarter() {
-    var key = 'fmf-cape-starter-shown-v1';
     try {
-      if (localStorage.getItem(key) || readProjects().length) return;
+      if (readProjects().length) return;
       ctx.fillStyle = '#146c58'; ctx.fillRect(0, 0, 22, 17);
       ctx.fillStyle = '#35c980'; ctx.fillRect(1, 1, 10, 16); ctx.fillRect(12, 1, 10, 16);
       ctx.fillStyle = '#b6f4ce';
       [[5, 4, 2, 2], [4, 6, 4, 2], [3, 8, 6, 2], [4, 10, 4, 2], [5, 12, 2, 2],
        [16, 4, 2, 2], [15, 6, 4, 2], [14, 8, 6, 2], [15, 10, 4, 2], [16, 12, 2, 2]].forEach(function (r) { ctx.fillRect(r[0], r[1], r[2], r[3]); });
-      localStorage.setItem(key, '1');
     } catch (e) { /* If storage is unavailable, do not assume projects are absent. */ }
   }
   addStarter();
