@@ -942,6 +942,7 @@ write("settings/index.html", page({
     <p class="elabel">Player</p>
     <div class="mtiles">
       <label class="mtile"><input type="checkbox" data-music-check><span><b>Play music</b><small data-music-state>Music: off</small></span><i data-music-time>0:00 / 3:34</i></label>
+      <label class="mtile"><span><b>Song position</b></span><input type="range" min="0" max="214" value="0" step="1" data-music-seek aria-label="Song position"></label>
       <label class="mtile"><span class="mt-ic">${ICON.music}</span><span><b>Volume</b></span><input type="range" min="0" max="100" value="40" data-music-volume><span data-music-volume-value>40%</span></label>
     </div>
     <p class="shint">${ICON.info} Use the music button at the top of any page. Music continues as you browse the site.</p>

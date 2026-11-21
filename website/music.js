@@ -9,7 +9,7 @@
   try { var saved = localStorage.getItem("fmf-song"); if (INFO[saved]) song = saved; } catch (e) {}
   try { on = localStorage.getItem("fmf-music") === "on"; var v = parseInt(localStorage.getItem("fmf-volume"), 10); if (v >= 0 && v <= 100) vol = v; } catch (e) {}
   var AC = window.AudioContext || window.webkitAudioContext;
-  var ctx = null, master = null, songBus = null, timer = null, step = 0, nextTime = 0, songStart = 0, voices = new Set();
+  var ctx = null, master = null, songBus = null, timer = null, step = 0, nextTime = 0, songStart = 0, playhead = 0, voices = new Set();
   // ---- the calm song: 64 bars, exactly 3:34 long ----
   // the "Minecraft" song is 96 bars and exactly 6:00 long (a slower beat)
   var LENGTH = INFO[song].len, BEAT = LENGTH / (INFO[song].bars * 8); // seconds per eighth note (about 0.418; 0.469 for the long song)
@@ -161,7 +161,7 @@
       nextTime += BEAT; step++;
     }
   }
-  function position() { return ctx ? Math.min(LENGTH, Math.max(0, ctx.currentTime - songStart)) : 0; }
+  function position() { return timer && ctx ? Math.min(LENGTH, Math.max(playhead, ctx.currentTime - songStart)) : playhead; }
   function setGain() {
     if (!master) return;
     var gain = master.gain, now = ctx.currentTime;
@@ -185,16 +185,23 @@
     try {
       if (!ctx) { ctx = new AC(); master = ctx.createGain(); master.gain.value = 0; master.connect(ctx.destination); }
       if (!songBus) createSongBus();
-      if (ctx.state === "suspended") ctx.resume();
-      if (!timer) { nextTime = ctx.currentTime + 0.1; songStart = nextTime - step * BEAT; scheduleEnding(); timer = setInterval(schedule, 200); schedule(); }
+      if (ctx.state === "suspended") {
+        var resumed = ctx.resume();
+        if (resumed && resumed.catch) resumed.catch(function () { set(false); });
+      }
+      if (!timer) {
+        songStart = ctx.currentTime + 0.1 - playhead;
+        step = Math.ceil(playhead / BEAT); nextTime = songStart + step * BEAT;
+        scheduleEnding(); timer = setInterval(schedule, 200); schedule();
+      }
       setGain();
       return true;
     } catch (e) { return false; }
   }
   function stop() {
-    if (timer) { clearInterval(timer); timer = null; }
+    if (timer) { playhead = position(); clearInterval(timer); timer = null; }
     setGain();
-    if (ctx) { retireSong(); step = 0; }
+    if (ctx) retireSong();
     if (ctx && ctx.state === "running") setTimeout(function () { if (!on && ctx) ctx.suspend(); }, 600);
   }
   function paint() {
@@ -203,7 +210,7 @@
       b.removeAttribute("title"); // the card under the button shows this instead
       b.setAttribute("aria-label", on ? "Music: on" : "Music: off");
     });
-    document.querySelectorAll("[data-music-state]").forEach(function (e) { e.textContent = on ? "Music: on" : "Music: off"; });
+    document.querySelectorAll("[data-music-state]").forEach(function (e) { e.textContent = on ? (timer ? "Music: on" : "Music: waiting for a click") : (playhead ? "Music: paused" : "Music: off"); });
     document.querySelectorAll("[data-music-check]").forEach(function (c) { c.checked = on; });
     paintVolume();
     document.querySelectorAll("[data-music-song]").forEach(function (r) { r.checked = r.value === song; });
@@ -211,7 +218,7 @@
   }
   function setSong(next) {
     song = INFO[next] ? next : "calm"; LENGTH = INFO[song].len; BEAT = LENGTH / (INFO[song].bars * 8); try { localStorage.setItem("fmf-song", song); } catch (e) {}
-    step = 0;
+    step = 0; playhead = 0;
     if (ctx) {
       // Fade the old song to zero before starting the new one; never overlap them.
       retireSong();
@@ -221,11 +228,12 @@
     }
     paint(); paintTime();
   }
-  function clock(sec) { sec = Math.floor(sec); return Math.floor(sec / 60) + ":" + ("0" + (sec % 60)).slice(-2); }
+  function clock(sec) { sec = Math.floor(sec + 1e-7); return Math.floor(sec / 60) + ":" + ("0" + (sec % 60)).slice(-2); }
   function paintTime() {
     if (on && timer && ctx && ctx.currentTime >= songStart + LENGTH) finish();
-    var txt = clock(on && timer ? position() : 0) + " / " + clock(LENGTH);
+    var pos = position(), txt = clock(pos) + " / " + clock(LENGTH);
     document.querySelectorAll("[data-music-time]").forEach(function (e) { if (e.textContent !== txt) e.textContent = txt; });
+    document.querySelectorAll("[data-music-seek]").forEach(function (s) { s.max = LENGTH; s.value = Math.floor(pos); s.setAttribute("aria-valuetext", clock(pos) + " of " + clock(LENGTH)); });
   }
   setInterval(paintTime, 500);
   function finish() {
@@ -233,14 +241,32 @@
     on = false; try { localStorage.setItem("fmf-music", "off"); } catch (e) {}
     if (timer) { clearInterval(timer); timer = null; }
     if (songBus) { songBus.disconnect(); songBus = null; }
-    voices.clear(); step = 0; setGain();
+    voices.clear(); step = 0; playhead = 0; setGain();
     if (ctx && ctx.state === "running") setTimeout(function () { if (!on && ctx) ctx.suspend(); }, 600);
     paint();
     paintTime();
   }
+  function seek(input) {
+    var value = Number(input.value);
+    if (!isFinite(value)) return;
+    playhead = Math.max(0, Math.min(LENGTH, value));
+    if (playhead >= LENGTH) {
+      if (on) finish(); else { playhead = 0; paint(); paintTime(); }
+      return;
+    }
+    if (ctx && timer) {
+      retireSong(); createSongBus();
+      songStart = ctx.currentTime + 0.05 - playhead;
+      step = Math.ceil(playhead / BEAT); nextTime = songStart + step * BEAT;
+      scheduleEnding(); schedule();
+    }
+    paintTime();
+  }
   function set(next) {
     on = next; try { localStorage.setItem("fmf-music", on ? "on" : "off"); } catch (e) {}
-    if (on) start(); else stop();
+    if (on) {
+      if (!start()) { on = false; try { localStorage.setItem("fmf-music", "off"); } catch (e) {} stop(); }
+    } else stop();
     paint(); paintTime();
   }
   function init() {
@@ -257,8 +283,9 @@
       if (e.target.matches && e.target.matches("[data-music-song]") && e.target.checked && e.target.value !== song) setSong(e.target.value);
     });
     document.addEventListener("input", function (e) {
-      if (!(e.target.matches && e.target.matches("[data-music-volume]"))) return;
-      changeVolume(e.target);
+      if (!e.target.matches) return;
+      if (e.target.matches("[data-music-volume]")) changeVolume(e.target);
+      if (e.target.matches("[data-music-seek]")) seek(e.target);
     });
     // the music waits while a video on the page is playing
     var held = false;
@@ -274,9 +301,8 @@
     paint();
     // browsers only allow sound after a click or key press, so after a full page load the music resumes on the first one
     if (on) {
-      var kick = function () { if (on) start(); document.removeEventListener("pointerdown", kick); document.removeEventListener("keydown", kick); };
+      var kick = function () { if (on && !timer) { start(); paint(); paintTime(); } document.removeEventListener("pointerdown", kick); document.removeEventListener("keydown", kick); };
       document.addEventListener("pointerdown", kick); document.addEventListener("keydown", kick);
-      start();
     }
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
