@@ -859,7 +859,7 @@ html[data-theme="nightsky"] body::before {
     url("night-stars.svg") 0 0 / 480px 280px repeat, #1a173f;
 }
 
-/* Live Sky: local-clock illustration, not a location-aware weather forecast. */
+/* Live Sky is an illustrative background, not a weather forecast. */
 [data-theme="livesky"] {
   --bg: #1b2936; --panel: #263849; --line: #536b7a; --text: #f1f5fa; --muted: #c7d5de;
   --accent: #a9d8ff; --on-accent: #102433; --header: #1b2a38; --note-bg: #3b3a42;
@@ -878,3 +878,10 @@ html[data-theme="livesky"][data-live-sky="night"] { --live-sky-bg: url("night-st
 html[data-live-sky="night"] .fmf-live-moon { display: block; }
 html[data-live-sky="night"] .fmf-live-sun { display: none; }
 html[data-background="off"] .fmf-live-sky { display: none; }
+/* Sun and moon visibility is calculated from the horizon when location is enabled. */
+html[data-theme="livesky"] .fmf-live-sun, html[data-theme="livesky"] .fmf-live-moon { display: none; }
+html[data-theme="livesky"][data-live-sun="on"] .fmf-live-sun,
+html[data-theme="livesky"][data-live-moon="on"] .fmf-live-moon { display: block; }
+.live-sky-settings { margin: 16px 0; padding: 14px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; }
+.live-sky-settings p { margin: 6px 0 10px; color: var(--muted); font-size: 13px; }
+.live-sky-settings [role="status"] { margin: 10px 0 0; }

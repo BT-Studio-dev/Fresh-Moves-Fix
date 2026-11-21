@@ -163,7 +163,7 @@ ${body}
 <script src="${up}music.js?v=${ver("music.js")}"></script>
 <script src="${up}nav.js?v=${ver("nav.js")}"></script>
 <script src="${up}enhancements.js?v=${ver("enhancements.js")}"></script>
-<script src="${up}livesky.js?v=${ver("livesky.js")}"></script>
+<script src="${up}livesky.bundle.js?v=${ver("livesky.js")}"></script>
 </body>
 </html>
 `;
@@ -197,7 +197,7 @@ fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner-profile.png", "owner-skin.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "refresh-2026.css"), path.join(out, "refresh-2026.css"));
 fs.copyFileSync(path.join(here, "enhancements.js"), path.join(out, "enhancements.js"));
-fs.copyFileSync(path.join(here, "livesky.js"), path.join(out, "livesky.js"));
+await bundle({ entryPoints: [path.join(here, "livesky.js")], outfile: path.join(out, "livesky.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
 fs.copyFileSync(path.join(here, "nav.js"), path.join(out, "nav.js"));
@@ -698,9 +698,10 @@ write("paint/index.html", page({
     <div class="painter-layers">
       <h4>Part visibility</h4>
       <p><small>Show or hide each part in the 3D preview. Hidden parts are dimmed in 2D but are not erased from your skin.</small></p>
-      <table><thead><tr><th scope="col">Part</th><th scope="col"><label class="layer-master">Base <input type="checkbox" data-layer-all="0" aria-label="Show all base layer parts" checked></label></th><th scope="col"><label class="layer-master">Outer <input type="checkbox" data-layer-all="1" aria-label="Show all outer layer parts" checked></label></th></tr></thead><tbody>
+      <div class="painter-visibility-layout"><table><thead><tr><th scope="col">Part</th><th scope="col"><label class="layer-master">Base <input type="checkbox" data-layer-all="0" aria-label="Show all base layer parts" checked></label></th><th scope="col"><label class="layer-master">Outer <input type="checkbox" data-layer-all="1" aria-label="Show all outer layer parts" checked></label></th></tr></thead><tbody>
       ${[["head","Head"],["body","Body"],["la","Left arm"],["ra","Right arm"],["ll","Left leg"],["rl","Right leg"]].map(([id,name]) => `<tr><th scope="row">${name}</th><td><label class="layer-eye"><input type="checkbox" data-part="${id}" data-layer="0" aria-label="Show ${name} base layer" checked>${ICON.eye}</label></td><td><label class="layer-eye outer"><input type="checkbox" data-part="${id}" data-layer="1" aria-label="Show ${name} outer layer" checked>${ICON.eye}</label></td></tr>`).join("")}
       </tbody></table>
+      <div id="pparts" class="painter-part-groups" role="group" aria-label="Show body parts"><b>Show</b><label><input type="checkbox" value="head" checked> Head</label><label><input type="checkbox" value="body" checked> Body</label><label><input type="checkbox" value="arms" checked> Arms</label><label><input type="checkbox" value="legs" checked> Legs</label></div></div>
     </div>
   </section>
   <section class="panel ecard" id="painter-file">
@@ -743,13 +744,11 @@ write("paint/index.html", page({
       <button type="button" id="pbplay" data-tip="Play" aria-label="Play" aria-pressed="false"><span class="pb-play">${svg('<path d="M7 4.5v15l12-7.5z"/>')}</span><span class="pb-pause">${svg('<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>')}</span></button>
     </div>
     <div class="row ctl">
-      <span id="pviews" class="pviews"><button type="button" data-v="0.55,0.15">Front</button><button type="button" data-v="3.7,0.15">Back</button><button type="button" data-v="1.5708,0">Left</button><button type="button" data-v="-1.5708,0">Right</button><button type="button" data-v="0.4,1.3">Top</button><button type="button" data-v="0.4,-1.3">Bottom</button></span>
       <label>Zoom <input type="range" id="pzoom" min="0.5" max="3" step="0.01" value="0.9"></label>
       <label>Pose <select id="ppose"><option value="stand">Standing</option><option value="apart">Arms and legs apart</option></select></label>
     </div>
     <p class="prow"><label>Cape <select id="pcape"><option value="none">No cape</option><option value="red">Red and gold</option><option value="leaf">Leaf</option><option value="blossom">Blossom</option><option value="ice">Ice</option><option value="sunset">Sunset</option><option value="checker">Checker</option><option value="night">Night sky</option><option value="star">Gold cross</option><option value="green">Fresh green</option><option value="gem">Blue gem</option><option value="flowers">Pink flowers</option><option value="smile">Green smile</option><option value="file">Your own cape file...</option></select></label>
       <input type="file" id="pcapefile" accept="image/png" hidden> <button type="button" class="btn ghost" id="pcapesave" disabled>Save cape (.png)</button></p>
-    <p class="prow" id="pparts">Show: <label><input type="checkbox" value="head" checked> Head</label> <label><input type="checkbox" value="body" checked> Body</label> <label><input type="checkbox" value="arms" checked> Arms</label> <label><input type="checkbox" value="legs" checked> Legs</label></p>
     </div>
   </section>
   </div>
@@ -936,14 +935,6 @@ write("settings/index.html", page({
       <label class="mtile"><input type="radio" name="song" value="fresh" data-music-song><span><b>Fresh Moves Fix</b><small>Original upbeat theme, 2:40</small></span></label>
       <label class="mtile"><input type="radio" name="song" value="night" data-music-song><span><b>Night Sky</b><small>Original peaceful instrumental, 3:12</small></span></label>
     </div>
-    <details class="note">
-      <summary><b>Fresh Moves Fix — song lyrics</b></summary>
-      <p><b>Owner: lie_kg</b><br>The website track is instrumental; these words are not sung in the player.</p>
-      <p><b>Verse 1</b><br>Step into a world we know,<br>Watch the little pixels glow.<br>Blinking eyes and moves so new,<br>Every skin comes alive with you.</p>
-      <p><b>Chorus</b><br>Fresh Moves Fix, let’s move today,<br>Build and dance the blocks away!<br>Wave hello and take a look,<br>Make your story, write your book.</p>
-      <p><b>Verse 2</b><br>Through the mountains, through the trees,<br>Make your skin look how you please.<br>Every journey starts with you,<br>There’s a world of things to do.</p>
-      <p><b>Chorus</b><br>Fresh Moves Fix, let’s move today,<br>Build and dance the blocks away!<br>Wave hello and take a look,<br>Make your story, write your book.</p>
-    </details>
     <p class="elabel">Player</p>
     <div class="mtiles">
       <label class="mtile"><input type="checkbox" data-music-check><span><b>Play music</b><small data-music-state>Music: off</small></span><i data-music-time>0:00 / 3:34</i></label>
@@ -959,7 +950,7 @@ write("settings/index.html", page({
   </div>
   <div class="box" id="tab-appearance">
     <h2 class="shead"><span class="tool-ic">${ICON.brush}</span><span><b>Color theme</b><small>Light, dark, OLED, glass, Night Sky or Live Sky</small></span></h2>
-    <p>Select your preferred color theme for this website. It is saved in this browser only. Live Sky uses your device’s local time and an approximate moon phase; it does not use your location or live weather.</p>
+    <p>Select your preferred color theme for this website. It is saved in this browser only. Live Sky can use your location for the sun and moon. Without it, the background uses your local clock. It does not show live weather.</p>
     <div class="themes">
       ${themeCard("system", "Sync with system", "linear-gradient(90deg,#f4f6f5 50%,#121212 50%)", "#18201c", "#2a3630", "#9aa8a0")}
       ${themeCard("light", "Light", "#f4f6f5", "#ffffff", "#d5dcd8", "#17201b")}
@@ -968,6 +959,11 @@ write("settings/index.html", page({
       ${themeCard("glass", "Glass", "radial-gradient(circle at 20% 20%,#2fae78 0,transparent 55%),radial-gradient(circle at 85% 80%,#3b6fd0 0,transparent 55%),#0a1210", "rgba(255,255,255,.16)", "rgba(255,255,255,.34)", "#eef6f1")}
       ${themeCard("nightsky", "Night Sky", "radial-gradient(circle at 78% 25%, #f0f2fa 0 9%, transparent 10%), #1a173f", "#252249", "#4b4a76", "#eef0ff")}
       ${themeCard("livesky", "Live Sky", "linear-gradient(#426d9b, #dba47b)", "#263849", "#7aa1b8", "#edf5ff")}
+    </div>
+    <div class="live-sky-settings">
+      <b>Live Sky location</b><p>Allow location for your real local sun and moon positions. Your approximate coordinates are saved only in this browser and are not sent to our server. The background is an illustration, not live weather.</p>
+      <div><button type="button" class="btn small" id="live-sky-use-location">Use my location</button> <button type="button" class="btn small ghost" id="live-sky-forget-location">Forget location</button></div>
+      <p id="live-sky-location-status" role="status" aria-live="polite"></p>
     </div>
     <div class="fmf-blur-setting">
       <label for="settings-glass-blur"><span><b>Glass card blur</b><small>Turn the frosted-glass blur on or off. This only affects the Glass theme.</small></span><input type="checkbox" id="settings-glass-blur" checked></label>

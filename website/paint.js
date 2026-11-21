@@ -536,7 +536,6 @@
   })();
   $("ppose").addEventListener("change", (e) => { pose = e.target.value; dirty = true; });
   $("pzoom").addEventListener("input", (e) => { zoom = Number(e.target.value); dirty = true; });
-  document.querySelectorAll("#pviews button").forEach((b) => b.addEventListener("click", () => { const v = b.dataset.v.split(","); yaw = Number(v[0]); pitch = Number(v[1]); dirty = true; }));
   const drop = $("pdrop");
   const over = (e) => { e.preventDefault(); drop.classList.add("over"); }, out = () => drop.classList.remove("over");
   const dropped = (e) => { e.preventDefault(); out(); loadFile(e.dataTransfer.files[0]); };
