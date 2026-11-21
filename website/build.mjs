@@ -1083,22 +1083,27 @@ write("index.html", page({
   title: "Fresh Moves Fix - player animations for Minecraft",
   active: "home",
   description: "A fork of the Fresh Moves resource pack: smoother player animations and animated eyes, with builds for Minecraft 1.20 to 26.3.",
-  body: `<div class="wrap">
-<div class="hero">
-  <img src="pack.png" alt="Fresh Moves Fix pack icon">
+  body: `<div class="wrap home-page">
+<div class="hero home-hero">
   <div class="txt">
+    <span class="hero-kicker"><span aria-hidden="true"></span> MINECRAFT JAVA RESOURCE PACK</span>
     <h1 class="mc-title"><img src="title.png?2" width="1708" height="228" alt="Fresh Moves Fix"></h1>
-    <p>Smoother, more expressive player animations and animated eyes for Minecraft. A fork of Fresh Moves with small fixes and builds for Minecraft ${versions[0].mc} to ${versions[versions.length - 1].mc}.</p>
-    <p><strong>Owner: lie_kg</strong></p>
-    <a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">${ICON.down} Download ${esc(version)}</a>
-    <a class="btn ghost" href="editor/">${ICON.eye} Skin eye editor</a>
-    <a class="btn ghost" href="guides/">${ICON.book} Eye guides</a>
+    <p class="hero-lead">Bring more life to your Minecraft player.</p>
+    <p>Smoother player animations and animated eyes, with builds for Minecraft ${versions[0].mc} to ${versions[versions.length - 1].mc}. A fork of Fresh Moves with small fixes.</p>
+    <div class="hero-actions">
+      <a class="btn" href="#download">${ICON.down} Choose a download</a>
+      <a class="btn ghost" href="editor/">${ICON.eye} Open skin eye editor</a>
+    </div>
+    <div class="hero-meta"><span>${ICON.tag} ${esc(version)}</span><span>${ICON.person} Owner: lie_kg</span><a href="guides/">${ICON.book} Eye guides</a></div>
+  </div>
+  <div class="hero-art" aria-label="Fresh Moves Fix resource pack">
+    <div class="hero-art-inner"><span class="hero-art-label">PLAYER ANIMATIONS</span><img src="pack.png" alt="Fresh Moves Fix pack icon" width="180" height="180"><span class="hero-art-version">JAVA EDITION <b>${esc(version)}</b></span></div>
   </div>
 </div>
 
-<section>
+<section class="home-section">
   <div class="note"><strong>Beta.</strong> Blinking and moving eyes have worked in a player’s game; other features and versions still need testing. On Minecraft 1.21.4 and newer the cape and elytra may not be animated.</div>
-  <h2>${ICON.star} What it does</h2>
+  <div class="home-heading"><div><span class="home-eyebrow">THE PACK</span><h2>${ICON.star} What it does</h2></div><p>Little details, more personality.</p></div>
   <div class="cards">
     <a class="card feat" href="#download"><h3>${ICON.run} Player animations</h3><p>Reworked walking, sprinting, sneaking, swimming, crawling and sleeping, in the style of Fresh Animations.</p><span class="more">Download ${ICON.right}</span></a>
     <a class="card feat" href="guides/"><h3>${ICON.eye} Animated eyes</h3><p>Eyes blink and look around when your skin has the marker pixels described in the guides.</p><span class="more">Eye guides ${ICON.right}</span></a>
@@ -1107,8 +1112,8 @@ write("index.html", page({
     <a class="card feat" href="editor/"><h3>${ICON.hand} Sit emote</h3><p>Stand still, sneak and look straight down, and you sit on the ground. New in 3.1-fix5, not tested in the game.</p><span class="more">3D preview ${ICON.right}</span></a>
   </div>
 </section>
-<section>
-  <h2>${ICON.brush} Create</h2>
+<section class="home-section" id="create">
+  <div class="home-heading"><div><span class="home-eyebrow">MAKE IT YOURS</span><h2>${ICON.brush} Create</h2></div><p>Free tools, right in your browser.</p></div>
   <div class="tools">
     <a class="tool" href="editor/">
       <span class="tool-head"><img class="tool-img" src="icon-skin.png" alt="" width="48" height="48"><span><b>Minecraft Skin</b><small>by Fresh Moves Fix</small></span></span>
@@ -1143,8 +1148,8 @@ write("index.html", page({
   </div>
 </section>
 
-<section>
-  <h2>${ICON.wrench} Requirements</h2>
+<section class="home-section" id="requirements">
+  <div class="home-heading"><div><span class="home-eyebrow">BEFORE YOU PLAY</span><h2>${ICON.wrench} Requirements</h2></div><p>Get the right mods for your version.</p></div>
   <p>You need the <strong>latest</strong> versions of these two client-side mods (Fabric, Forge and NeoForge):</p>
   <p>
     <a class="btn ghost" rel="noopener" href="https://modrinth.com/mod/entity-model-features">${ICON.ext} Entity Model Features (EMF)</a>
@@ -1156,8 +1161,8 @@ write("index.html", page({
   <p>On Minecraft 26.1, 26.1.1 and 26.1.2 use EMF 3.3.2 or newer (older versions do not start or crash there). On 26.3 use EMF 3.3.6 or newer. EMF for 26.x exists for Fabric and NeoForge.</p>
 </section>
 
-<section id="download">
-  <h2>${ICON.down} Download</h2>
+<section id="download" class="home-section">
+  <div class="home-heading"><div><span class="home-eyebrow">READY TO PLAY?</span><h2>${ICON.down} Download</h2></div><p>Choose the pack and version that fit your game.</p></div>
   <p><a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">${ICON.down} Fresh-Moves-Fix.zip - all versions</a>
     <a class="btn ghost" href="${dl("Fresh-Moves-Fix-Eyes-Only.zip")}">${ICON.down} Eyes only - all versions</a></p>
   <p><strong>Eyes only</strong> is the same pack without the body animations: the eyes blink and look around, and walking, running and the arms stay as in normal Minecraft. It has no emotes. Use one of the two packs, not both. New and not tested in the game.</p>
@@ -1181,7 +1186,7 @@ ${versionLinks}
   </a>
 </section>
 
-<section id="minecraft-skins-download">
+<section id="minecraft-skins-download" class="home-section">
   <h2>${ICON.down} Download Minecraft Skins — Fabric</h2>
   <p><strong>Coming soon.</strong> Minecraft Skins downloads are temporarily locked. This is a separate mod, not the Fresh Moves Fix resource pack.</p>
   <div class="versions">${skinVersionLinks}</div>
