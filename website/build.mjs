@@ -1150,7 +1150,18 @@ write("pfp/index.html", page({
   <label class="pfp-layer"><span><b>Show outer skin layer</b><small>Include hats and clothing</small></span><input id="pfp-outer" type="checkbox" checked></label>
   <button class="btn" id="pfp-download" type="button" disabled>Download PNG</button>
   <p>Supports 64×64 and classic 64×32 PNG skins. Your skin stays in your browser. Output: 512×512.</p></section>
-  <section class="card render-preview"><h2>Preview</h2><canvas id="pfp-canvas" width="512" height="512" aria-label="Profile picture preview"></canvas></section></div></div>
+  <section class="card render-preview"><h2>Preview</h2><canvas id="pfp-canvas" width="512" height="512" aria-label="Profile picture preview"></canvas>
+  <div class="pfp-quick-bar" role="group" aria-label="Quick preview controls"><span class="pfp-quick-label">Background</span>
+    <button type="button" class="pfp-swatch" data-pfp-color="#ff5157" style="--swatch:#ff5157" aria-label="Red background" aria-pressed="false"></button>
+    <button type="button" class="pfp-swatch" data-pfp-color="#27c96d" style="--swatch:#27c96d" aria-label="Green background" aria-pressed="false"></button>
+    <button type="button" class="pfp-swatch" data-pfp-color="#436be5" style="--swatch:#436be5" aria-label="Blue background" aria-pressed="false"></button>
+    <button type="button" class="pfp-swatch" data-pfp-color="#929aa4" style="--swatch:#929aa4" aria-label="Gray background" aria-pressed="false"></button>
+    <button type="button" class="pfp-swatch" data-pfp-color="#486d92" style="--swatch:#486d92" aria-label="Slate blue background" aria-pressed="true"></button>
+    <button type="button" class="pfp-swatch" data-pfp-color="#ec9958" style="--swatch:#ec9958" aria-label="Orange background" aria-pressed="false"></button>
+    <button type="button" class="pfp-swatch" data-pfp-color="#a47ad4" style="--swatch:#a47ad4" aria-label="Purple background" aria-pressed="false"></button>
+    <button type="button" class="pfp-swatch" data-pfp-color="#161b29" style="--swatch:#161b29" aria-label="Dark background" aria-pressed="false"></button>
+    <button type="button" id="pfp-quick-3d" aria-pressed="true" title="Switch between 3D and 2D">3D</button>
+  </div></section></div></div>
   <script src="../pfp-3d.js?v=${ver("pfp-3d.js")}"></script><script src="../pfp.js?v=${ver("pfp.js")}"></script>`,
 }));
 

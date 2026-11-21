@@ -727,3 +727,10 @@ html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936;
 .pfp-page .render-controls input[type=file] { color: var(--muted); font-size: 13px; }
 .pfp-page .render-controls input[type=file]::file-selector-button { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; cursor: pointer; }
 .pfp-page .render-controls input[type=color] { width: 56px; height: 36px; border: 1px solid var(--line); border-radius: 6px; padding: 3px; background: var(--panel); cursor: pointer; }
+.pfp-quick-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; width: fit-content; max-width: 100%; box-sizing: border-box; margin: 14px 0 0 auto; padding: 9px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+.pfp-quick-label { color: var(--muted); font-size: 12px; margin-right: 3px; }
+.pfp-quick-bar .pfp-swatch { width: 25px; height: 25px; padding: 0; border: 2px solid transparent; border-radius: 50%; background: var(--swatch); cursor: pointer; }
+.pfp-quick-bar .pfp-swatch[aria-pressed="true"] { border-color: white; outline: 2px solid var(--accent); }
+.pfp-quick-bar #pfp-quick-3d { color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 5px 11px; cursor: pointer; }
+.pfp-quick-bar #pfp-quick-3d[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.pfp-quick-bar button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
