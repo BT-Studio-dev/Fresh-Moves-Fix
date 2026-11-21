@@ -185,7 +185,17 @@
   const hex = (c) => "#" + c.map((n) => (n < 16 ? "0" : "") + n.toString(16)).join("");
   function setColor(c, keep) {
     color = [c[0] | 0, c[1] | 0, c[2] | 0];
-    const h = hex(color); $("pcolor").value = h; if (!keep) $("phex").value = h; showNow();
+    const h = hex(color); $("pcolor").value = h; if (!keep) $("phex").value = h; showNow(); updateShades();
+  }
+  function updateShades() {
+    const box = $("pshades"); if (!box) return;
+    box.textContent = "";
+    [-0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6].forEach((amount) => {
+      const c = color.map((v) => Math.round(amount < 0 ? v * (1 + amount) : v + (255 - v) * amount));
+      const h = hex(c), b = document.createElement("button");
+      b.type = "button"; b.className = "psw"; b.style.background = h; b.dataset.c = h;
+      b.title = h; b.setAttribute("aria-label", "Use shade " + h); box.appendChild(b);
+    });
   }
   function showNow() { // the colour square: see-through colours show the checker behind them
     const c = "rgba(" + color[0] + "," + color[1] + "," + color[2] + "," + (alpha / 255) + ")";
@@ -382,7 +392,7 @@
   document.querySelectorAll("[data-palpha]").forEach((b) => b.addEventListener("click", () => { setAlpha(Number(b.dataset.palpha) * 2.55); if (tool === "erase" || tool === "pick") useTool("pen"); }));
   $("phex").addEventListener("input", (e) => { let v = e.target.value.trim(); if (v[0] !== "#") v = "#" + v; if (/^#[0-9a-fA-F]{6}$/.test(v)) setColor(fromHex(v), true); });
   const swatch = (e) => { const c = e.target && e.target.dataset && e.target.dataset.c; if (c) { setColor(fromHex(c)); if (tool === "erase" || tool === "pick") useTool("pen"); } };
-  $("ppalette").addEventListener("click", swatch); $("precent").addEventListener("click", swatch);
+  $("ppalette").addEventListener("click", swatch); $("precent").addEventListener("click", swatch); $("pshades").addEventListener("click", swatch);
   $("pundo").addEventListener("click", doUndo); $("predo").addEventListener("click", doRedo);
   $("psave").addEventListener("click", save);
   $("pfile").addEventListener("change", (e) => { loadFile(e.target.files[0]); e.target.value = ""; });
