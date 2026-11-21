@@ -81,17 +81,19 @@
       const box = $("tl"); box.textContent = "";
       clips.forEach((c, i) => {
         const row = document.createElement("div"); row.className = "tlrow"; row.dataset.i = i;
-        const b = (txt, act, title, off) => { const x = document.createElement("button"); x.type = "button"; x.textContent = txt; x.dataset.act = act; x.title = title; x.disabled = !!off; return x; };
+        const paths = { less: "M5 12h14", more: "M5 12h14M12 5v14", up: "M12 19V5M6 11l6-6 6 6", down: "M12 5v14M6 13l6 6 6-6", del: "M6 6l12 12M18 6 6 18" };
+        const b = (act, title, off) => { const x = document.createElement("button"); x.type = "button"; x.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="' + paths[act] + '"/></svg>'; x.dataset.act = act; x.title = title; x.setAttribute("aria-label", title); x.disabled = !!off; return x; };
         const name = document.createElement("b"); name.textContent = (i + 1) + ". " + NAMES[c.move];
         const secs = document.createElement("span"); secs.textContent = fmt(c.secs);
-        row.append(name, secs, b("−", "less", "Shorter", c.secs <= 0.5), b("+", "more", "Longer", c.secs >= 30), b("↑", "up", "Earlier", i === 0), b("↓", "down", "Later", i === clips.length - 1), b("✕", "del", "Remove", clips.length === 1));
+        row.append(name, secs, b("less", "Shorter", c.secs <= 0.5), b("more", "Longer", c.secs >= 30), b("up", "Earlier", i === 0), b("down", "Later", i === clips.length - 1), b("del", "Remove", clips.length === 1));
         box.appendChild(row);
       });
       $("tltotal").textContent = fmt(total()); now = -1;
     }
     $("tl").addEventListener("click", (e) => {
-      const act = e.target && e.target.dataset && e.target.dataset.act; if (!act || rec) return;
-      const i = Number(e.target.parentNode.dataset.i), c = clips[i];
+      const button = e.target && e.target.closest && e.target.closest("button[data-act]");
+      const act = button && button.dataset.act; if (!act || rec || !$("tl").contains(button)) return;
+      const i = Number(button.parentNode.dataset.i), c = clips[i];
       if (act === "less") c.secs = Math.max(0.5, c.secs - 0.5);
       if (act === "more") c.secs = Math.min(30, c.secs + 0.5);
       if (act === "up" && i > 0) { clips[i] = clips[i - 1]; clips[i - 1] = c; }

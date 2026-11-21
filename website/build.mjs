@@ -42,6 +42,7 @@ const ICON = {
   up: svg('<path d="M12 20V7"/><path d="M6 12l6-6 6 6"/><path d="M5 3h14"/>'),
   right: svg('<path d="M9 5l7 7-7 7"/>'),
   close: svg('<path d="M6 6l12 12"/><path d="M18 6L6 18"/>'),
+  lock: svg('<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/>'),
   play: svg('<circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l6-3.5z"/>'),
   globe: svg('<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c3 3 3 15 0 18c-3-3-3-15 0-18z"/>'),
   brush: svg('<path d="M20 4l-9 9"/><path d="M11 13c-2-1-5 0-5 3 0 2-2 3-3 3 3 2 9 1 9-4z"/>'),
@@ -1059,7 +1060,7 @@ const skinVersionLinks = skinReleases.map((release) => {
   const mc = esc(release.minecraft_build);
   return `<div class="ver locked" aria-label="Minecraft ${mc}, Fabric, locked, coming soon">
     <span class="tool-head"><img class="ver-ic" src="icon-skin.png" alt="" width="40" height="40" loading="lazy"><span><b>${mc}</b><small>Minecraft build</small></span></span>
-    <span class="tags"><i>Fabric</i><i class="coming-soon">🔒 Coming soon</i></span>
+    <span class="tags"><i>Fabric</i><i class="coming-soon">${ICON.lock} Coming soon</i></span>
   </div>`;
 }).join("\n");
 
@@ -1176,7 +1177,7 @@ ${versionLinks}
   </div>
   <a class="card go release-all" href="${REPO}/releases" target="_blank" rel="noopener noreferrer">
     <span>${ICON.tag} <b>All releases on GitHub</b><small>Browse every version, release note and download</small></span>
-    <i aria-hidden="true">↗</i>
+    <i aria-hidden="true">${ICON.ext}</i>
   </a>
 </section>
 
