@@ -171,6 +171,9 @@ html[data-theme="dark"] { --fmf-popup: #202020; --fmf-popup-control: #121212; }
 html[data-theme="light"] { --fmf-popup: #ffffff; --fmf-popup-control: #f4f6f5; }
 html[data-theme="oled"] { --fmf-popup: #0d0f0e; --fmf-popup-control: #000000; }
 html[data-theme="glass"] { --fmf-popup: #15231e; --fmf-popup-control: #0c1612; }
+/* Match the Glass cards over the site's night background, without transparency
+   that would let the page show through the settings controls. */
+html[data-theme="glass"] .fmf-settings { --fmf-popup: #202238; --fmf-popup-control: #151827; }
 html[data-theme="minecraft"] { --fmf-popup: #1b2621; --fmf-popup-control: #101914; }
 .fmf-settings {
   background: var(--fmf-popup); max-height: calc(100vh - 100px); overflow-y: auto;
@@ -216,7 +219,7 @@ a.release-all > i svg { width: 18px; height: 18px; }
 /* 2026 homepage: a compact, block-inspired layout without heavy effects. */
 .home-page { max-width: 1120px; }
 .home-hero {
-  position: relative; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(210px, .8fr);
+  position: relative; display: grid; grid-template-columns: 180px minmax(0, 1fr); align-items: center;
   gap: 28px; margin: 32px 0 36px; padding: clamp(22px, 4vw, 46px);
   background: var(--panel); border: 1px solid var(--line); border-radius: 20px;
   overflow: hidden; text-align: left;
@@ -236,14 +239,13 @@ a.release-all > i svg { width: 18px; height: 18px; }
 .hero-meta { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; color: var(--muted); font-size: 13px; }
 .hero-meta span, .hero-meta a { display: inline-flex; align-items: center; gap: 6px; }
 .hero-meta .ic { width: 15px; height: 15px; }
-.hero-art { display: flex; align-items: stretch; min-width: 0; }
-.hero-art-inner { display: flex; flex-direction: column; align-items: center; justify-content: space-between; width: 100%; min-height: 290px; padding: 22px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg); }
-.hero-art-label, .hero-art-version { align-self: stretch; color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .1em; }
-.hero-art-version { display: flex; justify-content: space-between; gap: 8px; }
-.hero-art-version b { color: var(--accent); }
-.home-hero .hero-art img { display: block; width: min(180px, 80%); height: auto; image-rendering: pixelated; border-radius: 12px; box-shadow: none; }
+.hero-art { display: flex; align-items: center; justify-content: center; min-width: 0; }
+.home-hero .hero-art img { display: block; width: 180px; max-width: 100%; height: auto; image-rendering: pixelated; border-radius: 12px; box-shadow: none; }
 .home-section { padding: 38px 0; }
-.home-heading { display: flex; justify-content: space-between; align-items: end; gap: 14px; margin-bottom: 20px; }
+/* Separate homepage sections with spacing rather than divider lines. */
+.home-page > section { border-top: 0; }
+.home-heading { display: flex; justify-content: space-between; align-items: end; gap: 14px; margin-bottom: 20px; padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; }
+[data-theme="minecraft"] .home-heading { border-radius: 3px; }
 .home-heading h2 { margin: 4px 0 0; }
 .home-heading > p { color: var(--muted); margin: 0; font-size: 14px; }
 .home-page .cards, .home-page .tools { align-items: stretch; }
@@ -253,11 +255,10 @@ a.release-all > i svg { width: 18px; height: 18px; }
 .home-page a.tool .tool-text { flex: 1; }
 .home-page .versions a.ver, .home-page .versions .ver.locked { min-height: 112px; }
 .home-page .release-all { margin-top: 16px; }
-[data-theme="minecraft"] .home-hero, [data-theme="minecraft"] .hero-art-inner { border-radius: 3px; }
+[data-theme="minecraft"] .home-hero { border-radius: 3px; }
 @media (max-width: 760px) {
   .home-hero { grid-template-columns: 1fr; margin-top: 18px; gap: 20px; }
   .home-hero .txt { width: 100%; }
-  .hero-art-inner { min-height: 210px; }
   .home-hero .hero-art img { width: 120px; }
   .home-heading { align-items: start; flex-direction: column; gap: 4px; }
   .home-section { padding: 30px 0; }
@@ -268,6 +269,10 @@ a.release-all > i svg { width: 18px; height: 18px; }
 }
 
 /* Shared pages use the same visual language as the new home page. */
+.editor-info-card { margin: 32px 0; padding: clamp(18px, 3vw, 28px); background: var(--panel); border: 1px solid var(--line); border-radius: 16px; }
+.editor-info-card h2 { margin-top: 0; }
+.editor-info-card > :last-child { margin-bottom: 0; }
+[data-theme="minecraft"] .editor-info-card { border-radius: 3px; }
 article.editor > h1, .set h1 { line-height: 1.2; letter-spacing: -.025em; }
 .ed .panel, .set .menu, .set .box { border: 1px solid var(--line); }
 .ed .panel h3.ehead, .set .box h2.shead { line-height: 1.25; }
@@ -279,3 +284,61 @@ article.editor > h1, .set h1 { line-height: 1.2; letter-spacing: -.025em; }
   .home-page .versions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 html[data-theme="nightsky"] { --fmf-popup: #252345; --fmf-popup-control: #171533; }
+
+/* Updated appearance settings: clear, lightweight cards and visible selection. */
+#tab-appearance .themes { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 12px; margin: 18px 0 22px; }
+#tab-appearance .themes label { border-radius: 14px; }
+#tab-appearance .themes label.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+#tab-appearance .themes label:focus-within { outline: 2px solid var(--accent); outline-offset: 3px; }
+#tab-appearance .themes .pv { height: 90px; }
+#tab-appearance .themes .nm { min-height: 44px; box-sizing: border-box; }
+#tab-appearance .fmf-blur-setting, #tab-appearance .background-toggle {
+  background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
+}
+#tab-appearance .background-toggle { padding: 14px 16px; }
+#tab-appearance h3 { margin: 26px 0 10px; }
+#tab-appearance small { line-height: 1.5; }
+[data-theme="minecraft"] #tab-appearance .themes label,
+[data-theme="minecraft"] #tab-appearance .fmf-blur-setting,
+[data-theme="minecraft"] #tab-appearance .background-toggle { border-radius: 3px; }
+@media (max-width: 420px) {
+  #tab-appearance .themes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  #tab-appearance .themes .pv { height: 76px; }
+  #tab-appearance .themes .nm { padding: 8px; }
+}
+
+/* Painter refresh: scoped to this page so the drawing logic and other tools stay unchanged. */
+.painter-intro { padding: clamp(20px, 3vw, 32px); background: var(--panel); border: 1px solid var(--line); border-radius: 18px; }
+.painter-intro h1 { margin: 10px 0; line-height: 1.2; }
+.painter-intro p { margin: 0; max-width: 760px; color: var(--muted); line-height: 1.6; }
+.painter-page .paint { margin-top: 22px; gap: 20px; }
+.painter-page .paint .ecard { padding: 20px; }
+.painter-page .paint .ehead { margin-bottom: 18px; }
+.painter-page .paint .ptools { gap: 8px; }
+.painter-page .paint .ptools button { min-height: 42px; font-weight: 600; }
+.painter-page .paint .pviews button { min-height: 34px; }
+.painter-page .paint .ptools button:focus-visible, .painter-page .paint .pviews button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.painter-page .paint .psws { gap: 6px; }
+.painter-page .paint .psw { width: 28px; height: 28px; }
+.painter-page .paint .elabel { margin-top: 18px; }
+.painter-page .paint canvas.p3d, .painter-page .paint canvas.p2d { border-radius: 12px; }
+.painter-page .painter-help { margin-top: 28px; }
+[data-theme="minecraft"] .painter-intro, [data-theme="minecraft"] .painter-page .paint canvas { border-radius: 3px; }
+@media (max-width: 560px) {
+  .painter-page .paint .ecard { padding: 16px; }
+  .painter-page .paint .ptools { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Text blocks sit on readable, themed surfaces without obscuring their links. */
+.text-card { padding: clamp(18px, 3vw, 26px); margin: 0 0 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; }
+.text-card > :first-child { margin-top: 0; }
+.text-card > :last-child { margin-bottom: 0; }
+.text-card .steps { padding-left: 1.5em; }
+.guide-credit { margin-top: 24px; color: var(--muted); }
+[data-theme="minecraft"] .text-card { border-radius: 3px; }
+/* Remaining page introductions and guide headings use the same text-card style. */
+article.editor > p:not([class]) { padding: 18px 22px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; }
+.guides-index > h1, .guides-index > h2 { padding: 16px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; }
+.guides-index > h2 { margin-top: 24px; }
+.guide-prose { overflow-wrap: anywhere; }
+[data-theme="minecraft"] article.editor > p:not([class]), [data-theme="minecraft"] .guides-index > h1, [data-theme="minecraft"] .guides-index > h2 { border-radius: 3px; }

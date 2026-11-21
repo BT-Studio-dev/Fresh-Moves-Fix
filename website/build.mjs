@@ -114,7 +114,6 @@ document.documentElement.setAttribute("data-scrollbar",sb==="off"?"off":"on")})(
     ${nav("editor", up + "editor/", ICON.eye + " Eye editor")}
     ${nav("title", up + "title/", ICON.tag + " Title")}
     ${nav("settings", up + "settings/", ICON.gear + " Settings")}
-    <a rel="noopener" href="${REPO}">${ICON.code} GitHub</a>
   </nav>
   <span class="snd-wrap">
     <button type="button" class="snd" data-music-toggle aria-pressed="false" aria-label="Music">${ICON.music}</button>
@@ -240,7 +239,7 @@ for (const [i, d] of docs.entries()) {
     body: `<div class="wrap"><article>
 <div class="crumb"><a href="../../">${ICON.home} Home</a> ${ICON.right} <a href="../">${ICON.book} Guides</a></div>
 <h1>${d.name.startsWith("Fix") ? ICON.wrench : ICON.eye} ${esc(d.name)}</h1>
-${renderDoc(md)}
+<div class="text-card guide-prose">${renderDoc(md)}</div>
 <div class="guide-nav">
   ${docs[i - 1] ? `<a class="card go back" href="../${docs[i - 1].slug}/">${ICON.left}<span>${esc(docs[i - 1].name)}</span></a>` : "<span></span>"}
   ${docs[i + 1] ? `<a class="card go" href="../${docs[i + 1].slug}/"><span>${esc(docs[i + 1].name)}</span>${ICON.right}</a>` : "<span></span>"}
@@ -259,9 +258,10 @@ write("guides/index.html", page({
   title: "Guides - Fresh Moves Fix",
   active: "guides",
   depth: 1,
-  body: `<div class="wrap"><article>
+  body: `<div class="wrap"><article class="guides-index">
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <h1>${ICON.book} Guides</h1>
+<div class="text-card">
 <h2>${ICON.list} How to animate the eyes</h2>
 <ol class="steps">
 <li>Get the skin you want to use (from your Minecraft account, NameMC, or any skin you like).</li>
@@ -269,11 +269,12 @@ write("guides/index.html", page({
 <li>Add the extra pixels for your eye type and size, following the matching guide below. Leave the face itself untouched, so players without the pack see a normal skin.</li>
 <li>Save the skin and upload it in the Minecraft launcher or on your Minecraft account.</li>
 </ol>
+</div>
 <h2>${ICON.wrench} Fixes</h2>
 ${cards(fixes)}
 <h2>${ICON.eye} Eye and eyebrow types</h2>
 ${cards(eyes)}
-<p style="margin-top:24px;color:var(--muted)">These guides are copied from the original Fresh Moves wiki. Images and videos are hosted on the original GitHub repository.</p>
+<p class="text-card guide-credit">These guides are copied from the original Fresh Moves wiki. Images and videos are hosted on the original GitHub repository.</p>
 </article></div>`,
 }));
 
@@ -447,6 +448,7 @@ write("editor/index.html", page({
   </div>
 </div>
 
+<section class="text-card">
 <h2 id="test">${ICON.info} How to test it in the game</h2>
 <p>A player confirmed that blinking and moving eyes worked in their game. Results may differ with other skins, eye shapes or versions. Use Minecraft Java Edition; the website preview cannot test the pack for you. Keep a copy of your original skin.</p>
 <ol class="steps">
@@ -464,7 +466,9 @@ write("editor/index.html", page({
   <li><strong>Black eyes:</strong> follow the <a href="../guides/fix-black-eyes/">Fix Black Eyes guide</a>.</li>
   <li><strong>Mouth missing or misplaced:</strong> make sure you selected a mouth in the editor and saved the new skin. The moving mouth only supports face row 7; some eye positions leave no room or place it lower. Its in-game position is untested.</li>
 </ul>
+</section>
 
+<section class="editor-info-card">
 <h2>${ICON.info} How it works</h2>
 <p>Choose the eye shape and position that match your skin. The editor adds marker pixels to the skin file; the pack reads those pixels to animate the eyes. The green outline in <b>Added pixels</b> shows the eye marker area. Other marker pixels can be elsewhere in the skin.</p>
 <ul>
@@ -477,6 +481,7 @@ write("editor/index.html", page({
 <p><b>Keep the face on the first skin layer.</b> The pack animates the first layer only. Eyes or eyebrows painted on the outer layer (the hat layer) stay still in front of the moving eyes, so the editor removes solid outer-layer pixels over the eyes; see-through glass is kept. Do not erase the face of your skin: players without the pack and the mods still see your normal face.</p>
 <p>${ICON.ext} Video by Laynce that shows the eye types, eyebrows and eyelashes of the original Fresh Moves pack: <a href="https://www.youtube.com/watch?v=uDccyv7FROs" target="_blank" rel="noopener">The Animation Update</a> (YouTube, not made by us).</p>
 <p>The positions of 2 wide 1 tall and 2 wide 2 tall come from the example skins in the pack. The other shapes were worked out from the pack's model file and are less certain; the derp layout is the least certain. Eyebrows and eyelashes were also worked out from the model file and are not tested in the game. Fox eyes are not in the editor (the guide marks them as unfinished); see the <a href="../guides/">guides</a>.</p>
+</section>
 </article></div>
 <script src="../skinview3d.bundle.js"></script>
 <script src="../player.js?v=${ver("player.js")}"></script>
@@ -587,12 +592,14 @@ write("title/index.html", page({
   </section>
   </div>
 </div>
+<section class="text-card">
 <h2>${ICON.box} Blockbench</h2>
 <p>This is the real <b>Blockbench</b> web app, shown inside this page. Press <b>New</b>, then <b>Minecraft Title</b> to make a title, or <b>Minecraft Skin</b> to paint a skin.</p>
 <p><a class="btn" rel="noopener" target="_blank" href="${BB}">${ICON.right} Open Blockbench in a new tab</a>
 <a class="btn ghost" rel="noopener" target="_blank" href="${REPO}/blob/main/model.bbmodel">${ICON.down} Our title model (.bbmodel)</a></p>
 <p><small>The "Fresh Moves Fix" title on the home page was made this way. Open the model file in Blockbench with File &rarr; Open Model.</small></p>
 <div class="note">If the box below stays empty, or "Minecraft Title" is missing from the New list, use the button above. In Blockbench you can also add it by hand: File &rarr; Plugins &rarr; Available &rarr; "Minecraft Title Generator" &rarr; Install. Blockbench is made by JannisX11 and the Title Generator plugin by Ewan Howell; they are not part of Fresh Moves Fix.</div>
+</section>
 </article></div>
 <script src="../title.js?v=${ver("title.js")}"></script>
 <script src="../ui.js?v=${ver("ui.js")}"></script>
@@ -627,10 +634,13 @@ write("paint/index.html", page({
   active: "",
   description: "Paint a Minecraft skin on a 3D model or on the flat skin file, right in your browser.",
   depth: 1,
-  body: `<div class="wrap"><article class="editor">
+  body: `<div class="wrap"><article class="editor painter-page">
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
+<div class="painter-intro">
+<span class="home-eyebrow">CREATE IN YOUR BROWSER</span>
 <h1>${ICON.brush} Skin Painter 3D</h1>
 <p>Paint your Minecraft skin pixel by pixel, on the 3D model or on the flat skin file. Everything happens in your browser; the skin is not uploaded anywhere. It works without 3D graphics (WebGL).</p>
+</div>
 
 <div class="ed paint">
   <div class="ed-col">
@@ -715,7 +725,8 @@ write("paint/index.html", page({
   </div>
 </div>
 
-<h2>How to use it</h2>
+<section class="editor-info-card painter-help">
+<h2>${ICON.info} How to use it</h2>
 <ol class="steps">
 <li>Load your skin, or start from Steve, Alex or a Dummy.</li>
 <li>Pick a colour and click the model to paint. Hold the mouse button and move to draw a line.</li>
@@ -724,6 +735,7 @@ write("paint/index.html", page({
 <li>Press "Save skin (.png)". Then, if you want blinking eyes, load that file in the <a href="../editor/">Skin eye editor</a>.</li>
 </ol>
 <p><small>Keys: B pen, E eraser, G fill, I take colour, L lighter, D darker, Ctrl+Z undo, Ctrl+Y redo.</small></p>
+</section>
 </article></div>
 <script src="../paint.js?v=${ver("paint.js")}"></script>
 <script src="../ui.js?v=${ver("ui.js")}"></script>`,
@@ -791,6 +803,7 @@ write("model/index.html", page({
   ${studioView("")}
   </div>
 </div>
+<section class="text-card">
 <h2>${ICON.info} How to open the file</h2>
 <ol class="steps">
   <li><strong>Blender:</strong> File, Import, glTF 2.0, pick the file. Press Space to play the movement.</li>
@@ -798,6 +811,7 @@ write("model/index.html", page({
   <li><strong>Windows:</strong> double-click the file; it opens in "3D Viewer" if that app is installed.</li>
 </ol>
 <p><small>The game itself does not use this file. It is for pictures, videos and 3D programs.</small></p>
+</section>
 </article></div>
 ${studioScripts}`,
 }));
@@ -834,6 +848,7 @@ write("animation/index.html", page({
   </div>
 </div>
 
+<section class="text-card">
 <h2>${ICON.info} Bigger animations: Blender</h2>
 <p><b>Blender</b> is a free 3D program for your computer. With the free <b>MCprep</b> add-on it gets ready-made Minecraft characters that you can pose, animate and turn into a video. Blender cannot run inside a web page, so this page is a guide: you download it and follow the steps.</p>
 <p><a class="btn" rel="noopener" target="_blank" href="https://www.blender.org/download/">${ICON.down} Download Blender</a>
@@ -865,6 +880,7 @@ write("animation/index.html", page({
 
 <h2>${ICON.info} What this page is not</h2>
 <p>This resource pack animates the player <em>inside the game</em>. Blender animations are separate <em>videos</em>; the two do not share files. MCprep is made by its own team (GPL-3.0 licence) and Blender by the Blender Foundation; they are not part of Fresh Moves Fix. Button and menu names can differ a little between Blender versions.</p>
+</section>
 </article></div>
 ${studioScripts}`,
 }));
@@ -950,10 +966,12 @@ write("settings/index.html", page({
   function told(el, ok){ if(!note) return; var name=(el.closest("label").textContent||"").trim();
     note.querySelector("span").textContent = ok ? "Saved: " + name + ". It stays when you close the page." : "Could not save: this browser blocks saving. The theme lasts until you close the page.";
     note.classList.toggle("bad", !ok); note.hidden=false; note.classList.remove("flash"); void note.offsetWidth; note.classList.add("flash"); }
+  function markThemeCards(){ document.querySelectorAll('input[name="theme"]').forEach(function(el){ el.closest("label").classList.toggle("selected", el.checked); }); }
   document.querySelectorAll('input[name="theme"]').forEach(function(el){
     el.checked = el.value===cur;
-    el.addEventListener("change",function(){ cur=el.value; var ok=true; try{localStorage.setItem(key,cur); ok=localStorage.getItem(key)===cur}catch(e){ok=false} if(keep(cur)) ok=true; apply(cur); told(el, ok); });
+    el.addEventListener("change",function(){ cur=el.value; var ok=true; try{localStorage.setItem(key,cur); ok=localStorage.getItem(key)===cur}catch(e){ok=false} if(keep(cur)) ok=true; apply(cur); markThemeCards(); told(el, ok); });
   });
+  markThemeCards();
   var background=document.getElementById("background-toggle"), bgNote=document.getElementById("background-saved"), bgKey="fmf-background";
   background.checked=document.documentElement.getAttribute("data-background")!=="off";
   background.addEventListener("change",function(){
@@ -1003,8 +1021,8 @@ write("cape/index.html", page({
   description: "Paint a cape texture and create a Java elytra resource pack in your browser.",
   body: `<div class="wrap"><article>
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
-<h1>${ICON.brush} Cape Pack Builder</h1>
-<p>Draw or load your own 64 × 32 cape texture. Everything stays in your browser.</p>
+<div class="text-card"><h1>${ICON.brush} Cape Pack Builder</h1>
+<p>Draw or load your own 64 × 32 cape texture. Everything stays in your browser.</p></div>
 <div class="note"><strong>Java cape limitation:</strong> a resource pack cannot give you a wearable custom cape. Download the PNG for a compatible cape mod. The optional ZIP changes the normal elytra texture only, not your cape. Other players will not see your resource pack; an equipped cape or another pack may override the elytra texture.</div>
 <section class="cape-settings card">
 <h2>Pack settings</h2>
@@ -1087,6 +1105,7 @@ write("index.html", page({
   description: "A fork of the Fresh Moves resource pack: smoother player animations and animated eyes, with builds for Minecraft 1.20 to 26.3.",
   body: `<div class="wrap home-page">
 <div class="hero home-hero">
+  <div class="hero-art"><img src="pack.png" alt="Fresh Moves Fix pack icon" width="180" height="180"></div>
   <div class="txt">
     <span class="hero-kicker"><span aria-hidden="true"></span> MINECRAFT JAVA RESOURCE PACK</span>
     <h1 class="mc-title"><img src="title.png?2" width="1708" height="228" alt="Fresh Moves Fix"></h1>
@@ -1097,9 +1116,6 @@ write("index.html", page({
       <a class="btn ghost" href="editor/">${ICON.eye} Open skin eye editor</a>
     </div>
     <div class="hero-meta"><span>${ICON.tag} ${esc(version)}</span><span>${ICON.person} Owner: lie_kg</span><a href="guides/">${ICON.book} Eye guides</a></div>
-  </div>
-  <div class="hero-art" aria-label="Fresh Moves Fix resource pack">
-    <div class="hero-art-inner"><span class="hero-art-label">PLAYER ANIMATIONS</span><img src="pack.png" alt="Fresh Moves Fix pack icon" width="180" height="180"><span class="hero-art-version">JAVA EDITION <b>${esc(version)}</b></span></div>
   </div>
 </div>
 
@@ -1152,6 +1168,7 @@ write("index.html", page({
 
 <section class="home-section" id="requirements">
   <div class="home-heading"><div><span class="home-eyebrow">BEFORE YOU PLAY</span><h2>${ICON.wrench} Requirements</h2></div><p>Get the right mods for your version.</p></div>
+  <div class="text-card">
   <p>You need the <strong>latest</strong> versions of these two client-side mods (Fabric, Forge and NeoForge):</p>
   <p>
     <a class="btn ghost" rel="noopener" href="https://modrinth.com/mod/entity-model-features">${ICON.ext} Entity Model Features (EMF)</a>
@@ -1161,12 +1178,14 @@ write("index.html", page({
   <p>Helpful, not required: <a rel="noopener" href="https://modrinth.com/mod/modmenu">Mod Menu</a> and <a rel="noopener" href="https://modrinth.com/mod/cloth-config">Cloth Config</a>, to open the settings of the mods in the game. Custom Skin Loader and Alpha Skins from old guides are no longer needed.</p>
   <p>On Minecraft 1.21.9 and newer armour only follows the animations with a recent EMF (3.0.5 or newer; 3.0.12 fixes armour lag).</p>
   <p>On Minecraft 26.1, 26.1.1 and 26.1.2 use EMF 3.3.2 or newer (older versions do not start or crash there). On 26.3 use EMF 3.3.6 or newer. EMF for 26.x exists for Fabric and NeoForge.</p>
+  </div>
 </section>
 
 <section id="download" class="home-section">
   <div class="home-heading"><div><span class="home-eyebrow">READY TO PLAY?</span><h2>${ICON.down} Download</h2></div><p>Choose the pack and version that fit your game.</p></div>
   <p><a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">${ICON.down} Fresh-Moves-Fix.zip - all versions</a>
     <a class="btn ghost" href="${dl("Fresh-Moves-Fix-Eyes-Only.zip")}">${ICON.down} Eyes only - all versions</a></p>
+  <div class="text-card download-info">
   <p><strong>Eyes only</strong> is the same pack without the body animations: the eyes blink and look around, and walking, running and the arms stay as in normal Minecraft. It has no emotes. Use one of the two packs, not both. New and not tested in the game.</p>
   <p class="reltime" id="reltime"${releaseTime ? "" : " hidden"}>${ICON.tag} <span>Release <b>v${version}</b> · updated <time datetime="${releaseTime}">${releaseTime ? releaseTime.replace("T", " ").replace(/:\d\dZ$/, " UTC") : ""}</time></span></p>
   <script>(function(){
@@ -1179,6 +1198,7 @@ write("index.html", page({
       if(!j) return; var a=(j.assets||[]).map(function(x){return x.updated_at}).sort().pop()||j.published_at; if(a) show(a); }).catch(function(){}); }catch(e){}
   })()</script>
   <p>One zip for every supported version. Or pick the zip labelled for your Minecraft version:</p>
+  </div>
   <div class="versions">
 ${versionLinks}
   </div>
@@ -1189,12 +1209,15 @@ ${versionLinks}
 </section>
 
 <section id="minecraft-skins-download" class="home-section">
+  <div class="text-card">
   <h2>${ICON.down} Download Minecraft Skins — Fabric</h2>
   <p><strong>Coming soon.</strong> Minecraft Skins downloads are temporarily locked. This is a separate mod, not the Fresh Moves Fix resource pack.</p>
+  </div>
   <div class="versions">${skinVersionLinks}</div>
 </section>
 
 <section>
+  <div class="text-card">
   <h2>${ICON.list} How to install</h2>
   <ol class="steps">
     <li>Install a mod loader for your Minecraft Java version, such as Fabric.</li>
@@ -1203,6 +1226,7 @@ ${versionLinks}
     <li>Put the downloaded Fresh Moves Fix <strong>ZIP</strong> (do not unzip it) in your <code>resourcepacks</code> folder. Choose either the normal pack or Eyes Only, not both.</li>
     <li>In Minecraft go to Options → Resource Packs, move the pack to the right and click Done.</li>
   </ol>
+  </div>
   <div class="install-cards" aria-label="Installation downloads and help">
     <a class="card install-link" href="https://modrinth.com/mod/entity-model-features" rel="noopener noreferrer"><span class="install-icon">${ICON.box}</span><span><b>Entity Model Features</b><small>Download EMF for your loader</small></span><span aria-hidden="true">${ICON.ext}</span></a>
     <a class="card install-link" href="https://modrinth.com/mod/entitytexturefeatures" rel="noopener noreferrer"><span class="install-icon">${ICON.grid}</span><span><b>Entity Texture Features</b><small>Download ETF for your loader</small></span><span aria-hidden="true">${ICON.ext}</span></a>

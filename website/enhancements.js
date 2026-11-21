@@ -126,6 +126,29 @@
     sync();
   }
   themedSelect(themeSelect); themedSelect(sizeSelect);
+  // Keep the full Settings page and the quick panel in sync without reloading.
+  if (window.__fmfSettingsSync) document.removeEventListener("change", window.__fmfSettingsSync);
+  window.__fmfSettingsSync = function (event) {
+    var target = event.target;
+    if (target.matches('input[name="theme"]')) {
+      themeSelect.value = target.value;
+      themeSelect.dispatchEvent(new Event("change", { bubbles: false }));
+    } else if (target.id === "settings-glass-blur") {
+      glassBlur.checked = target.checked;
+      syncGlassBlur();
+    } else if (target === themeSelect) {
+      document.querySelectorAll('input[name="theme"]').forEach(function (radio) {
+        radio.checked = radio.value === themeSelect.value;
+        radio.closest("label").classList.toggle("selected", radio.checked);
+      });
+      var blur = document.getElementById("settings-glass-blur");
+      if (blur) blur.disabled = root.getAttribute("data-theme") !== "glass";
+    } else if (target === glassBlur) {
+      var fullBlur = document.getElementById("settings-glass-blur");
+      if (fullBlur) fullBlur.checked = glassBlur.checked;
+    }
+  };
+  document.addEventListener("change", window.__fmfSettingsSync);
   panel.id = "fmf-quick-settings";
   panel.querySelector(".fmf-close").addEventListener("click", closePanel);
   function closePanel() {
