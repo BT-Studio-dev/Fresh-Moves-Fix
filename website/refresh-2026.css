@@ -278,3 +278,4 @@ article.editor > h1, .set h1 { line-height: 1.2; letter-spacing: -.025em; }
   .home-page .tools { grid-template-columns: minmax(0, 1fr); }
   .home-page .versions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+html[data-theme="nightsky"] { --fmf-popup: #252345; --fmf-popup-control: #171533; }
