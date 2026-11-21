@@ -2,7 +2,8 @@
 (function () {
   var controls = document.querySelector('.backdrop-controls');
   if (!controls) return;
-  var panel = controls.closest('.panel');
+  var panel = controls.closest('.panel, .cape-preview');
+  if (!panel) return;
   var custom = controls.querySelector('[data-backdrop-custom]');
   var key = 'fmf-editor-backdrop';
   function apply(value) {

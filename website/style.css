@@ -858,3 +858,23 @@ html[data-theme="nightsky"] body::before {
   background: url("night-moon.svg") right 12% top 8% / 96px 96px no-repeat,
     url("night-stars.svg") 0 0 / 480px 280px repeat, #1a173f;
 }
+
+/* Live Sky: local-clock illustration, not a location-aware weather forecast. */
+[data-theme="livesky"] {
+  --bg: #1b2936; --panel: #263849; --line: #536b7a; --text: #f1f5fa; --muted: #c7d5de;
+  --accent: #a9d8ff; --on-accent: #102433; --header: #1b2a38; --note-bg: #3b3a42;
+  --note-line: #8a817f; --note-text: #fff0df; --scroll-thumb: #708b9e; color-scheme: dark;
+}
+html[data-theme="livesky"] body::before { background: var(--live-sky-bg, linear-gradient(#10182f, #292d4c)); }
+html[data-theme="livesky"][data-live-sky="day"] { --live-sky-bg: linear-gradient(#3f7eb2, #abd5df); }
+html[data-theme="livesky"][data-live-sky="dawn"] { --live-sky-bg: linear-gradient(#465c87, #f1af84); }
+html[data-theme="livesky"][data-live-sky="dusk"] { --live-sky-bg: linear-gradient(#334f80, #d78d79); }
+html[data-theme="livesky"][data-live-sky="night"] { --live-sky-bg: url("night-stars.svg") 0 0 / 480px 280px repeat, #171a37; }
+.fmf-live-sky { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+.fmf-live-sky[hidden] { display: none; }
+.fmf-live-sun, .fmf-live-moon { position: absolute; right: 12%; top: 9%; width: 80px; height: 80px; }
+.fmf-live-sun { border-radius: 50%; background: #ffe6a1; box-shadow: 0 0 0 10px rgba(255,226,161,.14); }
+.fmf-live-moon { display: none; }
+html[data-live-sky="night"] .fmf-live-moon { display: block; }
+html[data-live-sky="night"] .fmf-live-sun { display: none; }
+html[data-background="off"] .fmf-live-sky { display: none; }

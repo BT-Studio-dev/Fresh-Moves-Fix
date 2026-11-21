@@ -363,6 +363,8 @@ article.editor > p:not([class]) { padding: 18px 22px; background: var(--panel); 
 .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 16px; }
 .project-card { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; box-sizing: border-box; padding: 26px 20px; min-width: 0; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--text); text-decoration: none; }
 .project-card img { width: 112px; height: 112px; object-fit: contain; image-rendering: pixelated; border-radius: 12px; }
+/* The pack art is already high-resolution; smooth downscaling avoids jagged edges. */
+.project-card img.project-pack-image { image-rendering: auto; }
 .project-icon { display: grid; place-items: center; width: 112px; height: 112px; border-radius: 12px; background: var(--bg); color: var(--accent); }
 .project-icon .ic { width: 48px; height: 48px; margin: 0; }
 .project-card h2 { margin: 4px 0 0; font-size: 20px; }
@@ -665,3 +667,18 @@ a.eyes-download-card:focus-visible { outline: 2px solid var(--accent); outline-o
 #tab-language .langs .lang .code { flex: none; background: var(--panel); }
 #tab-language .langs .lang input { flex: none; margin: 0; }
 @media (max-width: 420px) { #tab-language .langs .lang { padding: 10px; gap: 10px; } }
+html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936; }
+
+/* Match the skin editor's preview card and shared backdrop preferences. */
+.cape-preview { padding: 16px; }
+.cape-preview-header { gap: 12px; align-items: flex-start; margin-bottom: 16px; }
+.cape-preview-heading { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.cape-preview-heading > span:last-child { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
+.cape-preview-heading .tool-ic { width: 44px; height: 44px; }
+.cape-preview-heading .tool-ic .ic { width: 24px; height: 24px; margin: 0; }
+.cape-preview-heading b { font-size: 16px; line-height: 1.2; }
+.cape-preview-heading small { color: var(--muted); font-size: 12px; line-height: 1.3; }
+.cape-preview-view { height: clamp(300px, 36vw, 460px); background: var(--editor-backdrop, var(--bg)); }
+.cape-preview .backdrop-controls { margin-bottom: 12px; }
+@media (max-width: 1050px) { .cape-preview-view { height: 340px; } }
+@media (max-width: 420px) { .cape-preview-header { flex-wrap: wrap; } .cape-preview-view { height: 300px; } }

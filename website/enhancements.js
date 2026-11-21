@@ -47,7 +47,7 @@
   panel.innerHTML =
     '<button class="fmf-close" type="button" aria-label="Close settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button>' +
     '<h2>Quick settings</h2>' +
-    '<div class="fmf-setting-row"><span>Theme</span><select aria-label="Theme" data-fmf-theme><option value="glass">Glass</option><option value="dark">Dark</option><option value="light">Light</option><option value="oled">OLED</option><option value="minecraft">Minecraft</option><option value="nightsky">Night Sky</option><option value="system">System</option></select></div>' +
+    '<div class="fmf-setting-row"><span>Theme</span><select aria-label="Theme" data-fmf-theme><option value="glass">Glass</option><option value="dark">Dark</option><option value="light">Light</option><option value="oled">OLED</option><option value="minecraft">Minecraft</option><option value="nightsky">Night Sky</option><option value="livesky">Live Sky</option><option value="system">System</option></select></div>' +
     '<label><span>Glass card blur</span><input type="checkbox" data-fmf-glass-blur></label>' +
     '<div class="fmf-setting-row"><span>Text size</span><select aria-label="Text size" data-fmf-size><option value="normal">Normal</option><option value="large">Large</option></select></div>' +
     '<label><span>High contrast</span><input type="checkbox" data-fmf-contrast></label>' +
@@ -67,7 +67,7 @@
   if (!savedTheme) {
     try { var themeCookie = document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/); if (themeCookie) savedTheme = themeCookie[1]; } catch (e) {}
   }
-  themeSelect.value = ["glass","dark","light","oled","minecraft","nightsky","system"].indexOf(savedTheme) >= 0 ? savedTheme : "dark";
+  themeSelect.value = ["glass","dark","light","oled","minecraft","nightsky","livesky","system"].indexOf(savedTheme) >= 0 ? savedTheme : "dark";
   sizeSelect.value = saved("fmf-extra-size","normal");
   contrast.checked = saved("fmf-extra-contrast","0") === "1";
   motion.checked = saved("fmf-extra-motion", reduce ? "1" : "0") === "1";
