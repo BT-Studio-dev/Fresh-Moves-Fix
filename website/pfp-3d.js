@@ -30,8 +30,10 @@ window.drawPfp3d = function (ctx, skin, options) {
         faces.forEach(function(fn,fi){
           var r=rects[fi], a=point(name,...fn(0,0)),b=point(name,...fn(r[2],0)),c=point(name,...fn(0,r[3]));
           var cross=(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]); if(fi===5)cross=-cross;
-          if(cross<=0 && !layer)return;
-          var shade=cross<=0?0.7:fi<2?1:fi<4?0.82:fi===4?1:0.6;
+          // Do not paint the far side of the outer shell over neighboring pixels.
+          // Keep alpha on the visible side, so translucent/glass pixels remain translucent.
+          if(cross<=0)return;
+          var shade=fi<2?1:fi<4?0.82:fi===4?1:0.6;
           for(var j=0;j<r[3];j++)for(var i=0;i<r[2];i++){
             var o=((r[1]+j)*64+r[0]+i)*4;if(!pixels[o+3])continue;
             var q=[point(name,...fn(i,j)),point(name,...fn(i+1,j)),point(name,...fn(i+1,j+1)),point(name,...fn(i,j+1))];
