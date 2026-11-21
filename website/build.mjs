@@ -1231,11 +1231,6 @@ write("index.html", page({
       <span class="tool-text">Put movements in a row with your own skin and save the animation as a video.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Animation</i><i>Video</i></span>
     </a>
-    <a class="tool" href="cape/">
-      <span class="tool-head"><span class="tool-ic">${ICON.box}</span><span><b>Cape Editor</b><small>by Fresh Moves Fix</small></span></span>
-      <span class="tool-text">Paint a cape texture or make an elytra pack for Minecraft Java.</span>
-      <span class="tags"><i class="g">New</i><i>Java</i><i>Cape PNG</i><i>Elytra</i></span>
-    </a>
   </div>
 </section>
 
