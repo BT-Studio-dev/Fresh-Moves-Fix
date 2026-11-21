@@ -47,11 +47,11 @@
   panel.innerHTML =
     '<button class="fmf-close" type="button" aria-label="Close settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button>' +
     '<h2>Quick settings</h2>' +
-    '<div class="fmf-setting-row"><span>Theme</span><select aria-label="Theme" data-fmf-theme><option value="glass">Glass</option><option value="dark">Dark</option><option value="light">Light</option><option value="oled">OLED</option><option value="minecraft">Minecraft</option><option value="nightsky">Night Sky</option><option value="livesky">Live Sky</option><option value="system">System</option></select></div>' +
-    '<label><span>Glass card blur</span><input type="checkbox" data-fmf-glass-blur></label>' +
-    '<div class="fmf-setting-row"><span>Text size</span><select aria-label="Text size" data-fmf-size><option value="normal">Normal</option><option value="large">Large</option></select></div>' +
-    '<label class="fmf-contrast-control"><span><b>High contrast</b><small>Stronger text and borders</small></span><input type="checkbox" data-fmf-contrast></label>' +
-    '<label><span>Reduce motion</span><input type="checkbox" data-fmf-motion></label>' +
+    '<div class="fmf-setting-row fmf-option"><span><b>Theme</b><small>Choose your look</small></span><select aria-label="Theme" data-fmf-theme><option value="glass">Glass</option><option value="dark">Dark</option><option value="light">Light</option><option value="oled">OLED</option><option value="minecraft">Minecraft</option><option value="nightsky">Night Sky</option><option value="livesky">Live Sky</option><option value="system">System</option></select></div>' +
+    '<label class="fmf-option fmf-switch"><span><b>Glass card blur</b><small>Available with Glass theme</small></span><input type="checkbox" data-fmf-glass-blur></label>' +
+    '<div class="fmf-setting-row fmf-option"><span><b>Text size</b><small>Make text easier to read</small></span><select aria-label="Text size" data-fmf-size><option value="normal">Normal</option><option value="large">Large</option></select></div>' +
+    '<label class="fmf-option fmf-switch"><span><b>High contrast</b><small>Stronger text and borders</small></span><input type="checkbox" data-fmf-contrast></label>' +
+    '<label class="fmf-option fmf-switch"><span><b>Reduce motion</b><small>Minimize animations</small></span><input type="checkbox" data-fmf-motion></label>' +
     '<p class="fmf-hint">Settings are saved on this device. Your existing site settings remain available.</p>';
   body.appendChild(panel);
 
@@ -68,7 +68,8 @@
     try { var themeCookie = document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/); if (themeCookie) savedTheme = themeCookie[1]; } catch (e) {}
   }
   themeSelect.value = ["glass","dark","light","oled","minecraft","nightsky","livesky","system"].indexOf(savedTheme) >= 0 ? savedTheme : "dark";
-  sizeSelect.value = saved("fmf-extra-size","normal");
+  var savedSize = saved("fmf-extra-size","normal");
+  sizeSelect.value = savedSize === "large" ? "large" : "normal";
   contrast.checked = saved("fmf-extra-contrast","0") === "1";
   motion.checked = saved("fmf-extra-motion", reduce ? "1" : "0") === "1";
   glassBlur.checked = saved("fmf-glass-blur", "1") === "1";
