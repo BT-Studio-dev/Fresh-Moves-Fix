@@ -659,23 +659,30 @@ write("paint/index.html", page({
 <p>Paint your Minecraft skin pixel by pixel, on the 3D model or on the flat skin file. Everything happens in your browser; the skin is not uploaded anywhere. It works without 3D graphics (WebGL).</p>
 </div>
 
+<div class="painter-workspace-bar"><div><b>Skin Painter</b><small>64 × 64 skin editor</small></div><nav aria-label="Painter views"><a href="#p3d">${ICON.box} 3D model</a><a href="#p2d">${ICON.grid} Flat skin</a></nav><a class="btn ghost" href="#painter-file">${ICON.up} Skin file</a></div>
 <div class="ed paint workspace-layout">
-  <div class="ed-col">
-  <section class="panel ecard">
+  <div class="ed-col painter-tools-column">
+  <section class="panel ecard painter-tools-card">
     <h3 class="ehead"><img class="tool-img" src="../icon-paint.png" alt="" width="44" height="44"><span><b>Tools</b><small>Pick a tool, pick a colour, then click the model</small></span></h3>
     <div class="ptools" id="ptools">
-      <button type="button" data-tool="pen" title="Pen (B)">Pen</button>
-      <button type="button" data-tool="erase" title="Eraser (E)">Eraser</button>
-      <button type="button" data-tool="fill" title="Fill one side of a body part (G)">Fill</button>
-      <button type="button" data-tool="pick" title="Take a colour from the skin (I)">Take colour</button>
-      <button type="button" data-tool="light" title="Make pixels lighter (L)">Lighter</button>
-      <button type="button" data-tool="dark" title="Make pixels darker (D)">Darker</button>
-      <button type="button" data-tool="tone" title="Paints the colour a little lighter or darker on every pixel, so it looks less flat (T)">Auto tone</button>
+      <button type="button" data-tool="pen" title="Pen (B)">${ICON.brush}<span>Pen</span></button>
+      <button type="button" data-tool="erase" title="Eraser (E)">${ICON.close}<span>Eraser</span></button>
+      <button type="button" data-tool="fill" title="Fill one side of a body part (G)">${ICON.box}<span>Fill</span></button>
+      <button type="button" data-tool="pick" title="Take a colour from the skin (I)">${ICON.eye}<span>Take colour</span></button>
+      <button type="button" data-tool="light" title="Make pixels lighter (L)">${ICON.star}<span>Lighter</span></button>
+      <button type="button" data-tool="dark" title="Make pixels darker (D)">${ICON.star}<span>Darker</span></button>
+      <button type="button" data-tool="tone" title="Paints the colour a little lighter or darker on every pixel, so it looks less flat (T)">${ICON.grid}<span>Auto tone</span></button>
     </div>
     <p class="prow"><span>Size</span> <span class="pviews psize"><button type="button" data-psize="1" class="on" aria-pressed="true">1</button><button type="button" data-psize="2" aria-pressed="false">2</button><button type="button" data-psize="3" aria-pressed="false">3</button><button type="button" data-psize="4" aria-pressed="false">4</button></span>
       <label title="Paints the left and the right half of the player at the same time"><input type="checkbox" id="psym"> Symmetry</label>
       <label><input type="checkbox" id="pgrid" checked> Pixel grid</label></p>
     <p class="prow"><button type="button" class="btn ghost" id="pundo" title="Ctrl+Z">Undo</button> <button type="button" class="btn ghost" id="predo" title="Ctrl+Y">Redo</button></p>
+
+  </section>
+  </div>
+  <div class="ed-col workspace-side">
+  <section class="panel ecard painter-colour-card">
+    <h3 class="ehead"><span class="tool-ic">${ICON.brush}</span><span><b>Colour &amp; layers</b><small>Choose your colours and paint layer</small></span></h3>
     <p class="elabel">Colour</p>
     <p class="prow"><span class="pnow" id="pnow"></span> <input type="color" id="pcolor" value="#3b82c4" aria-label="Colour"> <input type="text" id="phex" class="phex" value="#3b82c4" maxlength="7" spellcheck="false" aria-label="Colour code"></p>
     <p class="prow"><span>Second colour (right click)</span> <span class="pnow" id="pnow2"></span> <input type="color" id="pcolor2" value="#ffffff" aria-label="Second colour"> <button type="button" class="btn ghost" id="pswap">Swap</button></p>
@@ -689,9 +696,7 @@ write("paint/index.html", page({
     <p class="prow"><label><input type="radio" name="player" value="0" checked> Skin (first layer)</label> <label><input type="radio" name="player" value="1"> Outer layer (hat, jacket, sleeves)</label></p>
     <p class="prow"><label><input type="checkbox" id="pshow" checked> Show the outer layer</label></p>
   </section>
-  </div>
-  <div class="ed-col workspace-side">
-  <section class="panel ecard">
+  <section class="panel ecard" id="painter-file">
     <h3 class="ehead"><img class="tool-img" src="../icon-skin.png" alt="" width="44" height="44"><span><b>Skin file</b><small>Load a skin, or start from one of these</small></span></h3>
     <label class="drop" id="pdrop">
       <input type="file" id="pfile" accept="image/png" class="vh">
