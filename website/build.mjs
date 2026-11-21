@@ -1119,6 +1119,11 @@ write("index.html", page({
   </div>
 </div>
 
+<aside class="owner-profile" aria-label="Owner profile">
+  <span class="owner-profile-icon" aria-hidden="true">${ICON.person}</span>
+  <div><span class="home-eyebrow">OWNER PROFILE</span><h2>lie_kg</h2><p>Owner of Fresh Moves Fix</p></div>
+</aside>
+
 <section class="home-section">
   <div class="note"><strong>Beta.</strong> Blinking and moving eyes have worked in a player’s game; other features and versions still need testing. On Minecraft 1.21.4 and newer the cape and elytra may not be animated.</div>
   <div class="home-heading"><div><span class="home-eyebrow">THE PACK</span><h2>${ICON.star} What it does</h2></div><p>Little details, more personality.</p></div>
