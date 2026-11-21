@@ -192,7 +192,7 @@ fs.writeFileSync(path.join(out, "tableau.json"), JSON.stringify({
   version: "1.0", api_version: 1,
   layout: { logo: SITE + "tile-logo.png", color: "#17362a", show_title: true },
 }));
-for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png", "icon-painted.png", "icon-paint-pixel.svg", "icon-model-pixel.svg", "icon-anim-pixel.svg", "icon-cape-project-pixel.svg", "icon-lock-project-pixel.svg"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
+for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png", "icon-painted.png", "icon-painter-dummy.png", "icon-paint-pixel.svg", "icon-model-pixel.svg", "icon-anim-pixel.svg", "icon-cape-project-pixel.svg", "icon-lock-project-pixel.svg"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner-profile.png", "owner-skin.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "refresh-2026.css"), path.join(out, "refresh-2026.css"));
@@ -714,7 +714,7 @@ write("paint/index.html", page({
     <div class="pick" id="pstart">
       <button type="button" class="pickb" data-name="Steve" data-slim="0" data-skin="${skinData("wide/steve.png")}"><img src="../icon-skin.png" alt="" width="36" height="36"><span><b>Steve</b><small>Default skin</small></span></button>
       <button type="button" class="pickb" data-name="Alex" data-slim="1" data-skin="${skinData("slim/alex.png")}"><img src="../icon-alex.png" alt="" width="36" height="36"><span><b>Alex</b><small>Default skin</small></span></button>
-      <button type="button" class="pickb" data-name="Dummy (blank face)" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "painted.png")).toString("base64")}"><img src="../icon-painted.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Blank face</small></span></button>
+      <button type="button" class="pickb" data-name="Dummy" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "painter-dummy.png")).toString("base64")}"><img src="../icon-painter-dummy.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Custom skin</small></span></button>
     </div>
     <p class="elabel">Format</p>
     <div class="pick">
