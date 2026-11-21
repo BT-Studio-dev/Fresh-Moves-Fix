@@ -190,7 +190,7 @@ fs.writeFileSync(path.join(out, "tableau.json"), JSON.stringify({
   version: "1.0", api_version: 1,
   layout: { logo: SITE + "tile-logo.png", color: "#17362a", show_title: true },
 }));
-for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png", "icon-painted.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
+for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png", "icon-painted.png", "icon-paint-pixel.svg", "icon-model-pixel.svg", "icon-anim-pixel.svg", "icon-cape-project-pixel.svg", "icon-lock-project-pixel.svg"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner-profile.png", "owner-skin.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "refresh-2026.css"), path.join(out, "refresh-2026.css"));
@@ -663,7 +663,7 @@ write("paint/index.html", page({
 <div class="ed paint workspace-layout">
   <div class="ed-col painter-tools-column">
   <section class="panel ecard painter-tools-card">
-    <h3 class="ehead"><img class="tool-img" src="../icon-paint.png" alt="" width="44" height="44"><span><b>Tools</b><small>Pick a tool, pick a colour, then click the model</small></span></h3>
+    <h3 class="ehead"><img class="tool-img" src="../icon-paint-pixel.svg" alt="" width="44" height="44"><span><b>Tools</b><small>Pick a tool, pick a colour, then click the model</small></span></h3>
     <div class="ptools" id="ptools">
       <button type="button" data-tool="pen" title="Pen (B)">${ICON.brush}<span>Pen</span></button>
       <button type="button" data-tool="erase" title="Eraser (E)">${ICON.close}<span>Eraser</span></button>
@@ -788,7 +788,7 @@ const studioSkin = `<section class="panel ecard">
       <button type="button" class="pickb" data-name="Dummy (tall eyes)" data-skin="${fileData("dummy.png")}"><img src="../icon-dummy.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Tall eyes</small></span></button>
       <button type="button" class="pickb" data-name="Dummy (dot eyes)" data-skin="${fileData("dummy2.png")}"><img src="../icon-dummy2.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Dot eyes</small></span></button>
       <button type="button" class="pickb" data-name="Dummy (blank face)" data-skin="${fileData("painted.png")}"><img src="../icon-painted.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Blank face</small></span></button>
-      <button type="button" class="pickb" id="smine" hidden><img src="../icon-paint.png" alt="" width="36" height="36"><span><b>My painting</b><small>From the Skin Painter 3D</small></span></button>
+      <button type="button" class="pickb" id="smine" hidden><img src="../icon-paint-pixel.svg" alt="" width="36" height="36"><span><b>My painting</b><small>From the Skin Painter 3D</small></span></button>
     </div>
     <p class="prow"><label>Format <select id="sformat"><option value="wide">Wide arms (Steve)</option><option value="slim">Slim arms (Alex)</option></select></label></p>
     <p class="prow"><a class="btn ghost" href="../paint/">${ICON.brush} Paint a skin</a> <a class="btn ghost" href="../editor/">${ICON.eye} Add moving eyes</a></p>
@@ -824,7 +824,7 @@ write("model/index.html", page({
   <div class="ed-col">
   ${studioSkin}
   <section class="panel ecard">
-    <h3 class="ehead"><img class="tool-img" src="../icon-model.png" alt="" width="44" height="44"><span><b>2. Movement and download</b><small>The model moves like this, again and again</small></span></h3>
+    <h3 class="ehead"><img class="tool-img" src="../icon-model-pixel.svg" alt="" width="44" height="44"><span><b>2. Movement and download</b><small>The model moves like this, again and again</small></span></h3>
     <p class="prow"><label>Movement <select id="smove">${MOVE_OPTS}</select></label></p>
     <p class="prow"><button type="button" class="btn" id="sgltf">${ICON.down} Download 3D model (.gltf)</button></p>
     <p><small>One .gltf file with the player, your skin (both layers) and the chosen movement inside.</small></p>
@@ -861,7 +861,7 @@ write("animation/index.html", page({
   <div class="ed-col">
   ${studioSkin}
   <section class="panel ecard">
-    <h3 class="ehead"><img class="tool-img" src="../icon-anim.png" alt="" width="44" height="44"><span><b>2. Movements</b><small>They play one after the other, from top to bottom</small></span></h3>
+    <h3 class="ehead"><img class="tool-img" src="../icon-anim-pixel.svg" alt="" width="44" height="44"><span><b>2. Movements</b><small>They play one after the other, from top to bottom</small></span></h3>
     <div class="tl" id="tl"></div>
     <p class="prow"><label>Add <select id="tlmove">${MOVE_OPTS}</select></label> <label>for <input type="number" id="tlsecs" class="tlsecs" min="0.5" max="30" step="0.5" value="3"> seconds</label> <button type="button" class="btn ghost" id="tladd">Add</button></p>
     <p class="prow"><small>Whole animation: <b id="tltotal"></b></small> <label><input type="checkbox" id="tlloop" checked> Repeat</label></p>
@@ -1099,13 +1099,13 @@ write("creations/index.html", page({
 <header class="projects-heading"><h1>Projects</h1><p>Projects and creative tools from Fresh Moves Fix.</p></header>
 <div class="projects-grid">
   <a class="project-card" href="../#download"><img src="../pack.png" alt="" width="112" height="112"><h2>Fresh Moves Fix</h2><p>Player animations and animated eyes for Minecraft Java.</p><span>View downloads ${ICON.right}</span></a>
-  <a class="project-card" href="../paint/"><img src="../icon-paint.png" alt="" width="112" height="112"><h2>Skin Painter 3D</h2><p>Paint a skin pixel by pixel in your browser.</p><span>Open painter ${ICON.right}</span></a>
+  <a class="project-card" href="../paint/"><img src="../icon-paint-pixel.svg" alt="" width="112" height="112"><h2>Skin Painter 3D</h2><p>Paint a skin pixel by pixel in your browser.</p><span>Open painter ${ICON.right}</span></a>
   <a class="project-card" href="../editor/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Skin eye editor</h2><p>Add animated eye markers to your skin.</p><span>Open editor ${ICON.right}</span></a>
   <a class="project-card" href="../title/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Title</h2><p>Make and download a block-letter title picture.</p><span>Open title maker ${ICON.right}</span></a>
-  <a class="project-card" href="../model/"><img src="../icon-model.png" alt="" width="112" height="112"><h2>Minecraft 3D Model</h2><p>Turn your skin into an animated 3D model file.</p><span>Open model maker ${ICON.right}</span></a>
-  <a class="project-card" href="../animation/"><img src="../icon-anim.png" alt="" width="112" height="112"><h2>Minecraft Animation</h2><p>Arrange movements and save an animation as a video.</p><span>Open animation tool ${ICON.right}</span></a>
-  <a class="project-card" href="../cape/"><span class="project-icon" aria-hidden="true">${ICON.box}</span><h2>Cape Pack Builder</h2><p>Make a cape texture or a Java elytra pack.</p><span>Open builder ${ICON.right}</span></a>
-  <div class="project-card project-soon"><span class="project-icon" aria-hidden="true">${ICON.lock}</span><h2>Minecraft Skins</h2><p>A separate Fabric mod. Downloads are temporarily locked.</p><span>Coming soon</span></div>
+  <a class="project-card" href="../model/"><img src="../icon-model-pixel.svg" alt="" width="112" height="112"><h2>Minecraft 3D Model</h2><p>Turn your skin into an animated 3D model file.</p><span>Open model maker ${ICON.right}</span></a>
+  <a class="project-card" href="../animation/"><img src="../icon-anim-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Animation</h2><p>Arrange movements and save an animation as a video.</p><span>Open animation tool ${ICON.right}</span></a>
+  <a class="project-card" href="../cape/"><img src="../icon-cape-project-pixel.svg" alt="" width="112" height="112"><h2>Cape Pack Builder</h2><p>Make a cape texture or a Java elytra pack.</p><span>Open builder ${ICON.right}</span></a>
+  <div class="project-card project-soon"><img src="../icon-lock-project-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Skins</h2><p>A separate Fabric mod. Downloads are temporarily locked.</p><span>Coming soon</span></div>
 </div></div>`,
 }));
 
@@ -1205,7 +1205,7 @@ write("index.html", page({
       <span class="tags"><i class="g">Minecraft</i><i>Skin</i><i>Eyes</i><i>Mouth</i></span>
     </a>
     <a class="tool" href="paint/">
-      <span class="tool-head"><img class="tool-img" src="icon-paint.png" alt="" width="48" height="48"><span><b>Skin Painter 3D</b><small>by Fresh Moves Fix</small></span></span>
+      <span class="tool-head"><img class="tool-img" src="icon-paint-pixel.svg" alt="" width="48" height="48"><span><b>Skin Painter 3D</b><small>by Fresh Moves Fix</small></span></span>
       <span class="tool-text">Paint your Minecraft skin right on a 3D model, pixel by pixel.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Skin</i><i>Paint</i><i>3D</i></span>
     </a>
@@ -1215,12 +1215,12 @@ write("index.html", page({
       <span class="tags"><i class="g">Minecraft</i><i>Title</i><i>Logo</i></span>
     </a>
     <a class="tool" href="model/">
-      <span class="tool-head"><img class="tool-img" src="icon-model.png" alt="" width="48" height="48"><span><b>Minecraft 3D Model</b><small>by Fresh Moves Fix</small></span></span>
+      <span class="tool-head"><img class="tool-img" src="icon-model-pixel.svg" alt="" width="48" height="48"><span><b>Minecraft 3D Model</b><small>by Fresh Moves Fix</small></span></span>
       <span class="tool-text">Turn your skin into an animated 3D model file for Blender or Blockbench.</span>
       <span class="tags"><i class="g">Minecraft</i><i>3D Model</i><i>Animated</i></span>
     </a>
     <a class="tool" href="animation/">
-      <span class="tool-head"><img class="tool-img" src="icon-anim.png" alt="" width="48" height="48"><span><b>Minecraft Animation</b><small>by Fresh Moves Fix</small></span></span>
+      <span class="tool-head"><img class="tool-img" src="icon-anim-pixel.svg" alt="" width="48" height="48"><span><b>Minecraft Animation</b><small>by Fresh Moves Fix</small></span></span>
       <span class="tool-text">Put movements in a row with your own skin and save the animation as a video.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Animation</i><i>Video</i></span>
     </a>
