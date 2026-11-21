@@ -713,8 +713,6 @@ write("paint/index.html", page({
     <div class="pick" id="pstart">
       <button type="button" class="pickb" data-name="Steve" data-slim="0" data-skin="${skinData("wide/steve.png")}"><img src="../icon-skin.png" alt="" width="36" height="36"><span><b>Steve</b><small>Default skin</small></span></button>
       <button type="button" class="pickb" data-name="Alex" data-slim="1" data-skin="${skinData("slim/alex.png")}"><img src="../icon-alex.png" alt="" width="36" height="36"><span><b>Alex</b><small>Default skin</small></span></button>
-      <button type="button" class="pickb" data-name="Dummy (tall eyes)" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "dummy.png")).toString("base64")}"><img src="../icon-dummy.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Tall eyes</small></span></button>
-      <button type="button" class="pickb" data-name="Dummy (dot eyes)" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "dummy2.png")).toString("base64")}"><img src="../icon-dummy2.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Dot eyes</small></span></button>
       <button type="button" class="pickb" data-name="Dummy (blank face)" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "painted.png")).toString("base64")}"><img src="../icon-painted.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Blank face</small></span></button>
     </div>
     <p class="elabel">Format</p>
