@@ -581,3 +581,17 @@ a.project-card:focus-visible { outline: 2px solid var(--accent); outline-offset:
 .cape-preview-controls select { color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 5px; }
 .cape-preview-help, .cape-preview-error { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
 @media (max-width: 1050px) { .cape-stage-center { flex-direction: column; align-items: stretch; } .cape-stage-center .cape-canvas-wrap { flex: none; } .cape-preview { flex: none; max-width: none; } .cape-preview-view { height: 260px; } }
+
+/* Eyes Only remains a direct release download, presented as a clear pack card. */
+a.eyes-download-card { display: flex; align-items: center; gap: 16px; padding: 18px; margin: 12px 0 18px; text-decoration: none; }
+a.eyes-download-card:hover { border-color: var(--accent); }
+a.eyes-download-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.eyes-download-icon { display: grid; place-items: center; width: 52px; height: 52px; flex: none; border-radius: 10px; color: var(--accent); background: var(--bg); }
+.eyes-download-icon .ic { width: 26px; height: 26px; margin: 0; }
+.eyes-download-copy { flex: 1; min-width: 0; }
+.eyes-download-copy b, .eyes-download-copy small, .eyes-download-meta { display: block; }
+.eyes-download-copy b { color: var(--text); font-size: 17px; }
+.eyes-download-copy small { color: var(--muted); margin-top: 4px; line-height: 1.4; }
+.eyes-download-meta { color: var(--muted); font-size: 12px; margin-top: 7px; }
+.eyes-download-action { display: inline-flex; align-items: center; gap: 6px; flex: none; color: var(--accent); font-weight: 700; }
+@media (max-width: 520px) { a.eyes-download-card { flex-wrap: wrap; } .eyes-download-action { margin-left: 68px; } }

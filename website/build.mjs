@@ -1251,8 +1251,12 @@ write("index.html", page({
 
 <section id="download" class="home-section">
   <div class="home-heading"><div><span class="home-eyebrow">READY TO PLAY?</span><h2>${ICON.down} Download</h2></div><p>Choose the pack and version that fit your game.</p></div>
-  <p><a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">${ICON.down} Fresh-Moves-Fix.zip - all versions</a>
-    <a class="btn ghost" href="${dl("Fresh-Moves-Fix-Eyes-Only.zip")}">${ICON.down} Eyes only - all versions</a></p>
+  <p><a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">${ICON.down} Fresh-Moves-Fix.zip - all versions</a></p>
+  <a class="card eyes-download-card" href="${dl("Fresh-Moves-Fix-Eyes-Only.zip")}">
+    <span class="eyes-download-icon" aria-hidden="true">${ICON.eye}</span>
+    <span class="eyes-download-copy"><b>Eyes Only</b><small>Animated eyes without body animations or emotes</small><span class="eyes-download-meta">Java resource pack · All supported versions · ZIP</span></span>
+    <span class="eyes-download-action">${ICON.down} Download</span>
+  </a>
   <div class="text-card download-info">
   <p><strong>Eyes only</strong> is the same pack without the body animations: the eyes blink and look around, and walking, running and the arms stay as in normal Minecraft. It has no emotes. Use one of the two packs, not both. New and not tested in the game.</p>
   <p class="reltime" id="reltime"${releaseTime ? "" : " hidden"}>${ICON.tag} <span>Release <b>v${version}</b> · updated <time datetime="${releaseTime}">${releaseTime ? releaseTime.replace("T", " ").replace(/:\d\dZ$/, " UTC") : ""}</time></span></p>
