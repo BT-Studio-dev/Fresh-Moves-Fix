@@ -402,3 +402,118 @@ a.project-card:focus-visible { outline: 2px solid var(--accent); outline-offset:
 .backdrop-custom { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; }
 .backdrop-custom input[type="color"] { width: 30px; height: 30px; padding: 0; }
 .workspace-preview #view3d, .workspace-preview canvas.p3d { background: var(--editor-backdrop, var(--bg)); }
+
+/* Painter workspace: tool rail, central canvas, colour and file panels. */
+.painter-workspace-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 22px; padding: 12px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; }
+.painter-workspace-bar > div { display: grid; line-height: 1.25; margin-right: auto; }
+.painter-workspace-bar small { color: var(--muted); }
+.painter-workspace-bar nav { display: flex; flex-wrap: wrap; gap: 6px; }
+.painter-workspace-bar nav a { display: inline-flex; align-items: center; gap: 6px; padding: 8px 10px; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; text-decoration: none; font-size: 14px; }
+.painter-workspace-bar nav a:hover, .painter-workspace-bar nav a:focus-visible { border-color: var(--accent); }
+.painter-workspace-bar .btn { margin: 0; }
+.painter-page .paint { margin-top: 12px; }
+.painter-page .paint .ptools { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.painter-page .paint .ptools button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 62px; font-size: 13px; }
+.painter-page .paint .ptools button .ic { margin: 0; }
+.painter-page .paint .painter-colour-card .elabel:first-of-type { margin-top: 0; }
+@media (min-width: 1051px) { .painter-page .workspace-layout { grid-template-columns: minmax(185px, .6fr) minmax(320px, 1.6fr) minmax(270px, 1fr); } }
+@media (max-width: 560px) { .painter-workspace-bar { align-items: flex-start; } .painter-workspace-bar > div { width: 100%; } }
+[data-theme="minecraft"] .painter-workspace-bar, [data-theme="minecraft"] .painter-workspace-bar nav a { border-radius: 3px; }
+
+/* Homepage hero refresh: keep the familiar icon left, with a clearer hierarchy. */
+.home-hero { gap: clamp(26px, 4vw, 48px); padding: clamp(24px, 4.5vw, 52px); border-radius: 20px; }
+.home-hero::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--accent); }
+.home-hero .hero-art { flex-direction: column; gap: 12px; }
+.home-hero .hero-art img { border: 1px solid var(--line); border-radius: 16px; }
+.hero-art-caption { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .14em; }
+.home-hero .hero-kicker { padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.home-hero h1.mc-title { margin: 20px 0; }
+.home-hero p.hero-lead { font-size: clamp(22px, 2.5vw, 30px); }
+.home-hero .hero-actions { gap: 10px; margin: 24px 0 20px; }
+.home-hero .hero-actions .btn { min-height: 48px; box-sizing: border-box; }
+.home-hero .hero-meta span, .home-hero .hero-meta a { padding: 5px 9px; border: 1px solid var(--line); border-radius: 8px; text-decoration: none; }
+.home-hero .hero-meta a:hover, .home-hero .hero-meta a:focus-visible { border-color: var(--accent); }
+[data-theme="minecraft"] .home-hero, [data-theme="minecraft"] .home-hero .hero-art img, [data-theme="minecraft"] .home-hero .hero-kicker, [data-theme="minecraft"] .home-hero .hero-meta span, [data-theme="minecraft"] .home-hero .hero-meta a { border-radius: 3px; }
+@media (max-width: 760px) { .home-hero .hero-art { align-items: flex-start; } .home-hero .hero-art img { width: 120px; } }
+
+/* Compact workstation on wide screens, with the drawing surface prominent. */
+.painter-history .prow { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
+.painter-history .btn { margin: 0; padding: 8px 12px; }
+.painter-brush-controls { padding: 10px 12px; margin-bottom: 14px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; }
+.painter-brush-controls .prow { margin: 0; }
+@media (min-width: 1051px) {
+  .painter-page .workspace-layout { grid-template-columns: 106px minmax(360px, 1fr) minmax(280px, 330px); gap: 8px; }
+  .painter-page .paint .painter-tools-card { padding: 10px; }
+  .painter-page .painter-tools-card .ehead { display: block; text-align: center; font-size: 14px; margin: 4px 0 10px; }
+  .painter-page .painter-tools-card .ehead img, .painter-page .painter-tools-card .ehead small { display: none; }
+  .painter-page .paint .ptools { grid-template-columns: 1fr; gap: 5px; }
+  .painter-page .paint .ptools button { min-height: 56px; }
+}
+[data-theme="minecraft"] .painter-brush-controls { border-radius: 3px; }
+.painter-workspace-bar > .painter-history { display: block; margin-right: 0; }
+.painter-page .paint canvas.p3d { max-width: 560px; }
+
+/* Painter view toggle, in-place colour picker and per-layer visibility. */
+.painter-view-switch { display: flex; gap: 4px; margin-right: auto; }
+.painter-view-switch button { display: inline-flex; align-items: center; gap: 5px; padding: 8px 12px; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; font: inherit; }
+.painter-view-switch button[aria-pressed="true"] { color: var(--on-accent); background: var(--accent); border-color: var(--accent); }
+.painter-view-switch button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.painter-page .paint .inline-picker { position: static; display: block; width: auto; max-width: 100%; box-sizing: border-box; box-shadow: none; margin: 8px 0; }
+.painter-page .paint .inline-picker .pk-sv { width: 100%; max-width: 220px; }
+.painter-page .paint .inline-picker .pk-head[hidden], .painter-page .paint .sw[hidden] { display: none; }
+.painter-layers { margin-top: 18px; }
+.painter-layers h4 { margin: 0 0 8px; }
+.painter-layers table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.painter-layers th, .painter-layers td { padding: 7px 4px; text-align: left; background: transparent; }
+.painter-layers td { text-align: center; }
+.painter-layers input { accent-color: var(--accent); }
+.painter-flat-hint { color: var(--muted); font-size: 13px; }
+.painter-colour-card .inline-picker-wrap { display: block; width: 100%; }
+
+/* Center incomplete rows and keep all project cards consistently sized. */
+.projects-grid { display: flex; flex-wrap: wrap; justify-content: center; align-items: stretch; }
+.projects-grid .project-card { flex: 1 1 240px; max-width: calc((100% - 32px) / 3); min-height: 260px; }
+.projects-grid a.project-card { transition: border-color .12s, transform .12s; }
+@media (hover: hover) { .projects-grid a.project-card:hover { transform: translateY(-2px); } }
+@media (max-width: 820px) { .projects-grid .project-card { max-width: calc((100% - 16px) / 2); } }
+@media (max-width: 560px) { .projects-grid .project-card { flex-basis: 100%; max-width: 100%; } }
+@media (prefers-reduced-motion: reduce) { .projects-grid a.project-card { transition: none; } .projects-grid a.project-card:hover { transform: none; } }
+
+/* A cleaner painter colour and layer panel, retaining glass and second colour. */
+.painter-colour-card .inline-picker .pk-row, .painter-colour-card .inline-picker .pk-sws { display: none; }
+.painter-colour-card .inline-picker { padding: 0; border: 0; background: transparent; }
+.painter-colour-card .painter-main-colour { align-items: flex-start; }
+.painter-colour-card .pnow { width: 48px; height: 42px; }
+.painter-second-colour { margin: 16px 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+.painter-second-colour summary { cursor: pointer; color: var(--text); font-weight: 600; }
+.painter-second-colour .prow { margin: 10px 0 0; }
+.painter-colour-card #palpha { width: 100%; max-width: 220px; }
+.painter-layer-choice { display: flex; gap: 4px; padding: 4px; margin: 8px 0 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; }
+.painter-layer-choice label { flex: 1; cursor: pointer; }
+.painter-layer-choice input { position: absolute; opacity: 0; }
+.painter-layer-choice span { display: block; padding: 9px; border-radius: 7px; text-align: center; font-weight: 600; }
+.painter-layer-choice input:checked + span { background: var(--accent); color: var(--on-accent); }
+.painter-layer-choice input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.painter-layers table, .painter-layers th, .painter-layers td { border: 0; }
+.painter-layers th { font-weight: 600; }
+.layer-eye { display: inline-grid; place-items: center; cursor: pointer; }
+.layer-eye input { position: absolute; opacity: 0; }
+.layer-eye .ic { margin: 0; width: 18px; height: 18px; color: var(--muted); opacity: .3; }
+.layer-eye input:checked + .ic { opacity: 1; color: var(--text); }
+.layer-eye.outer input:checked + .ic { color: var(--accent); }
+.layer-eye input:focus-visible + .ic { outline: 2px solid var(--accent); outline-offset: 3px; }
+.painter-live-preview { display: grid; justify-items: center; gap: 6px; width: 150px; max-width: 100%; margin: 12px 0 0; padding: 10px; box-sizing: border-box; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; }
+.painter-live-preview b { color: var(--muted); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.painter-live-preview canvas { width: 120px; max-width: 100%; height: auto; border: 0; }
+.layer-master { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; cursor: pointer; }
+.layer-master input { margin: 0; accent-color: var(--accent); }
+
+/* Opacity sits directly under hue; the checker shows transparency. */
+.painter-colour-card .picker-opacity { display: grid; grid-template-columns: 1fr auto; gap: 5px 8px; align-items: center; margin-top: 10px; color: var(--muted); font-size: 12px; }
+.painter-colour-card .picker-opacity .tnum { text-align: right; }
+.painter-colour-card .picker-opacity #palpha { grid-column: 1 / -1; width: 100%; max-width: none; height: 16px; padding: 0; margin: 0; background: transparent; -webkit-appearance: none; appearance: none; cursor: pointer; }
+.painter-colour-card .picker-opacity #palpha::-webkit-slider-runnable-track { height: 10px; border: 1px solid var(--line); border-radius: 6px; background: linear-gradient(to right, transparent, var(--opacity-colour, #3b82c4)), repeating-conic-gradient(#aaa 0% 25%, #eee 0% 50%) 0 0 / 10px 10px; }
+.painter-colour-card .picker-opacity #palpha::-moz-range-track { height: 10px; border: 1px solid var(--line); border-radius: 6px; background: linear-gradient(to right, transparent, var(--opacity-colour, #3b82c4)), repeating-conic-gradient(#aaa 0% 25%, #eee 0% 50%) 0 0 / 10px 10px; }
+.painter-colour-card .picker-opacity #palpha::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -4px; border: 1px solid #777; border-radius: 50%; background: #fff; }
+.painter-colour-card .picker-opacity #palpha::-moz-range-thumb { width: 14px; height: 14px; border: 1px solid #777; border-radius: 50%; background: #fff; }
+.painter-colour-card .picker-opacity #palpha:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }

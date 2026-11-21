@@ -63,7 +63,11 @@
   function saved(key, fallback) { try { return localStorage.getItem(key) || fallback; } catch (e) { return fallback; } }
   function store(key, value) { try { localStorage.setItem(key, value); } catch (e) {} }
 
-  themeSelect.value = ["glass","dark","light","oled","minecraft","nightsky","system"].indexOf(saved("fmf-theme","glass")) >= 0 ? saved("fmf-theme","glass") : "glass";
+  var savedTheme = saved("fmf-theme", "");
+  if (!savedTheme) {
+    try { var themeCookie = document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/); if (themeCookie) savedTheme = themeCookie[1]; } catch (e) {}
+  }
+  themeSelect.value = ["glass","dark","light","oled","minecraft","nightsky","system"].indexOf(savedTheme) >= 0 ? savedTheme : "glass";
   sizeSelect.value = saved("fmf-extra-size","normal");
   contrast.checked = saved("fmf-extra-contrast","0") === "1";
   motion.checked = saved("fmf-extra-motion", reduce ? "1" : "0") === "1";

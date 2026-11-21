@@ -14,7 +14,7 @@
   let tool = "pen", color = [59, 130, 196], slim = false, target = 0, showOuter = true, pose = "stand";
   let walk = false, sneak = false, fly = false, phase = 0, lastT = 0; // walking movement of the 3D model
   let yaw = 0.55, pitch = 0.15, zoom = 0.9, hover = null, dirty = true, dead = false, raf = 0;
-  const hidden = {};
+  const hidden = {}, hiddenLayers = {};
   const undo = [], redo = [];
   let stroke = null; // { before, changed, seen, last }
   let picks = [];    // what can be clicked in the 3D picture
@@ -69,7 +69,7 @@
       return cam(X, Y, Z);
     };
     for (const [name, u, v, w, h, dp, cx, cyy, cz, inf, layer] of parts()) {
-      if (hidden[GROUP[name]]) continue;
+      if (hidden[GROUP[name]] || hiddenLayers[name + ":" + layer]) continue;
       if (layer === 1 && !showOuter) continue;
       const sx = (w + 2 * inf) / w, sy2 = (h + 2 * inf) / h, sz = (dp + 2 * inf) / dp, top = cyy + h / 2 * sy2;
       const R = rects(u, v, w, h, dp);
@@ -170,6 +170,13 @@
     for (let y = 0; y < 32; y++) for (let x = 0; x < 32; x++) { g2.fillStyle = (x + y) % 2 ? "#8a8a8a" : "#a5a5a5"; g2.fillRect(x * S * 2, y * S * 2, S * 2, S * 2); }
     sctx.putImageData(new ImageData(px, 64, 64), 0, 0);
     g2.imageSmoothingEnabled = false; g2.drawImage(skin, 0, 0, cv2.width, cv2.height);
+    // Dim hidden faces in the flat editor without changing the saved pixels.
+    g2.fillStyle = 'rgba(128, 128, 128, 0.55)';
+    for (const [name, u, v, w, h, dp, , , , , layer] of parts()) {
+      if (hidden[GROUP[name]] || hiddenLayers[name + ':' + layer] || (layer === 1 && !showOuter)) {
+        for (const r of rects(u, v, w, h, dp)) g2.fillRect(r[0] * S, r[1] * S, r[2] * S, r[3] * S);
+      }
+    }
     g2.lineWidth = 1;
     for (const r of faceRects()) {
       g2.strokeStyle = r[4] ? "rgba(255,170,60,.85)" : "rgba(80,170,255,.85)";
@@ -179,17 +186,35 @@
   }
   function frame() { if (dead) return;
     if (walk) { const now = Date.now(); if (now - lastT >= 50) { phase += Math.min(200, now - lastT) * 0.007; lastT = now; dirty = true; } } // about 20 pictures a second, easy on slow PCs
-    if (dirty) { dirty = false; try { draw3d(); draw2d(); } catch (e) {} } raf = requestAnimationFrame(frame); }
+    if (dirty) { dirty = false; try {
+      draw3d(); draw2d();
+      if (!$('p2d-view').hidden) {
+        const preview = $('p2d-preview'), context = preview.getContext('2d');
+        context.clearRect(0, 0, preview.width, preview.height);
+        context.drawImage(cv3, 0, 0, preview.width, preview.height);
+      }
+    } catch (e) {} } raf = requestAnimationFrame(frame); }
 
   // ---------- painting ----------
   const hex = (c) => "#" + c.map((n) => (n < 16 ? "0" : "") + n.toString(16)).join("");
   function setColor(c, keep) {
     color = [c[0] | 0, c[1] | 0, c[2] | 0];
-    const h = hex(color); $("pcolor").value = h; if (!keep) $("phex").value = h; showNow();
+    const h = hex(color); $("pcolor").value = h; if (!keep) $("phex").value = h; showNow(); updateShades();
+  }
+  function updateShades() {
+    const box = $("pshades"); if (!box) return;
+    box.textContent = "";
+    [-0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6].forEach((amount) => {
+      const c = color.map((v) => Math.round(amount < 0 ? v * (1 + amount) : v + (255 - v) * amount));
+      const h = hex(c), b = document.createElement("button");
+      b.type = "button"; b.className = "psw"; b.style.background = h; b.dataset.c = h;
+      b.title = h; b.setAttribute("aria-label", "Use shade " + h); box.appendChild(b);
+    });
   }
   function showNow() { // the colour square: see-through colours show the checker behind them
     const c = "rgba(" + color[0] + "," + color[1] + "," + color[2] + "," + (alpha / 255) + ")";
     $("pnow").style.background = "linear-gradient(" + c + "," + c + "), repeating-conic-gradient(#8a8a8a 0% 25%, #c4c4c4 0% 50%) 0 0 / 12px 12px";
+    $("palpha").style.setProperty("--opacity-colour", hex(color));
   }
   function setAlpha(a) { // a = 1..255
     alpha = Math.max(1, Math.min(255, Math.round(a)));
@@ -382,7 +407,7 @@
   document.querySelectorAll("[data-palpha]").forEach((b) => b.addEventListener("click", () => { setAlpha(Number(b.dataset.palpha) * 2.55); if (tool === "erase" || tool === "pick") useTool("pen"); }));
   $("phex").addEventListener("input", (e) => { let v = e.target.value.trim(); if (v[0] !== "#") v = "#" + v; if (/^#[0-9a-fA-F]{6}$/.test(v)) setColor(fromHex(v), true); });
   const swatch = (e) => { const c = e.target && e.target.dataset && e.target.dataset.c; if (c) { setColor(fromHex(c)); if (tool === "erase" || tool === "pick") useTool("pen"); } };
-  $("ppalette").addEventListener("click", swatch); $("precent").addEventListener("click", swatch);
+  $("ppalette").addEventListener("click", swatch); $("precent").addEventListener("click", swatch); $("pshades").addEventListener("click", swatch);
   $("pundo").addEventListener("click", doUndo); $("predo").addEventListener("click", doRedo);
   $("psave").addEventListener("click", save);
   $("pfile").addEventListener("change", (e) => { loadFile(e.target.files[0]); e.target.value = ""; });
@@ -398,6 +423,35 @@
   document.querySelectorAll("input[name=player]").forEach((r) => r.addEventListener("change", () => { if (r.checked) { target = Number(r.value); if (target === 1 && !showOuter) { showOuter = true; $("pshow").checked = true; } dirty = true; } }));
   $("pshow").addEventListener("change", (e) => { showOuter = e.target.checked; if (!showOuter && target === 1) { target = 0; document.querySelector("input[name=player][value='0']").checked = true; } dirty = true; });
   document.querySelectorAll("#pparts input").forEach((c) => c.addEventListener("change", () => { hidden[c.value] = !c.checked; dirty = true; }));
+  function syncLayerMasters() {
+    document.querySelectorAll('[data-layer-all]').forEach((master) => {
+      const controls = Array.from(document.querySelectorAll('[data-part][data-layer="' + master.dataset.layerAll + '"]'));
+      const count = controls.filter((control) => control.checked).length;
+      master.checked = count === controls.length;
+      master.indeterminate = count > 0 && count < controls.length;
+    });
+  }
+  document.querySelectorAll("[data-part][data-layer]").forEach((c) => c.addEventListener("change", () => {
+    hiddenLayers[c.dataset.part + ":" + c.dataset.layer] = !c.checked;
+    syncLayerMasters(); dirty = true;
+  }));
+  document.querySelectorAll('[data-layer-all]').forEach((master) => master.addEventListener('change', () => {
+    document.querySelectorAll('[data-part][data-layer="' + master.dataset.layerAll + '"]').forEach((control) => {
+      control.checked = master.checked;
+      hiddenLayers[control.dataset.part + ':' + control.dataset.layer] = !control.checked;
+    });
+    if (master.dataset.layerAll === '1' && master.checked && !showOuter) $('pshow').click();
+    syncLayerMasters(); dirty = true;
+  }));
+  syncLayerMasters();
+  document.querySelectorAll("[data-pview]").forEach((button) => button.addEventListener("click", () => {
+    const flat = button.dataset.pview === "2d";
+    cv3.hidden = flat; $("p3d-controls").hidden = flat; $("p2d-view").hidden = !flat;
+    $("painter-view-title").textContent = flat ? "Flat skin file" : "3D model";
+    $("painter-view-help").textContent = flat ? "Paint directly on the skin texture." : "Click the model to paint; right click paints with the second colour. Drag next to the model to turn it. Mouse wheel = zoom.";
+    document.querySelectorAll("[data-pview]").forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+    hover = null; dirty = true;
+  }));
   // ---------- capes: own simple designs drawn by code, or your own cape file ----------
   const CAPES = {
     red: (i, j) => j < 3 ? (i % 3 === 1 ? [240, 200, 60] : [40, 44, 60]) : [200 - j * 4, 36, 40],
