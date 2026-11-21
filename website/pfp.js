@@ -3,6 +3,8 @@
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
   var canvas = $('pfp-canvas'), ctx = canvas.getContext('2d');
+  var source = document.createElement('canvas'); source.width = source.height = 64;
+  var skin = source.getContext('2d', { willReadFrequently: true }), legacy = false;
   var image = null, version = 0, status = $('pfp-status'), download = $('pfp-download');
   function draw() {
     ctx.clearRect(0, 0, 512, 512);
@@ -14,10 +16,18 @@
       ctx.fillStyle = $('pfp-color').value; ctx.fillRect(0, 0, 512, 512);
     }
     if (image) {
-      var size = Math.round(512 * Number($('pfp-size').value) / 100), left = Math.round((512 - size) / 2);
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(image, 8, 8, 8, 8, left, left, size, size);
-      if ($('pfp-outer').checked) ctx.drawImage(image, 40, 8, 8, 8, left, left, size, size);
+      var preset = $('pfp-preset').value, zoom = Number($('pfp-size').value) / 80;
+      if (preset === 'flat') {
+        var size = Math.round(410 * zoom), left = Math.round((512 - size) / 2);
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(source, 8, 8, 8, 8, left, left, size, size);
+        if ($('pfp-outer').checked) ctx.drawImage(source, 40, 8, 8, 8, left, left, size, size);
+      } else {
+        var head = preset === 'head', full = preset === 'full' || preset === 'wave';
+        window.drawPfp3d(ctx, skin, {slim: $('pfp-model').value === 'slim', outer: $('pfp-outer').checked, legacy: legacy,
+          yaw: +$('pfp-yaw').value, pitch: +$('pfp-pitch').value, angles: preset === 'wave' ? {ra: 135} : {},
+          headOnly: head, scale: (head ? 36 : full ? 12 : 19) * zoom, centerY: head ? 12 : full ? 0 : 7});
+      }
     }
     ctx.restore();
   }
@@ -29,6 +39,9 @@
       if (candidate.width !== 64 || (candidate.height !== 64 && candidate.height !== 32)) {
         status.textContent = 'Please choose a 64×64 or 64×32 PNG skin.'; return;
       }
+      skin.clearRect(0, 0, 64, 64); skin.drawImage(candidate, 0, 0);
+      legacy = candidate.height === 32;
+      if (legacy) { skin.drawImage(source, 0, 16, 16, 16, 16, 48, 16, 16); skin.drawImage(source, 40, 16, 16, 16, 32, 48, 16, 16); }
       image = candidate; download.disabled = false;
       status.textContent = isDefault ? 'Using the default skin.' : 'Skin loaded. It stays in this browser.';
       draw();
@@ -41,7 +54,16 @@
     if (!/\.png$/i.test(file.name) || (file.type && file.type !== 'image/png')) { ++version; status.textContent = 'Please choose a PNG skin.'; return; }
     load(URL.createObjectURL(file), false);
   });
-  ['pfp-background', 'pfp-color', 'pfp-shape', 'pfp-size', 'pfp-outer'].forEach(function (id) {
+  Array.prototype.forEach.call(document.querySelectorAll('[data-pfp-preset]'), function (button) {
+    button.addEventListener('click', function () {
+      $('pfp-preset').value = button.getAttribute('data-pfp-preset');
+      Array.prototype.forEach.call(document.querySelectorAll('[data-pfp-preset]'), function (item) {
+        item.setAttribute('aria-pressed', item === button ? 'true' : 'false');
+      });
+      draw();
+    });
+  });
+  ['pfp-background', 'pfp-color', 'pfp-shape', 'pfp-size', 'pfp-outer', 'pfp-preset', 'pfp-model', 'pfp-yaw', 'pfp-pitch'].forEach(function (id) {
     $(id).addEventListener('input', draw); $(id).addEventListener('change', draw);
   });
   download.addEventListener('click', function () {
