@@ -951,10 +951,12 @@ write("settings/index.html", page({
   function told(el, ok){ if(!note) return; var name=(el.closest("label").textContent||"").trim();
     note.querySelector("span").textContent = ok ? "Saved: " + name + ". It stays when you close the page." : "Could not save: this browser blocks saving. The theme lasts until you close the page.";
     note.classList.toggle("bad", !ok); note.hidden=false; note.classList.remove("flash"); void note.offsetWidth; note.classList.add("flash"); }
+  function markThemeCards(){ document.querySelectorAll('input[name="theme"]').forEach(function(el){ el.closest("label").classList.toggle("selected", el.checked); }); }
   document.querySelectorAll('input[name="theme"]').forEach(function(el){
     el.checked = el.value===cur;
-    el.addEventListener("change",function(){ cur=el.value; var ok=true; try{localStorage.setItem(key,cur); ok=localStorage.getItem(key)===cur}catch(e){ok=false} if(keep(cur)) ok=true; apply(cur); told(el, ok); });
+    el.addEventListener("change",function(){ cur=el.value; var ok=true; try{localStorage.setItem(key,cur); ok=localStorage.getItem(key)===cur}catch(e){ok=false} if(keep(cur)) ok=true; apply(cur); markThemeCards(); told(el, ok); });
   });
+  markThemeCards();
   var background=document.getElementById("background-toggle"), bgNote=document.getElementById("background-saved"), bgKey="fmf-background";
   background.checked=document.documentElement.getAttribute("data-background")!=="off";
   background.addEventListener("change",function(){

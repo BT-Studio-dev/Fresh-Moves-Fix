@@ -283,3 +283,25 @@ article.editor > h1, .set h1 { line-height: 1.2; letter-spacing: -.025em; }
   .home-page .versions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 html[data-theme="nightsky"] { --fmf-popup: #252345; --fmf-popup-control: #171533; }
+
+/* Updated appearance settings: clear, lightweight cards and visible selection. */
+#tab-appearance .themes { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 12px; margin: 18px 0 22px; }
+#tab-appearance .themes label { border-radius: 14px; }
+#tab-appearance .themes label.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+#tab-appearance .themes label:focus-within { outline: 2px solid var(--accent); outline-offset: 3px; }
+#tab-appearance .themes .pv { height: 90px; }
+#tab-appearance .themes .nm { min-height: 44px; box-sizing: border-box; }
+#tab-appearance .fmf-blur-setting, #tab-appearance .background-toggle {
+  background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
+}
+#tab-appearance .background-toggle { padding: 14px 16px; }
+#tab-appearance h3 { margin: 26px 0 10px; }
+#tab-appearance small { line-height: 1.5; }
+[data-theme="minecraft"] #tab-appearance .themes label,
+[data-theme="minecraft"] #tab-appearance .fmf-blur-setting,
+[data-theme="minecraft"] #tab-appearance .background-toggle { border-radius: 3px; }
+@media (max-width: 420px) {
+  #tab-appearance .themes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  #tab-appearance .themes .pv { height: 76px; }
+  #tab-appearance .themes .nm { padding: 8px; }
+}

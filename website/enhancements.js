@@ -137,7 +137,10 @@
       glassBlur.checked = target.checked;
       syncGlassBlur();
     } else if (target === themeSelect) {
-      document.querySelectorAll('input[name="theme"]').forEach(function (radio) { radio.checked = radio.value === themeSelect.value; });
+      document.querySelectorAll('input[name="theme"]').forEach(function (radio) {
+        radio.checked = radio.value === themeSelect.value;
+        radio.closest("label").classList.toggle("selected", radio.checked);
+      });
       var blur = document.getElementById("settings-glass-blur");
       if (blur) blur.disabled = root.getAttribute("data-theme") !== "glass";
     } else if (target === glassBlur) {
