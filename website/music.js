@@ -9,7 +9,7 @@
   try { var saved = localStorage.getItem("fmf-song"); if (INFO[saved]) song = saved; } catch (e) {}
   try { on = localStorage.getItem("fmf-music") === "on"; var v = parseInt(localStorage.getItem("fmf-volume"), 10); if (v >= 0 && v <= 100) vol = v; } catch (e) {}
   var AC = window.AudioContext || window.webkitAudioContext;
-  var ctx = null, master = null, timer = null, step = 0, nextTime = 0;
+  var ctx = null, master = null, timer = null, step = 0, nextTime = 0, songStart = 0, voices = new Set();
   // ---- the song: 64 bars, exactly 3:34 long, then it repeats ----
   // the "Minecraft" song is 96 bars and exactly 6:00 long (a slower beat)
   var LENGTH = INFO[song].len, BEAT = LENGTH / (INFO[song].bars * 8); // seconds per eighth note (about 0.418; 0.469 for the long song)
@@ -109,7 +109,10 @@
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(peak, t + (attack || 0.03));
     g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+    // Every voice, for every song, passes through the same volume control.
     o.connect(g); g.connect(master);
+    voices.add(o);
+    o.onended = function () { voices.delete(o); o.disconnect(); g.disconnect(); };
     o.start(t); o.stop(t + len + 0.05);
   }
   function schedule() {
@@ -132,13 +135,13 @@
       nextTime += BEAT; step++;
     }
   }
-  function position() { return (step * BEAT) % LENGTH; } // seconds into the song
+  function position() { return ctx ? Math.max(0, ctx.currentTime - songStart) % LENGTH : 0; }
   function setGain() {
     if (!master) return;
     var gain = master.gain, now = ctx.currentTime;
     if (gain.cancelAndHoldAtTime) gain.cancelAndHoldAtTime(now);
     else if (gain.cancelScheduledValues) gain.cancelScheduledValues(now);
-    gain.setTargetAtTime(on ? (vol / 100) * 0.5 : 0, now, 0.04);
+    gain.setTargetAtTime(on ? vol / 100 : 0, now, 0.04);
   }
   function paintVolume() {
     document.querySelectorAll("[data-music-volume]").forEach(function (r) { r.value = vol; r.setAttribute("aria-valuetext", vol + "%"); });
@@ -156,7 +159,7 @@
     try {
       if (!ctx) { ctx = new AC(); master = ctx.createGain(); master.gain.value = 0; master.connect(ctx.destination); }
       if (ctx.state === "suspended") ctx.resume();
-      if (!timer) { nextTime = ctx.currentTime + 0.1; timer = setInterval(schedule, 200); schedule(); }
+      if (!timer) { nextTime = ctx.currentTime + 0.1; songStart = nextTime - step * BEAT; timer = setInterval(schedule, 200); schedule(); }
       setGain();
       return true;
     } catch (e) { return false; }
@@ -180,7 +183,14 @@
   }
   function setSong(next) {
     song = INFO[next] ? next : "calm"; LENGTH = INFO[song].len; BEAT = LENGTH / (INFO[song].bars * 8); try { localStorage.setItem("fmf-song", song); } catch (e) {}
-    step = 0; if (ctx) nextTime = Math.max(nextTime, ctx.currentTime + 0.1); // start the chosen song from its beginning
+    step = 0;
+    if (ctx) {
+      // Stop lingering and pre-scheduled notes from the previous song.
+      voices.forEach(function (voice) { try { voice.stop(ctx.currentTime); } catch (e) {} });
+      voices.clear();
+      nextTime = ctx.currentTime + 0.1; songStart = nextTime;
+      if (timer) schedule();
+    }
     paint();
   }
   function clock(sec) { sec = Math.floor(sec); return Math.floor(sec / 60) + ":" + ("0" + (sec % 60)).slice(-2); }
@@ -204,7 +214,7 @@
     document.addEventListener("change", function (e) {
       if (e.target.matches && e.target.matches("[data-music-volume]")) changeVolume(e.target);
       if (e.target.matches && e.target.matches("[data-music-check]")) set(e.target.checked);
-      if (e.target.matches && e.target.matches("[data-music-song]") && e.target.checked) setSong(e.target.value);
+      if (e.target.matches && e.target.matches("[data-music-song]") && e.target.checked && e.target.value !== song) setSong(e.target.value);
     });
     document.addEventListener("input", function (e) {
       if (!(e.target.matches && e.target.matches("[data-music-volume]"))) return;
