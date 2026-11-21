@@ -1144,7 +1144,7 @@ write("pfp/index.html", page({
   </div></section>
 
   </div>
-  <section class="card render-controls"><h2>Customize</h2><div class="pfp-control-grid"><div class="pfp-control-group">
+  <section class="card render-controls"><h2>Customize</h2><p class="pfp-customize-intro">Make your profile picture your own.</p><div class="pfp-control-grid"><div class="pfp-control-group"><h3>Your skin</h3>
   <label class="pfp-upload"><span><b>Upload skin PNG</b><small>Choose a skin from your device</small></span><input id="pfp-skin" type="file" accept="image/png,.png"></label><p id="pfp-status" role="status" aria-live="polite">Loading the example skin.</p>
   </div><div class="pfp-colour-panel pfp-control-group"><h3>Background colour</h3><p>Choose a colour for the PFP background.</p>
     <div class="ed pfp-colour-picker"><input type="color" id="pfp-color" data-inline-picker value="#486d92" aria-label="Background colour"></div>

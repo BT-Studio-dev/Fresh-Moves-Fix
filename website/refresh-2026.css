@@ -781,3 +781,24 @@ html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936;
   .pfp-control-grid .pfp-colour-panel { padding: 14px; }
   .pfp-colour-panel .pk-sv { height: 130px; }
 }
+/* PFP editor cards follow the site's theme colours, including Glass and Minecraft. */
+.pfp-page .render-controls { padding: clamp(18px, 3vw, 28px); }
+.pfp-page .render-controls:hover, .pfp-page .render-preview:hover { transform: none; }
+.pfp-page .render-controls > h2 { margin-bottom: 4px; }
+.pfp-page .render-controls .pfp-customize-intro { margin: 0 0 20px; }
+.pfp-control-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.pfp-control-grid .pfp-control-group, .pfp-control-grid .pfp-colour-panel { padding: 20px; border-radius: 16px; background: var(--bg); }
+.pfp-control-grid .pfp-colour-panel { grid-column: auto; }
+.pfp-page .render-controls .pfp-control-group h3:first-child { border-left: 3px solid var(--accent); padding-left: 10px; margin-bottom: 16px; }
+.pfp-page .pfp-presets button { background: var(--panel); border-radius: 12px; min-height: 54px; }
+.pfp-page .pfp-presets button:hover { border-color: var(--accent); }
+.pfp-page .pfp-presets button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.pfp-page .render-controls .pfp-upload, .pfp-page .render-controls .pfp-layer, .pfp-page .render-controls .pfp-code-card { background: var(--panel); border-radius: 12px; }
+.pfp-page .render-controls .pfp-upload { margin-top: 0; }
+.pfp-page .render-controls input[type=range] { cursor: pointer; }
+.pfp-page #pfp-download { width: 100%; margin-top: 4px; }
+[data-theme="minecraft"] .pfp-page .pfp-control-group, [data-theme="minecraft"] .pfp-page .pfp-presets button, [data-theme="minecraft"] .pfp-page .render-controls .pfp-layer, [data-theme="minecraft"] .pfp-page .render-controls .pfp-upload, [data-theme="minecraft"] .pfp-page .render-controls .pfp-code-card { border-radius: 3px; }
+@media (max-width: 600px) {
+  .pfp-control-grid { grid-template-columns: minmax(0, 1fr); }
+  .pfp-control-grid .pfp-control-group, .pfp-control-grid .pfp-colour-panel { padding: 16px; }
+}
