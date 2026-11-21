@@ -743,7 +743,6 @@ write("paint/index.html", page({
       <button type="button" id="pbplay" data-tip="Play" aria-label="Play" aria-pressed="false"><span class="pb-play">${svg('<path d="M7 4.5v15l12-7.5z"/>')}</span><span class="pb-pause">${svg('<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>')}</span></button>
     </div>
     <div class="row ctl">
-      <span id="pviews" class="pviews"><button type="button" data-v="0.55,0.15">Front</button><button type="button" data-v="3.7,0.15">Back</button><button type="button" data-v="1.5708,0">Left</button><button type="button" data-v="-1.5708,0">Right</button><button type="button" data-v="0.4,1.3">Top</button><button type="button" data-v="0.4,-1.3">Bottom</button></span>
       <label>Zoom <input type="range" id="pzoom" min="0.5" max="3" step="0.01" value="0.9"></label>
       <label>Pose <select id="ppose"><option value="stand">Standing</option><option value="apart">Arms and legs apart</option></select></label>
     </div>
@@ -936,14 +935,6 @@ write("settings/index.html", page({
       <label class="mtile"><input type="radio" name="song" value="fresh" data-music-song><span><b>Fresh Moves Fix</b><small>Original upbeat theme, 2:40</small></span></label>
       <label class="mtile"><input type="radio" name="song" value="night" data-music-song><span><b>Night Sky</b><small>Original peaceful instrumental, 3:12</small></span></label>
     </div>
-    <details class="note">
-      <summary><b>Fresh Moves Fix — song lyrics</b></summary>
-      <p><b>Owner: lie_kg</b><br>The website track is instrumental; these words are not sung in the player.</p>
-      <p><b>Verse 1</b><br>Step into a world we know,<br>Watch the little pixels glow.<br>Blinking eyes and moves so new,<br>Every skin comes alive with you.</p>
-      <p><b>Chorus</b><br>Fresh Moves Fix, let’s move today,<br>Build and dance the blocks away!<br>Wave hello and take a look,<br>Make your story, write your book.</p>
-      <p><b>Verse 2</b><br>Through the mountains, through the trees,<br>Make your skin look how you please.<br>Every journey starts with you,<br>There’s a world of things to do.</p>
-      <p><b>Chorus</b><br>Fresh Moves Fix, let’s move today,<br>Build and dance the blocks away!<br>Wave hello and take a look,<br>Make your story, write your book.</p>
-    </details>
     <p class="elabel">Player</p>
     <div class="mtiles">
       <label class="mtile"><input type="checkbox" data-music-check><span><b>Play music</b><small data-music-state>Music: off</small></span><i data-music-time>0:00 / 3:34</i></label>
