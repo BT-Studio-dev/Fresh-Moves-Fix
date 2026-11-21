@@ -464,6 +464,7 @@ write("editor/index.html", page({
   <li><strong>Mouth missing or misplaced:</strong> make sure you selected a mouth in the editor and saved the new skin. The moving mouth only supports face row 7; some eye positions leave no room or place it lower. Its in-game position is untested.</li>
 </ul>
 
+<section class="editor-info-card">
 <h2>${ICON.info} How it works</h2>
 <p>Choose the eye shape and position that match your skin. The editor adds marker pixels to the skin file; the pack reads those pixels to animate the eyes. The green outline in <b>Added pixels</b> shows the eye marker area. Other marker pixels can be elsewhere in the skin.</p>
 <ul>
@@ -476,6 +477,7 @@ write("editor/index.html", page({
 <p><b>Keep the face on the first skin layer.</b> The pack animates the first layer only. Eyes or eyebrows painted on the outer layer (the hat layer) stay still in front of the moving eyes, so the editor removes solid outer-layer pixels over the eyes; see-through glass is kept. Do not erase the face of your skin: players without the pack and the mods still see your normal face.</p>
 <p>${ICON.ext} Video by Laynce that shows the eye types, eyebrows and eyelashes of the original Fresh Moves pack: <a href="https://www.youtube.com/watch?v=uDccyv7FROs" target="_blank" rel="noopener">The Animation Update</a> (YouTube, not made by us).</p>
 <p>The positions of 2 wide 1 tall and 2 wide 2 tall come from the example skins in the pack. The other shapes were worked out from the pack's model file and are less certain; the derp layout is the least certain. Eyebrows and eyelashes were also worked out from the model file and are not tested in the game. Fox eyes are not in the editor (the guide marks them as unfinished); see the <a href="../guides/">guides</a>.</p>
+</section>
 </article></div>
 <script src="../skinview3d.bundle.js"></script>
 <script src="../player.js?v=${ver("player.js")}"></script>

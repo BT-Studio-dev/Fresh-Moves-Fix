@@ -263,6 +263,10 @@ a.release-all > i svg { width: 18px; height: 18px; }
 }
 
 /* Shared pages use the same visual language as the new home page. */
+.editor-info-card { margin: 32px 0; padding: clamp(18px, 3vw, 28px); background: var(--panel); border: 1px solid var(--line); border-radius: 16px; }
+.editor-info-card h2 { margin-top: 0; }
+.editor-info-card > :last-child { margin-bottom: 0; }
+[data-theme="minecraft"] .editor-info-card { border-radius: 3px; }
 article.editor > h1, .set h1 { line-height: 1.2; letter-spacing: -.025em; }
 .ed .panel, .set .menu, .set .box { border: 1px solid var(--line); }
 .ed .panel h3.ehead, .set .box h2.shead { line-height: 1.25; }
