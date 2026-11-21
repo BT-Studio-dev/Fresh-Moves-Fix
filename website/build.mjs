@@ -1107,7 +1107,7 @@ write("creations/index.html", page({
   body: `<div class="wrap projects-page">
 <header class="projects-heading"><h1>Projects</h1><p>Projects and creative tools from Fresh Moves Fix.</p></header>
 <div class="projects-grid">
-  <a class="project-card" href="../#download"><img src="../pack.png" alt="" width="112" height="112"><h2>Fresh Moves Fix</h2><p>Player animations and animated eyes for Minecraft Java.</p><span>View downloads ${ICON.right}</span></a>
+  <a class="project-card" href="../#download"><img class="project-pack-image" src="../pack.png" alt="" width="112" height="112"><h2>Fresh Moves Fix</h2><p>Player animations and animated eyes for Minecraft Java.</p><span>View downloads ${ICON.right}</span></a>
   <a class="project-card" href="../paint/"><img src="../icon-paint-pixel.svg" alt="" width="112" height="112"><h2>Skin Painter 3D</h2><p>Paint a skin pixel by pixel in your browser.</p><span>Open painter ${ICON.right}</span></a>
   <a class="project-card" href="../editor/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Skin eye editor</h2><p>Add animated eye markers to your skin.</p><span>Open editor ${ICON.right}</span></a>
   <a class="project-card" href="../title/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Title</h2><p>Make and download a block-letter title picture.</p><span>Open title maker ${ICON.right}</span></a>
