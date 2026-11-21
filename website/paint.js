@@ -404,7 +404,6 @@
   if ($("pgrid")) $("pgrid").addEventListener("change", (e) => { grid = e.target.checked; dirty = true; });
   show2();
   if ($("palpha")) $("palpha").addEventListener("input", (e) => setAlpha((Number(e.target.value) || 100) * 2.55));
-  document.querySelectorAll("[data-palpha]").forEach((b) => b.addEventListener("click", () => { setAlpha(Number(b.dataset.palpha) * 2.55); if (tool === "erase" || tool === "pick") useTool("pen"); }));
   $("phex").addEventListener("input", (e) => { let v = e.target.value.trim(); if (v[0] !== "#") v = "#" + v; if (/^#[0-9a-fA-F]{6}$/.test(v)) setColor(fromHex(v), true); });
   const swatch = (e) => { const c = e.target && e.target.dataset && e.target.dataset.c; if (c) { setColor(fromHex(c)); if (tool === "erase" || tool === "pick") useTool("pen"); } };
   $("ppalette").addEventListener("click", swatch); $("precent").addEventListener("click", swatch); $("pshades").addEventListener("click", swatch);

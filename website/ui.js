@@ -89,10 +89,12 @@
     if (inline) {
       const opacity = document.getElementById("palpha"), value = document.getElementById("palphav");
       if (opacity && value) {
+        const fallbackRow = opacity.parentElement;
         const alphaRow = el("div", "picker-opacity");
         const label = el("span", "", { textContent: "Opacity" });
         alphaRow.appendChild(label); alphaRow.appendChild(value); alphaRow.appendChild(opacity);
         box.appendChild(alphaRow);
+        if (fallbackRow) fallbackRow.hidden = true;
       }
     }
     box.appendChild(row); box.appendChild(sws);
