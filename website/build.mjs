@@ -192,7 +192,7 @@ fs.writeFileSync(path.join(out, "tableau.json"), JSON.stringify({
 }));
 for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png", "icon-painted.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
-for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
+for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner-profile.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "refresh-2026.css"), path.join(out, "refresh-2026.css"));
 fs.copyFileSync(path.join(here, "enhancements.js"), path.join(out, "enhancements.js"));
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
@@ -1136,7 +1136,7 @@ write("index.html", page({
 </div>
 
 <aside class="owner-profile" aria-label="Owner profile">
-  <img class="owner-profile-image" src="pack.png" alt="" width="120" height="120">
+  <img class="owner-profile-image" src="owner-profile.png" alt="Minecraft skin for lie_kg" width="160" height="320">
   <span class="home-eyebrow">OWNER PROFILE</span>
   <h2>lie_kg</h2>
   <p>Owner of Fresh Moves Fix</p>
