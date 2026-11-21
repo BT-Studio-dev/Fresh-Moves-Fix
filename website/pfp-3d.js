@@ -30,16 +30,20 @@ window.drawPfp3d = function (ctx, skin, options) {
         faces.forEach(function(fn,fi){
           var r=rects[fi], a=point(name,...fn(0,0)),b=point(name,...fn(r[2],0)),c=point(name,...fn(0,r[3]));
           var cross=(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]); if(fi===5)cross=-cross;
-          if(cross<=0 && !layer)return;
-          var shade=cross<=0?0.7:fi<2?1:fi<4?0.82:fi===4?1:0.6;
+          // Do not paint the far side of the outer shell over neighboring pixels.
+          // Keep alpha on the visible side, so translucent/glass pixels remain translucent.
+          if(cross<=0)return;
+          var shade=fi<2?1:fi<4?0.82:fi===4?1:0.6;
           for(var j=0;j<r[3];j++)for(var i=0;i<r[2];i++){
             var o=((r[1]+j)*64+r[0]+i)*4;if(!pixels[o+3])continue;
             var q=[point(name,...fn(i,j)),point(name,...fn(i+1,j)),point(name,...fn(i+1,j+1)),point(name,...fn(i,j+1))];
-            quads.push({z:(q[0][2]+q[1][2]+q[2][2]+q[3][2])/4,q:q,color:'rgba('+Math.round(pixels[o]*shade)+','+Math.round(pixels[o+1]*shade)+','+Math.round(pixels[o+2]*shade)+','+(pixels[o+3]/255)+')'});
+            quads.push({z:(q[0][2]+q[1][2]+q[2][2]+q[3][2])/4,q:q,opaque:pixels[o+3]===255,color:'rgba('+Math.round(pixels[o]*shade)+','+Math.round(pixels[o+1]*shade)+','+Math.round(pixels[o+2]*shade)+','+(pixels[o+3]/255)+')'});
           }
         });
       });
     });
-    quads.sort(function(a,b){return a.z-b.z});ctx.lineJoin='round';ctx.lineWidth=0.5;
-    quads.forEach(function(item){ctx.fillStyle=ctx.strokeStyle=item.color;ctx.beginPath();ctx.moveTo(item.q[0][0],item.q[0][1]);for(var i=1;i<4;i++)ctx.lineTo(item.q[i][0],item.q[i][1]);ctx.closePath();ctx.fill();ctx.stroke();});
+    // A slightly overlapping same-colour edge seals antialiased gaps between opaque
+    // pixels. Do not double-paint translucent pixels, which would darken glass.
+    quads.sort(function(a,b){return a.z-b.z});ctx.lineJoin='round';ctx.lineWidth=1.5;
+    quads.forEach(function(item){ctx.fillStyle=ctx.strokeStyle=item.color;ctx.beginPath();ctx.moveTo(item.q[0][0],item.q[0][1]);for(var i=1;i<4;i++)ctx.lineTo(item.q[i][0],item.q[i][1]);ctx.closePath();ctx.fill();if(item.opaque)ctx.stroke();});
 };

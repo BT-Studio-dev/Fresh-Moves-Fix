@@ -4,12 +4,14 @@
   var $ = function (id) { return document.getElementById(id); };
   var canvas = $('pfp-canvas'), ctx = canvas.getContext('2d');
   var canBlur = 'filter' in ctx;
-  if (!canBlur) { $('pfp-blur').disabled = true; $('pfp-blur-status').hidden = false; $('pfp-blur-status').textContent = 'Sky blur is not supported in this browser.'; }
+  if (!canBlur) { $('pfp-blur').disabled = true; $('pfp-blur-status').hidden = false; $('pfp-blur-status').textContent = 'Background blur is not supported in this browser.'; }
   var source = document.createElement('canvas'); source.width = source.height = 64;
   var skin = source.getContext('2d', { willReadFrequently: true }), legacy = false;
   var last3d = 'headshot';
+  var backgroundImage = null, backgroundVersion = 0;
   var image = null, version = 0, status = $('pfp-status'), download = $('pfp-download');
   function syncControls() {
+    $('pfp-code-swatch').style.backgroundColor = $('pfp-color').value;
     var preset = $('pfp-preset').value;
     if (preset !== 'flat') last3d = preset;
     $('pfp-quick-3d').setAttribute('aria-pressed', preset !== 'flat' ? 'true' : 'false');
@@ -35,6 +37,18 @@
       ctx.fillStyle = $('pfp-color').value; ctx.fillRect(0, 0, 512, 512);
     }
     var background = $('pfp-background').value;
+    if (background === 'image' && backgroundImage) {
+      // Center-crop to fill the square, preserving the original aspect ratio.
+      var bw = backgroundImage.naturalWidth || backgroundImage.width, bh = backgroundImage.naturalHeight || backgroundImage.height;
+      var side = Math.min(bw, bh);
+      ctx.save(); ctx.imageSmoothingEnabled = true;
+      var blurBackground = canBlur && $('pfp-blur').checked;
+      if (blurBackground) ctx.filter = 'blur(8px)';
+      // Extend the image beyond the canvas to avoid transparent blur fringes.
+      var edge = blurBackground ? 24 : 0;
+      ctx.drawImage(backgroundImage, (bw-side)/2, (bh-side)/2, side, side, -edge, -edge, 512+2*edge, 512+2*edge);
+      ctx.restore();
+    }
     if (background === 'day' || background === 'night') {
       var night = background === 'night', sky = ctx.createLinearGradient(0, 0, 0, 512);
       sky.addColorStop(0, night ? '#111b3b' : '#4789c1');
@@ -85,6 +99,52 @@
     candidate.onerror = function () { release(); if (current === version) status.textContent = 'Could not read that PNG. Please choose a valid skin.'; };
     candidate.src = url;
   }
+  if (window.FMFUI) window.FMFUI.colour($('pfp-color'));
+  function backgroundColourChanged() { $('pfp-background').value='color'; $('pfp-bg-hex').value=$('pfp-color').value; draw(); }
+  $('pfp-color').addEventListener('input', backgroundColourChanged);
+  $('pfp-color').addEventListener('change', backgroundColourChanged);
+  $('pfp-bg-hex').addEventListener('input', function () { var value=this.value.trim(); if(value.charAt(0)!=='#') value='#'+value; if(/^#[0-9a-f]{6}$/i.test(value)){ $('pfp-color').value=value; $('pfp-background').value='color'; draw(); } });
+  $('pfp-bg-hex').addEventListener('change',function(){this.value=$('pfp-color').value;});
+  // Mouse or touch controls update the same sliders as the accessible controls.
+  var drag = null;
+  function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+  canvas.addEventListener('pointerdown', function (e) {
+    if ((e.button !== 0 && e.button !== 2) || $('pfp-preset').value === 'flat') return;
+    e.preventDefault();
+    var head = e.button === 2, x = $(head ? 'pfp-head-yaw' : 'pfp-yaw'), y = $(head ? 'pfp-head-pitch' : 'pfp-pitch');
+    drag = {id:e.pointerId, x:e.clientX, y:e.clientY, startX:+x.value, startY:+y.value, xControl:x, yControl:y};
+    try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+    canvas.classList.add('pfp-dragging');
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!drag || drag.id !== e.pointerId) return;
+    drag.xControl.value = clamp(Math.round(drag.startX + (e.clientX - drag.x) * 0.5), +drag.xControl.min, +drag.xControl.max);
+    drag.yControl.value = clamp(Math.round(drag.startY + (e.clientY - drag.y) * 0.5), +drag.yControl.min, +drag.yControl.max);
+    draw();
+  });
+  function endDrag(e) { if (drag && drag.id === e.pointerId) { drag = null; canvas.classList.remove('pfp-dragging'); } }
+  canvas.addEventListener('pointerup', endDrag); canvas.addEventListener('pointercancel', endDrag); canvas.addEventListener('lostpointercapture', endDrag);
+  canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  canvas.addEventListener('wheel', function (e) {
+    if (!e.deltaY) return; e.preventDefault();
+    var zoom = $('pfp-size'); zoom.value = clamp(+zoom.value + (e.deltaY < 0 ? 5 : -5), +zoom.min, +zoom.max); draw();
+  }, {passive:false});
+  $('pfp-bg-upload').addEventListener('change', function () {
+    var file = this.files && this.files[0]; if (!file) return;
+    var current = ++backgroundVersion, message = $('pfp-bg-status');
+    if (!/^(image\/png|image\/jpeg|image\/webp)$/.test(file.type) || file.size > 10 * 1024 * 1024) {
+      message.textContent = 'Choose a PNG, JPEG or WebP image under 10 MB.'; this.value = ''; return;
+    }
+    var url = URL.createObjectURL(file), candidate = new Image();
+    candidate.onload = function () {
+      URL.revokeObjectURL(url); if (current !== backgroundVersion) return;
+      if (!candidate.width || !candidate.height) { message.textContent = 'Could not read that image.'; return; }
+      backgroundImage = candidate;
+      $('pfp-background').value = 'image'; message.textContent = 'Background loaded in this browser.'; draw();
+    };
+    candidate.onerror = function () { URL.revokeObjectURL(url); if (current === backgroundVersion) message.textContent = 'Could not read that image. Try another file.'; };
+    candidate.src = url; this.value = '';
+  });
   $('pfp-skin').addEventListener('change', function () {
     var file = this.files && this.files[0]; if (!file) return;
     if (!/\.png$/i.test(file.name) || (file.type && file.type !== 'image/png')) { ++version; status.textContent = 'Please choose a PNG skin.'; return; }
@@ -112,6 +172,7 @@
   Array.prototype.forEach.call(document.querySelectorAll('[data-pfp-color]'), function (button) {
     button.addEventListener('click', function () {
       $('pfp-color').value = button.getAttribute('data-pfp-color');
+      $('pfp-bg-hex').value = $('pfp-color').value;
       $('pfp-background').value = 'color';
       draw();
     });
