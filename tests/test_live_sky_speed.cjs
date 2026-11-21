@@ -1,0 +1,16 @@
+const assert = require('assert'), fs = require('fs'), {JSDOM} = require('../website/node_modules/jsdom');
+const dom = new JSDOM('<!doctype html><html data-theme="livesky" data-background="on"><body><select id="live-sky-speed"><option value="real">Real</option><option value="fast">Fast</option></select></body></html>',{url:'https://example.com',runScripts:'outside-only'});
+const w=dom.window, NativeDate=w.Date; let now=NativeDate.parse('2024-03-20T12:00:00Z'), calls=[], cleared=[];
+w.Date=class extends NativeDate { constructor(...a){super(...(a.length?a:[now]));} static now(){return now;} };
+w.setInterval=(fn,delay)=>{calls.push({fn,delay});return calls.length}; w.clearInterval=id=>cleared.push(id);
+Object.defineProperty(w.document,'hidden',{value:false,configurable:true});
+w.eval(fs.readFileSync('website/public/livesky.bundle.js','utf8'));
+const root=w.document.documentElement, speed=w.document.querySelector('#live-sky-speed'), sun=w.document.querySelector('.fmf-live-sun');
+assert.equal(speed.value,'real'); assert.equal(calls[0].delay,60000); assert.equal(root.getAttribute('data-live-sky'),'day');
+speed.value='fast';speed.dispatchEvent(new w.Event('change')); assert.equal(calls[1].delay,1000); assert.equal(w.localStorage.getItem('fmf-live-sky-speed-v1'),String(now)); assert(sun.style.left);
+now+=60000; calls[1].fn(); assert.equal(root.getAttribute('data-live-sky'),'night');
+w.__fmfLiveSkyStop(); w.eval(fs.readFileSync('website/public/livesky.bundle.js','utf8')); assert.equal(w.document.querySelector('#live-sky-speed').value,'fast'); assert.equal(root.getAttribute('data-live-sky'),'night');
+Object.defineProperty(w.document,'hidden',{value:true,configurable:true}); w.document.dispatchEvent(new w.Event('visibilitychange')); assert(cleared.includes(3));
+Object.defineProperty(w.document,'hidden',{value:false,configurable:true}); w.document.dispatchEvent(new w.Event('visibilitychange')); assert.equal(calls[3].delay,1000);
+speed.value='real'; speed.dispatchEvent(new w.Event('change')); assert.equal(w.localStorage.getItem('fmf-live-sky-speed-v1'),null); assert.equal(calls[4].delay,60000); assert.equal(root.getAttribute('data-live-sky'),'day'); w.__fmfLiveSkyStop();
+console.log('Live Sky real-time and fast cycle, persistence and hidden-tab cleanup passed');

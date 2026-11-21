@@ -122,7 +122,7 @@ document.documentElement.setAttribute("data-scrollbar",sb==="off"?"off":"on")})(
     <span class="snd-card"><span class="snd-box">
       <span class="snd-head">${ICON.music} <b data-music-state>Music: off</b> <i data-music-time>0:00 / 3:34</i></span>
       <label class="snd-line"><input type="checkbox" data-music-check> Play music <i data-music-name>Calm</i></label>
-      <label class="snd-line">Volume <input type="range" min="0" max="100" value="40" data-music-volume></label>
+      <label class="snd-line">Volume <input type="range" min="0" max="100" value="40" data-music-volume> <span data-music-volume-value>40%</span></label>
       <a class="snd-more" href="${up}settings/#music">${ICON.gear} Music settings</a>
     </span></span>
   </span>
@@ -192,7 +192,7 @@ fs.writeFileSync(path.join(out, "tableau.json"), JSON.stringify({
   version: "1.0", api_version: 1,
   layout: { logo: SITE + "tile-logo.png", color: "#17362a", show_title: true },
 }));
-for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png", "icon-painted.png", "icon-paint-pixel.svg", "icon-model-pixel.svg", "icon-anim-pixel.svg", "icon-cape-project-pixel.svg", "icon-lock-project-pixel.svg"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
+for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png", "icon-painted.png", "icon-painter-dummy.png", "icon-paint-pixel.svg", "icon-model-pixel.svg", "icon-anim-pixel.svg", "icon-cape-project-pixel.svg", "icon-lock-project-pixel.svg"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner-profile.png", "owner-skin.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "refresh-2026.css"), path.join(out, "refresh-2026.css"));
@@ -330,9 +330,7 @@ write("editor/index.html", page({
     <div class="pick">
       <button type="button" class="pickb" id="steve" data-name="Steve" data-type="2x1" data-pos="upper" data-skin="${skinData("wide/steve.png")}"><img src="../icon-skin.png" alt="" width="36" height="36"><span><b>Steve</b><small>Default skin</small></span></button>
       <button type="button" class="pickb" data-name="Alex" data-type="2x1" data-pos="upper" data-skin="${skinData("slim/alex.png")}"><img src="../icon-alex.png" alt="" width="36" height="36"><span><b>Alex</b><small>Default skin</small></span></button>
-      <button type="button" class="pickb" data-name="Dummy (tall eyes)" data-type="1x2" data-pos="bottom" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "dummy.png")).toString("base64")}"><img src="../icon-dummy.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Tall eyes</small></span></button>
-      <button type="button" class="pickb" data-name="Dummy (dot eyes)" data-type="1x1" data-pos="outer_bottom" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "dummy2.png")).toString("base64")}"><img src="../icon-dummy2.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Dot eyes</small></span></button>
-      <button type="button" class="pickb" data-name="Dummy (blank face)" data-type="2x1" data-pos="upper" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "painted.png")).toString("base64")}"><img src="../icon-painted.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Blank face</small></span></button>
+      <button type="button" class="pickb" data-name="Dummy (custom skin)" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "painter-dummy.png")).toString("base64")}"><img src="../icon-painter-dummy.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Custom skin</small></span></button>
     </div>
     <p class="elabel">Format</p>
     <div class="pick">
@@ -659,7 +657,7 @@ write("paint/index.html", page({
 <p>Paint your Minecraft skin pixel by pixel, on the 3D model or on the flat skin file. Everything happens in your browser; the skin is not uploaded anywhere. It works without 3D graphics (WebGL).</p>
 </div>
 
-<div class="painter-workspace-bar"><div><b>Skin Painter</b><small>64 × 64 skin editor</small></div><div class="painter-view-switch" role="group" aria-label="Painter views"><button type="button" data-pview="3d" aria-pressed="true">${ICON.box} 3D</button><button type="button" data-pview="2d" aria-pressed="false">${ICON.grid} 2D</button></div><div class="painter-history"><p class="prow"><button type="button" class="btn ghost" id="pundo" title="Ctrl+Z">Undo</button> <button type="button" class="btn ghost" id="predo" title="Ctrl+Y">Redo</button></p></div><a class="btn ghost" href="#painter-file">${ICON.up} Skin file</a></div>
+<div class="painter-workspace-bar"><div><b>Skin Painter</b><small>64 × 64 skin editor</small></div><div class="painter-view-switch" role="group" aria-label="Painter views"><button type="button" data-pview="3d" aria-pressed="true">${ICON.box} 3D</button><button type="button" data-pview="2d" aria-pressed="false">${ICON.grid} 2D</button></div><button type="button" class="btn" id="psave-top">${ICON.down} Save skin (.png)</button><button type="button" class="btn ghost" id="pfile-top">${ICON.up} Choose skin file</button><div class="painter-history"><p class="prow"><button type="button" class="btn ghost" id="pundo" title="Ctrl+Z">Undo</button> <button type="button" class="btn ghost" id="predo" title="Ctrl+Y">Redo</button></p></div><a class="btn ghost" href="#painter-file">${ICON.up} Skin file</a></div>
 <div class="ed paint workspace-layout">
   <div class="ed-col painter-tools-column">
   <section class="panel ecard painter-tools-card">
@@ -698,10 +696,9 @@ write("paint/index.html", page({
     <div class="painter-layers">
       <h4>Part visibility</h4>
       <p><small>Show or hide each part in the 3D preview. Hidden parts are dimmed in 2D but are not erased from your skin.</small></p>
-      <div class="painter-visibility-layout"><table><thead><tr><th scope="col">Part</th><th scope="col"><label class="layer-master">Base <input type="checkbox" data-layer-all="0" aria-label="Show all base layer parts" checked></label></th><th scope="col"><label class="layer-master">Outer <input type="checkbox" data-layer-all="1" aria-label="Show all outer layer parts" checked></label></th></tr></thead><tbody>
-      ${[["head","Head"],["body","Body"],["la","Left arm"],["ra","Right arm"],["ll","Left leg"],["rl","Right leg"]].map(([id,name]) => `<tr><th scope="row">${name}</th><td><label class="layer-eye"><input type="checkbox" data-part="${id}" data-layer="0" aria-label="Show ${name} base layer" checked>${ICON.eye}</label></td><td><label class="layer-eye outer"><input type="checkbox" data-part="${id}" data-layer="1" aria-label="Show ${name} outer layer" checked>${ICON.eye}</label></td></tr>`).join("")}
+      <table><thead><tr><th scope="col">Part</th><th scope="col"><label class="layer-master">Base <input type="checkbox" data-layer-all="0" aria-label="Show all base layer parts" checked></label></th><th scope="col"><label class="layer-master">Outer <input type="checkbox" data-layer-all="1" aria-label="Show all outer layer parts" checked></label></th><th scope="col">Show</th></tr></thead><tbody>
+      ${[["head","Head"],["body","Body"],["la","Left arm"],["ra","Right arm"],["ll","Left leg"],["rl","Right leg"]].map(([id,name]) => `<tr><th scope="row">${name}</th><td><label class="layer-eye"><input type="checkbox" data-part="${id}" data-layer="0" aria-label="Show ${name} base layer" checked>${ICON.eye}</label></td><td><label class="layer-eye outer"><input type="checkbox" data-part="${id}" data-layer="1" aria-label="Show ${name} outer layer" checked>${ICON.eye}</label></td><td><input type="checkbox" data-show-part="${id}" aria-label="Show ${name}" checked></td></tr>`).join("")}
       </tbody></table>
-      <div id="pparts" class="painter-part-groups" role="group" aria-label="Show body parts"><b>Show</b><label><input type="checkbox" value="head" checked> Head</label><label><input type="checkbox" value="body" checked> Body</label><label><input type="checkbox" value="arms" checked> Arms</label><label><input type="checkbox" value="legs" checked> Legs</label></div></div>
     </div>
   </section>
   <section class="panel ecard" id="painter-file">
@@ -714,7 +711,7 @@ write("paint/index.html", page({
     <div class="pick" id="pstart">
       <button type="button" class="pickb" data-name="Steve" data-slim="0" data-skin="${skinData("wide/steve.png")}"><img src="../icon-skin.png" alt="" width="36" height="36"><span><b>Steve</b><small>Default skin</small></span></button>
       <button type="button" class="pickb" data-name="Alex" data-slim="1" data-skin="${skinData("slim/alex.png")}"><img src="../icon-alex.png" alt="" width="36" height="36"><span><b>Alex</b><small>Default skin</small></span></button>
-      <button type="button" class="pickb" data-name="Dummy (blank face)" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "painted.png")).toString("base64")}"><img src="../icon-painted.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Blank face</small></span></button>
+      <button type="button" class="pickb" data-name="Dummy" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "painter-dummy.png")).toString("base64")}"><img src="../icon-painter-dummy.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Custom skin</small></span></button>
     </div>
     <p class="elabel">Format</p>
     <div class="pick">
@@ -784,9 +781,7 @@ const studioSkin = `<section class="panel ecard">
     <div class="pick" id="sstart">
       <button type="button" class="pickb" data-name="Steve" data-slim="0" data-skin="${skinData("wide/steve.png")}"><img src="../icon-skin.png" alt="" width="36" height="36"><span><b>Steve</b><small>Default skin</small></span></button>
       <button type="button" class="pickb" data-name="Alex" data-slim="1" data-skin="${skinData("slim/alex.png")}"><img src="../icon-alex.png" alt="" width="36" height="36"><span><b>Alex</b><small>Default skin</small></span></button>
-      <button type="button" class="pickb" data-name="Dummy (tall eyes)" data-skin="${fileData("dummy.png")}"><img src="../icon-dummy.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Tall eyes</small></span></button>
-      <button type="button" class="pickb" data-name="Dummy (dot eyes)" data-skin="${fileData("dummy2.png")}"><img src="../icon-dummy2.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Dot eyes</small></span></button>
-      <button type="button" class="pickb" data-name="Dummy (blank face)" data-skin="${fileData("painted.png")}"><img src="../icon-painted.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Blank face</small></span></button>
+      <button type="button" class="pickb" data-name="Dummy (custom skin)" data-skin="${fileData("painter-dummy.png")}"><img src="../icon-painter-dummy.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Custom skin</small></span></button>
       <button type="button" class="pickb" id="smine" hidden><img src="../icon-paint-pixel.svg" alt="" width="36" height="36"><span><b>My painting</b><small>From the Skin Painter 3D</small></span></button>
     </div>
     <p class="prow"><label>Format <select id="sformat"><option value="wide">Wide arms (Steve)</option><option value="slim">Slim arms (Alex)</option></select></label></p>
@@ -927,20 +922,23 @@ write("settings/index.html", page({
     <button type="button" class="tab" data-tab="music">${ICON.music} Music</button></div>
   <div class="box" id="tab-music" hidden>
     <h2 class="shead"><span class="tool-ic">${ICON.music}</span><span><b>Music</b><small>Background song for the website</small></span></h2>
-    <p>Background music made by your browser (no music files). Choose Calm, Minecraft, Fresh Moves Fix, or Night Sky. All are original instrumental tracks. Each song repeats. It is off until you turn it on, and saved in this browser only.</p>
+    <p>Original instrumental music generated in your browser. Playback is off by default. Your choices are saved on this device.</p>
     <p class="elabel">Song</p>
     <div class="mtiles two">
       <label class="mtile"><input type="radio" name="song" value="calm" data-music-song checked><span><b>Calm</b><small>Soft and friendly</small></span></label>
       <label class="mtile"><input type="radio" name="song" value="minecraft" data-music-song><span><b>Minecraft</b><small>Soft piano, 6:00</small></span></label>
       <label class="mtile"><input type="radio" name="song" value="fresh" data-music-song><span><b>Fresh Moves Fix</b><small>Original upbeat theme, 2:40</small></span></label>
       <label class="mtile"><input type="radio" name="song" value="night" data-music-song><span><b>Night Sky</b><small>Original peaceful instrumental, 3:12</small></span></label>
+      <label class="mtile"><input type="radio" name="song" value="end" data-music-song><span><b>The End</b><small>Original sad instrumental, 4:00</small></span></label>
+      <label class="mtile"><input type="radio" name="song" value="left" data-music-song><span><b>Player Left</b><small>Original sad instrumental, 3:20</small></span></label>
     </div>
     <p class="elabel">Player</p>
     <div class="mtiles">
       <label class="mtile"><input type="checkbox" data-music-check><span><b>Play music</b><small data-music-state>Music: off</small></span><i data-music-time>0:00 / 3:34</i></label>
-      <label class="mtile"><span class="mt-ic">${ICON.music}</span><span><b>Volume</b></span><input type="range" min="0" max="100" value="40" data-music-volume></label>
+      <label class="mtile"><span><b>Song position</b></span><input type="range" min="0" max="214" value="0" step="1" data-music-seek aria-label="Song position"></label>
+      <label class="mtile"><span class="mt-ic">${ICON.music}</span><span><b>Volume</b></span><input type="range" min="0" max="100" value="40" data-music-volume><span data-music-volume-value>40%</span></label>
     </div>
-    <p class="shint">${ICON.info} You can also use the music button at the top of every page. The music keeps playing while you move between pages of this site.</p>
+    <p class="shint">${ICON.info} Use the music button at the top of any page. Music continues as you browse the site.</p>
   </div>
   <div class="box" id="tab-language" hidden>
     <h2 class="shead"><span class="tool-ic">${ICON.globe}</span><span><b>Language</b><small>Language of menus and buttons</small></span></h2>
@@ -964,6 +962,9 @@ write("settings/index.html", page({
       <b>Live Sky location</b><p>Allow location for your real local sun and moon positions. Your approximate coordinates are saved only in this browser and are not sent to our server. The background is an illustration, not live weather.</p>
       <div><button type="button" class="btn small" id="live-sky-use-location">Use my location</button> <button type="button" class="btn small ghost" id="live-sky-forget-location">Forget location</button></div>
       <p id="live-sky-location-status" role="status" aria-live="polite"></p>
+      <label for="live-sky-speed"><b>Sky speed</b></label>
+      <select id="live-sky-speed"><option value="real">Real time</option><option value="fast">Fast cycle (one day in 2 minutes)</option></select>
+      <p>Fast cycle is a time-lapse, not the real current sky. Saved in this browser.</p>
     </div>
     <div class="fmf-blur-setting">
       <label for="settings-glass-blur"><span><b>Glass card blur</b><small>Turn the frosted-glass blur on or off. This only affects the Glass theme.</small></span><input type="checkbox" id="settings-glass-blur" checked></label>
@@ -1109,9 +1110,7 @@ write("creations/index.html", page({
   <a class="project-card" href="../paint/"><img src="../icon-paint-pixel.svg" alt="" width="112" height="112"><h2>Skin Painter 3D</h2><p>Paint a skin pixel by pixel in your browser.</p><span>Open painter ${ICON.right}</span></a>
   <a class="project-card" href="../editor/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Skin eye editor</h2><p>Add animated eye markers to your skin.</p><span>Open editor ${ICON.right}</span></a>
   <a class="project-card" href="../title/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Title</h2><p>Make and download a block-letter title picture.</p><span>Open title maker ${ICON.right}</span></a>
-  <a class="project-card" href="../model/"><img src="../icon-model-pixel.svg" alt="" width="112" height="112"><h2>Minecraft 3D Model</h2><p>Turn your skin into an animated 3D model file.</p><span>Open model maker ${ICON.right}</span></a>
   <a class="project-card" href="../animation/"><img src="../icon-anim-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Animation</h2><p>Arrange movements and save an animation as a video.</p><span>Open animation tool ${ICON.right}</span></a>
-  <a class="project-card" href="../cape/"><img src="../icon-cape-project-pixel.svg" alt="" width="112" height="112"><h2>Cape Editor</h2><p>Make a cape texture or a Java elytra pack.</p><span>Open editor ${ICON.right}</span></a>
   <div class="project-card project-soon"><img src="../icon-lock-project-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Skins</h2><p>A separate Fabric mod. Downloads are temporarily locked.</p><span>Coming soon</span></div>
 </div></div>`,
 }));
@@ -1230,11 +1229,6 @@ write("index.html", page({
       <span class="tool-head"><img class="tool-img" src="icon-anim-pixel.svg" alt="" width="48" height="48"><span><b>Minecraft Animation</b><small>by Fresh Moves Fix</small></span></span>
       <span class="tool-text">Put movements in a row with your own skin and save the animation as a video.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Animation</i><i>Video</i></span>
-    </a>
-    <a class="tool" href="cape/">
-      <span class="tool-head"><span class="tool-ic">${ICON.box}</span><span><b>Cape Editor</b><small>by Fresh Moves Fix</small></span></span>
-      <span class="tool-text">Paint a cape texture or make an elytra pack for Minecraft Java.</span>
-      <span class="tags"><i class="g">New</i><i>Java</i><i>Cape PNG</i><i>Elytra</i></span>
     </a>
   </div>
 </section>

@@ -69,8 +69,8 @@ footer { margin-top: 64px; }
 .fmf-settings-toggle:hover { border-color: var(--accent); }
 .fmf-reading { font-size: 1.075em; }
 .fmf-reading h1, .fmf-reading h2, .fmf-reading h3 { line-height: 1.2; }
-.fmf-contrast { --line: color-mix(in srgb, var(--text) 55%, var(--bg)); --muted: var(--text); }
-body.fmf-motion-off *, body.fmf-motion-off *::before, body.fmf-motion-off *::after {
+.fmf-contrast { --line: var(--text); --line: color-mix(in srgb, var(--text) 55%, var(--bg)); --muted: var(--text); }
+body.fmf-motion-off::before, body.fmf-motion-off::after, body.fmf-motion-off *, body.fmf-motion-off *::before, body.fmf-motion-off *::after {
   animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important;
 }
 @media (max-width: 760px) {
@@ -682,10 +682,18 @@ html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936;
 .cape-preview .backdrop-controls { margin-bottom: 12px; }
 @media (max-width: 1050px) { .cape-preview-view { height: 340px; } }
 @media (max-width: 420px) { .cape-preview-header { flex-wrap: wrap; } .cape-preview-view { height: 300px; } }
-/* Keep the grouped visibility switches beside the individual layer controls. */
-.painter-visibility-layout { display: flex; align-items: flex-start; gap: 12px; }
-.painter-visibility-layout table { flex: 1 1 auto; min-width: 0; }
-.painter-part-groups { display: flex; flex: 0 0 auto; flex-direction: column; gap: 10px; font-size: 12px; padding: 7px 0; }
-.painter-part-groups label { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
-.painter-part-groups input { margin: 0; }
-@media (max-width: 360px) { .painter-visibility-layout { flex-wrap: wrap; } .painter-part-groups { flex-direction: row; flex-wrap: wrap; } }
+/* A keyboard-accessible native checkbox with a clearer switch appearance. */
+.fmf-settings label.fmf-option { cursor: pointer; }
+.fmf-switch span { display: grid; gap: 3px; }
+.fmf-switch small { color: var(--muted); font-size: 12px; }
+.fmf-switch input { appearance: none; -webkit-appearance: none; flex: none; width: 40px; height: 24px; margin: 0; border: 1px solid var(--line); border-radius: 20px; background: var(--panel); cursor: pointer; position: relative; }
+.fmf-switch input::after { content: ""; position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--muted); }
+.fmf-switch input:checked { background: var(--accent); border-color: var(--accent); }
+.fmf-switch input:checked::after { left: 19px; background: var(--on-accent, #101914); }
+.fmf-switch input:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.fmf-settings .fmf-option { padding: 12px; margin: 6px 0; border: 1px solid var(--line); border-radius: 10px; background: var(--fmf-popup-control, var(--bg)); }
+.fmf-option > span { display: grid; gap: 3px; min-width: 0; }
+.fmf-option > span small { color: var(--muted); font-size: 12px; }
+.fmf-settings .fmf-choice { width: min(130px, 45%); }
+.fmf-switch input:disabled { cursor: not-allowed; }

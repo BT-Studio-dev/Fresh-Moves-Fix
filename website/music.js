@@ -1,16 +1,16 @@
 // Fresh Moves Fix - optional background music, generated in the browser with Web Audio.
-// No audio files: a calm song of 3:34 (64 bars) is made from notes and then repeats. Off by default.
+// No audio files: music is generated from notes and is off by default.
 // A second song ("Minecraft", soft piano) is 6:00 long (96 bars).
 // A third, original upbeat track is called "Fresh Moves Fix".
 // Settings are stored in localStorage: fmf-music, fmf-volume and fmf-song.
 (function () {
   var on = false, vol = 40, song = "calm";
-  var INFO = { calm: { name: "Calm", len: 214, bars: 64 }, minecraft: { name: "Minecraft", len: 360, bars: 96 }, fresh: { name: "Fresh Moves Fix", len: 160, bars: 64 }, night: { name: "Night Sky", len: 192, bars: 48 } };
+  var INFO = { calm: { name: "Calm", len: 214, bars: 64 }, minecraft: { name: "Minecraft", len: 360, bars: 96 }, fresh: { name: "Fresh Moves Fix", len: 160, bars: 64 }, night: { name: "Night Sky", len: 192, bars: 48 }, end: { name: "The End", len: 240, bars: 48 }, left: { name: "Player Left", len: 200, bars: 40 } };
   try { var saved = localStorage.getItem("fmf-song"); if (INFO[saved]) song = saved; } catch (e) {}
   try { on = localStorage.getItem("fmf-music") === "on"; var v = parseInt(localStorage.getItem("fmf-volume"), 10); if (v >= 0 && v <= 100) vol = v; } catch (e) {}
   var AC = window.AudioContext || window.webkitAudioContext;
-  var ctx = null, master = null, timer = null, step = 0, nextTime = 0;
-  // ---- the song: 64 bars, exactly 3:34 long, then it repeats ----
+  var ctx = null, master = null, songBus = null, timer = null, step = 0, nextTime = 0, songStart = 0, playhead = 0, voices = new Set();
+  // ---- the calm song: 64 bars, exactly 3:34 long ----
   // the "Minecraft" song is 96 bars and exactly 6:00 long (a slower beat)
   var LENGTH = INFO[song].len, BEAT = LENGTH / (INFO[song].bars * 8); // seconds per eighth note (about 0.418; 0.469 for the long song)
   // chords as [root in semitones above A3, third]: Am F C G / Dm Am F G / Am Em F C
@@ -86,7 +86,21 @@
     { bars: 16, chords: [F, C, Em, Am], layers: "pam", arp: 4, level: 0.65, piano: true },
     { bars: 8, chords: [Am, F, C, G], layers: "pas", arp: 3, level: 0.5, piano: true }
   ];
-  var SONGS = { calm: compose(SECTIONS, SCALE, 7), minecraft: compose(M_SECTIONS, SCALE, 21), fresh: compose(FRESH_SECTIONS, SCALE, 31), night: compose(NIGHT_SECTIONS, SCALE, 67) };
+  // The End: original slow, melancholy instrumental, 48 bars / 4:00.
+  var END_SECTIONS = [
+    { bars: 8, chords: [Am, Em, F, Dm], layers: "a", arp: 3, level: 0.55, piano: true },
+    { bars: 16, chords: [Am, Em, F, Dm], layers: "pa", arp: 3, level: 0.6, piano: true },
+    { bars: 16, chords: [Dm, Am, F, Em], layers: "pam", arp: 4, level: 0.55, piano: true },
+    { bars: 8, chords: [Am, Em, F, Am], layers: "a", arp: 3, level: 0.45, piano: true }
+  ];
+  // Player Left: original, sparse minor-key instrumental, 40 bars / 3:20.
+  var LEFT_SECTIONS = [
+    { bars: 8, chords: [Dm, Am, Em, Am], layers: "a", arp: 3, level: 0.48, piano: true },
+    { bars: 8, chords: [Dm, Am, F, Em], layers: "pa", arp: 3, level: 0.52, piano: true },
+    { bars: 16, chords: [Am, Dm, F, Em], layers: "pam", arp: 3, level: 0.52, piano: true },
+    { bars: 8, chords: [Dm, F, Em, Am], layers: "a", arp: 3, level: 0.4, piano: true }
+  ];
+  var SONGS = { calm: compose(SECTIONS, SCALE, 7), minecraft: compose(M_SECTIONS, SCALE, 21), fresh: compose(FRESH_SECTIONS, SCALE, 31), night: compose(NIGHT_SECTIONS, SCALE, 67), end: compose(END_SECTIONS, SCALE, 103), left: compose(LEFT_SECTIONS, SCALE, 149) };
   function freq(semi) { return 220 * Math.pow(2, semi / 12); }
   function tone(f, t, len, peak, type, attack, slideTo) {
     var o = ctx.createOscillator(), g = ctx.createGain();
@@ -95,13 +109,42 @@
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(peak, t + (attack || 0.03));
     g.gain.exponentialRampToValueAtTime(0.0001, t + len);
-    o.connect(g); g.connect(master);
-    o.start(t); o.stop(t + len + 0.05);
+    // The per-song bus fades on switches; every voice still reaches the same master volume.
+    o.connect(g); g.connect(songBus);
+    voices.add(o);
+    o.onended = function () { voices.delete(o); o.disconnect(); g.disconnect(); };
+    o.start(t); o.stop(Math.min(t + len + 0.05, songStart + LENGTH));
+  }
+  function createSongBus() {
+    songBus = ctx.createGain(); songBus.gain.value = 1; songBus.connect(master);
+  }
+  function scheduleEnding() {
+    var end = songStart + LENGTH;
+    songBus.gain.setValueAtTime(1, end - 0.04);
+    songBus.gain.linearRampToValueAtTime(0, end);
+  }
+  function retireSong() {
+    if (!songBus) return;
+    var oldBus = songBus, end = ctx.currentTime + 0.04;
+    if (oldBus.gain.cancelAndHoldAtTime) oldBus.gain.cancelAndHoldAtTime(ctx.currentTime);
+    else { oldBus.gain.cancelScheduledValues(ctx.currentTime); oldBus.gain.setValueAtTime(oldBus.gain.value, ctx.currentTime); }
+    oldBus.gain.linearRampToValueAtTime(0, end);
+    voices.forEach(function (voice) { try { voice.stop(end); } catch (e) {} });
+    voices.clear();
+    // The bus is silent after its short fade; release its connection afterward.
+    setTimeout(function () { oldBus.disconnect(); }, 250);
+    songBus = null;
   }
   function schedule() {
-    if (!ctx) return;
-    while (nextTime < ctx.currentTime + 0.6) {
-      var SONG = SONGS[song], bar = SONG[Math.floor(step / 8) % SONG.length], i = step % 8, sec = bar.sec, L = sec.layers, lv = sec.level, t = nextTime;
+    if (!ctx || !on || !timer) return;
+    if (ctx.currentTime >= songStart + LENGTH) { finish(); return; }
+    // After a throttled tab, skip missed notes instead of playing a burst of old ones.
+    if (nextTime < ctx.currentTime - 0.6) {
+      var missed = Math.ceil((ctx.currentTime - nextTime) / BEAT);
+      nextTime += missed * BEAT; step += missed;
+    }
+    while (nextTime < ctx.currentTime + 0.6 && step < SONGS[song].length * 8) {
+      var SONG = SONGS[song], bar = SONG[Math.floor(step / 8)], i = step % 8, sec = bar.sec, L = sec.layers, lv = sec.level, t = nextTime;
       var has = function (c) { return L.indexOf(c) >= 0; };
       if (i === 0) {
         if (has("p")) [0, 1, 2].forEach(function (n) { tone(freq(bar.root + bar.tones[n]), t, BEAT * 8.5, 0.045 * lv, "sine", 0.6); });
@@ -118,21 +161,47 @@
       nextTime += BEAT; step++;
     }
   }
-  function position() { return (step * BEAT) % LENGTH; } // seconds into the song
-  function setGain() { if (master) master.gain.setTargetAtTime(on ? (vol / 100) * 0.5 : 0, ctx.currentTime, 0.15); }
+  function position() { return timer && ctx ? Math.min(LENGTH, Math.max(playhead, ctx.currentTime - songStart)) : playhead; }
+  function setGain() {
+    if (!master) return;
+    var gain = master.gain, now = ctx.currentTime;
+    if (gain.cancelAndHoldAtTime) gain.cancelAndHoldAtTime(now);
+    else if (gain.cancelScheduledValues) gain.cancelScheduledValues(now);
+    gain.setTargetAtTime(on ? vol / 100 : 0, now, 0.04);
+  }
+  function paintVolume() {
+    document.querySelectorAll("[data-music-volume]").forEach(function (r) { r.value = vol; r.setAttribute("aria-valuetext", vol + "%"); });
+    document.querySelectorAll("[data-music-volume-value]").forEach(function (e) { e.textContent = vol + "%"; });
+  }
+  function changeVolume(input) {
+    var value = Number(input.value);
+    if (!isFinite(value)) return;
+    vol = Math.max(0, Math.min(100, value));
+    try { localStorage.setItem("fmf-volume", String(vol)); } catch (err) {}
+    setGain(); paintVolume();
+  }
   function start() {
     if (!AC) return false;
     try {
       if (!ctx) { ctx = new AC(); master = ctx.createGain(); master.gain.value = 0; master.connect(ctx.destination); }
-      if (ctx.state === "suspended") ctx.resume();
-      if (!timer) { nextTime = ctx.currentTime + 0.1; timer = setInterval(schedule, 200); schedule(); }
+      if (!songBus) createSongBus();
+      if (ctx.state === "suspended") {
+        var resumed = ctx.resume();
+        if (resumed && resumed.catch) resumed.catch(function () { set(false); });
+      }
+      if (!timer) {
+        songStart = ctx.currentTime + 0.1 - playhead;
+        step = Math.ceil(playhead / BEAT); nextTime = songStart + step * BEAT;
+        scheduleEnding(); timer = setInterval(schedule, 200); schedule();
+      }
       setGain();
       return true;
     } catch (e) { return false; }
   }
   function stop() {
-    if (timer) { clearInterval(timer); timer = null; }
+    if (timer) { playhead = position(); clearInterval(timer); timer = null; }
     setGain();
+    if (ctx) retireSong();
     if (ctx && ctx.state === "running") setTimeout(function () { if (!on && ctx) ctx.suspend(); }, 600);
   }
   function paint() {
@@ -141,42 +210,82 @@
       b.removeAttribute("title"); // the card under the button shows this instead
       b.setAttribute("aria-label", on ? "Music: on" : "Music: off");
     });
-    document.querySelectorAll("[data-music-state]").forEach(function (e) { e.textContent = on ? "Music: on" : "Music: off"; });
+    document.querySelectorAll("[data-music-state]").forEach(function (e) { e.textContent = on ? (timer ? "Music: on" : "Music: waiting for a click") : (playhead ? "Music: paused" : "Music: off"); });
     document.querySelectorAll("[data-music-check]").forEach(function (c) { c.checked = on; });
-    document.querySelectorAll("[data-music-volume]").forEach(function (r) { r.value = vol; });
+    paintVolume();
     document.querySelectorAll("[data-music-song]").forEach(function (r) { r.checked = r.value === song; });
     document.querySelectorAll("[data-music-name]").forEach(function (e) { e.textContent = INFO[song].name; });
   }
   function setSong(next) {
     song = INFO[next] ? next : "calm"; LENGTH = INFO[song].len; BEAT = LENGTH / (INFO[song].bars * 8); try { localStorage.setItem("fmf-song", song); } catch (e) {}
-    step = 0; if (ctx) nextTime = Math.max(nextTime, ctx.currentTime + 0.1); // start the chosen song from its beginning
-    paint();
+    step = 0; playhead = 0;
+    if (ctx) {
+      // Fade the old song to zero before starting the new one; never overlap them.
+      retireSong();
+      createSongBus();
+      nextTime = ctx.currentTime + 0.05; songStart = nextTime;
+      if (timer) { scheduleEnding(); schedule(); }
+    }
+    paint(); paintTime();
   }
-  function clock(sec) { sec = Math.floor(sec); return Math.floor(sec / 60) + ":" + ("0" + (sec % 60)).slice(-2); }
-  setInterval(function () {
-    var txt = clock(on && timer ? position() : 0) + " / " + clock(LENGTH);
+  function clock(sec) { sec = Math.floor(sec + 1e-7); return Math.floor(sec / 60) + ":" + ("0" + (sec % 60)).slice(-2); }
+  function paintTime() {
+    if (on && timer && ctx && ctx.currentTime >= songStart + LENGTH) finish();
+    var pos = position(), txt = clock(pos) + " / " + clock(LENGTH);
     document.querySelectorAll("[data-music-time]").forEach(function (e) { if (e.textContent !== txt) e.textContent = txt; });
-  }, 500);
+    document.querySelectorAll("[data-music-seek]").forEach(function (s) { s.max = LENGTH; s.value = Math.floor(pos); s.setAttribute("aria-valuetext", clock(pos) + " of " + clock(LENGTH)); });
+  }
+  setInterval(paintTime, 500);
+  function finish() {
+    if (!on) return;
+    on = false; try { localStorage.setItem("fmf-music", "off"); } catch (e) {}
+    if (timer) { clearInterval(timer); timer = null; }
+    if (songBus) { songBus.disconnect(); songBus = null; }
+    voices.clear(); step = 0; playhead = 0; setGain();
+    if (ctx && ctx.state === "running") setTimeout(function () { if (!on && ctx) ctx.suspend(); }, 600);
+    paint();
+    paintTime();
+  }
+  function seek(input) {
+    var value = Number(input.value);
+    if (!isFinite(value)) return;
+    playhead = Math.max(0, Math.min(LENGTH, value));
+    if (playhead >= LENGTH) {
+      if (on) finish(); else { playhead = 0; paint(); paintTime(); }
+      return;
+    }
+    if (ctx && timer) {
+      retireSong(); createSongBus();
+      songStart = ctx.currentTime + 0.05 - playhead;
+      step = Math.ceil(playhead / BEAT); nextTime = songStart + step * BEAT;
+      scheduleEnding(); schedule();
+    }
+    paintTime();
+  }
   function set(next) {
     on = next; try { localStorage.setItem("fmf-music", on ? "on" : "off"); } catch (e) {}
-    if (on) start(); else stop();
-    paint();
+    if (on) {
+      if (!start()) { on = false; try { localStorage.setItem("fmf-music", "off"); } catch (e) {} stop(); }
+    } else stop();
+    paint(); paintTime();
   }
   function init() {
     // one set of listeners on the document, so they keep working when the page content is swapped
     document.addEventListener("click", function (e) {
       var b = e.target.closest && e.target.closest("[data-music-toggle]");
       if (b) set(!on);
-      // choosing a song (also the one already chosen) starts the music
-      if (e.target.matches && e.target.matches("[data-music-song]")) { if (e.target.value !== song) setSong(e.target.value); if (!on) set(true); }
+      // Selecting a song does not turn on music without the play control.
+      if (e.target.matches && e.target.matches("[data-music-song]") && e.target.value !== song) setSong(e.target.value);
     });
     document.addEventListener("change", function (e) {
+      if (e.target.matches && e.target.matches("[data-music-volume]")) changeVolume(e.target);
       if (e.target.matches && e.target.matches("[data-music-check]")) set(e.target.checked);
-      if (e.target.matches && e.target.matches("[data-music-song]") && e.target.checked) setSong(e.target.value);
+      if (e.target.matches && e.target.matches("[data-music-song]") && e.target.checked && e.target.value !== song) setSong(e.target.value);
     });
     document.addEventListener("input", function (e) {
-      if (!(e.target.matches && e.target.matches("[data-music-volume]"))) return;
-      vol = Number(e.target.value); try { localStorage.setItem("fmf-volume", String(vol)); } catch (err) {} setGain();
+      if (!e.target.matches) return;
+      if (e.target.matches("[data-music-volume]")) changeVolume(e.target);
+      if (e.target.matches("[data-music-seek]")) seek(e.target);
     });
     // the music waits while a video on the page is playing
     var held = false;
@@ -192,9 +301,8 @@
     paint();
     // browsers only allow sound after a click or key press, so after a full page load the music resumes on the first one
     if (on) {
-      var kick = function () { if (on) start(); document.removeEventListener("pointerdown", kick); document.removeEventListener("keydown", kick); };
+      var kick = function () { if (on && !timer) { start(); paint(); paintTime(); } document.removeEventListener("pointerdown", kick); document.removeEventListener("keydown", kick); };
       document.addEventListener("pointerdown", kick); document.addEventListener("keydown", kick);
-      start();
     }
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();

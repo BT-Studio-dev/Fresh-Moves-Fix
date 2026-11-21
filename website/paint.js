@@ -32,7 +32,6 @@
       ["ll", 16, 48, 4, 12, 4, 2, 6, 0, 0, 0], ["ll", 0, 48, 4, 12, 4, 2, 6, 0, 0.25, 1],
     ];
   }
-  const GROUP = { head: "head", body: "body", ra: "arms", la: "arms", rl: "legs", ll: "legs" };
   const PIV = { head: [0, 24, 0], body: [0, 24, 0], ra: [-5, 22, 0], la: [5, 22, 0], rl: [-2, 12, 0], ll: [2, 12, 0] };
   const POSES = {
     stand: { ra: 0, la: 0, rl: 0, ll: 0 },
@@ -69,7 +68,7 @@
       return cam(X, Y, Z);
     };
     for (const [name, u, v, w, h, dp, cx, cyy, cz, inf, layer] of parts()) {
-      if (hidden[GROUP[name]] || hiddenLayers[name + ":" + layer]) continue;
+      if (hidden[name] || hiddenLayers[name + ":" + layer]) continue;
       if (layer === 1 && !showOuter) continue;
       const sx = (w + 2 * inf) / w, sy2 = (h + 2 * inf) / h, sz = (dp + 2 * inf) / dp, top = cyy + h / 2 * sy2;
       const R = rects(u, v, w, h, dp);
@@ -173,7 +172,7 @@
     // Dim hidden faces in the flat editor without changing the saved pixels.
     g2.fillStyle = 'rgba(128, 128, 128, 0.55)';
     for (const [name, u, v, w, h, dp, , , , , layer] of parts()) {
-      if (hidden[GROUP[name]] || hiddenLayers[name + ':' + layer] || (layer === 1 && !showOuter)) {
+      if (hidden[name] || hiddenLayers[name + ':' + layer] || (layer === 1 && !showOuter)) {
         for (const r of rects(u, v, w, h, dp)) g2.fillRect(r[0] * S, r[1] * S, r[2] * S, r[3] * S);
       }
     }
@@ -432,6 +431,8 @@
   $("phex").addEventListener("change", () => { if (/^#?[0-9a-fA-F]{6}$/.test($("phex").value.trim())) remember(); });
   $("pundo").addEventListener("click", doUndo); $("predo").addEventListener("click", doRedo);
   $("psave").addEventListener("click", save);
+  $("psave-top").addEventListener("click", save);
+  $("pfile-top").addEventListener("click", () => $("pfile").click());
   $("pfile").addEventListener("change", (e) => { loadFile(e.target.files[0]); e.target.value = ""; });
   document.querySelectorAll("#pstart button").forEach((b) => b.addEventListener("click", () => loadUrl(b.dataset.skin, b.dataset.name, b.dataset.slim ? b.dataset.slim === "1" : undefined)));
   $("pclear").addEventListener("click", () => { undo.push(new Uint8ClampedArray(px)); redo.length = 0; px = new Uint8ClampedArray(64 * 64 * 4); dirty = true; autosave(); buttons(); say("Empty skin. Use Undo to get the old one back."); });
@@ -444,7 +445,7 @@
   }));
   document.querySelectorAll("input[name=player]").forEach((r) => r.addEventListener("change", () => { if (r.checked) { target = Number(r.value); if (target === 1 && !showOuter) { showOuter = true; $("pshow").checked = true; } dirty = true; } }));
   $("pshow").addEventListener("change", (e) => { showOuter = e.target.checked; if (!showOuter && target === 1) { target = 0; document.querySelector("input[name=player][value='0']").checked = true; } dirty = true; });
-  document.querySelectorAll("#pparts input").forEach((c) => c.addEventListener("change", () => { hidden[c.value] = !c.checked; dirty = true; }));
+  document.querySelectorAll("[data-show-part]").forEach((c) => c.addEventListener("change", () => { hidden[c.dataset.showPart] = !c.checked; dirty = true; }));
   function syncLayerMasters() {
     document.querySelectorAll('[data-layer-all]').forEach((master) => {
       const controls = Array.from(document.querySelectorAll('[data-part][data-layer="' + master.dataset.layerAll + '"]'));
