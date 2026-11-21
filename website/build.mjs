@@ -239,7 +239,7 @@ for (const [i, d] of docs.entries()) {
     active: "guides",
     depth: 2,
     body: `<div class="wrap"><article>
-<div class="crumb"><a href="../../">${ICON.home} Home</a> ${ICON.right} <a href="../">${ICON.book} Guides</a></div>
+<div class="crumb"><a href="../">${ICON.book} Guides</a></div>
 <h1>${d.name.startsWith("Fix") ? ICON.wrench : ICON.eye} ${esc(d.name)}</h1>
 <div class="text-card guide-prose">${renderDoc(md)}</div>
 <div class="guide-nav">
@@ -261,7 +261,6 @@ write("guides/index.html", page({
   active: "guides",
   depth: 1,
   body: `<div class="wrap"><article class="guides-index">
-<div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <h1>${ICON.book} Guides</h1>
 <div class="text-card">
 <h2>${ICON.list} How to animate the eyes</h2>
@@ -312,7 +311,6 @@ write("editor/index.html", page({
   description: "Add the animated-eye pixels for Fresh Moves to your Minecraft skin and download the result.",
   depth: 1,
   body: `<div class="wrap editor-workspace-wrap"><article class="editor eye-workspace">
-<div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <h1>${ICON.eye} Skin eye editor</h1>
 <p>Adds the extra pixels that make the eyes blink and move, then lets you download the skin. Everything happens in your browser; the skin is not uploaded anywhere.</p>
 <div class="note"><strong>Eyes tested in-game:</strong> a player reported that their eyes blink and move. Other eye shapes and features may behave differently and still need testing (see "How it works" below). Keep a copy of your original skin. <a href="#test">How to test it in the game</a></div>
@@ -516,7 +514,6 @@ write("title/index.html", page({
   description: "Type a text and download a Minecraft-style block-letter title picture, right in your browser.",
   depth: 1,
   body: `<div class="wrap twide"><article class="editor">
-<div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <h1>${ICON.tag} Minecraft title</h1>
 <p>Type your text and get a block-letter title picture, in the style of the "Fresh Moves Fix" title. Everything happens in your browser. It works without 3D graphics (WebGL).</p>
 <div class="ed paint ted">
@@ -654,7 +651,6 @@ write("paint/index.html", page({
   description: "Paint a Minecraft skin on a 3D model or on the flat skin file, right in your browser.",
   depth: 1,
   body: `<div class="wrap editor-workspace-wrap"><article class="editor painter-page">
-<div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <div class="painter-intro">
 <span class="home-eyebrow">CREATE IN YOUR BROWSER</span>
 <h1>${ICON.brush} Skin Painter 3D</h1>
@@ -819,7 +815,6 @@ write("model/index.html", page({
   description: "Turn your Minecraft skin into an animated 3D model file (.gltf) for Blender, Blockbench and 3D viewers.",
   depth: 1,
   body: `<div class="wrap"><article class="editor">
-<div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <h1>${ICON.box} Minecraft 3D Model</h1>
 <p>Turn your skin into a 3D model of the player, with a movement, and download it as one file. Everything happens in your browser; nothing is uploaded. It works without 3D graphics (WebGL).</p>
 <div class="ed paint">
@@ -856,7 +851,6 @@ write("animation/index.html", page({
   description: "Make a Minecraft animation with your own skin right in the browser and save it as a video. Plus a guide for Blender.",
   depth: 1,
   body: `<div class="wrap"><article class="editor">
-<div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <h1>${ICON.play} Minecraft Animation</h1>
 <p>Make a short animation with your own skin: put movements in a row, press play, and save it as a video. Everything happens in your browser; nothing is uploaded. It works without 3D graphics (WebGL).</p>
 <div class="ed paint">
@@ -1041,17 +1035,26 @@ write("settings/index.html", page({
   window.addEventListener("hashchange",showHash);
   showHash();
   var FLAG={en:"us",ar:"eg",de:"de",es:"es",fr:"fr",it:"it",pt:"br",ru:"ru",pl:"pl",uk:"ua",tr:"tr",zh:"cn",ja:"jp"};
-  var box=document.getElementById("langs"), api=window.fmfI18n; if(!api) return;
+  var box=document.getElementById("langs"), api=window.fmfI18n; if(!api || !box) return;
+  box.textContent="";
   api.langs.forEach(function(l){
-    var lab=document.createElement("label"); lab.className="lang"+(api.get()===l[0]?" on":"");
+    var lab=document.createElement("label"); lab.className="lang";
     var code=document.createElement("span"); code.className="code"; code.textContent=l[0].toUpperCase();
-    var fl=document.createElement("img"); fl.className="flag"; fl.alt=""; fl.width=28; fl.height=21; fl.src="../flags/"+FLAG[l[0]]+".svg"; fl.onerror=function(){ fl.replaceWith(code); };
-    var name=document.createElement("b"); name.textContent=l[1]; name.setAttribute("translate","no");
-    var en=document.createElement("small"); en.textContent=l[1]===l[2]?"":l[2];
-    var inp=document.createElement("input"); inp.type="radio"; inp.name="lang"; inp.value=l[0]; inp.checked=api.get()===l[0];
-    inp.addEventListener("change",function(){ api.set(l[0]); box.querySelectorAll(".lang").forEach(function(x){x.classList.remove("on")}); lab.classList.add("on"); });
-    lab.appendChild(FLAG[l[0]]?fl:code); lab.appendChild(name); lab.appendChild(en); lab.appendChild(inp); box.appendChild(lab);
+    var fl=document.createElement("img"); fl.className="flag"; fl.alt=""; fl.width=28; fl.height=21; fl.src="../flags/"+FLAG[l[0]]+".svg"; fl.onerror=function(){ fl.replaceWith(code.cloneNode(true)); };
+    var text=document.createElement("span"); text.className="lang-text";
+    var name=document.createElement("b"); name.textContent=l[1]; name.setAttribute("translate","no"); name.setAttribute("dir","auto");
+    var en=document.createElement("small"); en.textContent=l[1]===l[2]?"":l[2]; en.setAttribute("translate","no");
+    var inp=document.createElement("input"); inp.type="radio"; inp.name="lang"; inp.value=l[0];
+    inp.addEventListener("change",function(){ if(inp.checked) api.set(l[0]); syncLanguage(); });
+    text.appendChild(name); if(en.textContent) text.appendChild(en);
+    lab.appendChild(FLAG[l[0]]?fl:code.cloneNode(true)); lab.appendChild(text); lab.appendChild(code); lab.appendChild(inp); box.appendChild(lab);
   });
+  function syncLanguage(){
+    if(!box.isConnected){document.removeEventListener("fmf-lang",syncLanguage);return;}
+    box.querySelectorAll(".lang").forEach(function(label){var input=label.querySelector("input"), on=input.value===api.get(); input.checked=on; label.classList.toggle("on",on);});
+  }
+  if(window.__fmfLanguageSync) document.removeEventListener("fmf-lang",window.__fmfLanguageSync);
+  window.__fmfLanguageSync=syncLanguage; document.addEventListener("fmf-lang",syncLanguage); syncLanguage();
 }
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",go); else go();})()</script>`,
 }));
@@ -1061,7 +1064,6 @@ write("cape/index.html", page({
   title: "Cape Editor - Fresh Moves Fix", active: "", depth: 1,
   description: "Paint a cape texture and create a Java elytra resource pack in your browser.",
   body: `<div class="wrap cape-page"><article>
-<div class="crumb"><a href="../">${ICON.home} Home</a> / Cape editor</div>
 <header class="cape-heading"><h1>${ICON.brush} Cape Editor</h1><p>Paint a Java cape texture and create an optional elytra pack, right in your browser.</p></header>
 <div class="note"><strong>Java cape limitation:</strong> a resource pack cannot give you a wearable custom cape. Download the PNG for a compatible cape mod. The optional ZIP changes the elytra texture only; other players will not see your resource pack.</div>
 <div class="cape-workspace">
