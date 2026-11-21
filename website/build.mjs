@@ -86,7 +86,7 @@ function page({ title, body, depth = 0, description = "", active = "" }) {
 <meta name="twitter:card" content="summary_large_image">
 <script>(function(){var t="";try{t=localStorage.getItem("fmf-theme")||""}catch(e){}
 if(!t){try{var m=document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/);if(m)t=m[1]}catch(e){}}
-if(["system","light","dark","oled","glass","minecraft","nightsky"].indexOf(t)<0)t="glass";
+if(["system","light","dark","oled","glass","minecraft","nightsky"].indexOf(t)<0)t="dark";
 if(t==="system")t=window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
 document.documentElement.setAttribute("data-theme",t);
 var bg="";try{bg=localStorage.getItem("fmf-background")||""}catch(e){}
@@ -190,7 +190,7 @@ fs.writeFileSync(path.join(out, "tableau.json"), JSON.stringify({
   version: "1.0", api_version: 1,
   layout: { logo: SITE + "tile-logo.png", color: "#17362a", show_title: true },
 }));
-for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png", "icon-painted.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
+for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png", "icon-painted.png", "icon-paint-pixel.svg", "icon-model-pixel.svg", "icon-anim-pixel.svg", "icon-cape-project-pixel.svg", "icon-lock-project-pixel.svg"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner-profile.png", "owner-skin.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "refresh-2026.css"), path.join(out, "refresh-2026.css"));
@@ -663,7 +663,7 @@ write("paint/index.html", page({
 <div class="ed paint workspace-layout">
   <div class="ed-col painter-tools-column">
   <section class="panel ecard painter-tools-card">
-    <h3 class="ehead"><img class="tool-img" src="../icon-paint.png" alt="" width="44" height="44"><span><b>Tools</b><small>Pick a tool, pick a colour, then click the model</small></span></h3>
+    <h3 class="ehead"><img class="tool-img" src="../icon-paint-pixel.svg" alt="" width="44" height="44"><span><b>Tools</b><small>Pick a tool, pick a colour, then click the model</small></span></h3>
     <div class="ptools" id="ptools">
       <button type="button" data-tool="pen" title="Pen (B)">${ICON.brush}<span>Pen</span></button>
       <button type="button" data-tool="erase" title="Eraser (E)">${ICON.close}<span>Eraser</span></button>
@@ -682,19 +682,19 @@ write("paint/index.html", page({
     <h3 class="ehead"><span class="tool-ic">${ICON.brush}</span><span><b>Colour &amp; layers</b><small>Choose your colours and paint layer</small></span></h3>
     <p class="elabel">Colour</p>
     <p class="prow painter-main-colour"><span class="pnow" id="pnow"></span> <input type="color" id="pcolor" data-inline-picker value="#3b82c4" aria-label="Colour"> <input type="text" id="phex" class="phex" value="#3b82c4" maxlength="7" spellcheck="false" aria-label="Colour code"></p>
-    <details class="painter-second-colour"><summary>Second colour (right click)</summary><p class="prow"><span class="pnow" id="pnow2"></span> <input type="color" id="pcolor2" value="#ffffff" aria-label="Second colour"> <button type="button" class="btn ghost" id="pswap">Swap</button></p></details>
     <p class="elabel">Recent</p>
     <div class="psws" id="precent"></div>
-    <p class="elabel">Palette</p>
+    <p class="elabel">Skin palette</p>
+    <div class="psws" id="pskinpalette" aria-label="Colours from the current skin"></div>
+    <details class="painter-basic-palette"><summary>More colours</summary>
     <div class="psws" id="ppalette"><button type="button" class="psw" style="background:#000000" title="#000000" data-c="#000000"></button><button type="button" class="psw" style="background:#3f3f3f" title="#3f3f3f" data-c="#3f3f3f"></button><button type="button" class="psw" style="background:#7f7f7f" title="#7f7f7f" data-c="#7f7f7f"></button><button type="button" class="psw" style="background:#bfbfbf" title="#bfbfbf" data-c="#bfbfbf"></button><button type="button" class="psw" style="background:#ffffff" title="#ffffff" data-c="#ffffff"></button><button type="button" class="psw" style="background:#5a3a1e" title="#5a3a1e" data-c="#5a3a1e"></button><button type="button" class="psw" style="background:#8b5a2b" title="#8b5a2b" data-c="#8b5a2b"></button><button type="button" class="psw" style="background:#c68642" title="#c68642" data-c="#c68642"></button><button type="button" class="psw" style="background:#e0ac69" title="#e0ac69" data-c="#e0ac69"></button><button type="button" class="psw" style="background:#f1c27d" title="#f1c27d" data-c="#f1c27d"></button><button type="button" class="psw" style="background:#ffdbac" title="#ffdbac" data-c="#ffdbac"></button><button type="button" class="psw" style="background:#e5534b" title="#e5534b" data-c="#e5534b"></button><button type="button" class="psw" style="background:#ff8c1a" title="#ff8c1a" data-c="#ff8c1a"></button><button type="button" class="psw" style="background:#ffd21a" title="#ffd21a" data-c="#ffd21a"></button><button type="button" class="psw" style="background:#7bc043" title="#7bc043" data-c="#7bc043"></button><button type="button" class="psw" style="background:#2e8b57" title="#2e8b57" data-c="#2e8b57"></button><button type="button" class="psw" style="background:#1fb5a8" title="#1fb5a8" data-c="#1fb5a8"></button><button type="button" class="psw" style="background:#3b82c4" title="#3b82c4" data-c="#3b82c4"></button><button type="button" class="psw" style="background:#2b4fa8" title="#2b4fa8" data-c="#2b4fa8"></button><button type="button" class="psw" style="background:#7a4fd0" title="#7a4fd0" data-c="#7a4fd0"></button><button type="button" class="psw" style="background:#d05fb5" title="#d05fb5" data-c="#d05fb5"></button><button type="button" class="psw" style="background:#ff9ecb" title="#ff9ecb" data-c="#ff9ecb"></button></div>
+    </details>
     <p class="elabel">Shades</p>
     <div class="psws" id="pshades" aria-label="Shades of the selected colour"></div>
-    <p class="elabel">Opacity (glass)</p>
-    <p class="prow"><input type="range" id="palpha" min="5" max="100" step="5" value="100" aria-label="Opacity"> <span class="tnum" id="palphav">100%</span> <button type="button" class="btn ghost" data-palpha="100">Solid</button> <button type="button" class="btn ghost" data-palpha="50">Glass</button> <button type="button" class="btn ghost" data-palpha="25">Light glass</button></p>
-    <p class="ehint">${ICON.info} <span>Below 100% the Pen and Fill paint see-through pixels, for glass in glasses. <b>Take colour</b> also takes how see-through a pixel is. In Minecraft, see-through only works on the <b>outer layer</b>; on the first layer the game shows it solid.</span></p>
+    <p class="prow"><input type="range" id="palpha" min="5" max="100" step="5" value="100" aria-label="Opacity"> <span class="tnum" id="palphav">100%</span></p>
     <p class="elabel">Paint on</p>
     <div class="painter-layer-choice" role="group" aria-label="Paint layer"><label><input type="radio" name="player" value="0" checked><span>Base</span></label><label><input type="radio" name="player" value="1"><span>Overlay</span></label></div>
-    <p class="prow"><label><input type="checkbox" id="pshow" checked> Show the outer layer</label></p>
+    <input type="checkbox" id="pshow" checked hidden tabindex="-1" aria-hidden="true">
     <div class="painter-layers">
       <h4>Part visibility</h4>
       <p><small>Show or hide each part in the 3D preview. Hidden parts are dimmed in 2D but are not erased from your skin.</small></p>
@@ -713,8 +713,6 @@ write("paint/index.html", page({
     <div class="pick" id="pstart">
       <button type="button" class="pickb" data-name="Steve" data-slim="0" data-skin="${skinData("wide/steve.png")}"><img src="../icon-skin.png" alt="" width="36" height="36"><span><b>Steve</b><small>Default skin</small></span></button>
       <button type="button" class="pickb" data-name="Alex" data-slim="1" data-skin="${skinData("slim/alex.png")}"><img src="../icon-alex.png" alt="" width="36" height="36"><span><b>Alex</b><small>Default skin</small></span></button>
-      <button type="button" class="pickb" data-name="Dummy (tall eyes)" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "dummy.png")).toString("base64")}"><img src="../icon-dummy.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Tall eyes</small></span></button>
-      <button type="button" class="pickb" data-name="Dummy (dot eyes)" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "dummy2.png")).toString("base64")}"><img src="../icon-dummy2.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Dot eyes</small></span></button>
       <button type="button" class="pickb" data-name="Dummy (blank face)" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "painted.png")).toString("base64")}"><img src="../icon-painted.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Blank face</small></span></button>
     </div>
     <p class="elabel">Format</p>
@@ -722,7 +720,6 @@ write("paint/index.html", page({
       <label class="pickb"><input type="radio" name="pfmt" id="pfmtwide" value="wide" checked><span><b>Steve</b><small>Wide arms</small></span></label>
       <label class="pickb"><input type="radio" name="pfmt" id="pfmtslim" value="slim"><span><b>Alex</b><small>Slim arms</small></span></label>
     </div>
-    <p class="ehint">${ICON.info} <span>The format is guessed from the skin when you load it. If you pick the other one, the arms of your skin are changed to fit it (Steve = 4 pixels wide, Alex = 3). Undo brings them back.</span></p>
     <p class="prow"><button type="button" class="btn ghost" id="pclear">Empty skin</button></p>
     <p class="prow"><button type="button" class="btn" id="psave">${ICON.down} Save skin (.png)</button> <a class="btn ghost" href="../editor/">${ICON.eye} Add moving eyes</a></p>
     <p><small id="pmsg" role="status"></small></p>
@@ -752,7 +749,6 @@ write("paint/index.html", page({
     </div>
     <p class="prow"><label>Cape <select id="pcape"><option value="none">No cape</option><option value="red">Red and gold</option><option value="leaf">Leaf</option><option value="blossom">Blossom</option><option value="ice">Ice</option><option value="sunset">Sunset</option><option value="checker">Checker</option><option value="night">Night sky</option><option value="star">Gold cross</option><option value="green">Fresh green</option><option value="gem">Blue gem</option><option value="flowers">Pink flowers</option><option value="smile">Green smile</option><option value="file">Your own cape file...</option></select></label>
       <input type="file" id="pcapefile" accept="image/png" hidden> <button type="button" class="btn ghost" id="pcapesave" disabled>Save cape (.png)</button></p>
-    <p class="ehint">${ICON.info} <span>The cape is only a preview on the model. It is not part of the skin file: in Minecraft a cape belongs to your account, or comes from a mod such as OptiFine. The official Minecraft capes can be looked at on <a href="https://laby.net/capes" target="_blank" rel="noopener">laby.net/capes</a>.</span></p>
     <p class="prow" id="pparts">Show: <label><input type="checkbox" value="head" checked> Head</label> <label><input type="checkbox" value="body" checked> Body</label> <label><input type="checkbox" value="arms" checked> Arms</label> <label><input type="checkbox" value="legs" checked> Legs</label></p>
     </div>
   </section>
@@ -792,7 +788,7 @@ const studioSkin = `<section class="panel ecard">
       <button type="button" class="pickb" data-name="Dummy (tall eyes)" data-skin="${fileData("dummy.png")}"><img src="../icon-dummy.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Tall eyes</small></span></button>
       <button type="button" class="pickb" data-name="Dummy (dot eyes)" data-skin="${fileData("dummy2.png")}"><img src="../icon-dummy2.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Dot eyes</small></span></button>
       <button type="button" class="pickb" data-name="Dummy (blank face)" data-skin="${fileData("painted.png")}"><img src="../icon-painted.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Blank face</small></span></button>
-      <button type="button" class="pickb" id="smine" hidden><img src="../icon-paint.png" alt="" width="36" height="36"><span><b>My painting</b><small>From the Skin Painter 3D</small></span></button>
+      <button type="button" class="pickb" id="smine" hidden><img src="../icon-paint-pixel.svg" alt="" width="36" height="36"><span><b>My painting</b><small>From the Skin Painter 3D</small></span></button>
     </div>
     <p class="prow"><label>Format <select id="sformat"><option value="wide">Wide arms (Steve)</option><option value="slim">Slim arms (Alex)</option></select></label></p>
     <p class="prow"><a class="btn ghost" href="../paint/">${ICON.brush} Paint a skin</a> <a class="btn ghost" href="../editor/">${ICON.eye} Add moving eyes</a></p>
@@ -828,7 +824,7 @@ write("model/index.html", page({
   <div class="ed-col">
   ${studioSkin}
   <section class="panel ecard">
-    <h3 class="ehead"><img class="tool-img" src="../icon-model.png" alt="" width="44" height="44"><span><b>2. Movement and download</b><small>The model moves like this, again and again</small></span></h3>
+    <h3 class="ehead"><img class="tool-img" src="../icon-model-pixel.svg" alt="" width="44" height="44"><span><b>2. Movement and download</b><small>The model moves like this, again and again</small></span></h3>
     <p class="prow"><label>Movement <select id="smove">${MOVE_OPTS}</select></label></p>
     <p class="prow"><button type="button" class="btn" id="sgltf">${ICON.down} Download 3D model (.gltf)</button></p>
     <p><small>One .gltf file with the player, your skin (both layers) and the chosen movement inside.</small></p>
@@ -865,7 +861,7 @@ write("animation/index.html", page({
   <div class="ed-col">
   ${studioSkin}
   <section class="panel ecard">
-    <h3 class="ehead"><img class="tool-img" src="../icon-anim.png" alt="" width="44" height="44"><span><b>2. Movements</b><small>They play one after the other, from top to bottom</small></span></h3>
+    <h3 class="ehead"><img class="tool-img" src="../icon-anim-pixel.svg" alt="" width="44" height="44"><span><b>2. Movements</b><small>They play one after the other, from top to bottom</small></span></h3>
     <div class="tl" id="tl"></div>
     <p class="prow"><label>Add <select id="tlmove">${MOVE_OPTS}</select></label> <label>for <input type="number" id="tlsecs" class="tlsecs" min="0.5" max="30" step="0.5" value="3"> seconds</label> <button type="button" class="btn ghost" id="tladd">Add</button></p>
     <p class="prow"><small>Whole animation: <b id="tltotal"></b></small> <label><input type="checkbox" id="tlloop" checked> Repeat</label></p>
@@ -991,7 +987,7 @@ write("settings/index.html", page({
 <script>(function(){
   var key="fmf-theme", cur=""; try{cur=localStorage.getItem(key)||""}catch(e){}
   if(!cur){ try{ var m=document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/); if(m) cur=m[1]; }catch(e){} } // second place the choice is kept
-  if(!cur) cur="glass"; // the theme new visitors start with
+  if(["system","light","dark","oled","glass","minecraft","nightsky"].indexOf(cur)<0) cur="dark"; // new visitors start with Dark
   function keep(v){ try{ document.cookie=key+"="+v+"; path=/; max-age=31536000"+(location.protocol==="https:"?"; SameSite=None; Secure":"; SameSite=Lax"); return document.cookie.indexOf(key+"="+v)>=0; }catch(e){ return false; } }
   function apply(t){ var r=t; if(t==="system") r=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"; document.documentElement.setAttribute("data-theme",r); applyBlur(); }
   var blurControl=document.getElementById("settings-glass-blur");
@@ -1033,7 +1029,15 @@ write("settings/index.html", page({
   var tabs=document.querySelectorAll(".tab");
   function show(id){ tabs.forEach(function(t){ var on=t.getAttribute("data-tab")===id; t.classList.toggle("on",on); document.getElementById("tab-"+t.getAttribute("data-tab")).hidden=!on; }); }
   tabs.forEach(function(t){ t.addEventListener("click",function(){ var id=t.getAttribute("data-tab"); show(id); try{history.replaceState(null,"","#"+id)}catch(e){} }); });
-  if(location.hash==="#language") show("language"); if(location.hash==="#music") show("music");
+  function showHash(){
+    if (!document.getElementById("tab-appearance")) return;
+    var id=location.hash.slice(1);
+    show(id==="language" || id==="music" ? id : "appearance");
+  }
+  if(window.__fmfSettingsHash) window.removeEventListener("hashchange",window.__fmfSettingsHash);
+  window.__fmfSettingsHash=showHash;
+  window.addEventListener("hashchange",showHash);
+  showHash();
   var FLAG={en:"us",ar:"eg",de:"de",es:"es",fr:"fr",it:"it",pt:"br",ru:"ru",pl:"pl",uk:"ua",tr:"tr",zh:"cn",ja:"jp"};
   var box=document.getElementById("langs"), api=window.fmfI18n; if(!api) return;
   api.langs.forEach(function(l){
@@ -1054,45 +1058,37 @@ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded"
 write("cape/index.html", page({
   title: "Cape Pack Builder - Fresh Moves Fix", active: "", depth: 1,
   description: "Paint a cape texture and create a Java elytra resource pack in your browser.",
-  body: `<div class="wrap"><article>
-<div class="crumb"><a href="../">${ICON.home} Home</a></div>
-<div class="text-card"><h1>${ICON.brush} Cape Pack Builder</h1>
-<p>Draw or load your own 64 × 32 cape texture. Everything stays in your browser.</p></div>
-<div class="note"><strong>Java cape limitation:</strong> a resource pack cannot give you a wearable custom cape. Download the PNG for a compatible cape mod. The optional ZIP changes the normal elytra texture only, not your cape. Other players will not see your resource pack; an equipped cape or another pack may override the elytra texture.</div>
-<section class="cape-settings card">
-<h2>Pack settings</h2>
-<div class="cape-fields">
-<label>Pack name <input type="text" id="cape-name" value="My Elytra Pack" maxlength="60"></label>
-<label>Description <input type="text" id="cape-description" value="Custom elytra texture" maxlength="120"></label>
+  body: `<div class="wrap cape-page"><article>
+<div class="crumb"><a href="../">${ICON.home} Home</a> / Cape editor</div>
+<header class="cape-heading"><h1>${ICON.brush} Cape Pack Builder</h1><p>Paint a Java cape texture and create an optional elytra pack, right in your browser.</p></header>
+<div class="note"><strong>Java cape limitation:</strong> a resource pack cannot give you a wearable custom cape. Download the PNG for a compatible cape mod. The optional ZIP changes the elytra texture only; other players will not see your resource pack.</div>
+<div class="cape-workspace">
+  <aside class="cape-toolbar" aria-label="Painting tools">
+    <button type="button" class="cape-tool active" data-cape-tool="pen" aria-label="Brush" title="Brush">${ICON.brush}<span>Brush</span></button>
+    <button type="button" class="cape-tool" data-cape-tool="erase" aria-label="Eraser" title="Eraser">✎<span>Erase</span></button>
+    <hr><button type="button" id="cape-undo" aria-label="Undo" title="Undo">↶<span>Undo</span></button>
+    <button type="button" id="cape-redo" aria-label="Redo" title="Redo">↷<span>Redo</span></button>
+    <button type="button" id="cape-clear" aria-label="Clear texture" title="Clear texture">×<span>Clear</span></button>
+    <select id="cape-tool" aria-label="Tool" hidden><option value="pen">Pen</option><option value="erase">Eraser</option></select>
+  </aside>
+  <section class="cape-stage" aria-label="Texture editor">
+    <div class="cape-stage-bar"><span>TEXTURE GRID</span><span>64 × 32 pixels</span></div>
+    <div class="cape-stage-center"><div class="cape-canvas-wrap"><canvas id="cape-canvas" width="640" height="320" aria-label="Cape texture drawing area, 64 by 32 pixels"></canvas></div></div>
+    <div class="cape-stage-options"><label><input type="checkbox" id="cape-grid" checked> Pixel grid</label><label><input type="checkbox" id="cape-template" checked> Face guides</label></div>
+  </section>
+  <aside class="cape-inspector">
+    <section><h2>Colour</h2><input id="cape-color" type="color" value="#35c980" data-inline-picker aria-label="Brush colour"><p class="cape-caption">Recent</p><div id="cape-recent" class="cape-recent" aria-label="Recent colours"></div></section>
+    <section><h2>Brush</h2><label for="cape-size">Size</label><select id="cape-size"><option value="1">1 pixel</option><option value="2">2 pixels</option><option value="3">3 pixels</option><option value="4">4 pixels</option></select></section>
+    <section><h2>Import / export</h2><label class="cape-upload">Import cape PNG (64 × 32)<input id="cape-file" type="file" accept="image/png"></label><button class="btn" id="cape-png" type="button">Download cape PNG</button><p id="cape-status" role="status" aria-live="polite"></p></section>
+  </aside>
 </div>
-<p>The name is used for your saved project and ZIP filename. The description appears in Minecraft's resource pack list.</p>
-</section>
-<section class="cape-settings card">
-<h2>Saved projects</h2>
-<p>Save the current texture and settings in this browser only. Saving with the same name updates that project. Clearing browser data deletes these projects; download a PNG or ZIP as a backup.</p>
-<label>Projects <select id="cape-projects" aria-label="Saved projects"><option value="">No saved projects</option></select></label>
-<div class="cape-project-actions"><button type="button" class="btn small" id="cape-save-project">Save / update</button> <button type="button" class="btn small ghost" id="cape-load-project" disabled>Load selected</button> <button type="button" class="btn small ghost" id="cape-delete-project" disabled>Delete selected</button></div>
-<p id="cape-project-status" role="status" aria-live="polite"></p>
-</section>
-<div class="ed cape-builder"><section class="panel ecard">
-<h2>Paint cape texture</h2>
-<p>Draw on the flat texture. The white outlines mark the two main cape faces; side and top edges are in the remaining texture area.</p>
-<label>Colour <input id="cape-color" type="color" value="#35c980"></label>
-<label>Tool <select id="cape-tool"><option value="pen">Pen</option><option value="erase">Eraser</option></select></label>
-<label><input type="checkbox" id="cape-grid" checked> Pixel grid</label>
-<div class="cape-canvas-wrap"><canvas id="cape-canvas" width="640" height="320" aria-label="Cape texture drawing area, 64 by 32 pixels"></canvas></div>
-<p><label>Load your 64 × 32 PNG <input id="cape-file" type="file" accept="image/png"></label></p>
-<p><button class="btn small" id="cape-clear" type="button">Clear</button> <button class="btn small" id="cape-png" type="button">Download cape PNG</button></p>
-<p id="cape-status" role="status" aria-live="polite"></p>
-</section><section class="panel ecard">
-<h2>Java elytra pack</h2>
-<p>Choose your Minecraft Java version, then download the resource pack ZIP. Put it in <code>resourcepacks</code> and enable it in Minecraft. Wings use the texture differently from the cape; the result may need editing and has not been tested in-game.</p>
-<label>Minecraft version <select id="cape-version">${versions.map((v) => `<option value="${v.format}" data-mc="${v.mc}"${v.mc === versions[versions.length - 1].mc ? " selected" : ""}>${v.mc}</option>`).join("")}</select></label>
-<p><button class="btn" id="cape-zip" type="button">Download elytra pack ZIP</button></p>
-<p><b>Note:</b> the pack is for elytra, not a custom wearable cape. Cape-mod installation and visibility depend on the mod.</p>
-</section></div>
+<div class="cape-extra">
+<section class="cape-settings card"><h2>Pack settings</h2><div class="cape-fields"><label>Pack name <input type="text" id="cape-name" value="My Elytra Pack" maxlength="60"></label><label>Description <input type="text" id="cape-description" value="Custom elytra texture" maxlength="120"></label></div><p>The name is used for your saved project and ZIP filename. The description appears in Minecraft's resource pack list.</p></section>
+<section class="cape-settings card"><h2>Saved projects</h2><p>Save the texture and settings in this browser. Clearing browser data deletes projects; download a PNG or ZIP as a backup.</p><label>Projects <select id="cape-projects" aria-label="Saved projects"><option value="">No saved projects</option></select></label><div class="cape-project-actions"><button type="button" class="btn small" id="cape-save-project">Save / update</button> <button type="button" class="btn small ghost" id="cape-load-project" disabled>Load selected</button> <button type="button" class="btn small ghost" id="cape-delete-project" disabled>Delete selected</button></div><p id="cape-project-status" role="status" aria-live="polite"></p></section>
+<section class="cape-settings card"><h2>Java elytra pack</h2><p>Choose your Minecraft Java version and put the ZIP in <code>resourcepacks</code>. Wings use the texture differently from the cape; the result may need editing and has not been tested in-game.</p><label>Minecraft version <select id="cape-version">${versions.map((v) => `<option value="${v.format}" data-mc="${v.mc}"${v.mc === versions[versions.length - 1].mc ? " selected" : ""}>${v.mc}</option>`).join("")}</select></label><p><button class="btn" id="cape-zip" type="button">Download elytra pack ZIP</button></p></section>
+</div>
 </article></div>
-<script src="../jszip.min.js"></script><script src="../cape.js?v=${ver("cape.js")}"></script>`,
+<script src="../jszip.min.js"></script><script src="../cape.js?v=${ver("cape.js")}"></script><script src="../ui.js?v=${ver("ui.js")}"></script>`,
 }));
 
 // ---------- projects ----------
@@ -1103,13 +1099,13 @@ write("creations/index.html", page({
 <header class="projects-heading"><h1>Projects</h1><p>Projects and creative tools from Fresh Moves Fix.</p></header>
 <div class="projects-grid">
   <a class="project-card" href="../#download"><img src="../pack.png" alt="" width="112" height="112"><h2>Fresh Moves Fix</h2><p>Player animations and animated eyes for Minecraft Java.</p><span>View downloads ${ICON.right}</span></a>
-  <a class="project-card" href="../paint/"><img src="../icon-paint.png" alt="" width="112" height="112"><h2>Skin Painter 3D</h2><p>Paint a skin pixel by pixel in your browser.</p><span>Open painter ${ICON.right}</span></a>
+  <a class="project-card" href="../paint/"><img src="../icon-paint-pixel.svg" alt="" width="112" height="112"><h2>Skin Painter 3D</h2><p>Paint a skin pixel by pixel in your browser.</p><span>Open painter ${ICON.right}</span></a>
   <a class="project-card" href="../editor/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Skin eye editor</h2><p>Add animated eye markers to your skin.</p><span>Open editor ${ICON.right}</span></a>
   <a class="project-card" href="../title/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Title</h2><p>Make and download a block-letter title picture.</p><span>Open title maker ${ICON.right}</span></a>
-  <a class="project-card" href="../model/"><img src="../icon-model.png" alt="" width="112" height="112"><h2>Minecraft 3D Model</h2><p>Turn your skin into an animated 3D model file.</p><span>Open model maker ${ICON.right}</span></a>
-  <a class="project-card" href="../animation/"><img src="../icon-anim.png" alt="" width="112" height="112"><h2>Minecraft Animation</h2><p>Arrange movements and save an animation as a video.</p><span>Open animation tool ${ICON.right}</span></a>
-  <a class="project-card" href="../cape/"><span class="project-icon" aria-hidden="true">${ICON.box}</span><h2>Cape Pack Builder</h2><p>Make a cape texture or a Java elytra pack.</p><span>Open builder ${ICON.right}</span></a>
-  <div class="project-card project-soon"><span class="project-icon" aria-hidden="true">${ICON.lock}</span><h2>Minecraft Skins</h2><p>A separate Fabric mod. Downloads are temporarily locked.</p><span>Coming soon</span></div>
+  <a class="project-card" href="../model/"><img src="../icon-model-pixel.svg" alt="" width="112" height="112"><h2>Minecraft 3D Model</h2><p>Turn your skin into an animated 3D model file.</p><span>Open model maker ${ICON.right}</span></a>
+  <a class="project-card" href="../animation/"><img src="../icon-anim-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Animation</h2><p>Arrange movements and save an animation as a video.</p><span>Open animation tool ${ICON.right}</span></a>
+  <a class="project-card" href="../cape/"><img src="../icon-cape-project-pixel.svg" alt="" width="112" height="112"><h2>Cape Pack Builder</h2><p>Make a cape texture or a Java elytra pack.</p><span>Open builder ${ICON.right}</span></a>
+  <div class="project-card project-soon"><img src="../icon-lock-project-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Skins</h2><p>A separate Fabric mod. Downloads are temporarily locked.</p><span>Coming soon</span></div>
 </div></div>`,
 }));
 
@@ -1172,13 +1168,22 @@ write("index.html", page({
   </div>
 </div>
 
-<aside class="owner-profile" aria-label="Owner profile">
-  <img id="owner-fallback" class="owner-profile-image" src="owner-profile.png?v=${ver("owner-profile.png")}" alt="Minecraft skin for lie_kg" width="160" height="320">
-  <canvas id="owner-model" class="owner-profile-model" width="240" height="240" role="img" aria-label="lie_kg's Minecraft skin in a pose" hidden></canvas>
-  <span class="home-eyebrow">OWNER PROFILE</span>
-  <h2>lie_kg</h2>
-  <p>Owner of Fresh Moves Fix</p>
-</aside>
+<div class="owner-profiles" aria-label="Owner profiles">
+  <aside class="owner-profile" aria-label="lie_kg owner profile">
+    <img id="owner-fallback" class="owner-profile-image" src="owner-profile.png?v=${ver("owner-profile.png")}" alt="Minecraft skin for lie_kg" width="160" height="320">
+    <canvas id="owner-model" class="owner-profile-model" width="240" height="240" role="img" aria-label="lie_kg's Minecraft skin in a pose" hidden></canvas>
+    <span class="home-eyebrow">OWNER PROFILE</span>
+    <h2>lie_kg</h2>
+    <p>Owner of Fresh Moves Fix</p>
+  </aside>
+  <aside class="owner-profile" aria-label="dudualt owner profile">
+    <img id="dudualt-fallback" class="owner-profile-image owner-steve-fallback" src="pack.png" alt="Steve icon" width="120" height="120">
+    <canvas id="dudualt-model" class="owner-profile-model" width="240" height="240" role="img" aria-label="Steve skin for dudualt" hidden data-skin="${skinData("wide/steve.png")}"></canvas>
+    <span class="home-eyebrow">OWNER PROFILE</span>
+    <h2>dudualt</h2>
+    <p>Owner of Fresh Moves Fix</p>
+  </aside>
+</div>
 
 <section class="home-section">
   <div class="note"><strong>Beta.</strong> Blinking and moving eyes have worked in a player’s game; other features and versions still need testing. On Minecraft 1.21.4 and newer the cape and elytra may not be animated.</div>
@@ -1200,7 +1205,7 @@ write("index.html", page({
       <span class="tags"><i class="g">Minecraft</i><i>Skin</i><i>Eyes</i><i>Mouth</i></span>
     </a>
     <a class="tool" href="paint/">
-      <span class="tool-head"><img class="tool-img" src="icon-paint.png" alt="" width="48" height="48"><span><b>Skin Painter 3D</b><small>by Fresh Moves Fix</small></span></span>
+      <span class="tool-head"><img class="tool-img" src="icon-paint-pixel.svg" alt="" width="48" height="48"><span><b>Skin Painter 3D</b><small>by Fresh Moves Fix</small></span></span>
       <span class="tool-text">Paint your Minecraft skin right on a 3D model, pixel by pixel.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Skin</i><i>Paint</i><i>3D</i></span>
     </a>
@@ -1210,12 +1215,12 @@ write("index.html", page({
       <span class="tags"><i class="g">Minecraft</i><i>Title</i><i>Logo</i></span>
     </a>
     <a class="tool" href="model/">
-      <span class="tool-head"><img class="tool-img" src="icon-model.png" alt="" width="48" height="48"><span><b>Minecraft 3D Model</b><small>by Fresh Moves Fix</small></span></span>
+      <span class="tool-head"><img class="tool-img" src="icon-model-pixel.svg" alt="" width="48" height="48"><span><b>Minecraft 3D Model</b><small>by Fresh Moves Fix</small></span></span>
       <span class="tool-text">Turn your skin into an animated 3D model file for Blender or Blockbench.</span>
       <span class="tags"><i class="g">Minecraft</i><i>3D Model</i><i>Animated</i></span>
     </a>
     <a class="tool" href="animation/">
-      <span class="tool-head"><img class="tool-img" src="icon-anim.png" alt="" width="48" height="48"><span><b>Minecraft Animation</b><small>by Fresh Moves Fix</small></span></span>
+      <span class="tool-head"><img class="tool-img" src="icon-anim-pixel.svg" alt="" width="48" height="48"><span><b>Minecraft Animation</b><small>by Fresh Moves Fix</small></span></span>
       <span class="tool-text">Put movements in a row with your own skin and save the animation as a video.</span>
       <span class="tags"><i class="g">Minecraft</i><i>Animation</i><i>Video</i></span>
     </a>
@@ -1298,20 +1303,26 @@ ${versionLinks}
 </div>
 <script src="player.js?v=${ver("player.js")}"></script>
 <script>(function(){
-  var canvas=document.getElementById("owner-model"), fallback=document.getElementById("owner-fallback");
-  if(!canvas || !fallback || !window.FMFPlayer) return;
-  var image=new Image();
-  image.onload=function(){
-    try {
-      var source=document.createElement("canvas"); source.width=64; source.height=64;
-      source.getContext("2d").drawImage(image,0,0);
-      var viewer=new window.FMFPlayer.SoftViewer(canvas);
-      viewer.pose="cheer"; viewer.zoom=1.05; viewer.view(-0.45,0.12,0);
-      viewer.loadSkin(source,{model:"wide"}); viewer.render(); viewer.dispose();
-      canvas.hidden=false; fallback.hidden=true;
-    } catch(e) { /* Keep the static fallback. */ }
-  };
-  image.src="owner-skin.png?v=${ver("owner-skin.png")}";
+  if(!window.FMFPlayer) return;
+  function drawOwner(canvasId, fallbackId, skinUrl) {
+    var canvas=document.getElementById(canvasId), fallback=document.getElementById(fallbackId);
+    if(!canvas || !fallback || !skinUrl) return;
+    var image=new Image();
+    image.onload=function(){
+      try {
+        var source=document.createElement("canvas"); source.width=64; source.height=64;
+        source.getContext("2d").drawImage(image,0,0);
+        var viewer=new window.FMFPlayer.SoftViewer(canvas);
+        viewer.pose="cheer"; viewer.zoom=1.05; viewer.view(-0.45,0.12,0);
+        viewer.loadSkin(source,{model:"wide"}); viewer.render(); viewer.dispose();
+        canvas.hidden=false; fallback.hidden=true;
+      } catch(e) { /* Keep the static fallback. */ }
+    };
+    image.src=skinUrl;
+  }
+  drawOwner("owner-model", "owner-fallback", "owner-skin.png?v=${ver("owner-skin.png")}");
+  var steve=document.getElementById("dudualt-model");
+  if(steve) drawOwner("dudualt-model", "dudualt-fallback", steve.getAttribute("data-skin"));
 })()</script>`,
 }));
 

@@ -89,10 +89,12 @@
     if (inline) {
       const opacity = document.getElementById("palpha"), value = document.getElementById("palphav");
       if (opacity && value) {
+        const fallbackRow = opacity.parentElement;
         const alphaRow = el("div", "picker-opacity");
         const label = el("span", "", { textContent: "Opacity" });
         alphaRow.appendChild(label); alphaRow.appendChild(value); alphaRow.appendChild(opacity);
         box.appendChild(alphaRow);
+        if (fallbackRow) fallbackRow.hidden = true;
       }
     }
     box.appendChild(row); box.appendChild(sws);
@@ -146,7 +148,7 @@
   document.addEventListener("click", (e) => { if (!(e.target.closest && e.target.closest(".dd"))) closeAll(); });
   function start() {
     document.querySelectorAll(".ed select").forEach(enhance);
-    document.querySelectorAll('.ed input[type="color"]').forEach(colour);
+    document.querySelectorAll('.ed input[type="color"], .cape-inspector input[type="color"]').forEach(colour);
   }
   window.FMFUI = { enhance, colour, start };
   start();

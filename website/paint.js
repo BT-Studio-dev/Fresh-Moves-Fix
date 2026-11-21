@@ -199,7 +199,7 @@
   const hex = (c) => "#" + c.map((n) => (n < 16 ? "0" : "") + n.toString(16)).join("");
   function setColor(c, keep) {
     color = [c[0] | 0, c[1] | 0, c[2] | 0];
-    const h = hex(color); $("pcolor").value = h; if (!keep) $("phex").value = h; showNow(); updateShades();
+    const h = hex(color); $("pcolor").value = h; if (!keep) $("phex").value = h; showNow(); updateShades(); syncSwatches();
   }
   function updateShades() {
     const box = $("pshades"); if (!box) return;
@@ -210,6 +210,29 @@
       b.type = "button"; b.className = "psw"; b.style.background = h; b.dataset.c = h;
       b.title = h; b.setAttribute("aria-label", "Use shade " + h); box.appendChild(b);
     });
+  }
+  function syncSwatches() {
+    const chosen = hex(color).toLowerCase();
+    document.querySelectorAll("#precent [data-c], #pskinpalette [data-c], #ppalette [data-c], #pshades [data-c]").forEach((b) => {
+      const selected = b.dataset.c.toLowerCase() === chosen;
+      b.classList.toggle("selected", selected);
+      b.setAttribute("aria-pressed", String(selected));
+    });
+  }
+  function updateSkinPalette() {
+    const counts = new Map();
+    for (let i = 0; i < px.length; i += 4) {
+      if (px[i + 3] < 16) continue;
+      const h = hex([px[i], px[i + 1], px[i + 2]]);
+      counts.set(h, (counts.get(h) || 0) + 1);
+    }
+    const box = $("pskinpalette"); box.textContent = "";
+    Array.from(counts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 8).forEach(([h]) => {
+      const button = document.createElement("button"); button.type = "button"; button.className = "psw";
+      button.dataset.c = h; button.style.background = h; button.title = h;
+      button.setAttribute("aria-label", "Use skin colour " + h); box.appendChild(button);
+    });
+    syncSwatches();
   }
   function showNow() { // the colour square: see-through colours show the checker behind them
     const c = "rgba(" + color[0] + "," + color[1] + "," + color[2] + "," + (alpha / 255) + ")";
@@ -314,13 +337,15 @@
   function doUndo() { if (!undo.length) return; redo.push(new Uint8ClampedArray(px)); px = undo.pop(); reguess(); dirty = true; autosave(); buttons(); }
   function doRedo() { if (!redo.length) return; undo.push(new Uint8ClampedArray(px)); px = redo.pop(); reguess(); dirty = true; autosave(); buttons(); }
   function autosave() {
+    updateSkinPalette();
     try { sctx.putImageData(new ImageData(px, 64, 64), 0, 0); localStorage.setItem("fmf-paint", skin.toDataURL("image/png")); localStorage.setItem("fmf-paint-slim", slim ? "1" : "0"); } catch (e) {}
   }
   const recent = [];
   function remember() {
     const h = hex(color), i = recent.indexOf(h); if (i >= 0) recent.splice(i, 1); recent.unshift(h); if (recent.length > 10) recent.pop();
     const box = $("precent"); box.textContent = "";
-    for (const c of recent) { const b = document.createElement("button"); b.type = "button"; b.className = "psw"; b.style.background = c; b.title = c; b.dataset.c = c; box.appendChild(b); }
+    for (const c of recent) { const b = document.createElement("button"); b.type = "button"; b.className = "psw"; b.style.background = c; b.title = c; b.dataset.c = c; b.setAttribute("aria-label", "Use recent colour " + c); box.appendChild(b); }
+    syncSwatches();
   }
   const fromHex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
 
@@ -337,7 +362,7 @@
       if (!first) { undo.push(new Uint8ClampedArray(px)); redo.length = 0; }
       px = new Uint8ClampedArray(d);
       slim = forceSlim === undefined ? px[(20 * 64 + 54) * 4 + 3] === 0 : forceSlim;
-      showFormat();
+      showFormat(); updateSkinPalette();
       dirty = true; buttons(); if (!first) autosave();
       say(name ? "Loaded: " + name : "");
     };
@@ -358,7 +383,7 @@
   // ---------- mouse and touch ----------
   const at = (cv, e) => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * cv.width / r.width, (e.clientY - r.top) * cv.height / r.height]; };
   let mode = null, drag = null;
-  const alt = (yes) => { if (yes !== altOn) { altOn = yes; const t = color; color = color2; color2 = t; if (!yes) { setColor(color); show2(); } } }; // right button: paint with the second colour for this stroke
+  const alt = (yes) => { if (yes !== altOn) { altOn = yes; const t = color; color = color2; color2 = t; if (!yes) setColor(color); } }; // right button: paint with the second colour for this stroke
   const d3 = (e) => {
     e.preventDefault(); try { cv3.setPointerCapture(e.pointerId); } catch (x) {}
     const hit = e.button === 0 || e.button === 2 ? pick(at(cv3, e)) : null;
@@ -396,18 +421,15 @@
   // ---------- buttons ----------
   document.querySelectorAll("#ptools button").forEach((b) => b.addEventListener("click", () => useTool(b.dataset.tool)));
   $("pcolor").addEventListener("input", (e) => setColor(fromHex(e.target.value)));
-  const show2 = () => { const e = $("pnow2"), i = $("pcolor2"); if (e) e.style.background = hex(color2); if (i) i.value = hex(color2); };
-  if ($("pcolor2")) $("pcolor2").addEventListener("input", (e) => { color2 = fromHex(e.target.value); show2(); });
-  if ($("pswap")) $("pswap").addEventListener("click", () => { const a = color.slice(); setColor(color2); color2 = a; show2(); });
   document.querySelectorAll("[data-psize]").forEach((b) => b.addEventListener("click", () => { size = Number(b.dataset.psize) || 1; document.querySelectorAll("[data-psize]").forEach((q) => { const on = q === b; q.classList.toggle("on", on); q.setAttribute("aria-pressed", on ? "true" : "false"); }); }));
   if ($("psym")) $("psym").addEventListener("change", (e) => { symmetry = e.target.checked; });
   if ($("pgrid")) $("pgrid").addEventListener("change", (e) => { grid = e.target.checked; dirty = true; });
-  show2();
   if ($("palpha")) $("palpha").addEventListener("input", (e) => setAlpha((Number(e.target.value) || 100) * 2.55));
-  document.querySelectorAll("[data-palpha]").forEach((b) => b.addEventListener("click", () => { setAlpha(Number(b.dataset.palpha) * 2.55); if (tool === "erase" || tool === "pick") useTool("pen"); }));
   $("phex").addEventListener("input", (e) => { let v = e.target.value.trim(); if (v[0] !== "#") v = "#" + v; if (/^#[0-9a-fA-F]{6}$/.test(v)) setColor(fromHex(v), true); });
-  const swatch = (e) => { const c = e.target && e.target.dataset && e.target.dataset.c; if (c) { setColor(fromHex(c)); if (tool === "erase" || tool === "pick") useTool("pen"); } };
-  $("ppalette").addEventListener("click", swatch); $("precent").addEventListener("click", swatch); $("pshades").addEventListener("click", swatch);
+  const swatch = (e) => { const c = e.target && e.target.dataset && e.target.dataset.c; if (c) { setColor(fromHex(c)); remember(); if (tool === "erase" || tool === "pick") useTool("pen"); } };
+  $("ppalette").addEventListener("click", swatch); $("pskinpalette").addEventListener("click", swatch); $("precent").addEventListener("click", swatch); $("pshades").addEventListener("click", swatch);
+  $("pcolor").addEventListener("change", remember);
+  $("phex").addEventListener("change", () => { if (/^#?[0-9a-fA-F]{6}$/.test($("phex").value.trim())) remember(); });
   $("pundo").addEventListener("click", doUndo); $("predo").addEventListener("click", doRedo);
   $("psave").addEventListener("click", save);
   $("pfile").addEventListener("change", (e) => { loadFile(e.target.files[0]); e.target.value = ""; });
@@ -532,7 +554,7 @@
   window.fmfCleanup = () => { dead = true; cancelAnimationFrame(raf); document.removeEventListener("keydown", key); };
 
   // ---------- start ----------
-  setColor(color); useTool("pen"); buttons();
+  setColor(color); remember(); useTool("pen"); buttons();
   let saved = null, savedSlim = false;
   try { saved = localStorage.getItem("fmf-paint"); savedSlim = localStorage.getItem("fmf-paint-slim") === "1"; } catch (e) {}
   const first = document.querySelector("#pstart button");

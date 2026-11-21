@@ -67,7 +67,7 @@
   if (!savedTheme) {
     try { var themeCookie = document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/); if (themeCookie) savedTheme = themeCookie[1]; } catch (e) {}
   }
-  themeSelect.value = ["glass","dark","light","oled","minecraft","nightsky","system"].indexOf(savedTheme) >= 0 ? savedTheme : "glass";
+  themeSelect.value = ["glass","dark","light","oled","minecraft","nightsky","system"].indexOf(savedTheme) >= 0 ? savedTheme : "dark";
   sizeSelect.value = saved("fmf-extra-size","normal");
   contrast.checked = saved("fmf-extra-contrast","0") === "1";
   motion.checked = saved("fmf-extra-motion", reduce ? "1" : "0") === "1";
