@@ -1148,7 +1148,7 @@ write("pfp/index.html", page({
   <label class="pfp-upload"><span><b>Upload skin PNG</b><small>Choose a skin from your device</small></span><input id="pfp-skin" type="file" accept="image/png,.png"></label><p id="pfp-status" role="status" aria-live="polite">Loading the example skin.</p>
   </div><div class="pfp-colour-panel pfp-control-group"><h3>Background colour</h3><p>Choose a colour for the PFP background.</p>
     <div class="ed pfp-colour-picker"><input type="color" id="pfp-color" data-inline-picker value="#486d92" aria-label="Background colour"></div>
-    <label>Background colour code <input type="text" id="pfp-bg-hex" value="#486d92" maxlength="7" spellcheck="false" aria-label="Background colour code"></label>
+    <label class="pfp-code-card"><span><b>Background colour code</b><small>Enter a six-digit hex colour</small></span><span class="pfp-code-field"><span id="pfp-code-swatch" aria-hidden="true"></span><input type="text" id="pfp-bg-hex" value="#486d92" maxlength="7" spellcheck="false" aria-label="Background colour code"></span></label>
   </div>
   <div class="pfp-control-group"><h3>Choose a preset</h3><div class="pfp-presets" aria-label="Profile picture presets">
     <button type="button" data-pfp-preset="headshot" aria-pressed="true"><b>Headshot</b><small>3D portrait</small></button>

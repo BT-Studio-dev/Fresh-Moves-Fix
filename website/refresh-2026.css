@@ -763,3 +763,9 @@ html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936;
 .pfp-control-grid .pfp-colour-panel { margin: 0; }
 @media (max-width: 900px) { .pfp-control-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 600px) { .pfp-control-grid { grid-template-columns: minmax(0, 1fr); } }
+.pfp-page .render-controls .pfp-code-card { display: block; margin: 16px 0 0; border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--panel); }
+.pfp-code-card small { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; font-weight: 400; }
+.pfp-code-field { display: flex; gap: 9px; align-items: center; margin-top: 10px; }
+.pfp-code-field #pfp-code-swatch { width: 38px; height: 38px; flex: 0 0 38px; border: 1px solid var(--line); border-radius: 7px; box-sizing: border-box; }
+.pfp-page .render-controls .pfp-code-field #pfp-bg-hex { min-width: 0; width: 100%; margin: 0; border: 1px solid var(--line); border-radius: 7px; padding: 9px 10px; color: var(--text); background: var(--bg); }
+.pfp-page .render-controls .pfp-code-field #pfp-bg-hex:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

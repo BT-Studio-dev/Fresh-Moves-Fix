@@ -10,6 +10,7 @@
   var last3d = 'headshot';
   var image = null, version = 0, status = $('pfp-status'), download = $('pfp-download');
   function syncControls() {
+    $('pfp-code-swatch').style.backgroundColor = $('pfp-color').value;
     var preset = $('pfp-preset').value;
     if (preset !== 'flat') last3d = preset;
     $('pfp-quick-3d').setAttribute('aria-pressed', preset !== 'flat' ? 'true' : 'false');
