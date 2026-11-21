@@ -1,5 +1,5 @@
 // Fresh Moves Fix - optional background music, generated in the browser with Web Audio.
-// No audio files: a calm song of 3:34 (64 bars) is made from notes and then repeats. Off by default.
+// No audio files: music is generated from notes and is off by default.
 // A second song ("Minecraft", soft piano) is 6:00 long (96 bars).
 // A third, original upbeat track is called "Fresh Moves Fix".
 // Settings are stored in localStorage: fmf-music, fmf-volume and fmf-song.
@@ -10,7 +10,7 @@
   try { on = localStorage.getItem("fmf-music") === "on"; var v = parseInt(localStorage.getItem("fmf-volume"), 10); if (v >= 0 && v <= 100) vol = v; } catch (e) {}
   var AC = window.AudioContext || window.webkitAudioContext;
   var ctx = null, master = null, songBus = null, timer = null, step = 0, nextTime = 0, songStart = 0, voices = new Set();
-  // ---- the song: 64 bars, exactly 3:34 long, then it repeats ----
+  // ---- the calm song: 64 bars, exactly 3:34 long ----
   // the "Minecraft" song is 96 bars and exactly 6:00 long (a slower beat)
   var LENGTH = INFO[song].len, BEAT = LENGTH / (INFO[song].bars * 8); // seconds per eighth note (about 0.418; 0.469 for the long song)
   // chords as [root in semitones above A3, third]: Am F C G / Dm Am F G / Am Em F C
@@ -113,15 +113,21 @@
     o.connect(g); g.connect(songBus);
     voices.add(o);
     o.onended = function () { voices.delete(o); o.disconnect(); g.disconnect(); };
-    o.start(t); o.stop(t + len + 0.05);
+    o.start(t); o.stop(Math.min(t + len + 0.05, songStart + LENGTH));
   }
   function createSongBus() {
     songBus = ctx.createGain(); songBus.gain.value = 1; songBus.connect(master);
   }
+  function scheduleEnding() {
+    var end = songStart + LENGTH;
+    songBus.gain.setValueAtTime(1, end - 0.04);
+    songBus.gain.linearRampToValueAtTime(0, end);
+  }
   function retireSong() {
     if (!songBus) return;
     var oldBus = songBus, end = ctx.currentTime + 0.04;
-    oldBus.gain.setValueAtTime(1, ctx.currentTime);
+    if (oldBus.gain.cancelAndHoldAtTime) oldBus.gain.cancelAndHoldAtTime(ctx.currentTime);
+    else { oldBus.gain.cancelScheduledValues(ctx.currentTime); oldBus.gain.setValueAtTime(oldBus.gain.value, ctx.currentTime); }
     oldBus.gain.linearRampToValueAtTime(0, end);
     voices.forEach(function (voice) { try { voice.stop(end); } catch (e) {} });
     voices.clear();
@@ -130,14 +136,15 @@
     songBus = null;
   }
   function schedule() {
-    if (!ctx) return;
+    if (!ctx || !on || !timer) return;
+    if (ctx.currentTime >= songStart + LENGTH) { finish(); return; }
     // After a throttled tab, skip missed notes instead of playing a burst of old ones.
     if (nextTime < ctx.currentTime - 0.6) {
       var missed = Math.ceil((ctx.currentTime - nextTime) / BEAT);
       nextTime += missed * BEAT; step += missed;
     }
-    while (nextTime < ctx.currentTime + 0.6) {
-      var SONG = SONGS[song], bar = SONG[Math.floor(step / 8) % SONG.length], i = step % 8, sec = bar.sec, L = sec.layers, lv = sec.level, t = nextTime;
+    while (nextTime < ctx.currentTime + 0.6 && step < SONGS[song].length * 8) {
+      var SONG = SONGS[song], bar = SONG[Math.floor(step / 8)], i = step % 8, sec = bar.sec, L = sec.layers, lv = sec.level, t = nextTime;
       var has = function (c) { return L.indexOf(c) >= 0; };
       if (i === 0) {
         if (has("p")) [0, 1, 2].forEach(function (n) { tone(freq(bar.root + bar.tones[n]), t, BEAT * 8.5, 0.045 * lv, "sine", 0.6); });
@@ -154,7 +161,7 @@
       nextTime += BEAT; step++;
     }
   }
-  function position() { return ctx ? Math.max(0, ctx.currentTime - songStart) % LENGTH : 0; }
+  function position() { return ctx ? Math.min(LENGTH, Math.max(0, ctx.currentTime - songStart)) : 0; }
   function setGain() {
     if (!master) return;
     var gain = master.gain, now = ctx.currentTime;
@@ -179,7 +186,7 @@
       if (!ctx) { ctx = new AC(); master = ctx.createGain(); master.gain.value = 0; master.connect(ctx.destination); }
       if (!songBus) createSongBus();
       if (ctx.state === "suspended") ctx.resume();
-      if (!timer) { nextTime = ctx.currentTime + 0.1; songStart = nextTime - step * BEAT; timer = setInterval(schedule, 200); schedule(); }
+      if (!timer) { nextTime = ctx.currentTime + 0.1; songStart = nextTime - step * BEAT; scheduleEnding(); timer = setInterval(schedule, 200); schedule(); }
       setGain();
       return true;
     } catch (e) { return false; }
@@ -210,19 +217,31 @@
       retireSong();
       createSongBus();
       nextTime = ctx.currentTime + 0.05; songStart = nextTime;
-      if (timer) schedule();
+      if (timer) { scheduleEnding(); schedule(); }
     }
-    paint();
+    paint(); paintTime();
   }
   function clock(sec) { sec = Math.floor(sec); return Math.floor(sec / 60) + ":" + ("0" + (sec % 60)).slice(-2); }
-  setInterval(function () {
+  function paintTime() {
+    if (on && timer && ctx && ctx.currentTime >= songStart + LENGTH) finish();
     var txt = clock(on && timer ? position() : 0) + " / " + clock(LENGTH);
     document.querySelectorAll("[data-music-time]").forEach(function (e) { if (e.textContent !== txt) e.textContent = txt; });
-  }, 500);
+  }
+  setInterval(paintTime, 500);
+  function finish() {
+    if (!on) return;
+    on = false; try { localStorage.setItem("fmf-music", "off"); } catch (e) {}
+    if (timer) { clearInterval(timer); timer = null; }
+    if (songBus) { songBus.disconnect(); songBus = null; }
+    voices.clear(); step = 0; setGain();
+    if (ctx && ctx.state === "running") setTimeout(function () { if (!on && ctx) ctx.suspend(); }, 600);
+    paint();
+    paintTime();
+  }
   function set(next) {
     on = next; try { localStorage.setItem("fmf-music", on ? "on" : "off"); } catch (e) {}
     if (on) start(); else stop();
-    paint();
+    paint(); paintTime();
   }
   function init() {
     // one set of listeners on the document, so they keep working when the page content is swapped

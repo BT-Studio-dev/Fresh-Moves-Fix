@@ -34,17 +34,17 @@ function createPlayer(saved = {}) {
   }
   const radios=songs.map(([value])=>({value,checked:false,matches(s){return s==='[data-music-song]'}}));
   const volumes=[0,1].map(()=>({value:'',attributes:{},matches(s){return s==='[data-music-volume]'},setAttribute(k,v){this.attributes[k]=v}}));
-  const outputs=[{textContent:''},{textContent:''}], name={textContent:''}, time={textContent:''};
-  const document={readyState:'complete', addEventListener(k,f){(handlers[k] ||= []).push(f)}, removeEventListener(){},querySelectorAll(s){return ({'[data-music-song]':radios,'[data-music-volume]':volumes,'[data-music-volume-value]':outputs,'[data-music-name]':[name],'[data-music-time]':[time]})[s]||[]}};
-  const sandbox={window:{AudioContext},document,localStorage:{getItem:k=>Object.hasOwn(storage,k)?storage[k]:null,setItem:(k,v)=>storage[k]=v},setInterval(f,ms){intervals.push({f,ms});return intervals.length},clearInterval(){},setTimeout(){},Math,Set,isFinite};
+  const outputs=[{textContent:''},{textContent:''}], name={textContent:''}, time={textContent:''}, check={checked:false};
+  const document={readyState:'complete', addEventListener(k,f){(handlers[k] ||= []).push(f)}, removeEventListener(){},querySelectorAll(s){return ({'[data-music-song]':radios,'[data-music-volume]':volumes,'[data-music-volume-value]':outputs,'[data-music-name]':[name],'[data-music-time]':[time],'[data-music-check]':[check]})[s]||[]}};
+  const sandbox={window:{AudioContext},document,localStorage:{getItem:k=>Object.hasOwn(storage,k)?storage[k]:null,setItem:(k,v)=>storage[k]=v},setInterval(f,ms){intervals.push({f,ms,active:true});return intervals.length},clearInterval(id){if(intervals[id-1]) intervals[id-1].active=false},setTimeout(){},Math,Set,isFinite};
   vm.runInNewContext(source,sandbox);
   function fire(type,target){(handlers[type]||[]).forEach(f=>f({target}));}
   function choose(id){ const r=radios.find(r=>r.value===id); r.checked=true; fire('click',r); fire('change',r); }
   function volume(v,event='input'){volumes[0].value=String(v);fire(event,volumes[0]);}
   function play(on){fire('change',{checked:on,matches(s){return s==='[data-music-check]'}})}
   function navigate(){fire('fmf-nav',{});}
-  function tick(ms){intervals.find(i=>i.ms===ms).f()}
-  return {storage,oscillators,gainNodes,volumes,outputs,name,time,choose,volume,play,navigate,tick,get context(){return context}};
+  function tick(ms){intervals.filter(i=>i.ms===ms && i.active).forEach(i=>i.f())}
+  return {storage,oscillators,gainNodes,volumes,outputs,name,time,check,choose,volume,play,navigate,tick,get context(){return context}};
 }
 for (const [id, name, seconds, duration] of songs) {
   const p=createPlayer({ 'fmf-volume':'50' });
@@ -60,14 +60,19 @@ for (const [id, name, seconds, duration] of songs) {
   const first=p.oscillators[0]; const firstTime=first.started, firstHz=first.hz;
   p.context.currentTime=firstTime+61.1; p.tick(500); assert.equal(p.time.textContent,`1:01 / ${duration}`,`${name}: elapsed progress`);
   p.navigate(); assert.equal(p.name.textContent,name,`${name}: navigation keeps song`); assert.equal(p.storage['fmf-music'],'on');
-  for (let t=0; t<=seconds+.3; t+=.2) { p.context.currentTime=t; p.tick(200); }
-  assert(p.oscillators.some(o=>Math.abs(o.started-firstTime-seconds)<1e-7 && o.hz===firstHz),`${name}: composition actually loops after ${seconds}s`);
+  for (let t=0; t<seconds+.1; t+=.2) { p.context.currentTime=t; p.tick(200); }
+  const endTime=firstTime+seconds, bus=first.connections[0].connections[0];
+  assert.equal(bus.gain.ramp.value,0,`${name}: end fade`); assert(Math.abs(bus.gain.ramp.time-endTime)<1e-7);
   for(const o of p.oscillators) {
     assert.equal(o.connections.length,1,`${name}: oscillator has one output`);
-    const voiceGain=o.connections[0], bus=voiceGain.connections[0]; assert(voiceGain.connections.length===1 && bus.connections.length===1 && bus.connections[0]===master,`${name}: voice cannot bypass master volume`);
-    assert(o.stops.length>0,`${name}: note stops`);
+    const voiceGain=o.connections[0], voiceBus=voiceGain.connections[0]; assert(voiceGain.connections.length===1 && voiceBus.connections.length===1 && voiceBus.connections[0]===master,`${name}: voice cannot bypass master volume`);
+    assert(o.started < endTime && o.stops[0] <= endTime,`${name}: no notes past the end`);
   }
-  assert(p.oscillators.some(o=>o.started < firstTime+seconds && o.stops[0] > firstTime+seconds), `${name}: note carries over the loop boundary`);
+  p.context.currentTime=endTime+.01; p.tick(200); p.tick(500);
+  assert.equal(p.storage['fmf-music'],'off',`${name}: stopped state saved`); assert.equal(p.check.checked,false,`${name}: play checkbox stopped`);
+  assert.equal(p.time.textContent,`0:00 / ${duration}`,`${name}: progress reset`); assert.equal(p.name.textContent,name,`${name}: song remains selected`);
+  const count=p.oscillators.length; p.context.currentTime+=10; p.tick(200); p.tick(500); assert.equal(p.oscillators.length,count,`${name}: no automatic restart`);
+  p.play(true); assert(p.oscillators.length>count,`${name}: can start again`); assert.equal(p.oscillators[count].hz,firstHz,`${name}: starts at first note`);
   const old=p.oscillators.at(-1), oldBus=old.connections[0].connections[0], switchTime=p.context.currentTime; const next=songs[(songs.findIndex(s=>s[0]===id)+1)%songs.length];
   p.choose(next[0]); assert.equal(p.storage['fmf-volume'],'50',`${name}: switching retains saved volume`); assert.equal(master.gain.target,.5,`${name}: switching retains gain`); assert(p.volumes.every(s=>Number(s.value)===50));
   assert(old.stops.includes(switchTime+.04),`${name}: old notes stop at fade end`);
@@ -75,7 +80,7 @@ for (const [id, name, seconds, duration] of songs) {
   assert(p.oscillators.at(-1).started>=switchTime+.04,`${name}: new song starts after fade`);
   const reload=createPlayer({'fmf-song':id,'fmf-volume':'50','fmf-music':'on'});
   assert.equal(reload.name.textContent,name,`${name}: restored song`); assert.equal(reload.gainNodes[0].gain.target,.5,`${name}: restored volume`); assert(reload.oscillators.length>0,`${name}: restored playback`);
-  console.log(`PASS ${name}: generated notes, common volume path, 0–100%, ${duration} loop, switching`);
+  console.log(`PASS ${name}: generated notes, common volume path, 0–100%, ${duration} stop, restart, switching`);
 }
 const restored=createPlayer({'fmf-song':'left','fmf-volume':'0'}); restored.choose('left'); restored.play(true); assert.equal(restored.gainNodes[0].gain.target,0,'saved zero volume is restored');
 console.log('PASS saved zero volume');

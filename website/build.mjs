@@ -927,7 +927,7 @@ write("settings/index.html", page({
     <button type="button" class="tab" data-tab="music">${ICON.music} Music</button></div>
   <div class="box" id="tab-music" hidden>
     <h2 class="shead"><span class="tool-ic">${ICON.music}</span><span><b>Music</b><small>Background song for the website</small></span></h2>
-    <p>Original instrumental music generated in your browser. Songs repeat; playback is off by default. Your choices are saved on this device.</p>
+    <p>Original instrumental music generated in your browser. Playback is off by default. Your choices are saved on this device.</p>
     <p class="elabel">Song</p>
     <div class="mtiles two">
       <label class="mtile"><input type="radio" name="song" value="calm" data-music-song checked><span><b>Calm</b><small>Soft and friendly</small></span></label>
