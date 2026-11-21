@@ -85,7 +85,17 @@
     hexIn.setAttribute("aria-label", "Hex colour"); row.appendChild(now); row.appendChild(hexIn);
     const sws = el("div", "pk-sws");
     for (const c of COLOURS) { const b = el("button", "sw small", { type: "button", title: c }); b.style.background = c; b.addEventListener("click", () => apply(c)); sws.appendChild(b); }
-    box.appendChild(head); box.appendChild(sv); box.appendChild(hue); box.appendChild(row); box.appendChild(sws);
+    box.appendChild(head); box.appendChild(sv); box.appendChild(hue);
+    if (inline) {
+      const opacity = document.getElementById("palpha"), value = document.getElementById("palphav");
+      if (opacity && value) {
+        const alphaRow = el("div", "picker-opacity");
+        const label = el("span", "", { textContent: "Opacity" });
+        alphaRow.appendChild(label); alphaRow.appendChild(value); alphaRow.appendChild(opacity);
+        box.appendChild(alphaRow);
+      }
+    }
+    box.appendChild(row); box.appendChild(sws);
     wrap.appendChild(sw); wrap.appendChild(box);
     inp.classList.add("vh"); inp.tabIndex = -1; inp.after(wrap);
     let H = 0, S = 0, V = 1;

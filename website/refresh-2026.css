@@ -507,3 +507,13 @@ a.project-card:focus-visible { outline: 2px solid var(--accent); outline-offset:
 .painter-live-preview canvas { width: 120px; max-width: 100%; height: auto; border: 0; }
 .layer-master { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; cursor: pointer; }
 .layer-master input { margin: 0; accent-color: var(--accent); }
+
+/* Opacity sits directly under hue; the checker shows transparency. */
+.painter-colour-card .picker-opacity { display: grid; grid-template-columns: 1fr auto; gap: 5px 8px; align-items: center; margin-top: 10px; color: var(--muted); font-size: 12px; }
+.painter-colour-card .picker-opacity .tnum { text-align: right; }
+.painter-colour-card .picker-opacity #palpha { grid-column: 1 / -1; width: 100%; max-width: none; height: 16px; padding: 0; margin: 0; background: transparent; -webkit-appearance: none; appearance: none; cursor: pointer; }
+.painter-colour-card .picker-opacity #palpha::-webkit-slider-runnable-track { height: 10px; border: 1px solid var(--line); border-radius: 6px; background: linear-gradient(to right, transparent, var(--opacity-colour, #3b82c4)), repeating-conic-gradient(#aaa 0% 25%, #eee 0% 50%) 0 0 / 10px 10px; }
+.painter-colour-card .picker-opacity #palpha::-moz-range-track { height: 10px; border: 1px solid var(--line); border-radius: 6px; background: linear-gradient(to right, transparent, var(--opacity-colour, #3b82c4)), repeating-conic-gradient(#aaa 0% 25%, #eee 0% 50%) 0 0 / 10px 10px; }
+.painter-colour-card .picker-opacity #palpha::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -4px; border: 1px solid #777; border-radius: 50%; background: #fff; }
+.painter-colour-card .picker-opacity #palpha::-moz-range-thumb { width: 14px; height: 14px; border: 1px solid #777; border-radius: 50%; background: #fff; }
+.painter-colour-card .picker-opacity #palpha:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }

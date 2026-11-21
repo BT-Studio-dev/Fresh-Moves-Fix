@@ -214,6 +214,7 @@
   function showNow() { // the colour square: see-through colours show the checker behind them
     const c = "rgba(" + color[0] + "," + color[1] + "," + color[2] + "," + (alpha / 255) + ")";
     $("pnow").style.background = "linear-gradient(" + c + "," + c + "), repeating-conic-gradient(#8a8a8a 0% 25%, #c4c4c4 0% 50%) 0 0 / 12px 12px";
+    $("palpha").style.setProperty("--opacity-colour", hex(color));
   }
   function setAlpha(a) { // a = 1..255
     alpha = Math.max(1, Math.min(255, Math.round(a)));
