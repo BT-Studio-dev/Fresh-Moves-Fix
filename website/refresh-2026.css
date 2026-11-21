@@ -435,3 +435,20 @@ a.project-card:focus-visible { outline: 2px solid var(--accent); outline-offset:
 .home-hero .hero-meta a:hover, .home-hero .hero-meta a:focus-visible { border-color: var(--accent); }
 [data-theme="minecraft"] .home-hero, [data-theme="minecraft"] .home-hero .hero-art img, [data-theme="minecraft"] .home-hero .hero-kicker, [data-theme="minecraft"] .home-hero .hero-meta span, [data-theme="minecraft"] .home-hero .hero-meta a { border-radius: 3px; }
 @media (max-width: 760px) { .home-hero .hero-art { align-items: flex-start; } .home-hero .hero-art img { width: 120px; } }
+
+/* Compact workstation on wide screens, with the drawing surface prominent. */
+.painter-history .prow { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
+.painter-history .btn { margin: 0; padding: 8px 12px; }
+.painter-brush-controls { padding: 10px 12px; margin-bottom: 14px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; }
+.painter-brush-controls .prow { margin: 0; }
+@media (min-width: 1051px) {
+  .painter-page .workspace-layout { grid-template-columns: 106px minmax(360px, 1fr) minmax(280px, 330px); gap: 8px; }
+  .painter-page .paint .painter-tools-card { padding: 10px; }
+  .painter-page .painter-tools-card .ehead { display: block; text-align: center; font-size: 14px; margin: 4px 0 10px; }
+  .painter-page .painter-tools-card .ehead img, .painter-page .painter-tools-card .ehead small { display: none; }
+  .painter-page .paint .ptools { grid-template-columns: 1fr; gap: 5px; }
+  .painter-page .paint .ptools button { min-height: 56px; }
+}
+[data-theme="minecraft"] .painter-brush-controls { border-radius: 3px; }
+.painter-workspace-bar > .painter-history { display: block; margin-right: 0; }
+.painter-page .paint canvas.p3d { max-width: 560px; }

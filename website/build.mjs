@@ -659,7 +659,7 @@ write("paint/index.html", page({
 <p>Paint your Minecraft skin pixel by pixel, on the 3D model or on the flat skin file. Everything happens in your browser; the skin is not uploaded anywhere. It works without 3D graphics (WebGL).</p>
 </div>
 
-<div class="painter-workspace-bar"><div><b>Skin Painter</b><small>64 × 64 skin editor</small></div><nav aria-label="Painter views"><a href="#p3d">${ICON.box} 3D model</a><a href="#p2d">${ICON.grid} Flat skin</a></nav><a class="btn ghost" href="#painter-file">${ICON.up} Skin file</a></div>
+<div class="painter-workspace-bar"><div><b>Skin Painter</b><small>64 × 64 skin editor</small></div><nav aria-label="Painter views"><a href="#p3d">${ICON.box} 3D model</a><a href="#p2d">${ICON.grid} Flat skin</a></nav><div class="painter-history"><p class="prow"><button type="button" class="btn ghost" id="pundo" title="Ctrl+Z">Undo</button> <button type="button" class="btn ghost" id="predo" title="Ctrl+Y">Redo</button></p></div><a class="btn ghost" href="#painter-file">${ICON.up} Skin file</a></div>
 <div class="ed paint workspace-layout">
   <div class="ed-col painter-tools-column">
   <section class="panel ecard painter-tools-card">
@@ -673,10 +673,7 @@ write("paint/index.html", page({
       <button type="button" data-tool="dark" title="Make pixels darker (D)">${ICON.star}<span>Darker</span></button>
       <button type="button" data-tool="tone" title="Paints the colour a little lighter or darker on every pixel, so it looks less flat (T)">${ICON.grid}<span>Auto tone</span></button>
     </div>
-    <p class="prow"><span>Size</span> <span class="pviews psize"><button type="button" data-psize="1" class="on" aria-pressed="true">1</button><button type="button" data-psize="2" aria-pressed="false">2</button><button type="button" data-psize="3" aria-pressed="false">3</button><button type="button" data-psize="4" aria-pressed="false">4</button></span>
-      <label title="Paints the left and the right half of the player at the same time"><input type="checkbox" id="psym"> Symmetry</label>
-      <label><input type="checkbox" id="pgrid" checked> Pixel grid</label></p>
-    <p class="prow"><button type="button" class="btn ghost" id="pundo" title="Ctrl+Z">Undo</button> <button type="button" class="btn ghost" id="predo" title="Ctrl+Y">Redo</button></p>
+
 
   </section>
   </div>
@@ -725,6 +722,9 @@ write("paint/index.html", page({
   <div class="ed-col workspace-preview">
   <section class="panel ecard">
     <h3 class="ehead"><span><b>3D model</b><small>Click the model to paint; right click paints with the second colour. Drag next to the model to turn it. Mouse wheel = zoom.</small></span></h3>
+    <div class="painter-brush-controls"><p class="prow"><span>Size</span> <span class="pviews psize"><button type="button" data-psize="1" class="on" aria-pressed="true">1</button><button type="button" data-psize="2" aria-pressed="false">2</button><button type="button" data-psize="3" aria-pressed="false">3</button><button type="button" data-psize="4" aria-pressed="false">4</button></span>
+      <label title="Paints the left and the right half of the player at the same time"><input type="checkbox" id="psym"> Symmetry</label>
+      <label><input type="checkbox" id="pgrid" checked> Pixel grid</label></p></div>
     ${backdropControls}
     <canvas id="p3d" class="p3d" width="460" height="560"></canvas>
     <div class="pbar" role="group" aria-label="3D model buttons">
