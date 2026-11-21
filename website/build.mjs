@@ -1119,7 +1119,6 @@ write("creations/index.html", page({
   <a class="project-card" href="../title/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Title</h2><p>Make and download a block-letter title picture.</p><span>Open title maker ${ICON.right}</span></a>
   <a class="project-card" href="../model/"><img src="../icon-model-pixel.svg" alt="" width="112" height="112"><h2>Minecraft 3D Model</h2><p>Turn your skin into an animated 3D model file.</p><span>Open model maker ${ICON.right}</span></a>
   <a class="project-card" href="../animation/"><img src="../icon-anim-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Animation</h2><p>Arrange movements and save an animation as a video.</p><span>Open animation tool ${ICON.right}</span></a>
-  <a class="project-card" href="../cape/"><img src="../icon-cape-project-pixel.svg" alt="" width="112" height="112"><h2>Cape Editor</h2><p>Make a cape texture or a Java elytra pack.</p><span>Open editor ${ICON.right}</span></a>
   <div class="project-card project-soon"><img src="../icon-lock-project-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Skins</h2><p>A separate Fabric mod. Downloads are temporarily locked.</p><span>Coming soon</span></div>
 </div></div>`,
 }));
