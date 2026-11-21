@@ -432,6 +432,8 @@
   $("phex").addEventListener("change", () => { if (/^#?[0-9a-fA-F]{6}$/.test($("phex").value.trim())) remember(); });
   $("pundo").addEventListener("click", doUndo); $("predo").addEventListener("click", doRedo);
   $("psave").addEventListener("click", save);
+  $("psave-top").addEventListener("click", save);
+  $("pfile-top").addEventListener("click", () => $("pfile").click());
   $("pfile").addEventListener("change", (e) => { loadFile(e.target.files[0]); e.target.value = ""; });
   document.querySelectorAll("#pstart button").forEach((b) => b.addEventListener("click", () => loadUrl(b.dataset.skin, b.dataset.name, b.dataset.slim ? b.dataset.slim === "1" : undefined)));
   $("pclear").addEventListener("click", () => { undo.push(new Uint8ClampedArray(px)); redo.length = 0; px = new Uint8ClampedArray(64 * 64 * 4); dirty = true; autosave(); buttons(); say("Empty skin. Use Undo to get the old one back."); });
