@@ -745,7 +745,7 @@ write("paint/index.html", page({
       <label>Pose <select id="ppose"><option value="stand">Standing</option><option value="apart">Arms and legs apart</option></select></label>
     </div>
     <p class="prow"><label>Cape <select id="pcape"><option value="none">No cape</option><option value="red">Red and gold</option><option value="leaf">Leaf</option><option value="blossom">Blossom</option><option value="ice">Ice</option><option value="sunset">Sunset</option><option value="checker">Checker</option><option value="night">Night sky</option><option value="star">Gold cross</option><option value="green">Fresh green</option><option value="gem">Blue gem</option><option value="flowers">Pink flowers</option><option value="smile">Green smile</option><option value="file">Your own cape file...</option></select></label>
-      <input type="file" id="pcapefile" accept="image/png" hidden> <button type="button" class="btn ghost" id="pcapesave" disabled>Save cape (.png)</button> <a class="btn ghost" href="../cape/">${ICON.brush} Cape Editor</a></p>
+      <input type="file" id="pcapefile" accept="image/png" hidden> <button type="button" class="btn ghost" id="pcapesave" disabled>Save cape (.png)</button></p>
     </div>
   </section>
   </div>
