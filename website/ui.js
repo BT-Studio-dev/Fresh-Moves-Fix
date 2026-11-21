@@ -3,7 +3,7 @@
 (function () {
   const menus = [];
   const raise = () => document.querySelectorAll(".ed .panel").forEach((p) =>
-    p.classList.toggle("dd-open", !!p.querySelector('.dd-btn[aria-expanded="true"], .uipick:not([hidden])')));
+    p.classList.toggle("dd-open", !!p.querySelector('.dd-btn[aria-expanded="true"], .uipick:not(.inline-picker):not([hidden])')));
   // run code whenever a script sets element.value, so the themed control shows the same value
   function watchValue(el, fn) {
     try {
@@ -73,7 +73,8 @@
   function colour(inp) {
     if (inp.classList.contains("vh")) return;
     const el = (tag, cls, attrs) => { const e = document.createElement(tag); if (cls) e.className = cls; Object.assign(e, attrs || {}); return e; };
-    const wrap = el("span", "dd"), sw = el("button", "sw", { type: "button" }), box = el("div", "picker uipick", { hidden: true });
+    const inline = inp.hasAttribute("data-inline-picker");
+    const wrap = el("span", "dd" + (inline ? " inline-picker-wrap" : "")), sw = el("button", "sw", { type: "button" }), box = el("div", "picker uipick" + (inline ? " inline-picker" : ""), { hidden: !inline });
     sw.setAttribute("aria-label", inp.getAttribute("aria-label") || "Choose colour");
     const head = el("div", "pk-head"), title = el("b", "", { textContent: "Colour" }), x = el("button", "", { type: "button" });
     x.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg>';
@@ -110,13 +111,13 @@
       busy = true; inp.value = v; busy = false; show(fromDrag);
       inp.dispatchEvent(new Event("input", { bubbles: true })); inp.dispatchEvent(new Event("change", { bubbles: true }));
     }
-    const close = () => { box.hidden = true; raise(); };
+    const close = () => { if (!inline) { box.hidden = true; raise(); } };
     function point(e) {
       const r = sv.getBoundingClientRect();
       S = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)); V = 1 - Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
       apply(toHex(hsv2rgb(H, S, V)), true);
     }
-    sw.addEventListener("click", (e) => { e.preventDefault(); const open = box.hidden; closeAll(); box.hidden = !open; show(); raise(); });
+    sw.addEventListener("click", (e) => { e.preventDefault(); if (inline) return; const open = box.hidden; closeAll(); box.hidden = !open; show(); raise(); });
     x.addEventListener("click", close);
     sv.addEventListener("pointerdown", (e) => { try { sv.setPointerCapture(e.pointerId); } catch (er) {} point(e); });
     sv.addEventListener("pointermove", (e) => { if (e.buttons) point(e); });
@@ -127,6 +128,7 @@
     });
     wrap.addEventListener("keydown", (e) => { if (e.key === "Escape") { close(); sw.focus(); } });
     watchValue(inp, () => { if (!busy) show(); });
+    if (inline) { sw.hidden = true; head.hidden = true; }
     pickers.push({ close }); show();
   }
 

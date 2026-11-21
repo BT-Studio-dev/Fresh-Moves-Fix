@@ -659,7 +659,7 @@ write("paint/index.html", page({
 <p>Paint your Minecraft skin pixel by pixel, on the 3D model or on the flat skin file. Everything happens in your browser; the skin is not uploaded anywhere. It works without 3D graphics (WebGL).</p>
 </div>
 
-<div class="painter-workspace-bar"><div><b>Skin Painter</b><small>64 × 64 skin editor</small></div><nav aria-label="Painter views"><a href="#p3d">${ICON.box} 3D model</a><a href="#p2d">${ICON.grid} Flat skin</a></nav><div class="painter-history"><p class="prow"><button type="button" class="btn ghost" id="pundo" title="Ctrl+Z">Undo</button> <button type="button" class="btn ghost" id="predo" title="Ctrl+Y">Redo</button></p></div><a class="btn ghost" href="#painter-file">${ICON.up} Skin file</a></div>
+<div class="painter-workspace-bar"><div><b>Skin Painter</b><small>64 × 64 skin editor</small></div><div class="painter-view-switch" role="group" aria-label="Painter views"><button type="button" data-pview="3d" aria-pressed="true">${ICON.box} 3D</button><button type="button" data-pview="2d" aria-pressed="false">${ICON.grid} 2D</button></div><div class="painter-history"><p class="prow"><button type="button" class="btn ghost" id="pundo" title="Ctrl+Z">Undo</button> <button type="button" class="btn ghost" id="predo" title="Ctrl+Y">Redo</button></p></div><a class="btn ghost" href="#painter-file">${ICON.up} Skin file</a></div>
 <div class="ed paint workspace-layout">
   <div class="ed-col painter-tools-column">
   <section class="panel ecard painter-tools-card">
@@ -681,7 +681,7 @@ write("paint/index.html", page({
   <section class="panel ecard painter-colour-card">
     <h3 class="ehead"><span class="tool-ic">${ICON.brush}</span><span><b>Colour &amp; layers</b><small>Choose your colours and paint layer</small></span></h3>
     <p class="elabel">Colour</p>
-    <p class="prow"><span class="pnow" id="pnow"></span> <input type="color" id="pcolor" value="#3b82c4" aria-label="Colour"> <input type="text" id="phex" class="phex" value="#3b82c4" maxlength="7" spellcheck="false" aria-label="Colour code"></p>
+    <p class="prow"><span class="pnow" id="pnow"></span> <input type="color" id="pcolor" data-inline-picker value="#3b82c4" aria-label="Colour"> <input type="text" id="phex" class="phex" value="#3b82c4" maxlength="7" spellcheck="false" aria-label="Colour code"></p>
     <p class="prow"><span>Second colour (right click)</span> <span class="pnow" id="pnow2"></span> <input type="color" id="pcolor2" value="#ffffff" aria-label="Second colour"> <button type="button" class="btn ghost" id="pswap">Swap</button></p>
     <div class="psws" id="ppalette"><button type="button" class="psw" style="background:#000000" title="#000000" data-c="#000000"></button><button type="button" class="psw" style="background:#3f3f3f" title="#3f3f3f" data-c="#3f3f3f"></button><button type="button" class="psw" style="background:#7f7f7f" title="#7f7f7f" data-c="#7f7f7f"></button><button type="button" class="psw" style="background:#bfbfbf" title="#bfbfbf" data-c="#bfbfbf"></button><button type="button" class="psw" style="background:#ffffff" title="#ffffff" data-c="#ffffff"></button><button type="button" class="psw" style="background:#5a3a1e" title="#5a3a1e" data-c="#5a3a1e"></button><button type="button" class="psw" style="background:#8b5a2b" title="#8b5a2b" data-c="#8b5a2b"></button><button type="button" class="psw" style="background:#c68642" title="#c68642" data-c="#c68642"></button><button type="button" class="psw" style="background:#e0ac69" title="#e0ac69" data-c="#e0ac69"></button><button type="button" class="psw" style="background:#f1c27d" title="#f1c27d" data-c="#f1c27d"></button><button type="button" class="psw" style="background:#ffdbac" title="#ffdbac" data-c="#ffdbac"></button><button type="button" class="psw" style="background:#e5534b" title="#e5534b" data-c="#e5534b"></button><button type="button" class="psw" style="background:#ff8c1a" title="#ff8c1a" data-c="#ff8c1a"></button><button type="button" class="psw" style="background:#ffd21a" title="#ffd21a" data-c="#ffd21a"></button><button type="button" class="psw" style="background:#7bc043" title="#7bc043" data-c="#7bc043"></button><button type="button" class="psw" style="background:#2e8b57" title="#2e8b57" data-c="#2e8b57"></button><button type="button" class="psw" style="background:#1fb5a8" title="#1fb5a8" data-c="#1fb5a8"></button><button type="button" class="psw" style="background:#3b82c4" title="#3b82c4" data-c="#3b82c4"></button><button type="button" class="psw" style="background:#2b4fa8" title="#2b4fa8" data-c="#2b4fa8"></button><button type="button" class="psw" style="background:#7a4fd0" title="#7a4fd0" data-c="#7a4fd0"></button><button type="button" class="psw" style="background:#d05fb5" title="#d05fb5" data-c="#d05fb5"></button><button type="button" class="psw" style="background:#ff9ecb" title="#ff9ecb" data-c="#ff9ecb"></button></div>
     <p class="elabel">Opacity (glass)</p>
@@ -692,6 +692,13 @@ write("paint/index.html", page({
     <p class="elabel">Paint on</p>
     <p class="prow"><label><input type="radio" name="player" value="0" checked> Skin (first layer)</label> <label><input type="radio" name="player" value="1"> Outer layer (hat, jacket, sleeves)</label></p>
     <p class="prow"><label><input type="checkbox" id="pshow" checked> Show the outer layer</label></p>
+    <div class="painter-layers">
+      <h4>Part visibility</h4>
+      <p><small>Show or hide each part in the 3D preview. Hidden parts are not erased; the flat skin remains unchanged.</small></p>
+      <table><thead><tr><th scope="col">Part</th><th scope="col">Base</th><th scope="col">Outer</th></tr></thead><tbody>
+      ${[["head","Head"],["body","Body"],["la","Left arm"],["ra","Right arm"],["ll","Left leg"],["rl","Right leg"]].map(([id,name]) => `<tr><th scope="row">${name}</th><td><input type="checkbox" data-part="${id}" data-layer="0" aria-label="Show ${name} base layer" checked></td><td><input type="checkbox" data-part="${id}" data-layer="1" aria-label="Show ${name} outer layer" checked></td></tr>`).join("")}
+      </tbody></table>
+    </div>
   </section>
   <section class="panel ecard" id="painter-file">
     <h3 class="ehead"><img class="tool-img" src="../icon-skin.png" alt="" width="44" height="44"><span><b>Skin file</b><small>Load a skin, or start from one of these</small></span></h3>
@@ -721,12 +728,14 @@ write("paint/index.html", page({
   </div>
   <div class="ed-col workspace-preview">
   <section class="panel ecard">
-    <h3 class="ehead"><span><b>3D model</b><small>Click the model to paint; right click paints with the second colour. Drag next to the model to turn it. Mouse wheel = zoom.</small></span></h3>
+    <h3 class="ehead"><span><b id="painter-view-title">3D model</b><small id="painter-view-help">Click the model to paint; right click paints with the second colour. Drag next to the model to turn it. Mouse wheel = zoom.</small></span></h3>
     <div class="painter-brush-controls"><p class="prow"><span>Size</span> <span class="pviews psize"><button type="button" data-psize="1" class="on" aria-pressed="true">1</button><button type="button" data-psize="2" aria-pressed="false">2</button><button type="button" data-psize="3" aria-pressed="false">3</button><button type="button" data-psize="4" aria-pressed="false">4</button></span>
       <label title="Paints the left and the right half of the player at the same time"><input type="checkbox" id="psym"> Symmetry</label>
       <label><input type="checkbox" id="pgrid" checked> Pixel grid</label></p></div>
     ${backdropControls}
     <canvas id="p3d" class="p3d" width="460" height="560"></canvas>
+    <div id="p2d-view" hidden><p class="painter-flat-hint">Paint the flat skin file. Blue outlines are the base layer; orange outlines are the outer layer.</p><canvas id="p2d" class="p2d" width="512" height="512"></canvas></div>
+    <div id="p3d-controls">
     <div class="pbar" role="group" aria-label="3D model buttons">
       <button type="button" id="pbsneak" data-tip="Sneak" aria-label="Sneak" aria-pressed="false">${svg('<circle cx="9" cy="5" r="2.2"/><path d="M3 21v-2a5 5 0 0 1 5-5h2a5 5 0 0 1 3 1"/><path d="M18 11v9"/><path d="M14.5 17l3.5 3.5 3.5-3.5"/>')}</button>
       <button type="button" id="pblayer" data-tip="Hide outer layer" aria-label="Hide outer layer" aria-pressed="true">${svg('<rect x="3" y="8" width="13" height="13" rx="2"/><path d="M8 8V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-3"/>')}</button>
@@ -742,10 +751,7 @@ write("paint/index.html", page({
       <input type="file" id="pcapefile" accept="image/png" hidden> <button type="button" class="btn ghost" id="pcapesave" disabled>Save cape (.png)</button></p>
     <p class="ehint">${ICON.info} <span>The cape is only a preview on the model. It is not part of the skin file: in Minecraft a cape belongs to your account, or comes from a mod such as OptiFine. The official Minecraft capes can be looked at on <a href="https://laby.net/capes" target="_blank" rel="noopener">laby.net/capes</a>.</span></p>
     <p class="prow" id="pparts">Show: <label><input type="checkbox" value="head" checked> Head</label> <label><input type="checkbox" value="body" checked> Body</label> <label><input type="checkbox" value="arms" checked> Arms</label> <label><input type="checkbox" value="legs" checked> Legs</label></p>
-  </section>
-  <section class="panel ecard">
-    <h3 class="ehead"><span><b>Flat skin file</b><small>You can paint here too. Blue boxes = skin, orange boxes = outer layer.</small></span></h3>
-    <canvas id="p2d" class="p2d" width="512" height="512"></canvas>
+    </div>
   </section>
   </div>
 </div>

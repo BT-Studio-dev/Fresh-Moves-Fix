@@ -14,7 +14,7 @@
   let tool = "pen", color = [59, 130, 196], slim = false, target = 0, showOuter = true, pose = "stand";
   let walk = false, sneak = false, fly = false, phase = 0, lastT = 0; // walking movement of the 3D model
   let yaw = 0.55, pitch = 0.15, zoom = 0.9, hover = null, dirty = true, dead = false, raf = 0;
-  const hidden = {};
+  const hidden = {}, hiddenLayers = {};
   const undo = [], redo = [];
   let stroke = null; // { before, changed, seen, last }
   let picks = [];    // what can be clicked in the 3D picture
@@ -69,7 +69,7 @@
       return cam(X, Y, Z);
     };
     for (const [name, u, v, w, h, dp, cx, cyy, cz, inf, layer] of parts()) {
-      if (hidden[GROUP[name]]) continue;
+      if (hidden[GROUP[name]] || hiddenLayers[name + ":" + layer]) continue;
       if (layer === 1 && !showOuter) continue;
       const sx = (w + 2 * inf) / w, sy2 = (h + 2 * inf) / h, sz = (dp + 2 * inf) / dp, top = cyy + h / 2 * sy2;
       const R = rects(u, v, w, h, dp);
@@ -398,6 +398,18 @@
   document.querySelectorAll("input[name=player]").forEach((r) => r.addEventListener("change", () => { if (r.checked) { target = Number(r.value); if (target === 1 && !showOuter) { showOuter = true; $("pshow").checked = true; } dirty = true; } }));
   $("pshow").addEventListener("change", (e) => { showOuter = e.target.checked; if (!showOuter && target === 1) { target = 0; document.querySelector("input[name=player][value='0']").checked = true; } dirty = true; });
   document.querySelectorAll("#pparts input").forEach((c) => c.addEventListener("change", () => { hidden[c.value] = !c.checked; dirty = true; }));
+  document.querySelectorAll("[data-part][data-layer]").forEach((c) => c.addEventListener("change", () => {
+    hiddenLayers[c.dataset.part + ":" + c.dataset.layer] = !c.checked;
+    dirty = true;
+  }));
+  document.querySelectorAll("[data-pview]").forEach((button) => button.addEventListener("click", () => {
+    const flat = button.dataset.pview === "2d";
+    cv3.hidden = flat; $("p3d-controls").hidden = flat; $("p2d-view").hidden = !flat;
+    $("painter-view-title").textContent = flat ? "Flat skin file" : "3D model";
+    $("painter-view-help").textContent = flat ? "Paint directly on the skin texture." : "Click the model to paint; right click paints with the second colour. Drag next to the model to turn it. Mouse wheel = zoom.";
+    document.querySelectorAll("[data-pview]").forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+    hover = null; dirty = true;
+  }));
   // ---------- capes: own simple designs drawn by code, or your own cape file ----------
   const CAPES = {
     red: (i, j) => j < 3 ? (i % 3 === 1 ? [240, 200, 60] : [40, 44, 60]) : [200 - j * 4, 36, 40],
