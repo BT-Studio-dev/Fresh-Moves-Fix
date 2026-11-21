@@ -80,63 +80,17 @@
       if (legacy) { skin.drawImage(source, 0, 16, 16, 16, 16, 48, 16, 16); skin.drawImage(source, 40, 16, 16, 16, 32, 48, 16, 16); }
       image = candidate; download.disabled = false;
       status.textContent = isDefault ? 'Using the example skin.' : 'Skin loaded. It stays in this browser.';
-      mapDraw(); draw();
+      draw();
     };
     candidate.onerror = function () { release(); if (current === version) status.textContent = 'Could not read that PNG. Please choose a valid skin.'; };
     candidate.src = url;
   }
-  // A small 64×64 texture map keeps editing lightweight and works without WebGL.
-  var map = $('pfp-paint-map'), mapCtx = map.getContext('2d'), paintLayer = 'base', paintDrag = null;
-  var paintColour = $('pfp-paint-color'), paintHex = $('pfp-paint-hex');
   if (window.FMFUI) window.FMFUI.colour($('pfp-color'));
-  function skinRects(layer) {
-    var slim = $('pfp-model').value === 'slim', arm = slim ? 3 : 4;
-    var boxes = layer === 'base' ? [[0,0,8,8,8],[16,16,8,12,4],[40,16,arm,12,4],[32,48,arm,12,4],[0,16,4,12,4],[16,48,4,12,4]] : [[32,0,8,8,8],[16,32,8,12,4],[40,32,arm,12,4],[48,48,arm,12,4],[0,32,4,12,4],[0,48,4,12,4]];
-    var rects = [];
-    boxes.forEach(function (p) { var u=p[0],v=p[1],w=p[2],h=p[3],d=p[4];
-      rects.push([u+d,v+d,w,h],[u+2*d+w,v+d,w,h],[u,v+d,d,h],[u+d+w,v+d,d,h],[u+d,v,w,d],[u+d+w,v,w,d]);
-    }); return rects;
-  }
-  function mapDraw() {
-    mapCtx.clearRect(0,0,256,256); mapCtx.imageSmoothingEnabled=false;
-    if (image) mapCtx.drawImage(source,0,0,256,256);
-    mapCtx.fillStyle='rgba(0,0,0,.58)'; mapCtx.fillRect(0,0,256,256);
-    if (image) skinRects(paintLayer).forEach(function(r) { mapCtx.drawImage(source,r[0],r[1],r[2],r[3],r[0]*4,r[1]*4,r[2]*4,r[3]*4); });
-  }
-  function isPaintable(x,y) { return skinRects(paintLayer).some(function(r) { return x>=r[0] && x<r[0]+r[2] && y>=r[1] && y<r[1]+r[3]; }); }
-  function mapPoint(e) {
-    var r=map.getBoundingClientRect(); if (!r.width || !r.height) return null;
-    var x=Math.floor((e.clientX-r.left)*64/r.width), y=Math.floor((e.clientY-r.top)*64/r.height);
-    return x>=0 && x<64 && y>=0 && y<64 ? [x,y] : null;
-  }
-  function paintTo(point) {
-    if (!point || !image || !paintDrag) return;
-    var a=paintDrag.last || point, dx=point[0]-a[0], dy=point[1]-a[1], steps=Math.max(Math.abs(dx),Math.abs(dy));
-    skin.fillStyle=paintDrag.white?'#ffffff':paintColour.value;
-    var painted=false;
-    for (var n=0;n<=steps;n++) { var x=Math.round(a[0]+(steps?dx*n/steps:0)), y=Math.round(a[1]+(steps?dy*n/steps:0));
-      if (isPaintable(x,y)) { skin.clearRect(x,y,1,1); skin.fillRect(x,y,1,1); painted=true; }
-    }
-    paintDrag.last=point;
-    if (!painted) return;
-    if (paintLayer==='overlay') { legacy=false; $('pfp-outer').checked=true; }
-    $('pfp-paint-status').textContent='Skin edited in this browser. The preview is updated.';
-    mapDraw(); draw();
-  }
-  map.addEventListener('pointerdown',function(e) { if (!image || (e.button!==0 && e.button!==2)) return; e.preventDefault(); paintDrag={id:e.pointerId,white:e.button===2,last:null};try{map.setPointerCapture(e.pointerId)}catch(err){} paintTo(mapPoint(e)); });
-  map.addEventListener('pointermove',function(e) {if(paintDrag && e.pointerId===paintDrag.id)paintTo(mapPoint(e));});
-  function stopPaint(e) {if(paintDrag && e.pointerId===paintDrag.id)paintDrag=null;}
-  map.addEventListener('pointerup',stopPaint);map.addEventListener('pointercancel',stopPaint);map.addEventListener('lostpointercapture',stopPaint);map.addEventListener('contextmenu',function(e){e.preventDefault();});
-  Array.prototype.forEach.call(document.querySelectorAll('[data-pfp-layer]'),function(button){button.addEventListener('click',function(){paintLayer=button.getAttribute('data-pfp-layer');Array.prototype.forEach.call(document.querySelectorAll('[data-pfp-layer]'),function(item){item.setAttribute('aria-pressed',item===button?'true':'false');});mapDraw();});});
   function backgroundColourChanged() { $('pfp-background').value='color'; $('pfp-bg-hex').value=$('pfp-color').value; draw(); }
   $('pfp-color').addEventListener('input', backgroundColourChanged);
   $('pfp-color').addEventListener('change', backgroundColourChanged);
   $('pfp-bg-hex').addEventListener('input', function () { var value=this.value.trim(); if(value.charAt(0)!=='#') value='#'+value; if(/^#[0-9a-f]{6}$/i.test(value)){ $('pfp-color').value=value; $('pfp-background').value='color'; draw(); } });
   $('pfp-bg-hex').addEventListener('change',function(){this.value=$('pfp-color').value;});
-  paintColour.addEventListener('input',function(){paintHex.value=paintColour.value;});
-  paintHex.addEventListener('input',function(){var value=paintHex.value.trim();if(value.charAt(0)!=='#')value='#'+value;if(/^#[0-9a-f]{6}$/i.test(value))paintColour.value=value;});
-  paintHex.addEventListener('change',function(){paintHex.value=paintColour.value;});
-  $('pfp-model').addEventListener('change',mapDraw);
   // Mouse or touch controls update the same sliders as the accessible controls.
   var drag = null;
   function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
@@ -179,7 +133,6 @@
     button.addEventListener('click', function () {
       var target = button.getAttribute('data-pfp-target');
       $(target).value = button.getAttribute('data-value');
-      if (target === 'pfp-model') mapDraw();
       Array.prototype.forEach.call(document.querySelectorAll('[data-pfp-target]'), function (item) {
         if (item.getAttribute('data-pfp-target') === target) item.setAttribute('aria-pressed', item === button ? 'true' : 'false');
       });
@@ -205,5 +158,5 @@
     if (!image) return;
     var a = document.createElement('a'); a.download = 'minecraft-pfp.png'; a.href = canvas.toDataURL('image/png'); a.click();
   });
-  mapDraw(); draw(); load('../owner-skin.png', true);
+  draw(); load('../owner-skin.png', true);
 })();
