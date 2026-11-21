@@ -699,3 +699,13 @@ html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936;
 .fmf-switch input:disabled { cursor: not-allowed; }
 /* The toolbar upload button also accepts a dropped PNG. */
 #pfile-top.over { border-color: var(--accent); outline: 2px dashed var(--accent); outline-offset: 3px; }
+
+.render-page { padding-top: 28px; padding-bottom: 48px; }
+.render-layout { display: grid; grid-template-columns: minmax(230px, 320px) minmax(0, 1fr); gap: 18px; align-items: start; }
+.render-controls, .render-preview { padding: 20px; }
+.render-controls label { display: block; margin: 16px 0; font-weight: 600; }
+.render-controls label input:not([type=color]), .render-controls select { display: block; width: 100%; box-sizing: border-box; margin-top: 6px; }
+.render-controls input[type=color] { display: block; margin-top: 6px; }
+.render-controls p { color: var(--muted); font-size: 14px; }
+.render-preview canvas { display: block; width: 100%; height: auto; border-radius: 8px; }
+@media (max-width: 750px) { .render-layout { grid-template-columns: 1fr; } }
