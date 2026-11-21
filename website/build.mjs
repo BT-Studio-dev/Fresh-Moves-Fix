@@ -1155,7 +1155,7 @@ write("pfp/index.html", page({
   <label class="pfp-layer"><span><b>Show outer skin layer</b><small>Include hats and clothing</small></span><input id="pfp-outer" type="checkbox" checked></label>
   <button class="btn" id="pfp-download" type="button" disabled>Download PNG</button>
   <p>Supports 64×64 and classic 64×32 PNG skins. Your skin stays in your browser. Output: 512×512.</p></section>
-  <section class="card render-preview"><h2>Preview</h2><canvas id="pfp-canvas" width="512" height="512" aria-label="Profile picture preview"></canvas>
+  <section class="card render-preview"><h2>Preview</h2><p class="pfp-preview-help">In 3D, drag to rotate the camera or right-drag to turn the head. Scroll to zoom. The sliders also work.</p><canvas id="pfp-canvas" width="512" height="512" aria-label="Profile picture preview"></canvas>
   <div class="pfp-quick-bar" role="group" aria-label="Quick preview controls"><span class="pfp-quick-label">Background</span>
     <button type="button" class="pfp-swatch" data-pfp-color="#ff5157" style="--swatch:#ff5157" aria-label="Red background" aria-pressed="false"></button>
     <button type="button" class="pfp-swatch" data-pfp-color="#27c96d" style="--swatch:#27c96d" aria-label="Green background" aria-pressed="false"></button>

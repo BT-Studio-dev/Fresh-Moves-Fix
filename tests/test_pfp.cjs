@@ -26,6 +26,11 @@ let startFills=fills;w.document.querySelector('[data-pfp-target="pfp-background"
 assert(!$('pfp-blur').checked);$('pfp-blur').checked=true;fillFilters=[];change('pfp-blur');assert(fillFilters.includes('blur(8px)'),'sky details are blurred');assert.equal(ctx.filter,'none','avatar is not blurred');$('pfp-blur').checked=false;change('pfp-blur');
 startFills=fills;w.document.querySelector('[data-pfp-target="pfp-background"][data-value="night"]').click();assert.equal($('pfp-background').value,'night');assert(fills>=startFills+4);
 w.document.querySelector('[data-pfp-preset="headshot"]').click();$('pfp-head-yaw').value='30';change('pfp-head-yaw');$('pfp-head-pitch').value='-25';change('pfp-head-pitch');assert.equal(opts.headYaw,30);assert.equal(opts.headPitch,-25);
+// Pointer interaction updates camera/head sliders; wheel adjusts zoom.
+const canvas=$('pfp-canvas'); function pointer(type,button,x,y,id=9){const e=new w.MouseEvent(type,{button,clientX:x,clientY:y,bubbles:true,cancelable:true});Object.defineProperty(e,'pointerId',{value:id});canvas.dispatchEvent(e);return e;}
+let oldYaw=+$('pfp-yaw').value;pointer('pointerdown',0,10,10);pointer('pointermove',0,50,30);pointer('pointerup',0,50,30);assert.equal(+$('pfp-yaw').value,oldYaw+20);assert.equal(opts.yaw,oldYaw+20);
+let oldHead=+$('pfp-head-yaw').value;pointer('pointerdown',2,10,10);pointer('pointermove',2,30,20);pointer('pointerup',2,30,20);assert.equal(+$('pfp-head-yaw').value,oldHead+10);assert.equal(opts.headYaw,oldHead+10);
+const wheel=new w.WheelEvent('wheel',{deltaY:-100,bubbles:true,cancelable:true});let oldZoom=+$('pfp-size').value;canvas.dispatchEvent(wheel);assert(wheel.defaultPrevented);assert.equal(+$('pfp-size').value,oldZoom+5);
 // Quick palette switches on solid color and stays in sync with custom/transparent controls.
 const red=w.document.querySelector('[data-pfp-color="#ff5157"]');red.click();assert.equal($('pfp-color').value,'#ff5157');assert.equal($('pfp-background').value,'color');assert.equal(red.getAttribute('aria-pressed'),'true');assert.equal(w.document.querySelector('[data-pfp-target="pfp-background"][data-value="color"]').getAttribute('aria-pressed'),'true');
 $('pfp-color').value='#123456';change('pfp-color');assert.equal(red.getAttribute('aria-pressed'),'false');

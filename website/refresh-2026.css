@@ -743,3 +743,6 @@ html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936;
 .fmf-context-menu small, .fmf-context-hint { color: var(--muted); font-size: 12px; }
 .fmf-context-hint { margin: 5px 10px 4px; border-top: 1px solid var(--line); padding-top: 8px; }
 .fmf-context-notice { position: fixed; z-index: 100001; bottom: 20px; left: 50%; transform: translateX(-50%); max-width: min(90vw, 420px); box-sizing: border-box; padding: 12px 16px; border: 1px solid var(--line); border-radius: 9px; background: var(--panel); color: var(--text); }
+.pfp-preview-help { color: var(--muted); font-size: 13px; }
+#pfp-canvas { cursor: grab; touch-action: none; }
+#pfp-canvas.pfp-dragging { cursor: grabbing; }

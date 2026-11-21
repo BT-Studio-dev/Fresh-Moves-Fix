@@ -85,6 +85,30 @@
     candidate.onerror = function () { release(); if (current === version) status.textContent = 'Could not read that PNG. Please choose a valid skin.'; };
     candidate.src = url;
   }
+  // Mouse or touch controls update the same sliders as the accessible controls.
+  var drag = null;
+  function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+  canvas.addEventListener('pointerdown', function (e) {
+    if ((e.button !== 0 && e.button !== 2) || $('pfp-preset').value === 'flat') return;
+    e.preventDefault();
+    var head = e.button === 2, x = $(head ? 'pfp-head-yaw' : 'pfp-yaw'), y = $(head ? 'pfp-head-pitch' : 'pfp-pitch');
+    drag = {id:e.pointerId, x:e.clientX, y:e.clientY, startX:+x.value, startY:+y.value, xControl:x, yControl:y};
+    try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+    canvas.classList.add('pfp-dragging');
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!drag || drag.id !== e.pointerId) return;
+    drag.xControl.value = clamp(Math.round(drag.startX + (e.clientX - drag.x) * 0.5), +drag.xControl.min, +drag.xControl.max);
+    drag.yControl.value = clamp(Math.round(drag.startY + (e.clientY - drag.y) * 0.5), +drag.yControl.min, +drag.yControl.max);
+    draw();
+  });
+  function endDrag(e) { if (drag && drag.id === e.pointerId) { drag = null; canvas.classList.remove('pfp-dragging'); } }
+  canvas.addEventListener('pointerup', endDrag); canvas.addEventListener('pointercancel', endDrag); canvas.addEventListener('lostpointercapture', endDrag);
+  canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  canvas.addEventListener('wheel', function (e) {
+    if (!e.deltaY) return; e.preventDefault();
+    var zoom = $('pfp-size'); zoom.value = clamp(+zoom.value + (e.deltaY < 0 ? 5 : -5), +zoom.min, +zoom.max); draw();
+  }, {passive:false});
   $('pfp-skin').addEventListener('change', function () {
     var file = this.files && this.files[0]; if (!file) return;
     if (!/\.png$/i.test(file.name) || (file.type && file.type !== 'image/png')) { ++version; status.textContent = 'Please choose a PNG skin.'; return; }
