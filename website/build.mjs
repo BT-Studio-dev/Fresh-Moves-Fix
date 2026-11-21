@@ -1058,11 +1058,11 @@ if(document.readyState==="loading") document.addEventListener("DOMContentLoaded"
 
 // Original browser-based Java cape texture and elytra resource pack builder.
 write("cape/index.html", page({
-  title: "Cape Pack Builder - Fresh Moves Fix", active: "", depth: 1,
+  title: "Cape Editor - Fresh Moves Fix", active: "", depth: 1,
   description: "Paint a cape texture and create a Java elytra resource pack in your browser.",
   body: `<div class="wrap cape-page"><article>
 <div class="crumb"><a href="../">${ICON.home} Home</a> / Cape editor</div>
-<header class="cape-heading"><h1>${ICON.brush} Cape Pack Builder</h1><p>Paint a Java cape texture and create an optional elytra pack, right in your browser.</p></header>
+<header class="cape-heading"><h1>${ICON.brush} Cape Editor</h1><p>Paint a Java cape texture and create an optional elytra pack, right in your browser.</p></header>
 <div class="note"><strong>Java cape limitation:</strong> a resource pack cannot give you a wearable custom cape. Download the PNG for a compatible cape mod. The optional ZIP changes the elytra texture only; other players will not see your resource pack.</div>
 <div class="cape-workspace">
   <aside class="cape-toolbar" aria-label="Painting tools">
@@ -1075,7 +1075,7 @@ write("cape/index.html", page({
   </aside>
   <section class="cape-stage" aria-label="Texture editor">
     <div class="cape-stage-bar"><span>TEXTURE GRID</span><span>64 × 32 pixels</span></div>
-    <div class="cape-stage-center"><section class="cape-preview" aria-label="3D cape preview"><div class="cape-preview-header"><b>3D cape preview</b><button type="button" class="btn small ghost" id="cape-preview-reset">Reset view</button></div><div id="cape-preview-view" class="cape-preview-view"></div><p id="cape-preview-error" class="cape-preview-error" role="status" hidden></p><div class="cape-preview-controls"><label>View <select id="cape-preview-side"><option value="outside">Outside</option><option value="inside">Inside</option></select></label><label><input type="checkbox" id="cape-preview-auto"> Auto-rotate</label></div><p class="cape-preview-help">Drag to rotate · Scroll or pinch to zoom</p></section><div class="cape-canvas-wrap"><canvas id="cape-canvas" width="640" height="320" aria-label="Cape texture drawing area, 64 by 32 pixels"></canvas></div></div>
+    <div class="cape-stage-center"><section class="cape-preview" aria-label="3D cape preview"><div class="cape-preview-header"><b>3D cape preview</b><button type="button" class="btn small ghost" id="cape-preview-reset">Reset view</button></div><div id="cape-preview-view" class="cape-preview-view"></div><p id="cape-preview-error" class="cape-preview-error" role="status" hidden></p><div class="cape-preview-controls"><label>View <select id="cape-preview-side"><option value="outside">Outside</option><option value="inside">Inside</option></select></label><label><input type="checkbox" id="cape-preview-dummy" checked> Show dummy</label><label><input type="checkbox" id="cape-preview-auto"> Auto-rotate</label></div><p class="cape-preview-help">Drag to rotate · Scroll or pinch to zoom</p></section><div class="cape-canvas-wrap"><canvas id="cape-canvas" width="640" height="320" aria-label="Cape texture drawing area, 64 by 32 pixels"></canvas></div></div>
     <div class="cape-stage-options"><label><input type="checkbox" id="cape-grid" checked> Pixel grid</label><label><input type="checkbox" id="cape-template" checked> Face guides</label></div>
   </section>
   <aside class="cape-inspector">
@@ -1106,7 +1106,7 @@ write("creations/index.html", page({
   <a class="project-card" href="../title/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Title</h2><p>Make and download a block-letter title picture.</p><span>Open title maker ${ICON.right}</span></a>
   <a class="project-card" href="../model/"><img src="../icon-model-pixel.svg" alt="" width="112" height="112"><h2>Minecraft 3D Model</h2><p>Turn your skin into an animated 3D model file.</p><span>Open model maker ${ICON.right}</span></a>
   <a class="project-card" href="../animation/"><img src="../icon-anim-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Animation</h2><p>Arrange movements and save an animation as a video.</p><span>Open animation tool ${ICON.right}</span></a>
-  <a class="project-card" href="../cape/"><img src="../icon-cape-project-pixel.svg" alt="" width="112" height="112"><h2>Cape Pack Builder</h2><p>Make a cape texture or a Java elytra pack.</p><span>Open builder ${ICON.right}</span></a>
+  <a class="project-card" href="../cape/"><img src="../icon-cape-project-pixel.svg" alt="" width="112" height="112"><h2>Cape Editor</h2><p>Make a cape texture or a Java elytra pack.</p><span>Open editor ${ICON.right}</span></a>
   <div class="project-card project-soon"><img src="../icon-lock-project-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Skins</h2><p>A separate Fabric mod. Downloads are temporarily locked.</p><span>Coming soon</span></div>
 </div></div>`,
 }));
@@ -1227,7 +1227,7 @@ write("index.html", page({
       <span class="tags"><i class="g">Minecraft</i><i>Animation</i><i>Video</i></span>
     </a>
     <a class="tool" href="cape/">
-      <span class="tool-head"><span class="tool-ic">${ICON.box}</span><span><b>Cape Pack Builder</b><small>by Fresh Moves Fix</small></span></span>
+      <span class="tool-head"><span class="tool-ic">${ICON.box}</span><span><b>Cape Editor</b><small>by Fresh Moves Fix</small></span></span>
       <span class="tool-text">Paint a cape texture or make an elytra pack for Minecraft Java.</span>
       <span class="tags"><i class="g">New</i><i>Java</i><i>Cape PNG</i><i>Elytra</i></span>
     </a>
@@ -1251,8 +1251,12 @@ write("index.html", page({
 
 <section id="download" class="home-section">
   <div class="home-heading"><div><span class="home-eyebrow">READY TO PLAY?</span><h2>${ICON.down} Download</h2></div><p>Choose the pack and version that fit your game.</p></div>
-  <p><a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">${ICON.down} Fresh-Moves-Fix.zip - all versions</a>
-    <a class="btn ghost" href="${dl("Fresh-Moves-Fix-Eyes-Only.zip")}">${ICON.down} Eyes only - all versions</a></p>
+  <p><a class="btn" href="${dl("Fresh-Moves-Fix.zip")}">${ICON.down} Fresh-Moves-Fix.zip - all versions</a></p>
+  <a class="card eyes-download-card" href="${dl("Fresh-Moves-Fix-Eyes-Only.zip")}">
+    <span class="eyes-download-icon" aria-hidden="true">${ICON.eye}</span>
+    <span class="eyes-download-copy"><b>Eyes Only</b><small>Animated eyes without body animations or emotes</small><span class="eyes-download-meta">Java resource pack · All supported versions · ZIP</span></span>
+    <span class="eyes-download-action">${ICON.down} Download</span>
+  </a>
   <div class="text-card download-info">
   <p><strong>Eyes only</strong> is the same pack without the body animations: the eyes blink and look around, and walking, running and the arms stay as in normal Minecraft. It has no emotes. Use one of the two packs, not both. New and not tested in the game.</p>
   <p class="reltime" id="reltime"${releaseTime ? "" : " hidden"}>${ICON.tag} <span>Release <b>v${version}</b> · updated <time datetime="${releaseTime}">${releaseTime ? releaseTime.replace("T", " ").replace(/:\d\dZ$/, " UTC") : ""}</time></span></p>

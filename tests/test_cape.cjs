@@ -9,7 +9,8 @@ function element(id) {
     classList: { toggle() {} }, addEventListener(type, fn) { this.events[type] = fn; },
     style: {}, setAttribute() {}, appendChild() {}, setPointerCapture() {}, getBoundingClientRect() { return { left: 0, top: 0, width: 640, height: 320 }; } };
 }
-const context = { clearRect(){}, drawImage(){}, fillRect(){}, beginPath(){}, moveTo(){}, lineTo(){}, stroke(){}, strokeRect(){}, getImageData(){return {data:new Uint8ClampedArray(64*32*4)}}, putImageData(){} };
+let fills = 0, clears = [];
+const context = { clearRect(...args){clears.push(args)}, drawImage(){}, fillRect(){fills++}, beginPath(){}, moveTo(){}, lineTo(){}, stroke(){}, strokeRect(){}, getImageData(){return {data:new Uint8ClampedArray(64*32*4)}}, putImageData(){} };
 element('cape-canvas').getContext = () => context;
 element('cape-grid').checked = true; element('cape-template').checked = true; element('cape-size').value = '1';
 element('cape-name').value = 'My Cape'; element('cape-description').value = 'A starry design';
@@ -28,12 +29,14 @@ const sandbox = {window, document, JSZip, Blob, Image, localStorage: {getItem:k=
 vm.runInNewContext(fs.readFileSync('website/cape.js','utf8'), sandbox);
 (async()=>{
   assert(sourceCanvas && sourceCanvas !== element('cape-canvas'), 'preview receives the original texture canvas');
+  assert(fills > 0 && storage['fmf-cape-starter-shown-v1'] === '1', 'starter painted on first visit');
   const initial = previewUpdates;
   element('cape-canvas').events.pointerdown({button:0, pointerId:1, clientX:20, clientY:20});
   element('cape-canvas').events.pointerup();
   element('cape-undo').events.click(); element('cape-redo').events.click();
   element('cape-tool').value = 'erase'; element('cape-canvas').events.pointerdown({button:0, pointerId:1, clientX:30, clientY:20}); element('cape-canvas').events.pointerup();
   element('cape-clear').events.click();
+  assert(clears.some(r => r.join(',') === '0,0,64,32'), 'clear removes the whole texture');
   assert(previewUpdates >= initial + 5, 'paint, erase, undo, redo and clear refresh preview');
   element('cape-grid').events.change(); element('cape-template').events.change();
   await element('cape-png').events.click();
@@ -60,5 +63,14 @@ vm.runInNewContext(fs.readFileSync('website/cape.js','utf8'), sandbox);
   assert(previewUpdates > beforeImport, 'PNG import refreshes preview');
   element('cape-delete-project').events.click(); assert.equal(JSON.parse(storage['fmf-cape-projects-v1']).length,0);
   window.fmfCleanup(); assert(disposed, 'preview disposed on SPA navigation');
+  let before = fills; vm.runInNewContext(fs.readFileSync('website/cape.js','utf8'), sandbox);
+  assert.equal(fills, before, 'starter is not reapplied after first visit');
+  delete storage['fmf-cape-starter-shown-v1'];
+  storage['fmf-cape-projects-v1'] = JSON.stringify([{name:'Existing', image:'data:image/png;base64,iVBORw=='}]);
+  before = fills; vm.runInNewContext(fs.readFileSync('website/cape.js','utf8'), sandbox);
+  assert.equal(fills, before, 'starter does not replace existing projects');
+  storage['fmf-cape-projects-v1'] = '{broken';
+  before = fills; vm.runInNewContext(fs.readFileSync('website/cape.js','utf8'), sandbox);
+  assert.equal(fills, before, 'starter is not applied when project storage is unreadable');
   console.log('Cape PNG, elytra ZIP and saved-project create/update/load/delete passed');
 })().catch(e=>{console.error(e);process.exitCode=1});

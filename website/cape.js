@@ -133,6 +133,21 @@
     } catch (e) { projectMessage('Could not delete that project.', true); }
   });
   refreshProjects('');
+  // A starter appears only once for a browser with no saved projects. It is ordinary
+  // texture pixels, not a saved project, and Clear removes it like any other drawing.
+  function addStarter() {
+    var key = 'fmf-cape-starter-shown-v1';
+    try {
+      if (localStorage.getItem(key) || readProjects().length) return;
+      ctx.fillStyle = '#146c58'; ctx.fillRect(0, 0, 22, 17);
+      ctx.fillStyle = '#35c980'; ctx.fillRect(1, 1, 10, 16); ctx.fillRect(12, 1, 10, 16);
+      ctx.fillStyle = '#b6f4ce';
+      [[5, 4, 2, 2], [4, 6, 4, 2], [3, 8, 6, 2], [4, 10, 4, 2], [5, 12, 2, 2],
+       [16, 4, 2, 2], [15, 6, 4, 2], [14, 8, 6, 2], [15, 10, 4, 2], [16, 12, 2, 2]].forEach(function (r) { ctx.fillRect(r[0], r[1], r[2], r[3]); });
+      localStorage.setItem(key, '1');
+    } catch (e) { /* If storage is unavailable, do not assume projects are absent. */ }
+  }
+  addStarter();
   $('cape-zip').addEventListener('click', async function () {
     var button = this, select = $('cape-version'), fmt = Number(select.value), version = select.options[select.selectedIndex].getAttribute('data-mc');
     button.disabled = true;
