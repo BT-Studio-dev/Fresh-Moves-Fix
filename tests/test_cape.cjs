@@ -29,7 +29,7 @@ const sandbox = {window, document, JSZip, Blob, Image, localStorage: {getItem:k=
 vm.runInNewContext(fs.readFileSync('website/cape.js','utf8'), sandbox);
 (async()=>{
   assert(sourceCanvas && sourceCanvas !== element('cape-canvas'), 'preview receives the original texture canvas');
-  assert(fills > 0 && storage['fmf-cape-starter-shown-v1'] === '1', 'starter painted on first visit');
+  assert(fills > 0, 'starter painted when no projects exist');
   const initial = previewUpdates;
   element('cape-canvas').events.pointerdown({button:0, pointerId:1, clientX:20, clientY:20});
   element('cape-canvas').events.pointerup();
@@ -64,8 +64,7 @@ vm.runInNewContext(fs.readFileSync('website/cape.js','utf8'), sandbox);
   element('cape-delete-project').events.click(); assert.equal(JSON.parse(storage['fmf-cape-projects-v1']).length,0);
   window.fmfCleanup(); assert(disposed, 'preview disposed on SPA navigation');
   let before = fills; vm.runInNewContext(fs.readFileSync('website/cape.js','utf8'), sandbox);
-  assert.equal(fills, before, 'starter is not reapplied after first visit');
-  delete storage['fmf-cape-starter-shown-v1'];
+  assert(fills > before, 'starter appears when there are still no saved projects');
   storage['fmf-cape-projects-v1'] = JSON.stringify([{name:'Existing', image:'data:image/png;base64,iVBORw=='}]);
   before = fills; vm.runInNewContext(fs.readFileSync('website/cape.js','utf8'), sandbox);
   assert.equal(fills, before, 'starter does not replace existing projects');
