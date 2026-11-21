@@ -342,3 +342,63 @@ article.editor > p:not([class]) { padding: 18px 22px; background: var(--panel); 
 .guides-index > h2 { margin-top: 24px; }
 .guide-prose { overflow-wrap: anywhere; }
 [data-theme="minecraft"] article.editor > p:not([class]), [data-theme="minecraft"] .guides-index > h1, [data-theme="minecraft"] .guides-index > h2 { border-radius: 3px; }
+
+/* Owner profile */
+.owner-profile { box-sizing: border-box; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; width: min(100%, 300px); margin: 0 auto; padding: 24px; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; }
+.owner-profile-image { display: block; width: 80px; height: 160px; object-fit: contain; image-rendering: pixelated; margin-bottom: 6px; }
+.owner-profile h2 { margin: 0; font-size: 22px; overflow-wrap: anywhere; }
+.owner-profile p { margin: 0; color: var(--muted); font-size: 14px; }
+[data-theme="minecraft"] .owner-profile, [data-theme="minecraft"] .owner-profile-image { border-radius: 3px; }
+
+/* Give page titles their own themed surface, including individual guide pages. */
+.wrap > article:not(.nf) > h1 { padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; }
+[data-theme="minecraft"] .wrap > article:not(.nf) > h1 { border-radius: 3px; }
+.guide-nav > a:only-child { grid-column: 1 / -1; }
+
+/* Projects: original block lettering and theme-aware, lightweight cards. */
+.projects-page { padding-top: 32px; padding-bottom: 60px; }
+.projects-heading { text-align: center; padding: 30px 12px 36px; }
+.projects-heading h1 { margin: 0; font-size: clamp(42px, 9vw, 76px); line-height: 1.2; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: #ed8cff; text-shadow: 2px 2px 0 #aa22d2, 4px 4px 0 #6e168e, 6px 6px 0 #40115d; }
+.projects-heading p { margin: 16px 0 0; color: var(--muted); }
+.projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 16px; }
+.project-card { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; box-sizing: border-box; padding: 26px 20px; min-width: 0; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--text); text-decoration: none; }
+.project-card img { width: 112px; height: 112px; object-fit: contain; image-rendering: pixelated; border-radius: 12px; }
+.project-icon { display: grid; place-items: center; width: 112px; height: 112px; border-radius: 12px; background: var(--bg); color: var(--accent); }
+.project-icon .ic { width: 48px; height: 48px; margin: 0; }
+.project-card h2 { margin: 4px 0 0; font-size: 20px; }
+.project-card p { margin: 0; color: var(--muted); flex: 1; }
+.project-card > span:last-child { color: var(--accent); font-size: 14px; font-weight: 700; }
+a.project-card:hover, a.project-card:focus-visible { border-color: var(--accent); outline: none; }
+a.project-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.project-soon > span:last-child { color: var(--muted); }
+[data-theme="minecraft"] .project-card, [data-theme="minecraft"] .project-card img, [data-theme="minecraft"] .project-icon { border-radius: 3px; }
+.owner-profile-model { display: block; width: 180px; height: 180px; max-width: 100%; pointer-events: none; }
+.owner-profile [hidden] { display: none; }
+
+/* Three-part editor workspaces: controls, canvas, and file/colour options. */
+.editor-workspace-wrap { max-width: 1440px; }
+.workspace-layout { grid-template-columns: minmax(240px, .9fr) minmax(320px, 1.45fr) minmax(240px, .9fr); gap: 14px; }
+.workspace-layout > .ed-col { min-width: 0; }
+.workspace-layout > .workspace-preview { order: 2; }
+.workspace-layout > .workspace-side { order: 3; }
+.workspace-layout .workspace-preview > .panel:first-child { background: var(--panel); }
+.workspace-layout .workspace-preview canvas { max-width: 100%; }
+@media (max-width: 1050px) {
+  .workspace-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .workspace-layout > .workspace-side { order: 0; }
+  .workspace-layout > .workspace-preview { order: 0; grid-column: 1 / -1; }
+}
+@media (max-width: 700px) {
+  .workspace-layout { grid-template-columns: minmax(0, 1fr); }
+  .workspace-layout > .workspace-preview { grid-column: auto; }
+}
+
+/* Preview backdrop swatches, shared by the painter and eye editor. */
+.backdrop-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 14px; }
+.backdrop-controls > span { color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.backdrop-controls button { width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 7px; background: var(--swatch, var(--panel)); cursor: pointer; }
+.backdrop-controls button[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: 2px; }
+.backdrop-controls button:focus-visible, .backdrop-custom:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.backdrop-custom { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; }
+.backdrop-custom input[type="color"] { width: 30px; height: 30px; padding: 0; }
+.workspace-preview #view3d, .workspace-preview canvas.p3d { background: var(--editor-backdrop, var(--bg)); }

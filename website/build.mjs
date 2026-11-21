@@ -111,6 +111,7 @@ document.documentElement.setAttribute("data-scrollbar",sb==="off"?"off":"on")})(
   <nav>
     ${nav("home", up || "./", ICON.home + " Home")}
     ${nav("guides", up + "guides/", ICON.book + " Guides")}
+    ${nav("creations", up + "creations/", ICON.box + " Projects")}
     ${nav("editor", up + "editor/", ICON.eye + " Eye editor")}
     ${nav("title", up + "title/", ICON.tag + " Title")}
     ${nav("settings", up + "settings/", ICON.gear + " Settings")}
@@ -191,7 +192,7 @@ fs.writeFileSync(path.join(out, "tableau.json"), JSON.stringify({
 }));
 for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png", "icon-painted.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
-for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
+for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner-profile.png", "owner-skin.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "refresh-2026.css"), path.join(out, "refresh-2026.css"));
 fs.copyFileSync(path.join(here, "enhancements.js"), path.join(out, "enhancements.js"));
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
@@ -241,8 +242,8 @@ for (const [i, d] of docs.entries()) {
 <h1>${d.name.startsWith("Fix") ? ICON.wrench : ICON.eye} ${esc(d.name)}</h1>
 <div class="text-card guide-prose">${renderDoc(md)}</div>
 <div class="guide-nav">
-  ${docs[i - 1] ? `<a class="card go back" href="../${docs[i - 1].slug}/">${ICON.left}<span>${esc(docs[i - 1].name)}</span></a>` : "<span></span>"}
-  ${docs[i + 1] ? `<a class="card go" href="../${docs[i + 1].slug}/"><span>${esc(docs[i + 1].name)}</span>${ICON.right}</a>` : "<span></span>"}
+  ${docs[i - 1] ? `<a class="card go back" href="../${docs[i - 1].slug}/">${ICON.left}<span>${esc(docs[i - 1].name)}</span></a>` : ""}
+  ${docs[i + 1] ? `<a class="card go" href="../${docs[i + 1].slug}/"><span>${esc(docs[i + 1].name)}</span>${ICON.right}</a>` : ""}
 </div>
 <p class="guide-cta"><a class="btn" href="../../editor/">${ICON.eye} Open the eye editor</a> <a class="btn ghost" href="../">${ICON.book} All guides</a></p>
 </article></div>`,
@@ -278,11 +279,23 @@ ${cards(eyes)}
 </article></div>`,
 }));
 
+// Shared preview-only backdrop controls for the two skin editors.
+const backdropControls = `<div class="backdrop-controls" role="group" aria-label="Preview backdrop">
+  <span>Backdrop</span>
+  <button type="button" data-backdrop="default" aria-label="Theme backdrop" title="Theme backdrop" aria-pressed="true"></button>
+  <button type="button" data-backdrop="#101714" style="--swatch:#101714" aria-label="Dark backdrop" title="Dark backdrop" aria-pressed="false"></button>
+  <button type="button" data-backdrop="#303844" style="--swatch:#303844" aria-label="Slate backdrop" title="Slate backdrop" aria-pressed="false"></button>
+  <button type="button" data-backdrop="#e1e7e3" style="--swatch:#e1e7e3" aria-label="Light backdrop" title="Light backdrop" aria-pressed="false"></button>
+  <button type="button" data-backdrop="#7fb8ff" style="--swatch:#7fb8ff" aria-label="Blue backdrop" title="Blue backdrop" aria-pressed="false"></button>
+  <label class="backdrop-custom">Custom <input type="color" data-backdrop-custom value="#7fb8ff" aria-label="Custom backdrop colour"></label>
+</div>`;
+
 // ---------- skin eye editor ----------
 // the two default skins are embedded in the page, so the editor needs no extra requests
 const skinData = (p) => "data:image/png;base64," + fs.readFileSync(path.join(root, "assets/minecraft/textures/entity/player", p)).toString("base64");
 fs.copyFileSync(path.join(here, "editor.js"), path.join(out, "editor.js"));
 fs.copyFileSync(path.join(here, "paint.js"), path.join(out, "paint.js"));
+fs.copyFileSync(path.join(here, "backdrop.js"), path.join(out, "backdrop.js"));
 fs.copyFileSync(path.join(here, "player.js"), path.join(out, "player.js"));
 fs.copyFileSync(path.join(here, "studio.js"), path.join(out, "studio.js"));
 fs.copyFileSync(path.join(here, "ui.js"), path.join(out, "ui.js"));
@@ -296,13 +309,13 @@ write("editor/index.html", page({
   active: "editor",
   description: "Add the animated-eye pixels for Fresh Moves to your Minecraft skin and download the result.",
   depth: 1,
-  body: `<div class="wrap"><article class="editor">
+  body: `<div class="wrap editor-workspace-wrap"><article class="editor eye-workspace">
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <h1>${ICON.eye} Skin eye editor</h1>
 <p>Adds the extra pixels that make the eyes blink and move, then lets you download the skin. Everything happens in your browser; the skin is not uploaded anywhere.</p>
 <div class="note"><strong>Eyes tested in-game:</strong> a player reported that their eyes blink and move. Other eye shapes and features may behave differently and still need testing (see "How it works" below). Keep a copy of your original skin. <a href="#test">How to test it in the game</a></div>
 
-<div class="ed">
+<div class="ed workspace-layout">
   <div class="ed-col">
   <section class="panel ecard">
     <h3 class="ehead"><canvas id="skinicon" class="tool-img" width="8" height="8" style="background-image:url(../icon-skin.png)" aria-hidden="true"></canvas><span><b>1. Skin</b><small>Load your skin or start from Steve, Alex or a dummy</small></span></h3>
@@ -364,6 +377,8 @@ write("editor/index.html", page({
     <p class="ehint">${ICON.info} <span>The mouth is the lips area in the two bottom rows of the face. With pack 3.1-fix6 or newer the mouth opens in the game when you get hurt, cheer or wave. With 3.1-fix7 or newer you can also switch a talking mouth on and off: tap sneak twice quickly while looking forward. It does not follow your real voice; a pack cannot hear Simple Voice Chat (two hidden pixels in the skin file tell the pack; not tested in the game). It is drawn under the eyes; with eyes at the very bottom there is no room and it is left out. The beard uses the eyebrow colour.</span></p>
 
   </section>
+  </div>
+  <div class="ed-col workspace-side">
   <section class="panel ecard">
     <h3 class="ehead"><span class="tool-ic">${ICON.brush}</span><span><b>3. Colours</b><small>Eyelid, eyes, eyebrows, eyelashes and mouth</small></span></h3>
     <p class="row"><label>Eyelid <input type="hidden" id="lid" value="#9b6349"><button type="button" class="sw" data-for="lid" aria-label="Choose colour"></button></label></p>
@@ -397,9 +412,10 @@ write("editor/index.html", page({
   </section>
   </div>
 
-  <div class="ed-col">
+  <div class="ed-col workspace-preview">
   <section class="panel ecard">
     <h3 class="ehead"><span class="tool-ic">${ICON.box}</span><span><b>3D preview</b><small>Drag to turn, scroll to zoom</small></span></h3>
+    ${backdropControls}
     <div id="wrap3d">
       <canvas id="view3d" width="420" height="520"></canvas>
       <p class="row ctl">
@@ -485,7 +501,8 @@ write("editor/index.html", page({
 </article></div>
 <script src="../skinview3d.bundle.js"></script>
 <script src="../player.js?v=${ver("player.js")}"></script>
-<script src="../editor.js?v=${ver("editor.js")}"></script>`,
+<script src="../editor.js?v=${ver("editor.js")}"></script>
+<script src="../backdrop.js?v=${ver("backdrop.js")}"></script>`,
 }));
 
 // ---------- settings ----------
@@ -634,7 +651,7 @@ write("paint/index.html", page({
   active: "",
   description: "Paint a Minecraft skin on a 3D model or on the flat skin file, right in your browser.",
   depth: 1,
-  body: `<div class="wrap"><article class="editor painter-page">
+  body: `<div class="wrap editor-workspace-wrap"><article class="editor painter-page">
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
 <div class="painter-intro">
 <span class="home-eyebrow">CREATE IN YOUR BROWSER</span>
@@ -642,7 +659,7 @@ write("paint/index.html", page({
 <p>Paint your Minecraft skin pixel by pixel, on the 3D model or on the flat skin file. Everything happens in your browser; the skin is not uploaded anywhere. It works without 3D graphics (WebGL).</p>
 </div>
 
-<div class="ed paint">
+<div class="ed paint workspace-layout">
   <div class="ed-col">
   <section class="panel ecard">
     <h3 class="ehead"><img class="tool-img" src="../icon-paint.png" alt="" width="44" height="44"><span><b>Tools</b><small>Pick a tool, pick a colour, then click the model</small></span></h3>
@@ -672,6 +689,8 @@ write("paint/index.html", page({
     <p class="prow"><label><input type="radio" name="player" value="0" checked> Skin (first layer)</label> <label><input type="radio" name="player" value="1"> Outer layer (hat, jacket, sleeves)</label></p>
     <p class="prow"><label><input type="checkbox" id="pshow" checked> Show the outer layer</label></p>
   </section>
+  </div>
+  <div class="ed-col workspace-side">
   <section class="panel ecard">
     <h3 class="ehead"><img class="tool-img" src="../icon-skin.png" alt="" width="44" height="44"><span><b>Skin file</b><small>Load a skin, or start from one of these</small></span></h3>
     <label class="drop" id="pdrop">
@@ -698,9 +717,10 @@ write("paint/index.html", page({
     <p><small>Your painting is kept in this browser, so it is still here when you come back.</small></p>
   </section>
   </div>
-  <div class="ed-col">
+  <div class="ed-col workspace-preview">
   <section class="panel ecard">
     <h3 class="ehead"><span><b>3D model</b><small>Click the model to paint; right click paints with the second colour. Drag next to the model to turn it. Mouse wheel = zoom.</small></span></h3>
+    ${backdropControls}
     <canvas id="p3d" class="p3d" width="460" height="560"></canvas>
     <div class="pbar" role="group" aria-label="3D model buttons">
       <button type="button" id="pbsneak" data-tip="Sneak" aria-label="Sneak" aria-pressed="false">${svg('<circle cx="9" cy="5" r="2.2"/><path d="M3 21v-2a5 5 0 0 1 5-5h2a5 5 0 0 1 3 1"/><path d="M18 11v9"/><path d="M14.5 17l3.5 3.5 3.5-3.5"/>')}</button>
@@ -738,7 +758,8 @@ write("paint/index.html", page({
 </section>
 </article></div>
 <script src="../paint.js?v=${ver("paint.js")}"></script>
-<script src="../ui.js?v=${ver("ui.js")}"></script>`,
+<script src="../ui.js?v=${ver("ui.js")}"></script>
+<script src="../backdrop.js?v=${ver("backdrop.js")}"></script>`,
 }));
 // ---- shared parts of the "3D Model" and "Animation" pages (studio.js) ----
 const MOVE_OPTS = [["idle", "Standing"], ["walk", "Walking"], ["run", "Running"], ["wave", "Waving"], ["cheer", "Cheer"], ["dance", "Dance"], ["jacks", "Jumping jacks"], ["clap", "Clap"], ["dab", "Dab"], ["sit", "Sit"], ["look", "Look around"], ["tpose", "T-pose"]]
@@ -1060,6 +1081,21 @@ write("cape/index.html", page({
 <script src="../jszip.min.js"></script><script src="../cape.js?v=${ver("cape.js")}"></script>`,
 }));
 
+// ---------- projects ----------
+write("creations/index.html", page({
+  title: "Projects - Fresh Moves Fix", active: "creations", depth: 1,
+  description: "Explore Fresh Moves Fix projects and creative tools.",
+  body: `<div class="wrap projects-page"><div class="crumb"><a href="../">${ICON.home} Home</a></div>
+<header class="projects-heading"><h1>Projects</h1><p>Projects and creative tools from Fresh Moves Fix.</p></header>
+<div class="projects-grid">
+  <a class="project-card" href="../#download"><img src="../pack.png" alt="" width="112" height="112"><h2>Fresh Moves Fix</h2><p>Player animations and animated eyes for Minecraft Java.</p><span>View downloads ${ICON.right}</span></a>
+  <a class="project-card" href="../paint/"><img src="../icon-paint.png" alt="" width="112" height="112"><h2>Skin Painter 3D</h2><p>Paint a skin pixel by pixel in your browser.</p><span>Open painter ${ICON.right}</span></a>
+  <a class="project-card" href="../editor/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Skin eye editor</h2><p>Add animated eye markers to your skin.</p><span>Open editor ${ICON.right}</span></a>
+  <a class="project-card" href="../cape/"><span class="project-icon" aria-hidden="true">${ICON.box}</span><h2>Cape Pack Builder</h2><p>Make a cape texture or a Java elytra pack.</p><span>Open builder ${ICON.right}</span></a>
+  <div class="project-card project-soon"><span class="project-icon" aria-hidden="true">${ICON.lock}</span><h2>Minecraft Skins</h2><p>A separate Fabric mod. Downloads are temporarily locked.</p><span>Coming soon</span></div>
+</div></div>`,
+}));
+
 // ---------- home ----------
 const groups = [];
 for (const v of versions) {
@@ -1115,9 +1151,17 @@ write("index.html", page({
       <a class="btn" href="#download">${ICON.down} Choose a download</a>
       <a class="btn ghost" href="editor/">${ICON.eye} Open skin eye editor</a>
     </div>
-    <div class="hero-meta"><span>${ICON.tag} ${esc(version)}</span><span>${ICON.person} Owner: lie_kg</span><a href="guides/">${ICON.book} Eye guides</a></div>
+    <div class="hero-meta"><span>${ICON.tag} ${esc(version)}</span><a href="guides/">${ICON.book} Eye guides</a></div>
   </div>
 </div>
+
+<aside class="owner-profile" aria-label="Owner profile">
+  <img id="owner-fallback" class="owner-profile-image" src="owner-profile.png?v=${ver("owner-profile.png")}" alt="Minecraft skin for lie_kg" width="160" height="320">
+  <canvas id="owner-model" class="owner-profile-model" width="240" height="240" role="img" aria-label="lie_kg's Minecraft skin in a pose" hidden></canvas>
+  <span class="home-eyebrow">OWNER PROFILE</span>
+  <h2>lie_kg</h2>
+  <p>Owner of Fresh Moves Fix</p>
+</aside>
 
 <section class="home-section">
   <div class="note"><strong>Beta.</strong> Blinking and moving eyes have worked in a player’s game; other features and versions still need testing. On Minecraft 1.21.4 and newer the cape and elytra may not be animated.</div>
@@ -1234,7 +1278,24 @@ ${versionLinks}
     <a class="card install-link" href="guides/fix-black-eyes/"><span class="install-icon">${ICON.eye}</span><span><b>Fix Black Eyes</b><small>Open the troubleshooting guide</small></span><span aria-hidden="true">${ICON.right}</span></a>
   </div>
 </section>
-</div>`,
+</div>
+<script src="player.js?v=${ver("player.js")}"></script>
+<script>(function(){
+  var canvas=document.getElementById("owner-model"), fallback=document.getElementById("owner-fallback");
+  if(!canvas || !fallback || !window.FMFPlayer) return;
+  var image=new Image();
+  image.onload=function(){
+    try {
+      var source=document.createElement("canvas"); source.width=64; source.height=64;
+      source.getContext("2d").drawImage(image,0,0);
+      var viewer=new window.FMFPlayer.SoftViewer(canvas);
+      viewer.pose="cheer"; viewer.zoom=1.05; viewer.view(-0.45,0.12,0);
+      viewer.loadSkin(source,{model:"wide"}); viewer.render(); viewer.dispose();
+      canvas.hidden=false; fallback.hidden=true;
+    } catch(e) { /* Keep the static fallback. */ }
+  };
+  image.src="owner-skin.png?v=${ver("owner-skin.png")}";
+})()</script>`,
 }));
 
 console.log(`Built website: ${docs.length} guides, ${versions.length} Minecraft versions, release v${version}`);
