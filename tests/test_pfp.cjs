@@ -4,7 +4,7 @@ assert(fs.readFileSync('website/public/creations/index.html','utf8').includes('h
 const dom=new JSDOM(html,{url:'https://example.com/pfp/',runScripts:'outside-only'}), w=dom.window;
 const layout=w.document.querySelector('.pfp-page .render-layout');assert(layout.firstElementChild.classList.contains('pfp-workspace'));assert.equal(layout.querySelectorAll('.pfp-control-group').length,6);assert(layout.querySelector('.pfp-control-grid').contains(w.document.getElementById('pfp-download')));
 let draws=[],fills=0,clips=0,polygons=0,downloads=0,images=[],revoked=[], fillFilters=[], state=[];
-const ctx={filter:'none',createLinearGradient(){return {addColorStop(){}}},getImageData(){return {data:new Uint8ClampedArray(64*64*4).fill(255)}},moveTo(){},lineTo(){},closePath(){},fill(){polygons++},stroke(){},clearRect(){},save(){state.push(this.filter)},restore(){this.filter=state.pop()},beginPath(){},arc(){},clip(){clips++},fillRect(){fills++;fillFilters.push(this.filter)},drawImage(...args){draws.push(args)}};
+const ctx={filter:'none',createLinearGradient(){return {addColorStop(){}}},getImageData(){return {data:new Uint8ClampedArray(64*64*4).fill(255)}},moveTo(){},lineTo(){},closePath(){},fill(){polygons++},stroke(){},clearRect(){},save(){state.push(this.filter)},restore(){this.filter=state.pop()},beginPath(){},arc(){},clip(){clips++},fillRect(){fills++;fillFilters.push(this.filter)},drawImage(...args){draws.push(args);this.lastImageFilter=this.filter}};
 w.HTMLCanvasElement.prototype.getContext=()=>ctx;w.HTMLCanvasElement.prototype.toDataURL=()=>{downloads++;return 'data:image/png;base64,AA=='};
 w.HTMLAnchorElement.prototype.click=function(){};w.Image=class{constructor(){images.push(this)}set src(v){this.url=v}};
 w.URL.createObjectURL=()=> 'blob:test';w.URL.revokeObjectURL=u=>revoked.push(u);
@@ -47,6 +47,7 @@ upload('old.png','image/png');upload('new.png','image/png');images[4].width=64;i
 // Background upload is local, center-cropped, selectable again, and rejects invalid files.
 const bgInput=$('pfp-bg-upload');function bgUpload(file){Object.defineProperty(bgInput,'files',{value:[file],configurable:true});change('pfp-bg-upload');}
 assert(!$('pfp-bg-image-button'));bgUpload({name:'bg.jpg',type:'image/jpeg',size:100});const bg=images.at(-1);bg.width=800;bg.height=400;draws=[];bg.onload();assert.equal($('pfp-background').value,'image');assert(draws.some(x=>x[0]===bg && x.slice(1).join(',')==='200,0,400,400,0,0,512,512'));assert.equal(revoked.length,5);
+$('pfp-blur').checked=true;draws=[];change('pfp-blur');assert(draws.some(x=>x[0]===bg && x.slice(5).join(',')==='-24,-24,560,560'),'blurred background extends beyond edge');assert.equal(ctx.lastImageFilter,'blur(8px)');assert.equal(ctx.filter,'none','background blur does not affect the avatar');$('pfp-blur').checked=false;change('pfp-blur');
 w.document.querySelector('[data-pfp-target="pfp-background"][data-value="color"]').click();bgUpload({name:'bg.jpg',type:'image/jpeg',size:100});const bg2=images.at(-1);bg2.width=400;bg2.height=400;bg2.onload();assert.equal($('pfp-background').value,'image');
 bgUpload({name:'bad.txt',type:'text/plain',size:10});assert.match($('pfp-bg-status').textContent,/Choose a PNG/);assert.equal($('pfp-background').value,'image');
 console.log('PFP face, layer, transparency, circle, download, background upload and validation passed');

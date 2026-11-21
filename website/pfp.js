@@ -4,7 +4,7 @@
   var $ = function (id) { return document.getElementById(id); };
   var canvas = $('pfp-canvas'), ctx = canvas.getContext('2d');
   var canBlur = 'filter' in ctx;
-  if (!canBlur) { $('pfp-blur').disabled = true; $('pfp-blur-status').hidden = false; $('pfp-blur-status').textContent = 'Sky blur is not supported in this browser.'; }
+  if (!canBlur) { $('pfp-blur').disabled = true; $('pfp-blur-status').hidden = false; $('pfp-blur-status').textContent = 'Background blur is not supported in this browser.'; }
   var source = document.createElement('canvas'); source.width = source.height = 64;
   var skin = source.getContext('2d', { willReadFrequently: true }), legacy = false;
   var last3d = 'headshot';
@@ -41,8 +41,13 @@
       // Center-crop to fill the square, preserving the original aspect ratio.
       var bw = backgroundImage.naturalWidth || backgroundImage.width, bh = backgroundImage.naturalHeight || backgroundImage.height;
       var side = Math.min(bw, bh);
-      ctx.imageSmoothingEnabled = true;
-      ctx.drawImage(backgroundImage, (bw-side)/2, (bh-side)/2, side, side, 0, 0, 512, 512);
+      ctx.save(); ctx.imageSmoothingEnabled = true;
+      var blurBackground = canBlur && $('pfp-blur').checked;
+      if (blurBackground) ctx.filter = 'blur(8px)';
+      // Extend the image beyond the canvas to avoid transparent blur fringes.
+      var edge = blurBackground ? 24 : 0;
+      ctx.drawImage(backgroundImage, (bw-side)/2, (bh-side)/2, side, side, -edge, -edge, 512+2*edge, 512+2*edge);
+      ctx.restore();
     }
     if (background === 'day' || background === 'night') {
       var night = background === 'night', sky = ctx.createLinearGradient(0, 0, 0, 512);
