@@ -709,3 +709,5 @@ html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936;
 .render-controls p { color: var(--muted); font-size: 14px; }
 .render-preview canvas { display: block; width: 100%; height: auto; border-radius: 8px; }
 @media (max-width: 750px) { .render-layout { grid-template-columns: 1fr; } }
+.render-sliders { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.render-controls input[type=range] { accent-color: var(--accent); }

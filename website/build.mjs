@@ -1104,15 +1104,19 @@ write("cape/index.html", page({
 write("render/index.html", page({
   title: "Minecraft Render - Fresh Moves Fix", active: "creations", depth: 1,
   description: "Create a Minecraft skin thumbnail without WebGL.",
-  body: `<div class="wrap render-page"><h1>Minecraft Render</h1><p>Make a pixel-style thumbnail with your skin. This is an original 2D tool, not MCRender; it works without WebGL.</p>
+  body: `<div class="wrap render-page"><h1>Minecraft Render</h1><p>Create an original skin render and thumbnail. The software 3D preview works without WebGL.</p>
   <div class="render-layout"><section class="card render-controls"><h2>Make your thumbnail</h2>
   <label>Upload skin PNG <input id="render-skin" type="file" accept="image/png,.png"></label><p id="render-status" role="status" aria-live="polite">Using the default skin.</p>
   <label>Arm size <select id="render-model"><option value="classic">Classic (4 pixels)</option><option value="slim">Slim (3 pixels)</option></select></label>
-  <label>Pose <select id="render-pose"><option value="standing">Standing</option><option value="wave">Wave</option><option value="running">Running</option></select></label>
+  <label>View <select id="render-view"><option value="3d">3D model</option><option value="2d">2D fallback</option></select></label>
+  <label>Pose <select id="render-pose"><option value="standing">Standing</option><option value="wave">Wave</option><option value="running">Running</option><option value="custom">Custom</option></select></label>
+  <div class="render-sliders"><label>Right arm <input id="render-ra" type="range" min="-180" max="180" value="0"></label><label>Left arm <input id="render-la" type="range" min="-180" max="180" value="0"></label><label>Right leg <input id="render-rl" type="range" min="-90" max="90" value="0"></label><label>Left leg <input id="render-ll" type="range" min="-90" max="90" value="0"></label><label>Head tilt <input id="render-head" type="range" min="-60" max="60" value="0"></label></div>
+  <label>Camera angle <input id="render-yaw" type="range" min="-180" max="180" value="25"></label><label>Camera height <input id="render-pitch" type="range" min="-45" max="45" value="10"></label>
+  <label><input id="render-outer" type="checkbox" checked> Show outer skin layer</label>
   <label>Title <input id="render-title" type="text" maxlength="60" placeholder="Your title"></label>
   <label>Background <input id="render-color" type="color" value="#486d92"></label>
   <button class="btn" id="render-download" type="button">Download PNG</button>
-  <p>Uploads stay in your browser. Supports 64×64 and classic 64×32 PNG skins. Output: 1280×720.</p></section>
+  <p>Uploads stay in your browser. Supports 64×64 and classic 64×32 PNG skins. Output: 1280×720. Custom limb and camera controls apply to 3D view.</p></section>
   <section class="card render-preview"><h2>Preview</h2><canvas id="render-canvas" width="1280" height="720" aria-label="Thumbnail preview"></canvas></section></div></div>
   <script src="../render.js?v=${ver("render.js")}"></script>`,
 }));
@@ -1127,7 +1131,7 @@ write("creations/index.html", page({
   <a class="project-card" href="../#download"><img class="project-pack-image" src="../pack.png" alt="" width="112" height="112"><h2>Fresh Moves Fix</h2><p>Player animations and animated eyes for Minecraft Java.</p><span>View downloads ${ICON.right}</span></a>
   <a class="project-card" href="../paint/"><img src="../icon-paint-pixel.svg" alt="" width="112" height="112"><h2>Skin Painter 3D</h2><p>Paint a skin pixel by pixel in your browser.</p><span>Open painter ${ICON.right}</span></a>
   <a class="project-card" href="../editor/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Skin eye editor</h2><p>Add animated eye markers to your skin.</p><span>Open editor ${ICON.right}</span></a>
-  <a class="project-card" href="../render/"><img src="../icon-model-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Render</h2><p>Make a pixel-style skin thumbnail with poses and a title.</p><span>Open render maker ${ICON.right}</span></a>
+  <a class="project-card" href="../render/"><img src="../icon-model-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Render</h2><p>Pose a 3D skin and make a thumbnail without WebGL.</p><span>Open render maker ${ICON.right}</span></a>
   <a class="project-card" href="../title/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Title</h2><p>Make and download a block-letter title picture.</p><span>Open title maker ${ICON.right}</span></a>
   <a class="project-card" href="../animation/"><img src="../icon-anim-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Animation</h2><p>Arrange movements and save an animation as a video.</p><span>Open animation tool ${ICON.right}</span></a>
   <div class="project-card project-soon"><img src="../icon-lock-project-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Skins</h2><p>A separate Fabric mod. Downloads are temporarily locked.</p><span>Coming soon</span></div>
