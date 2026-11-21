@@ -667,3 +667,4 @@ a.eyes-download-card:focus-visible { outline: 2px solid var(--accent); outline-o
 #tab-language .langs .lang .code { flex: none; background: var(--panel); }
 #tab-language .langs .lang input { flex: none; margin: 0; }
 @media (max-width: 420px) { #tab-language .langs .lang { padding: 10px; gap: 10px; } }
+html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936; }

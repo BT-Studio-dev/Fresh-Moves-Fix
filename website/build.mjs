@@ -87,7 +87,7 @@ function page({ title, body, depth = 0, description = "", active = "" }) {
 <meta name="twitter:card" content="summary_large_image">
 <script>(function(){var t="";try{t=localStorage.getItem("fmf-theme")||""}catch(e){}
 if(!t){try{var m=document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/);if(m)t=m[1]}catch(e){}}
-if(["system","light","dark","oled","glass","minecraft","nightsky"].indexOf(t)<0)t="dark";
+if(["system","light","dark","oled","glass","minecraft","nightsky","livesky"].indexOf(t)<0)t="dark";
 if(t==="system")t=window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
 document.documentElement.setAttribute("data-theme",t);
 var bg="";try{bg=localStorage.getItem("fmf-background")||""}catch(e){}
@@ -163,6 +163,7 @@ ${body}
 <script src="${up}music.js?v=${ver("music.js")}"></script>
 <script src="${up}nav.js?v=${ver("nav.js")}"></script>
 <script src="${up}enhancements.js?v=${ver("enhancements.js")}"></script>
+<script src="${up}livesky.js?v=${ver("livesky.js")}"></script>
 </body>
 </html>
 `;
@@ -196,6 +197,7 @@ fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner-profile.png", "owner-skin.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "refresh-2026.css"), path.join(out, "refresh-2026.css"));
 fs.copyFileSync(path.join(here, "enhancements.js"), path.join(out, "enhancements.js"));
+fs.copyFileSync(path.join(here, "livesky.js"), path.join(out, "livesky.js"));
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
 fs.copyFileSync(path.join(here, "nav.js"), path.join(out, "nav.js"));
@@ -956,8 +958,8 @@ write("settings/index.html", page({
     <div class="langs" id="langs"></div>
   </div>
   <div class="box" id="tab-appearance">
-    <h2 class="shead"><span class="tool-ic">${ICON.brush}</span><span><b>Color theme</b><small>Light, dark, OLED, glass, Minecraft or Night Sky</small></span></h2>
-    <p>Select your preferred color theme for this website. It is saved in this browser only.</p>
+    <h2 class="shead"><span class="tool-ic">${ICON.brush}</span><span><b>Color theme</b><small>Light, dark, OLED, glass, Night Sky or Live Sky</small></span></h2>
+    <p>Select your preferred color theme for this website. It is saved in this browser only. Live Sky uses your device’s local time and an approximate moon phase; it does not use your location or live weather.</p>
     <div class="themes">
       ${themeCard("system", "Sync with system", "linear-gradient(90deg,#f4f6f5 50%,#121212 50%)", "#18201c", "#2a3630", "#9aa8a0")}
       ${themeCard("light", "Light", "#f4f6f5", "#ffffff", "#d5dcd8", "#17201b")}
@@ -965,6 +967,7 @@ write("settings/index.html", page({
       ${themeCard("oled", "OLED", "#000000", "#0d0f0e", "#222826", "#98a39d")}
       ${themeCard("glass", "Glass", "radial-gradient(circle at 20% 20%,#2fae78 0,transparent 55%),radial-gradient(circle at 85% 80%,#3b6fd0 0,transparent 55%),#0a1210", "rgba(255,255,255,.16)", "rgba(255,255,255,.34)", "#eef6f1")}
       ${themeCard("nightsky", "Night Sky", "radial-gradient(circle at 78% 25%, #f0f2fa 0 9%, transparent 10%), #1a173f", "#252249", "#4b4a76", "#eef0ff")}
+      ${themeCard("livesky", "Live Sky", "linear-gradient(#426d9b, #dba47b)", "#263849", "#7aa1b8", "#edf5ff")}
     </div>
     <div class="fmf-blur-setting">
       <label for="settings-glass-blur"><span><b>Glass card blur</b><small>Turn the frosted-glass blur on or off. This only affects the Glass theme.</small></span><input type="checkbox" id="settings-glass-blur" checked></label>
@@ -982,7 +985,7 @@ write("settings/index.html", page({
 <script>(function(){
   var key="fmf-theme", cur=""; try{cur=localStorage.getItem(key)||""}catch(e){}
   if(!cur){ try{ var m=document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/); if(m) cur=m[1]; }catch(e){} } // second place the choice is kept
-  if(["system","light","dark","oled","glass","minecraft","nightsky"].indexOf(cur)<0) cur="dark"; // new visitors start with Dark
+  if(["system","light","dark","oled","glass","minecraft","nightsky","livesky"].indexOf(cur)<0) cur="dark"; // new visitors start with Dark
   function keep(v){ try{ document.cookie=key+"="+v+"; path=/; max-age=31536000"+(location.protocol==="https:"?"; SameSite=None; Secure":"; SameSite=Lax"); return document.cookie.indexOf(key+"="+v)>=0; }catch(e){ return false; } }
   function apply(t){ var r=t; if(t==="system") r=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"; document.documentElement.setAttribute("data-theme",r); applyBlur(); }
   var blurControl=document.getElementById("settings-glass-blur");
