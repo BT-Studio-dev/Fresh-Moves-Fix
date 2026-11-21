@@ -746,3 +746,10 @@ html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936;
 .pfp-preview-help { color: var(--muted); font-size: 13px; }
 #pfp-canvas { cursor: grab; touch-action: none; }
 #pfp-canvas.pfp-dragging { cursor: grabbing; }
+.pfp-paint-panel { margin: 22px 0; padding: 12px; border: 1px solid var(--line); border-radius: 10px; }
+.pfp-paint-panel h3:first-child { margin-top: 0; }
+.pfp-paint-panel .inline-picker-wrap, .pfp-paint-panel .inline-picker { display: block; width: 100%; position: static; box-sizing: border-box; padding: 0; background: transparent; border: 0; box-shadow: none; }
+.pfp-paint-panel .inline-picker .pk-head[hidden], .pfp-paint-panel .inline-picker-wrap .sw[hidden], .pfp-paint-panel .inline-picker .pk-row, .pfp-paint-panel .inline-picker .pk-sws { display: none; }
+.pfp-paint-panel .pk-sv { width: 100%; height: 112px; }
+.pfp-paint-panel .pk-hue { width: 100%; }
+#pfp-paint-map { display: block; width: 100%; max-width: 256px; height: auto; background: repeating-conic-gradient(#aaa 0 25%, #ddd 0 50%) 0 0 / 16px 16px; image-rendering: pixelated; touch-action: none; cursor: crosshair; }

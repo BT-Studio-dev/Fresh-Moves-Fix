@@ -1132,6 +1132,13 @@ write("pfp/index.html", page({
   body: `<div class="wrap render-page pfp-page"><h1>Minecraft PFP Maker</h1><p>Make a 3D avatar from your skin. No WebGL or account needed.</p>
   <div class="render-layout"><section class="card render-controls"><h2>Customize</h2>
   <label class="pfp-upload"><span><b>Upload skin PNG</b><small>Choose a skin from your device</small></span><input id="pfp-skin" type="file" accept="image/png,.png"></label><p id="pfp-status" role="status" aria-live="polite">Loading the example skin.</p>
+  <div class="pfp-paint-panel"><h3>Colour &amp; layers</h3><p>Choose a colour and paint on the skin map below.</p>
+    <div class="ed pfp-colour-picker"><input type="color" id="pfp-paint-color" data-inline-picker value="#3b82c4" aria-label="Paint colour"></div>
+    <label>Colour code <input type="text" id="pfp-paint-hex" value="#3b82c4" maxlength="7" spellcheck="false" aria-label="Paint colour code"></label>
+    <h3>Paint on</h3><div class="pfp-presets" role="group" aria-label="Paint layer"><button type="button" data-pfp-layer="base" aria-pressed="true"><b>Base</b></button><button type="button" data-pfp-layer="overlay" aria-pressed="false"><b>Overlay</b></button></div>
+    <p>Paint on the highlighted parts of the skin map. Right-click paints white. Overlay painting turns the outer layer on.</p>
+    <canvas id="pfp-paint-map" width="256" height="256" aria-label="Skin texture painting map"></canvas><p id="pfp-paint-status" role="status" aria-live="polite">Upload a skin or paint the example.</p>
+  </div>
   <h3>Choose a preset</h3><div class="pfp-presets" aria-label="Profile picture presets">
     <button type="button" data-pfp-preset="headshot" aria-pressed="true"><b>Headshot</b><small>3D portrait</small></button>
     <button type="button" data-pfp-preset="head" aria-pressed="false"><b>Head</b><small>3D close-up</small></button>
@@ -1167,7 +1174,7 @@ write("pfp/index.html", page({
     <button type="button" class="pfp-swatch" data-pfp-color="#161b29" style="--swatch:#161b29" aria-label="Dark background" aria-pressed="false"></button>
     <button type="button" id="pfp-quick-3d" aria-pressed="true" title="Switch between 3D and 2D">3D</button>
   </div></section></div></div>
-  <script src="../pfp-3d.js?v=${ver("pfp-3d.js")}"></script><script src="../pfp.js?v=${ver("pfp.js")}"></script>`,
+  <script src="../ui.js?v=${ver("ui.js")}"></script><script src="../pfp-3d.js?v=${ver("pfp-3d.js")}"></script><script src="../pfp.js?v=${ver("pfp.js")}"></script>`,
 }));
 
 // ---------- projects ----------
