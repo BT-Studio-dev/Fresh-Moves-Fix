@@ -517,3 +517,8 @@ a.project-card:focus-visible { outline: 2px solid var(--accent); outline-offset:
 .painter-colour-card .picker-opacity #palpha::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -4px; border: 1px solid #777; border-radius: 50%; background: #fff; }
 .painter-colour-card .picker-opacity #palpha::-moz-range-thumb { width: 14px; height: 14px; border: 1px solid #777; border-radius: 50%; background: #fff; }
 .painter-colour-card .picker-opacity #palpha:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* Owner profiles share a centered, responsive row. */
+.owner-profiles { display: flex; justify-content: center; align-items: stretch; flex-wrap: wrap; gap: 16px; }
+.owner-profiles .owner-profile { flex: 1 1 240px; max-width: 300px; margin: 0; }
+.owner-profile .owner-steve-fallback { width: 120px; height: 160px; }

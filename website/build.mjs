@@ -1172,13 +1172,22 @@ write("index.html", page({
   </div>
 </div>
 
-<aside class="owner-profile" aria-label="Owner profile">
-  <img id="owner-fallback" class="owner-profile-image" src="owner-profile.png?v=${ver("owner-profile.png")}" alt="Minecraft skin for lie_kg" width="160" height="320">
-  <canvas id="owner-model" class="owner-profile-model" width="240" height="240" role="img" aria-label="lie_kg's Minecraft skin in a pose" hidden></canvas>
-  <span class="home-eyebrow">OWNER PROFILE</span>
-  <h2>lie_kg</h2>
-  <p>Owner of Fresh Moves Fix</p>
-</aside>
+<div class="owner-profiles" aria-label="Owner profiles">
+  <aside class="owner-profile" aria-label="lie_kg owner profile">
+    <img id="owner-fallback" class="owner-profile-image" src="owner-profile.png?v=${ver("owner-profile.png")}" alt="Minecraft skin for lie_kg" width="160" height="320">
+    <canvas id="owner-model" class="owner-profile-model" width="240" height="240" role="img" aria-label="lie_kg's Minecraft skin in a pose" hidden></canvas>
+    <span class="home-eyebrow">OWNER PROFILE</span>
+    <h2>lie_kg</h2>
+    <p>Owner of Fresh Moves Fix</p>
+  </aside>
+  <aside class="owner-profile" aria-label="dudualt owner profile">
+    <img id="dudualt-fallback" class="owner-profile-image owner-steve-fallback" src="pack.png" alt="Steve icon" width="120" height="120">
+    <canvas id="dudualt-model" class="owner-profile-model" width="240" height="240" role="img" aria-label="Steve skin for dudualt" hidden data-skin="${skinData("wide/steve.png")}"></canvas>
+    <span class="home-eyebrow">OWNER PROFILE</span>
+    <h2>dudualt</h2>
+    <p>Owner of Fresh Moves Fix</p>
+  </aside>
+</div>
 
 <section class="home-section">
   <div class="note"><strong>Beta.</strong> Blinking and moving eyes have worked in a player’s game; other features and versions still need testing. On Minecraft 1.21.4 and newer the cape and elytra may not be animated.</div>
@@ -1298,20 +1307,26 @@ ${versionLinks}
 </div>
 <script src="player.js?v=${ver("player.js")}"></script>
 <script>(function(){
-  var canvas=document.getElementById("owner-model"), fallback=document.getElementById("owner-fallback");
-  if(!canvas || !fallback || !window.FMFPlayer) return;
-  var image=new Image();
-  image.onload=function(){
-    try {
-      var source=document.createElement("canvas"); source.width=64; source.height=64;
-      source.getContext("2d").drawImage(image,0,0);
-      var viewer=new window.FMFPlayer.SoftViewer(canvas);
-      viewer.pose="cheer"; viewer.zoom=1.05; viewer.view(-0.45,0.12,0);
-      viewer.loadSkin(source,{model:"wide"}); viewer.render(); viewer.dispose();
-      canvas.hidden=false; fallback.hidden=true;
-    } catch(e) { /* Keep the static fallback. */ }
-  };
-  image.src="owner-skin.png?v=${ver("owner-skin.png")}";
+  if(!window.FMFPlayer) return;
+  function drawOwner(canvasId, fallbackId, skinUrl) {
+    var canvas=document.getElementById(canvasId), fallback=document.getElementById(fallbackId);
+    if(!canvas || !fallback || !skinUrl) return;
+    var image=new Image();
+    image.onload=function(){
+      try {
+        var source=document.createElement("canvas"); source.width=64; source.height=64;
+        source.getContext("2d").drawImage(image,0,0);
+        var viewer=new window.FMFPlayer.SoftViewer(canvas);
+        viewer.pose="cheer"; viewer.zoom=1.05; viewer.view(-0.45,0.12,0);
+        viewer.loadSkin(source,{model:"wide"}); viewer.render(); viewer.dispose();
+        canvas.hidden=false; fallback.hidden=true;
+      } catch(e) { /* Keep the static fallback. */ }
+    };
+    image.src=skinUrl;
+  }
+  drawOwner("owner-model", "owner-fallback", "owner-skin.png?v=${ver("owner-skin.png")}");
+  var steve=document.getElementById("dudualt-model");
+  if(steve) drawOwner("dudualt-model", "dudualt-fallback", steve.getAttribute("data-skin"));
 })()</script>`,
 }));
 
