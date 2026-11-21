@@ -7,9 +7,11 @@
     "preview": "node serve.mjs"
   },
   "dependencies": {
+    "esbuild": "^0.25.12",
     "flag-icons": "^7.6.0",
     "jszip": "^3.10.1",
     "marked": "^14.1.4",
-    "skinview3d": "^3.4.2"
+    "skinview3d": "^3.4.2",
+    "three": "^0.180.0"
   }
 }
