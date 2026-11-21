@@ -1033,7 +1033,15 @@ write("settings/index.html", page({
   var tabs=document.querySelectorAll(".tab");
   function show(id){ tabs.forEach(function(t){ var on=t.getAttribute("data-tab")===id; t.classList.toggle("on",on); document.getElementById("tab-"+t.getAttribute("data-tab")).hidden=!on; }); }
   tabs.forEach(function(t){ t.addEventListener("click",function(){ var id=t.getAttribute("data-tab"); show(id); try{history.replaceState(null,"","#"+id)}catch(e){} }); });
-  if(location.hash==="#language") show("language"); if(location.hash==="#music") show("music");
+  function showHash(){
+    if (!document.getElementById("tab-appearance")) return;
+    var id=location.hash.slice(1);
+    show(id==="language" || id==="music" ? id : "appearance");
+  }
+  if(window.__fmfSettingsHash) window.removeEventListener("hashchange",window.__fmfSettingsHash);
+  window.__fmfSettingsHash=showHash;
+  window.addEventListener("hashchange",showHash);
+  showHash();
   var FLAG={en:"us",ar:"eg",de:"de",es:"es",fr:"fr",it:"it",pt:"br",ru:"ru",pl:"pl",uk:"ua",tr:"tr",zh:"cn",ja:"jp"};
   var box=document.getElementById("langs"), api=window.fmfI18n; if(!api) return;
   api.langs.forEach(function(l){

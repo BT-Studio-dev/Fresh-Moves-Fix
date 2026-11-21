@@ -56,7 +56,12 @@
     if (/\.[a-z0-9]{2,5}$/i.test(u.pathname) && !/\.html?$/i.test(u.pathname)) return; // files (images, zips)
     if (u.pathname === location.pathname && u.search === location.search) {
       if (u.hash) return; // same page, jump to a section: let the browser do it
-      e.preventDefault(); window.scrollTo(0, 0); return;
+      e.preventDefault();
+      if (location.hash) {
+        history.pushState({ fmf: 1 }, "", u.pathname + u.search);
+        window.dispatchEvent(new Event("hashchange"));
+      }
+      window.scrollTo(0, 0); return;
     }
     e.preventDefault();
     load(u.href, true);
