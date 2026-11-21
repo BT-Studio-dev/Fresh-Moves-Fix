@@ -42,7 +42,7 @@
       } else {
         var head = preset === 'head', full = preset === 'full' || preset === 'wave';
         window.drawPfp3d(ctx, skin, {slim: $('pfp-model').value === 'slim', outer: $('pfp-outer').checked, legacy: legacy,
-          yaw: +$('pfp-yaw').value, pitch: +$('pfp-pitch').value, angles: preset === 'wave' ? {ra: 135} : {},
+          yaw: +$('pfp-yaw').value, pitch: +$('pfp-pitch').value, angles: preset === 'wave' ? {ra: -135} : {},
           headOnly: head, scale: (head ? 36 : full ? 12 : 19) * zoom, centerY: head ? 12 : full ? 0 : 7});
       }
     }
@@ -60,7 +60,7 @@
       legacy = candidate.height === 32;
       if (legacy) { skin.drawImage(source, 0, 16, 16, 16, 16, 48, 16, 16); skin.drawImage(source, 40, 16, 16, 16, 32, 48, 16, 16); }
       image = candidate; download.disabled = false;
-      status.textContent = isDefault ? 'Using the default skin.' : 'Skin loaded. It stays in this browser.';
+      status.textContent = isDefault ? 'Using the example skin.' : 'Skin loaded. It stays in this browser.';
       draw();
     };
     candidate.onerror = function () { release(); if (current === version) status.textContent = 'Could not read that PNG. Please choose a valid skin.'; };
@@ -108,5 +108,5 @@
     if (!image) return;
     var a = document.createElement('a'); a.download = 'minecraft-pfp.png'; a.href = canvas.toDataURL('image/png'); a.click();
   });
-  draw(); load('../render-dummy.png', true);
+  draw(); load('../owner-skin.png', true);
 })();

@@ -1129,7 +1129,7 @@ write("pfp/index.html", page({
   description: "Make a Minecraft 3D skin profile picture without WebGL.",
   body: `<div class="wrap render-page pfp-page"><h1>Minecraft PFP Maker</h1><p>Make a 3D avatar from your skin. No WebGL or account needed.</p>
   <div class="render-layout"><section class="card render-controls"><h2>Customize</h2>
-  <label class="pfp-upload"><span><b>Upload skin PNG</b><small>Choose a skin from your device</small></span><input id="pfp-skin" type="file" accept="image/png,.png"></label><p id="pfp-status" role="status" aria-live="polite">Using the default skin.</p>
+  <label class="pfp-upload"><span><b>Upload skin PNG</b><small>Choose a skin from your device</small></span><input id="pfp-skin" type="file" accept="image/png,.png"></label><p id="pfp-status" role="status" aria-live="polite">Loading the example skin.</p>
   <h3>Choose a preset</h3><div class="pfp-presets" aria-label="Profile picture presets">
     <button type="button" data-pfp-preset="headshot" aria-pressed="true"><b>Headshot</b><small>3D portrait</small></button>
     <button type="button" data-pfp-preset="head" aria-pressed="false"><b>Head</b><small>3D close-up</small></button>
