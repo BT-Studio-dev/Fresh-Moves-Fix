@@ -171,6 +171,9 @@ html[data-theme="dark"] { --fmf-popup: #202020; --fmf-popup-control: #121212; }
 html[data-theme="light"] { --fmf-popup: #ffffff; --fmf-popup-control: #f4f6f5; }
 html[data-theme="oled"] { --fmf-popup: #0d0f0e; --fmf-popup-control: #000000; }
 html[data-theme="glass"] { --fmf-popup: #15231e; --fmf-popup-control: #0c1612; }
+/* Match the Glass cards over the site's night background, without transparency
+   that would let the page show through the settings controls. */
+html[data-theme="glass"] .fmf-settings { --fmf-popup: #202238; --fmf-popup-control: #151827; }
 html[data-theme="minecraft"] { --fmf-popup: #1b2621; --fmf-popup-control: #101914; }
 .fmf-settings {
   background: var(--fmf-popup); max-height: calc(100vh - 100px); overflow-y: auto;
