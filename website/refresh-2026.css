@@ -354,3 +354,21 @@ article.editor > p:not([class]) { padding: 18px 22px; background: var(--panel); 
 .wrap > article:not(.nf) > h1 { padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; }
 [data-theme="minecraft"] .wrap > article:not(.nf) > h1 { border-radius: 3px; }
 .guide-nav > a:only-child { grid-column: 1 / -1; }
+
+/* Projects: original block lettering and theme-aware, lightweight cards. */
+.projects-page { padding-top: 32px; padding-bottom: 60px; }
+.projects-heading { text-align: center; padding: 30px 12px 36px; }
+.projects-heading h1 { margin: 0; font-size: clamp(42px, 9vw, 76px); line-height: 1.2; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: #ed8cff; text-shadow: 2px 2px 0 #aa22d2, 4px 4px 0 #6e168e, 6px 6px 0 #40115d; }
+.projects-heading p { margin: 16px 0 0; color: var(--muted); }
+.projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 16px; }
+.project-card { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; box-sizing: border-box; padding: 26px 20px; min-width: 0; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--text); text-decoration: none; }
+.project-card img { width: 112px; height: 112px; object-fit: contain; image-rendering: pixelated; border-radius: 12px; }
+.project-icon { display: grid; place-items: center; width: 112px; height: 112px; border-radius: 12px; background: var(--bg); color: var(--accent); }
+.project-icon .ic { width: 48px; height: 48px; margin: 0; }
+.project-card h2 { margin: 4px 0 0; font-size: 20px; }
+.project-card p { margin: 0; color: var(--muted); flex: 1; }
+.project-card > span:last-child { color: var(--accent); font-size: 14px; font-weight: 700; }
+a.project-card:hover, a.project-card:focus-visible { border-color: var(--accent); outline: none; }
+a.project-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.project-soon > span:last-child { color: var(--muted); }
+[data-theme="minecraft"] .project-card, [data-theme="minecraft"] .project-card img, [data-theme="minecraft"] .project-icon { border-radius: 3px; }

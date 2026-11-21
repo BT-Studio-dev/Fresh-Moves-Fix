@@ -111,6 +111,7 @@ document.documentElement.setAttribute("data-scrollbar",sb==="off"?"off":"on")})(
   <nav>
     ${nav("home", up || "./", ICON.home + " Home")}
     ${nav("guides", up + "guides/", ICON.book + " Guides")}
+    ${nav("creations", up + "creations/", ICON.box + " Projects")}
     ${nav("editor", up + "editor/", ICON.eye + " Eye editor")}
     ${nav("title", up + "title/", ICON.tag + " Title")}
     ${nav("settings", up + "settings/", ICON.gear + " Settings")}
@@ -1058,6 +1059,21 @@ write("cape/index.html", page({
 </section></div>
 </article></div>
 <script src="../jszip.min.js"></script><script src="../cape.js?v=${ver("cape.js")}"></script>`,
+}));
+
+// ---------- projects ----------
+write("creations/index.html", page({
+  title: "Projects - Fresh Moves Fix", active: "creations", depth: 1,
+  description: "Explore Fresh Moves Fix projects and creative tools.",
+  body: `<div class="wrap projects-page"><div class="crumb"><a href="../">${ICON.home} Home</a></div>
+<header class="projects-heading"><h1>Projects</h1><p>Projects and creative tools from Fresh Moves Fix.</p></header>
+<div class="projects-grid">
+  <a class="project-card" href="../#download"><img src="../pack.png" alt="" width="112" height="112"><h2>Fresh Moves Fix</h2><p>Player animations and animated eyes for Minecraft Java.</p><span>View downloads ${ICON.right}</span></a>
+  <a class="project-card" href="../paint/"><img src="../icon-paint.png" alt="" width="112" height="112"><h2>Skin Painter 3D</h2><p>Paint a skin pixel by pixel in your browser.</p><span>Open painter ${ICON.right}</span></a>
+  <a class="project-card" href="../editor/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Skin eye editor</h2><p>Add animated eye markers to your skin.</p><span>Open editor ${ICON.right}</span></a>
+  <a class="project-card" href="../cape/"><span class="project-icon" aria-hidden="true">${ICON.box}</span><h2>Cape Pack Builder</h2><p>Make a cape texture or a Java elytra pack.</p><span>Open builder ${ICON.right}</span></a>
+  <div class="project-card project-soon"><span class="project-icon" aria-hidden="true">${ICON.lock}</span><h2>Minecraft Skins</h2><p>A separate Fabric mod. Downloads are temporarily locked.</p><span>Coming soon</span></div>
+</div></div>`,
 }));
 
 // ---------- home ----------
