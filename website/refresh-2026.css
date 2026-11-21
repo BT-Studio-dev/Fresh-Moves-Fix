@@ -769,3 +769,15 @@ html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936;
 .pfp-code-field #pfp-code-swatch { width: 38px; height: 38px; flex: 0 0 38px; border: 1px solid var(--line); border-radius: 7px; box-sizing: border-box; }
 .pfp-page .render-controls .pfp-code-field #pfp-bg-hex { min-width: 0; width: 100%; margin: 0; border: 1px solid var(--line); border-radius: 7px; padding: 9px 10px; color: var(--text); background: var(--bg); }
 .pfp-page .render-controls .pfp-code-field #pfp-bg-hex:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Give the background picker room on desktop without crowding nearby cards. */
+@media (min-width: 901px) {
+  .pfp-control-grid .pfp-colour-panel { grid-column: span 2; }
+}
+.pfp-control-grid .pfp-colour-panel { padding: 18px; }
+.pfp-colour-panel > p { margin: 0 0 14px; }
+.pfp-colour-panel .pk-sv { height: 150px; max-width: 100%; }
+.pfp-colour-panel .pk-hue { box-sizing: border-box; margin: 10px 0 0; }
+@media (max-width: 600px) {
+  .pfp-control-grid .pfp-colour-panel { padding: 14px; }
+  .pfp-colour-panel .pk-sv { height: 130px; }
+}
