@@ -350,3 +350,8 @@ article.editor > p:not([class]) { padding: 18px 22px; background: var(--panel); 
 .owner-profile h2 { margin: 4px 0; font-size: 20px; }
 .owner-profile p { margin: 0; color: var(--muted); font-size: 14px; }
 [data-theme="minecraft"] .owner-profile, [data-theme="minecraft"] .owner-profile-icon { border-radius: 3px; }
+
+/* Give page titles their own themed surface, including individual guide pages. */
+.wrap > article:not(.nf) > h1 { padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; }
+[data-theme="minecraft"] .wrap > article:not(.nf) > h1 { border-radius: 3px; }
+.guide-nav > a:only-child { grid-column: 1 / -1; }

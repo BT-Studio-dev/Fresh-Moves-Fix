@@ -241,8 +241,8 @@ for (const [i, d] of docs.entries()) {
 <h1>${d.name.startsWith("Fix") ? ICON.wrench : ICON.eye} ${esc(d.name)}</h1>
 <div class="text-card guide-prose">${renderDoc(md)}</div>
 <div class="guide-nav">
-  ${docs[i - 1] ? `<a class="card go back" href="../${docs[i - 1].slug}/">${ICON.left}<span>${esc(docs[i - 1].name)}</span></a>` : "<span></span>"}
-  ${docs[i + 1] ? `<a class="card go" href="../${docs[i + 1].slug}/"><span>${esc(docs[i + 1].name)}</span>${ICON.right}</a>` : "<span></span>"}
+  ${docs[i - 1] ? `<a class="card go back" href="../${docs[i - 1].slug}/">${ICON.left}<span>${esc(docs[i - 1].name)}</span></a>` : ""}
+  ${docs[i + 1] ? `<a class="card go" href="../${docs[i + 1].slug}/"><span>${esc(docs[i + 1].name)}</span>${ICON.right}</a>` : ""}
 </div>
 <p class="guide-cta"><a class="btn" href="../../editor/">${ICON.eye} Open the eye editor</a> <a class="btn ghost" href="../">${ICON.book} All guides</a></p>
 </article></div>`,
