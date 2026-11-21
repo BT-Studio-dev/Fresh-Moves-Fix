@@ -628,10 +628,13 @@ write("paint/index.html", page({
   active: "",
   description: "Paint a Minecraft skin on a 3D model or on the flat skin file, right in your browser.",
   depth: 1,
-  body: `<div class="wrap"><article class="editor">
+  body: `<div class="wrap"><article class="editor painter-page">
 <div class="crumb"><a href="../">${ICON.home} Home</a></div>
+<div class="painter-intro">
+<span class="home-eyebrow">CREATE IN YOUR BROWSER</span>
 <h1>${ICON.brush} Skin Painter 3D</h1>
 <p>Paint your Minecraft skin pixel by pixel, on the 3D model or on the flat skin file. Everything happens in your browser; the skin is not uploaded anywhere. It works without 3D graphics (WebGL).</p>
+</div>
 
 <div class="ed paint">
   <div class="ed-col">
@@ -716,7 +719,8 @@ write("paint/index.html", page({
   </div>
 </div>
 
-<h2>How to use it</h2>
+<section class="editor-info-card painter-help">
+<h2>${ICON.info} How to use it</h2>
 <ol class="steps">
 <li>Load your skin, or start from Steve, Alex or a Dummy.</li>
 <li>Pick a colour and click the model to paint. Hold the mouse button and move to draw a line.</li>
@@ -725,6 +729,7 @@ write("paint/index.html", page({
 <li>Press "Save skin (.png)". Then, if you want blinking eyes, load that file in the <a href="../editor/">Skin eye editor</a>.</li>
 </ol>
 <p><small>Keys: B pen, E eraser, G fill, I take colour, L lighter, D darker, Ctrl+Z undo, Ctrl+Y redo.</small></p>
+</section>
 </article></div>
 <script src="../paint.js?v=${ver("paint.js")}"></script>
 <script src="../ui.js?v=${ver("ui.js")}"></script>`,

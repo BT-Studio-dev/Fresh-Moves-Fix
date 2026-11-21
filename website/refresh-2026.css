@@ -306,3 +306,25 @@ html[data-theme="nightsky"] { --fmf-popup: #252345; --fmf-popup-control: #171533
   #tab-appearance .themes .pv { height: 76px; }
   #tab-appearance .themes .nm { padding: 8px; }
 }
+
+/* Painter refresh: scoped to this page so the drawing logic and other tools stay unchanged. */
+.painter-intro { padding: clamp(20px, 3vw, 32px); background: var(--panel); border: 1px solid var(--line); border-radius: 18px; }
+.painter-intro h1 { margin: 10px 0; line-height: 1.2; }
+.painter-intro p { margin: 0; max-width: 760px; color: var(--muted); line-height: 1.6; }
+.painter-page .paint { margin-top: 22px; gap: 20px; }
+.painter-page .paint .ecard { padding: 20px; }
+.painter-page .paint .ehead { margin-bottom: 18px; }
+.painter-page .paint .ptools { gap: 8px; }
+.painter-page .paint .ptools button { min-height: 42px; font-weight: 600; }
+.painter-page .paint .pviews button { min-height: 34px; }
+.painter-page .paint .ptools button:focus-visible, .painter-page .paint .pviews button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.painter-page .paint .psws { gap: 6px; }
+.painter-page .paint .psw { width: 28px; height: 28px; }
+.painter-page .paint .elabel { margin-top: 18px; }
+.painter-page .paint canvas.p3d, .painter-page .paint canvas.p2d { border-radius: 12px; }
+.painter-page .painter-help { margin-top: 28px; }
+[data-theme="minecraft"] .painter-intro, [data-theme="minecraft"] .painter-page .paint canvas { border-radius: 3px; }
+@media (max-width: 560px) {
+  .painter-page .paint .ecard { padding: 16px; }
+  .painter-page .paint .ptools { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
