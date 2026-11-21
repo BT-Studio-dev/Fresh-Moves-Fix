@@ -165,6 +165,7 @@ ${body}
 <script src="${up}music.js?v=${ver("music.js")}"></script>
 <script src="${up}nav.js?v=${ver("nav.js")}"></script>
 <script src="${up}enhancements.js?v=${ver("enhancements.js")}"></script>
+<script src="${up}context-menu.js?v=${ver("context-menu.js")}"></script>
 <script src="${up}livesky.bundle.js?v=${ver("livesky.js")}"></script>
 </body>
 </html>
@@ -199,6 +200,7 @@ fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner-profile.png", "owner-skin.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "refresh-2026.css"), path.join(out, "refresh-2026.css"));
 fs.copyFileSync(path.join(here, "enhancements.js"), path.join(out, "enhancements.js"));
+fs.copyFileSync(path.join(here, "context-menu.js"), path.join(out, "context-menu.js"));
 await bundle({ entryPoints: [path.join(here, "livesky.js")], outfile: path.join(out, "livesky.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
