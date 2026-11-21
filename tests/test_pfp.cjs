@@ -2,8 +2,8 @@ const assert=require('assert'),fs=require('fs'),{JSDOM}=require('../website/node
 const html=fs.readFileSync('website/public/pfp/index.html','utf8');
 assert(fs.readFileSync('website/public/creations/index.html','utf8').includes('href="../pfp/"'));
 const dom=new JSDOM(html,{url:'https://example.com/pfp/',runScripts:'outside-only'}), w=dom.window;
-let draws=[],fills=0,clips=0,polygons=0,downloads=0,images=[],revoked=[];
-const ctx={createLinearGradient(){return {addColorStop(){}}},getImageData(){return {data:new Uint8ClampedArray(64*64*4).fill(255)}},moveTo(){},lineTo(){},closePath(){},fill(){polygons++},stroke(){},clearRect(){},save(){},restore(){},beginPath(){},arc(){},clip(){clips++},fillRect(){fills++},drawImage(...args){draws.push(args)}};
+let draws=[],fills=0,clips=0,polygons=0,downloads=0,images=[],revoked=[], fillFilters=[], state=[];
+const ctx={filter:'none',createLinearGradient(){return {addColorStop(){}}},getImageData(){return {data:new Uint8ClampedArray(64*64*4).fill(255)}},moveTo(){},lineTo(){},closePath(){},fill(){polygons++},stroke(){},clearRect(){},save(){state.push(this.filter)},restore(){this.filter=state.pop()},beginPath(){},arc(){},clip(){clips++},fillRect(){fills++;fillFilters.push(this.filter)},drawImage(...args){draws.push(args)}};
 w.HTMLCanvasElement.prototype.getContext=()=>ctx;w.HTMLCanvasElement.prototype.toDataURL=()=>{downloads++;return 'data:image/png;base64,AA=='};
 w.HTMLAnchorElement.prototype.click=function(){};w.Image=class{constructor(){images.push(this)}set src(v){this.url=v}};
 w.URL.createObjectURL=()=> 'blob:test';w.URL.revokeObjectURL=u=>revoked.push(u);
@@ -23,6 +23,7 @@ $('pfp-background').value='transparent';$('pfp-shape').value='circle';$('pfp-out
 $('pfp-size').value='50';change('pfp-size');assert.equal(draws.at(-1)[7],256);
 // Sky presets paint a background and celestial body; flat transparency still works.
 let startFills=fills;w.document.querySelector('[data-pfp-target="pfp-background"][data-value="day"]').click();assert.equal($('pfp-background').value,'day');assert(fills>=startFills+2);
+assert(!$('pfp-blur').checked);$('pfp-blur').checked=true;fillFilters=[];change('pfp-blur');assert(fillFilters.includes('blur(8px)'),'sky details are blurred');assert.equal(ctx.filter,'none','avatar is not blurred');$('pfp-blur').checked=false;change('pfp-blur');
 startFills=fills;w.document.querySelector('[data-pfp-target="pfp-background"][data-value="night"]').click();assert.equal($('pfp-background').value,'night');assert(fills>=startFills+4);
 w.document.querySelector('[data-pfp-preset="headshot"]').click();$('pfp-head-yaw').value='30';change('pfp-head-yaw');$('pfp-head-pitch').value='-25';change('pfp-head-pitch');assert.equal(opts.headYaw,30);assert.equal(opts.headPitch,-25);
 // Quick palette switches on solid color and stays in sync with custom/transparent controls.
