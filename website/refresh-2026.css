@@ -419,3 +419,19 @@ a.project-card:focus-visible { outline: 2px solid var(--accent); outline-offset:
 @media (min-width: 1051px) { .painter-page .workspace-layout { grid-template-columns: minmax(185px, .6fr) minmax(320px, 1.6fr) minmax(270px, 1fr); } }
 @media (max-width: 560px) { .painter-workspace-bar { align-items: flex-start; } .painter-workspace-bar > div { width: 100%; } }
 [data-theme="minecraft"] .painter-workspace-bar, [data-theme="minecraft"] .painter-workspace-bar nav a { border-radius: 3px; }
+
+/* Homepage hero refresh: keep the familiar icon left, with a clearer hierarchy. */
+.home-hero { gap: clamp(26px, 4vw, 48px); padding: clamp(24px, 4.5vw, 52px); border-radius: 20px; }
+.home-hero::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--accent); }
+.home-hero .hero-art { flex-direction: column; gap: 12px; }
+.home-hero .hero-art img { border: 1px solid var(--line); border-radius: 16px; }
+.hero-art-caption { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .14em; }
+.home-hero .hero-kicker { padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.home-hero h1.mc-title { margin: 20px 0; }
+.home-hero p.hero-lead { font-size: clamp(22px, 2.5vw, 30px); }
+.home-hero .hero-actions { gap: 10px; margin: 24px 0 20px; }
+.home-hero .hero-actions .btn { min-height: 48px; box-sizing: border-box; }
+.home-hero .hero-meta span, .home-hero .hero-meta a { padding: 5px 9px; border: 1px solid var(--line); border-radius: 8px; text-decoration: none; }
+.home-hero .hero-meta a:hover, .home-hero .hero-meta a:focus-visible { border-color: var(--accent); }
+[data-theme="minecraft"] .home-hero, [data-theme="minecraft"] .home-hero .hero-art img, [data-theme="minecraft"] .home-hero .hero-kicker, [data-theme="minecraft"] .home-hero .hero-meta span, [data-theme="minecraft"] .home-hero .hero-meta a { border-radius: 3px; }
+@media (max-width: 760px) { .home-hero .hero-art { align-items: flex-start; } .home-hero .hero-art img { width: 120px; } }
