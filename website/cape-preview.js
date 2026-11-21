@@ -18,6 +18,23 @@ export function mapUV(geometry, rect) {
   uv.needsUpdate = true;
 }
 
+// The back of the dummy is at z=-0.6, just in front of the cape's inner face.
+export function createDummy() {
+  const dummy = new THREE.Group();
+  const shades = [0x929995, 0x777f7b, 0x6c7470];
+  const materials = shades.map(color => new THREE.MeshBasicMaterial({ color }));
+  const geometries = [];
+  function part(w, h, d, x, y, z, shade) {
+    const geometry = new THREE.BoxGeometry(w, h, d); geometries.push(geometry);
+    const mesh = new THREE.Mesh(geometry, materials[shade]); mesh.position.set(x, y, z); dummy.add(mesh);
+  }
+  part(8, 8, 8, 0, 12, -4.6, 0); // head, top at 16
+  part(8, 12, 4, 0, 2, -2.6, 1); // shoulders at cape top, y=8
+  part(4, 12, 4, -6, 2, -2.6, 1); part(4, 12, 4, 6, 2, -2.6, 1);
+  part(4, 12, 4, -2, -10, -2.6, 2); part(4, 12, 4, 2, -10, -2.6, 2);
+  return { group: dummy, dispose() { geometries.forEach(g => g.dispose()); materials.forEach(m => m.dispose()); } };
+}
+
 export function createCapePreview(source) {
   const host = document.getElementById('cape-preview-view');
   const error = document.getElementById('cape-preview-error');
@@ -54,10 +71,13 @@ export function createCapePreview(source) {
   root.add(new THREE.Mesh(backingGeometry, backingMaterial));
   host.appendChild(renderer.domElement);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+  const dummy = createDummy(); root.add(dummy.group);
+  const dummyToggle = document.getElementById('cape-preview-dummy');
+  dummy.group.visible = dummyToggle.checked;
   const side = document.getElementById('cape-preview-side');
   const auto = document.getElementById('cape-preview-auto');
   const reset = document.getElementById('cape-preview-reset');
-  let yaw = -0.2, pitch = 0.1, distance = 36, frame = 0, lastTime = 0, disposed = false;
+  let yaw = -0.2, pitch = 0.1, distance = 58, frame = 0, lastTime = 0, disposed = false;
   const pointers = new Map(); let pinchDistance = 0;
   function render(time) {
     frame = 0;
@@ -75,8 +95,9 @@ export function createCapePreview(source) {
   }
   function schedule() { if (!disposed && !frame) frame = requestAnimationFrame(render); }
   function update() { texture.needsUpdate = true; schedule(); }
-  function resetView() { yaw = -0.2; pitch = 0.1; distance = 36; schedule(); }
+  function resetView() { yaw = -0.2; pitch = 0.1; distance = 58; schedule(); }
   function onSide() { resetView(); }
+  function onDummy() { dummy.group.visible = dummyToggle.checked; schedule(); }
   function onAuto() { lastTime = 0; schedule(); }
   function onVisibility() { lastTime = 0; if (!document.hidden) schedule(); }
   function onWheel(e) { e.preventDefault(); distance = Math.max(20, Math.min(80, distance * Math.exp(e.deltaY * .001))); schedule(); }
@@ -98,7 +119,7 @@ export function createCapePreview(source) {
   el.addEventListener('pointerdown', onDown); el.addEventListener('pointermove', onMove);
   el.addEventListener('pointerup', onUp); el.addEventListener('pointercancel', onUp);
   el.addEventListener('wheel', onWheel, { passive: false });
-  side.addEventListener('change', onSide); auto.addEventListener('change', onAuto); reset.addEventListener('click', resetView);
+  dummyToggle.addEventListener('change', onDummy); side.addEventListener('change', onSide); auto.addEventListener('change', onAuto); reset.addEventListener('click', resetView);
   document.addEventListener('visibilitychange', onVisibility); window.addEventListener('resize', schedule);
   const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(schedule) : null;
   if (observer) observer.observe(host);
@@ -107,9 +128,9 @@ export function createCapePreview(source) {
     disposed = true; if (frame) cancelAnimationFrame(frame);
     if (observer) observer.disconnect();
     document.removeEventListener('visibilitychange', onVisibility); window.removeEventListener('resize', schedule);
-    side.removeEventListener('change', onSide); auto.removeEventListener('change', onAuto); reset.removeEventListener('click', resetView);
+    dummyToggle.removeEventListener('change', onDummy); side.removeEventListener('change', onSide); auto.removeEventListener('change', onAuto); reset.removeEventListener('click', resetView);
     el.removeEventListener('pointerdown', onDown); el.removeEventListener('pointermove', onMove); el.removeEventListener('pointerup', onUp); el.removeEventListener('pointercancel', onUp); el.removeEventListener('wheel', onWheel);
-    geometries.forEach(g => g.dispose()); backingGeometry.dispose(); material.dispose(); backingMaterial.dispose(); texture.dispose(); renderer.dispose(); el.remove();
+    dummy.dispose(); geometries.forEach(g => g.dispose()); backingGeometry.dispose(); material.dispose(); backingMaterial.dispose(); texture.dispose(); renderer.dispose(); el.remove();
   }};
 }
 window.FMFCapePreview = { create: createCapePreview };
