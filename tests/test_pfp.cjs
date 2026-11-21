@@ -1,0 +1,22 @@
+const assert=require('assert'),fs=require('fs'),{JSDOM}=require('../website/node_modules/jsdom');
+const html=fs.readFileSync('website/public/pfp/index.html','utf8');
+assert(fs.readFileSync('website/public/creations/index.html','utf8').includes('href="../pfp/"'));
+const dom=new JSDOM(html,{url:'https://example.com/pfp/',runScripts:'outside-only'}), w=dom.window;
+let draws=[],fills=0,clips=0,downloads=0,images=[],revoked=[];
+const ctx={clearRect(){},save(){},restore(){},beginPath(){},arc(){},clip(){clips++},fillRect(){fills++},drawImage(...args){draws.push(args)}};
+w.HTMLCanvasElement.prototype.getContext=()=>ctx;w.HTMLCanvasElement.prototype.toDataURL=()=>{downloads++;return 'data:image/png;base64,AA=='};
+w.HTMLAnchorElement.prototype.click=function(){};w.Image=class{constructor(){images.push(this)}set src(v){this.url=v}};
+w.URL.createObjectURL=()=> 'blob:test';w.URL.revokeObjectURL=u=>revoked.push(u);
+w.eval(fs.readFileSync('website/pfp.js','utf8'));
+const $=id=>w.document.getElementById(id),change=id=>$(id).dispatchEvent(new w.Event('change'));
+assert($('pfp-download').disabled); images[0].width=64;images[0].height=64;images[0].onload();assert(!$('pfp-download').disabled);
+assert.equal(draws.length,2);assert.deepEqual(draws.map(x=>x.slice(1,5)),[[8,8,8,8],[40,8,8,8]]);
+$('pfp-background').value='transparent';$('pfp-shape').value='circle';$('pfp-outer').checked=false;draws=[];let f=fills;change('pfp-shape');assert.equal(fills,f);assert.equal(clips,1);assert.equal(draws.length,1);
+$('pfp-size').value='50';change('pfp-size');assert.equal(draws.at(-1)[7],256);
+$('pfp-download').click();assert.equal(downloads,1);
+const input=$('pfp-skin');function upload(name,type){Object.defineProperty(input,'files',{value:[{name,type}],configurable:true});change('pfp-skin');}
+upload('skin.png','image/png');images[1].width=64;images[1].height=32;images[1].onload();assert.match($('pfp-status').textContent,/Skin loaded/);assert.equal(revoked.length,1);
+upload('bad.png','image/png');images[2].width=50;images[2].height=50;images[2].onload();assert.match($('pfp-status').textContent,/64×64/);
+upload('oops.jpg','image/jpeg');assert.match($('pfp-status').textContent,/PNG/);assert.equal(images.length,3);
+upload('old.png','image/png');upload('new.png','image/png');images[4].width=64;images[4].height=64;images[4].onload();images[3].width=64;images[3].height=64;images[3].onload();assert.match($('pfp-status').textContent,/Skin loaded/);assert.equal(revoked.length,4);
+console.log('PFP face, layer, transparency, circle, download and validation passed');
