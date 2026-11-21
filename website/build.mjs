@@ -698,9 +698,10 @@ write("paint/index.html", page({
     <div class="painter-layers">
       <h4>Part visibility</h4>
       <p><small>Show or hide each part in the 3D preview. Hidden parts are dimmed in 2D but are not erased from your skin.</small></p>
-      <table><thead><tr><th scope="col">Part</th><th scope="col"><label class="layer-master">Base <input type="checkbox" data-layer-all="0" aria-label="Show all base layer parts" checked></label></th><th scope="col"><label class="layer-master">Outer <input type="checkbox" data-layer-all="1" aria-label="Show all outer layer parts" checked></label></th></tr></thead><tbody>
+      <div class="painter-visibility-layout"><table><thead><tr><th scope="col">Part</th><th scope="col"><label class="layer-master">Base <input type="checkbox" data-layer-all="0" aria-label="Show all base layer parts" checked></label></th><th scope="col"><label class="layer-master">Outer <input type="checkbox" data-layer-all="1" aria-label="Show all outer layer parts" checked></label></th></tr></thead><tbody>
       ${[["head","Head"],["body","Body"],["la","Left arm"],["ra","Right arm"],["ll","Left leg"],["rl","Right leg"]].map(([id,name]) => `<tr><th scope="row">${name}</th><td><label class="layer-eye"><input type="checkbox" data-part="${id}" data-layer="0" aria-label="Show ${name} base layer" checked>${ICON.eye}</label></td><td><label class="layer-eye outer"><input type="checkbox" data-part="${id}" data-layer="1" aria-label="Show ${name} outer layer" checked>${ICON.eye}</label></td></tr>`).join("")}
       </tbody></table>
+      <div id="pparts" class="painter-part-groups" role="group" aria-label="Show body parts"><b>Show</b><label><input type="checkbox" value="head" checked> Head</label><label><input type="checkbox" value="body" checked> Body</label><label><input type="checkbox" value="arms" checked> Arms</label><label><input type="checkbox" value="legs" checked> Legs</label></div></div>
     </div>
   </section>
   <section class="panel ecard" id="painter-file">
@@ -748,7 +749,6 @@ write("paint/index.html", page({
     </div>
     <p class="prow"><label>Cape <select id="pcape"><option value="none">No cape</option><option value="red">Red and gold</option><option value="leaf">Leaf</option><option value="blossom">Blossom</option><option value="ice">Ice</option><option value="sunset">Sunset</option><option value="checker">Checker</option><option value="night">Night sky</option><option value="star">Gold cross</option><option value="green">Fresh green</option><option value="gem">Blue gem</option><option value="flowers">Pink flowers</option><option value="smile">Green smile</option><option value="file">Your own cape file...</option></select></label>
       <input type="file" id="pcapefile" accept="image/png" hidden> <button type="button" class="btn ghost" id="pcapesave" disabled>Save cape (.png)</button></p>
-    <p class="prow" id="pparts">Show: <label><input type="checkbox" value="head" checked> Head</label> <label><input type="checkbox" value="body" checked> Body</label> <label><input type="checkbox" value="arms" checked> Arms</label> <label><input type="checkbox" value="legs" checked> Legs</label></p>
     </div>
   </section>
   </div>

@@ -682,3 +682,10 @@ html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936;
 .cape-preview .backdrop-controls { margin-bottom: 12px; }
 @media (max-width: 1050px) { .cape-preview-view { height: 340px; } }
 @media (max-width: 420px) { .cape-preview-header { flex-wrap: wrap; } .cape-preview-view { height: 300px; } }
+/* Keep the grouped visibility switches beside the individual layer controls. */
+.painter-visibility-layout { display: flex; align-items: flex-start; gap: 12px; }
+.painter-visibility-layout table { flex: 1 1 auto; min-width: 0; }
+.painter-part-groups { display: flex; flex: 0 0 auto; flex-direction: column; gap: 10px; font-size: 12px; padding: 7px 0; }
+.painter-part-groups label { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+.painter-part-groups input { margin: 0; }
+@media (max-width: 360px) { .painter-visibility-layout { flex-wrap: wrap; } .painter-part-groups { flex-direction: row; flex-wrap: wrap; } }
