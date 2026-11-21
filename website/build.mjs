@@ -1115,7 +1115,7 @@ write("index.html", page({
       <a class="btn" href="#download">${ICON.down} Choose a download</a>
       <a class="btn ghost" href="editor/">${ICON.eye} Open skin eye editor</a>
     </div>
-    <div class="hero-meta"><span>${ICON.tag} ${esc(version)}</span><span>${ICON.person} Owner: lie_kg</span><a href="guides/">${ICON.book} Eye guides</a></div>
+    <div class="hero-meta"><span>${ICON.tag} ${esc(version)}</span><a href="guides/">${ICON.book} Eye guides</a></div>
   </div>
 </div>
 
