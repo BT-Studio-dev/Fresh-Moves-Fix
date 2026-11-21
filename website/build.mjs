@@ -279,11 +279,23 @@ ${cards(eyes)}
 </article></div>`,
 }));
 
+// Shared preview-only backdrop controls for the two skin editors.
+const backdropControls = `<div class="backdrop-controls" role="group" aria-label="Preview backdrop">
+  <span>Backdrop</span>
+  <button type="button" data-backdrop="default" aria-label="Theme backdrop" title="Theme backdrop" aria-pressed="true"></button>
+  <button type="button" data-backdrop="#101714" style="--swatch:#101714" aria-label="Dark backdrop" title="Dark backdrop" aria-pressed="false"></button>
+  <button type="button" data-backdrop="#303844" style="--swatch:#303844" aria-label="Slate backdrop" title="Slate backdrop" aria-pressed="false"></button>
+  <button type="button" data-backdrop="#e1e7e3" style="--swatch:#e1e7e3" aria-label="Light backdrop" title="Light backdrop" aria-pressed="false"></button>
+  <button type="button" data-backdrop="#7fb8ff" style="--swatch:#7fb8ff" aria-label="Blue backdrop" title="Blue backdrop" aria-pressed="false"></button>
+  <label class="backdrop-custom">Custom <input type="color" data-backdrop-custom value="#7fb8ff" aria-label="Custom backdrop colour"></label>
+</div>`;
+
 // ---------- skin eye editor ----------
 // the two default skins are embedded in the page, so the editor needs no extra requests
 const skinData = (p) => "data:image/png;base64," + fs.readFileSync(path.join(root, "assets/minecraft/textures/entity/player", p)).toString("base64");
 fs.copyFileSync(path.join(here, "editor.js"), path.join(out, "editor.js"));
 fs.copyFileSync(path.join(here, "paint.js"), path.join(out, "paint.js"));
+fs.copyFileSync(path.join(here, "backdrop.js"), path.join(out, "backdrop.js"));
 fs.copyFileSync(path.join(here, "player.js"), path.join(out, "player.js"));
 fs.copyFileSync(path.join(here, "studio.js"), path.join(out, "studio.js"));
 fs.copyFileSync(path.join(here, "ui.js"), path.join(out, "ui.js"));
@@ -403,6 +415,7 @@ write("editor/index.html", page({
   <div class="ed-col workspace-preview">
   <section class="panel ecard">
     <h3 class="ehead"><span class="tool-ic">${ICON.box}</span><span><b>3D preview</b><small>Drag to turn, scroll to zoom</small></span></h3>
+    ${backdropControls}
     <div id="wrap3d">
       <canvas id="view3d" width="420" height="520"></canvas>
       <p class="row ctl">
@@ -488,7 +501,8 @@ write("editor/index.html", page({
 </article></div>
 <script src="../skinview3d.bundle.js"></script>
 <script src="../player.js?v=${ver("player.js")}"></script>
-<script src="../editor.js?v=${ver("editor.js")}"></script>`,
+<script src="../editor.js?v=${ver("editor.js")}"></script>
+<script src="../backdrop.js?v=${ver("backdrop.js")}"></script>`,
 }));
 
 // ---------- settings ----------
@@ -706,6 +720,7 @@ write("paint/index.html", page({
   <div class="ed-col workspace-preview">
   <section class="panel ecard">
     <h3 class="ehead"><span><b>3D model</b><small>Click the model to paint; right click paints with the second colour. Drag next to the model to turn it. Mouse wheel = zoom.</small></span></h3>
+    ${backdropControls}
     <canvas id="p3d" class="p3d" width="460" height="560"></canvas>
     <div class="pbar" role="group" aria-label="3D model buttons">
       <button type="button" id="pbsneak" data-tip="Sneak" aria-label="Sneak" aria-pressed="false">${svg('<circle cx="9" cy="5" r="2.2"/><path d="M3 21v-2a5 5 0 0 1 5-5h2a5 5 0 0 1 3 1"/><path d="M18 11v9"/><path d="M14.5 17l3.5 3.5 3.5-3.5"/>')}</button>
@@ -743,7 +758,8 @@ write("paint/index.html", page({
 </section>
 </article></div>
 <script src="../paint.js?v=${ver("paint.js")}"></script>
-<script src="../ui.js?v=${ver("ui.js")}"></script>`,
+<script src="../ui.js?v=${ver("ui.js")}"></script>
+<script src="../backdrop.js?v=${ver("backdrop.js")}"></script>`,
 }));
 // ---- shared parts of the "3D Model" and "Animation" pages (studio.js) ----
 const MOVE_OPTS = [["idle", "Standing"], ["walk", "Walking"], ["run", "Running"], ["wave", "Waving"], ["cheer", "Cheer"], ["dance", "Dance"], ["jacks", "Jumping jacks"], ["clap", "Clap"], ["dab", "Dab"], ["sit", "Sit"], ["look", "Look around"], ["tpose", "T-pose"]]

@@ -392,3 +392,13 @@ a.project-card:focus-visible { outline: 2px solid var(--accent); outline-offset:
   .workspace-layout { grid-template-columns: minmax(0, 1fr); }
   .workspace-layout > .workspace-preview { grid-column: auto; }
 }
+
+/* Preview backdrop swatches, shared by the painter and eye editor. */
+.backdrop-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 14px; }
+.backdrop-controls > span { color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.backdrop-controls button { width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 7px; background: var(--swatch, var(--panel)); cursor: pointer; }
+.backdrop-controls button[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: 2px; }
+.backdrop-controls button:focus-visible, .backdrop-custom:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.backdrop-custom { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; }
+.backdrop-custom input[type="color"] { width: 30px; height: 30px; padding: 0; }
+.workspace-preview #view3d, .workspace-preview canvas.p3d { background: var(--editor-backdrop, var(--bg)); }
