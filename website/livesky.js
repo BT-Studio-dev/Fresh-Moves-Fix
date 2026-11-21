@@ -3,13 +3,23 @@ import SunCalc from 'suncalc';
 (function () {
   'use strict';
   if (window.__fmfLiveSkyStop) window.__fmfLiveSkyStop();
-  const root = document.documentElement, key = 'fmf-live-sky-location-v1';
+  const root = document.documentElement, key = 'fmf-live-sky-location-v1', speedKey = 'fmf-live-sky-speed-v1';
   const sky = document.createElement('div'); sky.className = 'fmf-live-sky'; sky.setAttribute('aria-hidden', 'true');
   sky.innerHTML = '<div class="fmf-live-sun"></div><svg class="fmf-live-moon" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="#5d647f"/><path fill="#f6f2d9"></path></svg>';
   document.body.insertBefore(sky, document.body.firstChild);
   const path = sky.querySelector('path'), sun = sky.querySelector('.fmf-live-sun'), moon = sky.querySelector('.fmf-live-moon');
   const useButton = document.getElementById('live-sky-use-location'), forgetButton = document.getElementById('live-sky-forget-location'), status = document.getElementById('live-sky-location-status');
-  let timer = null, stopped = false, requestId = 0, location = null;
+  const speedControl = document.getElementById('live-sky-speed');
+  let timer = null, stopped = false, requestId = 0, location = null, fastStart = null;
+  try { const v = Number(localStorage.getItem(speedKey)); if (Number.isFinite(v) && v > 0) fastStart = v; } catch (e) {}
+  if (speedControl) speedControl.value = fastStart === null ? 'real' : 'fast';
+  function skyTime() { const now = Date.now(); return new Date(fastStart === null ? now : fastStart + (now - fastStart) * 720); }
+  function onSpeed() {
+    fastStart = speedControl.value === 'fast' ? Date.now() : null;
+    try { if (fastStart === null) localStorage.removeItem(speedKey); else localStorage.setItem(speedKey, String(fastStart)); } catch (e) {}
+    if (timer) { clearInterval(timer); timer = null; } update();
+  }
+  if (speedControl) speedControl.addEventListener('change', onSpeed);
   function validLocation(value) { return value && Number.isFinite(value.lat) && Number.isFinite(value.lon) && Math.abs(value.lat) <= 90 && Math.abs(value.lon) <= 180; }
   try { const saved = JSON.parse(localStorage.getItem(key) || 'null'); if (validLocation(saved)) location = saved; } catch (e) {}
   function phase(date) { return SunCalc.getMoonIllumination(date).phase; }
@@ -36,8 +46,8 @@ import SunCalc from 'suncalc';
   function update() {
     const enabled = root.getAttribute('data-theme') === 'livesky' && root.getAttribute('data-background') !== 'off';
     sky.hidden = !enabled;
-    if (!enabled) { root.removeAttribute('data-live-sky'); if (timer) { clearInterval(timer); timer = null; } return; }
-    const now = new Date(); let stage;
+    if (!enabled || document.hidden) { if (!enabled) root.removeAttribute('data-live-sky'); if (timer) { clearInterval(timer); timer = null; } return; }
+    const now = skyTime(); let stage;
     if (location) {
       const result = calculate(now, location.lat, location.lon); stage = result.stage;
       place(sun, result.sun); place(moon, result.moon);
@@ -48,11 +58,19 @@ import SunCalc from 'suncalc';
       const h = now.getHours() + now.getMinutes() / 60;
       stage = h >= 7 && h < 17 ? 'day' : h >= 5 && h < 7 ? 'dawn' : h >= 17 && h < 19 ? 'dusk' : 'night';
       root.setAttribute('data-live-sun', stage === 'night' ? 'off' : 'on'); root.setAttribute('data-live-moon', stage === 'night' ? 'on' : 'off');
-      sun.style.left = moon.style.left = ''; sun.style.right = moon.style.right = ''; sun.style.top = moon.style.top = '';
+      if (fastStart !== null) {
+        const sunProgress = (h - 5) / 14, moonProgress = ((h + 5) % 24) / 10;
+        function clockPosition(element, progress) {
+          const t = Math.max(0, Math.min(1, progress));
+          element.style.left = (5 + t * 82).toFixed(2) + '%'; element.style.right = 'auto';
+          element.style.top = (82 - Math.sin(t * Math.PI) * 55).toFixed(2) + '%';
+        }
+        clockPosition(sun, sunProgress); clockPosition(moon, moonProgress);
+      } else { sun.style.left = moon.style.left = ''; sun.style.right = moon.style.right = ''; sun.style.top = moon.style.top = ''; }
       path.setAttribute('d', moonPath(phase(now)));
     }
     root.setAttribute('data-live-sky', stage);
-    if (!timer) timer = setInterval(update, 60000);
+    if (!timer) timer = setInterval(update, fastStart === null ? 60000 : 1000);
   }
   function onUseLocation() {
     if (!navigator.geolocation) { message('Location is unavailable in this browser. Live Sky will use your local clock.'); return; }
@@ -73,7 +91,7 @@ import SunCalc from 'suncalc';
   const observer = new MutationObserver(update);
   observer.observe(root, { attributes: true, attributeFilter: ['data-theme', 'data-background'] });
   document.addEventListener('visibilitychange', update);
-  window.__fmfLiveSkyStop = function () { stopped = true; ++requestId; observer.disconnect(); document.removeEventListener('visibilitychange', update); if (timer) clearInterval(timer); if (useButton) useButton.removeEventListener('click', onUseLocation); if (forgetButton) forgetButton.removeEventListener('click', onForgetLocation); sky.remove(); };
+  window.__fmfLiveSkyStop = function () { stopped = true; ++requestId; observer.disconnect(); document.removeEventListener('visibilitychange', update); if (timer) clearInterval(timer); if (useButton) useButton.removeEventListener('click', onUseLocation); if (forgetButton) forgetButton.removeEventListener('click', onForgetLocation); if (speedControl) speedControl.removeEventListener('change', onSpeed); sky.remove(); };
   window.FMFLiveSky = { phase, moonPath, calculate };
   update();
 })();

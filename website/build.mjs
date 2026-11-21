@@ -965,6 +965,9 @@ write("settings/index.html", page({
       <b>Live Sky location</b><p>Allow location for your real local sun and moon positions. Your approximate coordinates are saved only in this browser and are not sent to our server. The background is an illustration, not live weather.</p>
       <div><button type="button" class="btn small" id="live-sky-use-location">Use my location</button> <button type="button" class="btn small ghost" id="live-sky-forget-location">Forget location</button></div>
       <p id="live-sky-location-status" role="status" aria-live="polite"></p>
+      <label for="live-sky-speed"><b>Sky speed</b></label>
+      <select id="live-sky-speed"><option value="real">Real time</option><option value="fast">Fast cycle (one day in 2 minutes)</option></select>
+      <p>Fast cycle is a time-lapse, not the real current sky. Saved in this browser.</p>
     </div>
     <div class="fmf-blur-setting">
       <label for="settings-glass-blur"><span><b>Glass card blur</b><small>Turn the frosted-glass blur on or off. This only affects the Glass theme.</small></span><input type="checkbox" id="settings-glass-blur" checked></label>
