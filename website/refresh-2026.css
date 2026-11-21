@@ -372,3 +372,5 @@ a.project-card:hover, a.project-card:focus-visible { border-color: var(--accent)
 a.project-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .project-soon > span:last-child { color: var(--muted); }
 [data-theme="minecraft"] .project-card, [data-theme="minecraft"] .project-card img, [data-theme="minecraft"] .project-icon { border-radius: 3px; }
+.owner-profile-model { display: block; width: 180px; height: 180px; max-width: 100%; pointer-events: none; }
+.owner-profile [hidden] { display: none; }

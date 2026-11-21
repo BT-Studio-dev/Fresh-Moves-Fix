@@ -192,7 +192,7 @@ fs.writeFileSync(path.join(out, "tableau.json"), JSON.stringify({
 }));
 for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png", "icon-painted.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
-for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner-profile.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
+for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner-profile.png", "owner-skin.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "refresh-2026.css"), path.join(out, "refresh-2026.css"));
 fs.copyFileSync(path.join(here, "enhancements.js"), path.join(out, "enhancements.js"));
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
@@ -1136,7 +1136,8 @@ write("index.html", page({
 </div>
 
 <aside class="owner-profile" aria-label="Owner profile">
-  <img class="owner-profile-image" src="owner-profile.png?v=${ver("owner-profile.png")}" alt="Minecraft skin for lie_kg" width="160" height="320">
+  <img id="owner-fallback" class="owner-profile-image" src="owner-profile.png?v=${ver("owner-profile.png")}" alt="Minecraft skin for lie_kg" width="160" height="320">
+  <canvas id="owner-model" class="owner-profile-model" width="240" height="240" role="img" aria-label="lie_kg's Minecraft skin in a pose" hidden></canvas>
   <span class="home-eyebrow">OWNER PROFILE</span>
   <h2>lie_kg</h2>
   <p>Owner of Fresh Moves Fix</p>
@@ -1257,7 +1258,24 @@ ${versionLinks}
     <a class="card install-link" href="guides/fix-black-eyes/"><span class="install-icon">${ICON.eye}</span><span><b>Fix Black Eyes</b><small>Open the troubleshooting guide</small></span><span aria-hidden="true">${ICON.right}</span></a>
   </div>
 </section>
-</div>`,
+</div>
+<script src="player.js?v=${ver("player.js")}"></script>
+<script>(function(){
+  var canvas=document.getElementById("owner-model"), fallback=document.getElementById("owner-fallback");
+  if(!canvas || !fallback || !window.FMFPlayer) return;
+  var image=new Image();
+  image.onload=function(){
+    try {
+      var source=document.createElement("canvas"); source.width=64; source.height=64;
+      source.getContext("2d").drawImage(image,0,0);
+      var viewer=new window.FMFPlayer.SoftViewer(canvas);
+      viewer.pose="cheer"; viewer.zoom=1.05; viewer.view(-0.45,0.12,0);
+      viewer.loadSkin(source,{model:"wide"}); viewer.render(); viewer.dispose();
+      canvas.hidden=false; fallback.hidden=true;
+    } catch(e) { /* Keep the static fallback. */ }
+  };
+  image.src="owner-skin.png?v=${ver("owner-skin.png")}";
+})()</script>`,
 }));
 
 console.log(`Built website: ${docs.length} guides, ${versions.length} Minecraft versions, release v${version}`);
