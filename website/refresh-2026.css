@@ -610,3 +610,19 @@ a.eyes-download-card:focus-visible { outline: 2px solid var(--accent); outline-o
 .cape-gradient-colour { display: block; margin-top: 12px; }
 @media (max-width: 1050px) { .cape-grid-viewport { flex: none; } }
 .cape-player-options [hidden], .cape-preview[hidden] { display: none !important; }
+
+/* Clear, consistent cape controls instead of tiny browser-default fields. */
+.cape-inspector select, .cape-preview-controls select, .cape-player-options select,
+.cape-player-options input[type="text"], .cape-inspector .pk-hex {
+  min-height: 38px; box-sizing: border-box; border: 1px solid var(--line);
+  border-radius: 6px; padding: 8px; background: var(--bg); color: var(--text); font: inherit;
+}
+.cape-inspector #cape-size { display: block; width: 100%; margin: 6px 0 12px; }
+.cape-inspector .cape-gradient-colour { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.cape-inspector #cape-gradient-color { width: 48px; height: 38px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); cursor: pointer; padding: 3px; }
+.cape-inspector .pk-row { gap: 8px; }
+.cape-inspector .pk-hex { min-width: 0; width: 100%; }
+.cape-player-options input[type="file"], .cape-upload input { color: var(--muted); max-width: 100%; }
+.cape-player-options input[type="file"]::file-selector-button, .cape-upload input::file-selector-button { color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 7px 10px; cursor: pointer; }
+.cape-player-options input[type="text"] { width: min(100%, 170px); }
+.cape-player-options label { gap: 8px; }

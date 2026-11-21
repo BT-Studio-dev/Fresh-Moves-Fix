@@ -191,8 +191,14 @@
       if (readProjects().length) return;
       ctx.fillStyle = '#146c58'; ctx.fillRect(0, 0, 22, 17);
       ctx.fillStyle = '#35c980'; ctx.fillRect(1, 1, 10, 16); ctx.fillRect(12, 1, 10, 16);
+      // Elytra UVs occupy the separate x=22..45 region, so an untouched starter
+      // is visible on wings as well as on both cape faces.
+      ctx.fillStyle = '#146c58'; ctx.fillRect(22, 0, 24, 22);
+      ctx.fillStyle = '#35c980'; ctx.fillRect(24, 2, 10, 20); ctx.fillRect(36, 2, 10, 20);
       ctx.fillStyle = '#b6f4ce';
-      [[5, 4, 2, 2], [4, 6, 4, 2], [3, 8, 6, 2], [4, 10, 4, 2], [5, 12, 2, 2],
+      [[28, 6, 2, 2], [27, 8, 4, 2], [26, 10, 6, 2], [27, 12, 4, 2], [28, 14, 2, 2],
+       [40, 6, 2, 2], [39, 8, 4, 2], [38, 10, 6, 2], [39, 12, 4, 2], [40, 14, 2, 2],
+       [5, 4, 2, 2], [4, 6, 4, 2], [3, 8, 6, 2], [4, 10, 4, 2], [5, 12, 2, 2],
        [16, 4, 2, 2], [15, 6, 4, 2], [14, 8, 6, 2], [15, 10, 4, 2], [16, 12, 2, 2]].forEach(function (r) { ctx.fillRect(r[0], r[1], r[2], r[3]); });
     } catch (e) { /* If storage is unavailable, do not assume projects are absent. */ }
   }

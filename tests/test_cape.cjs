@@ -9,8 +9,8 @@ function element(id) {
     classList: { toggle() {} }, addEventListener(type, fn) { this.events[type] = fn; },
     style: {}, setAttribute() {}, appendChild() {}, setPointerCapture() {}, getBoundingClientRect() { return { left: 0, top: 0, width: 640, height: 320 }; } };
 }
-let fills = 0, clears = [];
-const context = { clearRect(...args){clears.push(args)}, drawImage(){}, fillRect(){fills++}, beginPath(){}, moveTo(){}, lineTo(){}, stroke(){}, strokeRect(){}, getImageData(){return {data:new Uint8ClampedArray(64*32*4)}}, putImageData(){} };
+let fills = 0, clears = [], filledRects = [];
+const context = { clearRect(...args){clears.push(args)}, drawImage(){}, fillRect(...r){fills++; filledRects.push(r)}, beginPath(){}, moveTo(){}, lineTo(){}, stroke(){}, strokeRect(){}, getImageData(){return {data:new Uint8ClampedArray(64*32*4)}}, putImageData(){} };
 element('cape-canvas').getContext = () => context;
 element('cape-grid').checked = true; element('cape-template').checked = true; element('cape-size').value = '1';
 element('cape-name').value = 'My Cape'; element('cape-description').value = 'A starry design';
@@ -30,6 +30,7 @@ vm.runInNewContext(fs.readFileSync('website/cape.js','utf8'), sandbox);
 (async()=>{
   assert(sourceCanvas && sourceCanvas !== element('cape-canvas'), 'preview receives the original texture canvas');
   assert(fills > 0, 'starter painted when no projects exist');
+  assert(filledRects.some(r => r.join(',') === '24,2,10,20'), 'starter includes the elytra UV area');
   const initial = previewUpdates;
   element('cape-canvas').events.pointerdown({button:0, pointerId:1, clientX:20, clientY:20});
   element('cape-canvas').events.pointerup();
