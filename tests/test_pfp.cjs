@@ -2,6 +2,7 @@ const assert=require('assert'),fs=require('fs'),{JSDOM}=require('../website/node
 const html=fs.readFileSync('website/public/pfp/index.html','utf8');
 assert(fs.readFileSync('website/public/creations/index.html','utf8').includes('href="../pfp/"'));
 const dom=new JSDOM(html,{url:'https://example.com/pfp/',runScripts:'outside-only'}), w=dom.window;
+const layout=w.document.querySelector('.pfp-page .render-layout');assert(layout.firstElementChild.classList.contains('pfp-workspace'));assert.equal(layout.querySelectorAll('.pfp-control-group').length,6);assert(layout.querySelector('.pfp-control-grid').contains(w.document.getElementById('pfp-download')));
 let draws=[],fills=0,clips=0,polygons=0,downloads=0,images=[],revoked=[], fillFilters=[], state=[];
 const ctx={filter:'none',createLinearGradient(){return {addColorStop(){}}},getImageData(){return {data:new Uint8ClampedArray(64*64*4).fill(255)}},moveTo(){},lineTo(){},closePath(){},fill(){polygons++},stroke(){},clearRect(){},save(){state.push(this.filter)},restore(){this.filter=state.pop()},beginPath(){},arc(){},clip(){clips++},fillRect(){fills++;fillFilters.push(this.filter)},drawImage(...args){draws.push(args)}};
 w.HTMLCanvasElement.prototype.getContext=()=>ctx;w.HTMLCanvasElement.prototype.toDataURL=()=>{downloads++;return 'data:image/png;base64,AA=='};

@@ -1130,35 +1130,7 @@ write("pfp/index.html", page({
   title: "Minecraft PFP Maker - Fresh Moves Fix", active: "creations", depth: 1,
   description: "Make a Minecraft 3D skin profile picture without WebGL.",
   body: `<div class="wrap render-page pfp-page"><h1>Minecraft PFP Maker</h1><p>Make a 3D avatar from your skin. No WebGL or account needed.</p>
-  <div class="render-layout"><section class="card render-controls"><h2>Customize</h2>
-  <label class="pfp-upload"><span><b>Upload skin PNG</b><small>Choose a skin from your device</small></span><input id="pfp-skin" type="file" accept="image/png,.png"></label><p id="pfp-status" role="status" aria-live="polite">Loading the example skin.</p>
-  <div class="pfp-colour-panel"><h3>Background colour</h3><p>Choose a colour for the PFP background.</p>
-    <div class="ed pfp-colour-picker"><input type="color" id="pfp-color" data-inline-picker value="#486d92" aria-label="Background colour"></div>
-    <label>Background colour code <input type="text" id="pfp-bg-hex" value="#486d92" maxlength="7" spellcheck="false" aria-label="Background colour code"></label>
-  </div>
-  <h3>Choose a preset</h3><div class="pfp-presets" aria-label="Profile picture presets">
-    <button type="button" data-pfp-preset="headshot" aria-pressed="true"><b>Headshot</b><small>3D portrait</small></button>
-    <button type="button" data-pfp-preset="head" aria-pressed="false"><b>Head</b><small>3D close-up</small></button>
-    <button type="button" data-pfp-preset="full" aria-pressed="false"><b>Full body</b><small>3D standing</small></button>
-    <button type="button" data-pfp-preset="wave" aria-pressed="false"><b>Wave</b><small>3D pose</small></button>
-    <button type="button" data-pfp-preset="flat" aria-pressed="false"><b>Pixel face</b><small>2D classic</small></button>
-  </div><select id="pfp-preset" hidden aria-label="Selected preset"><option value="headshot">3D headshot</option><option value="head">3D head</option><option value="full">3D full body</option><option value="wave">3D wave</option><option value="flat">2D face</option></select>
-  <h3>Arm size</h3><div class="pfp-presets" role="group" aria-label="Arm size"><button type="button" data-pfp-target="pfp-model" data-value="classic" aria-pressed="true"><b>Classic</b><small>4 pixels</small></button><button type="button" data-pfp-target="pfp-model" data-value="slim" aria-pressed="false"><b>Slim</b><small>3 pixels</small></button></div>
-  <select id="pfp-model" hidden aria-label="Selected arm size"><option value="classic">Classic</option><option value="slim">Slim</option></select>
-  <label>Head look left / right <input id="pfp-head-yaw" type="range" min="-60" max="60" value="0"></label>
-  <label>Head look up / down <input id="pfp-head-pitch" type="range" min="-45" max="45" value="0"><small>Left is up, right is down. Applies to 3D presets.</small></label>
-  <label>Camera angle <input id="pfp-yaw" type="range" min="-180" max="180" value="25"></label>
-  <label>Camera height <input id="pfp-pitch" type="range" min="-45" max="45" value="10"></label>
-  <h3>Background</h3><div class="pfp-presets" role="group" aria-label="Background"><button type="button" data-pfp-target="pfp-background" data-value="color" aria-pressed="true"><b>Color</b><small>Solid background</small></button><button type="button" data-pfp-target="pfp-background" data-value="transparent" aria-pressed="false"><b>Transparent</b><small>No background</small></button><button type="button" data-pfp-target="pfp-background" data-value="day" aria-pressed="false"><b>Day sky</b><small>Sun</small></button><button type="button" data-pfp-target="pfp-background" data-value="night" aria-pressed="false"><b>Night sky</b><small>Moon and stars</small></button></div>
-  <select id="pfp-background" hidden aria-label="Selected background"><option value="color">Color</option><option value="transparent">Transparent</option><option value="day">Day sky</option><option value="night">Night sky</option></select>
-  <label class="pfp-layer"><span><b>Blur sky details</b><small>Softens the sun, moon and stars; the avatar stays sharp. Off by default.</small></span><input id="pfp-blur" type="checkbox"></label><p id="pfp-blur-status" role="status" hidden></p>
-  <h3>Shape</h3><div class="pfp-presets" role="group" aria-label="Shape"><button type="button" data-pfp-target="pfp-shape" data-value="square" aria-pressed="true"><b>Square</b></button><button type="button" data-pfp-target="pfp-shape" data-value="circle" aria-pressed="false"><b>Circle</b></button></div>
-  <select id="pfp-shape" hidden aria-label="Selected shape"><option value="square">Square</option><option value="circle">Circle</option></select>
-  <label>Zoom <input id="pfp-size" type="range" min="50" max="100" value="80"></label>
-  <label class="pfp-layer"><span><b>Show outer skin layer</b><small>Include hats and clothing</small></span><input id="pfp-outer" type="checkbox" checked></label>
-  <button class="btn" id="pfp-download" type="button" disabled>Download PNG</button>
-  <p>Supports 64×64 and classic 64×32 PNG skins. Your skin stays in your browser. Output: 512×512.</p></section>
-  <div class="pfp-workspace"><section class="card render-preview"><h2>Preview</h2><p class="pfp-preview-help">In 3D, drag to rotate the camera or right-drag to turn the head. Scroll to zoom. The sliders also work.</p><canvas id="pfp-canvas" width="512" height="512" aria-label="Profile picture preview"></canvas>
+  <div class="render-layout">  <div class="pfp-workspace"><section class="card render-preview"><h2>Preview</h2><p class="pfp-preview-help">In 3D, drag to rotate the camera or right-drag to turn the head. Scroll to zoom. The sliders also work.</p><canvas id="pfp-canvas" width="512" height="512" aria-label="Profile picture preview"></canvas>
   <div class="pfp-quick-bar" role="group" aria-label="Quick preview controls"><span class="pfp-quick-label">Background</span>
     <button type="button" class="pfp-swatch" data-pfp-color="#ff5157" style="--swatch:#ff5157" aria-label="Red background" aria-pressed="false"></button>
     <button type="button" class="pfp-swatch" data-pfp-color="#27c96d" style="--swatch:#27c96d" aria-label="Green background" aria-pressed="false"></button>
@@ -1171,7 +1143,35 @@ write("pfp/index.html", page({
     <button type="button" id="pfp-quick-3d" aria-pressed="true" title="Switch between 3D and 2D">3D</button>
   </div></section>
 
-  </div></div></div>
+  </div>
+  <section class="card render-controls"><h2>Customize</h2><div class="pfp-control-grid"><div class="pfp-control-group">
+  <label class="pfp-upload"><span><b>Upload skin PNG</b><small>Choose a skin from your device</small></span><input id="pfp-skin" type="file" accept="image/png,.png"></label><p id="pfp-status" role="status" aria-live="polite">Loading the example skin.</p>
+  </div><div class="pfp-colour-panel pfp-control-group"><h3>Background colour</h3><p>Choose a colour for the PFP background.</p>
+    <div class="ed pfp-colour-picker"><input type="color" id="pfp-color" data-inline-picker value="#486d92" aria-label="Background colour"></div>
+    <label>Background colour code <input type="text" id="pfp-bg-hex" value="#486d92" maxlength="7" spellcheck="false" aria-label="Background colour code"></label>
+  </div>
+  <div class="pfp-control-group"><h3>Choose a preset</h3><div class="pfp-presets" aria-label="Profile picture presets">
+    <button type="button" data-pfp-preset="headshot" aria-pressed="true"><b>Headshot</b><small>3D portrait</small></button>
+    <button type="button" data-pfp-preset="head" aria-pressed="false"><b>Head</b><small>3D close-up</small></button>
+    <button type="button" data-pfp-preset="full" aria-pressed="false"><b>Full body</b><small>3D standing</small></button>
+    <button type="button" data-pfp-preset="wave" aria-pressed="false"><b>Wave</b><small>3D pose</small></button>
+    <button type="button" data-pfp-preset="flat" aria-pressed="false"><b>Pixel face</b><small>2D classic</small></button>
+  </div><select id="pfp-preset" hidden aria-label="Selected preset"><option value="headshot">3D headshot</option><option value="head">3D head</option><option value="full">3D full body</option><option value="wave">3D wave</option><option value="flat">2D face</option></select>
+  <h3>Arm size</h3><div class="pfp-presets" role="group" aria-label="Arm size"><button type="button" data-pfp-target="pfp-model" data-value="classic" aria-pressed="true"><b>Classic</b><small>4 pixels</small></button><button type="button" data-pfp-target="pfp-model" data-value="slim" aria-pressed="false"><b>Slim</b><small>3 pixels</small></button></div>
+  <select id="pfp-model" hidden aria-label="Selected arm size"><option value="classic">Classic</option><option value="slim">Slim</option></select>
+  </div><div class="pfp-control-group"><h3>Head &amp; camera</h3><label>Head look left / right <input id="pfp-head-yaw" type="range" min="-60" max="60" value="0"></label>
+  <label>Head look up / down <input id="pfp-head-pitch" type="range" min="-45" max="45" value="0"><small>Left is up, right is down. Applies to 3D presets.</small></label>
+  <label>Camera angle <input id="pfp-yaw" type="range" min="-180" max="180" value="25"></label>
+  <label>Camera height <input id="pfp-pitch" type="range" min="-45" max="45" value="10"></label>
+  </div><div class="pfp-control-group"><h3>Background</h3><div class="pfp-presets" role="group" aria-label="Background"><button type="button" data-pfp-target="pfp-background" data-value="color" aria-pressed="true"><b>Color</b><small>Solid background</small></button><button type="button" data-pfp-target="pfp-background" data-value="transparent" aria-pressed="false"><b>Transparent</b><small>No background</small></button><button type="button" data-pfp-target="pfp-background" data-value="day" aria-pressed="false"><b>Day sky</b><small>Sun</small></button><button type="button" data-pfp-target="pfp-background" data-value="night" aria-pressed="false"><b>Night sky</b><small>Moon and stars</small></button></div>
+  <select id="pfp-background" hidden aria-label="Selected background"><option value="color">Color</option><option value="transparent">Transparent</option><option value="day">Day sky</option><option value="night">Night sky</option></select>
+  <label class="pfp-layer"><span><b>Blur sky details</b><small>Softens the sun, moon and stars; the avatar stays sharp. Off by default.</small></span><input id="pfp-blur" type="checkbox"></label><p id="pfp-blur-status" role="status" hidden></p>
+  </div><div class="pfp-control-group"><h3>Shape &amp; export</h3><h3>Shape</h3><div class="pfp-presets" role="group" aria-label="Shape"><button type="button" data-pfp-target="pfp-shape" data-value="square" aria-pressed="true"><b>Square</b></button><button type="button" data-pfp-target="pfp-shape" data-value="circle" aria-pressed="false"><b>Circle</b></button></div>
+  <select id="pfp-shape" hidden aria-label="Selected shape"><option value="square">Square</option><option value="circle">Circle</option></select>
+  <label>Zoom <input id="pfp-size" type="range" min="50" max="100" value="80"></label>
+  <label class="pfp-layer"><span><b>Show outer skin layer</b><small>Include hats and clothing</small></span><input id="pfp-outer" type="checkbox" checked></label>
+  <button class="btn" id="pfp-download" type="button" disabled>Download PNG</button>
+  <p>Supports 64×64 and classic 64×32 PNG skins. Your skin stays in your browser. Output: 512×512.</p></div></div></section></div></div>
   <script src="../ui.js?v=${ver("ui.js")}"></script><script src="../pfp-3d.js?v=${ver("pfp-3d.js")}"></script><script src="../pfp.js?v=${ver("pfp.js")}"></script>`,
 }));
 
