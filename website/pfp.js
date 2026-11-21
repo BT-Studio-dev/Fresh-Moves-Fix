@@ -134,7 +134,7 @@
     candidate.onload = function () {
       URL.revokeObjectURL(url); if (current !== backgroundVersion) return;
       if (!candidate.width || !candidate.height) { message.textContent = 'Could not read that image.'; return; }
-      backgroundImage = candidate; $('pfp-bg-image-button').disabled = false;
+      backgroundImage = candidate;
       $('pfp-background').value = 'image'; message.textContent = 'Background loaded in this browser.'; draw();
     };
     candidate.onerror = function () { URL.revokeObjectURL(url); if (current === backgroundVersion) message.textContent = 'Could not read that image. Try another file.'; };

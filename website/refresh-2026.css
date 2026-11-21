@@ -804,3 +804,7 @@ html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936;
 }
 .pfp-page .pfp-presets button:disabled { opacity: .55; cursor: not-allowed; }
 .pfp-page .pfp-presets button:disabled:hover { border-color: var(--line); }
+/* Independent columns prevent shorter cards leaving empty grid rows. */
+.pfp-control-grid { display: block; columns: 2; column-gap: 16px; }
+.pfp-control-grid .pfp-control-group, .pfp-control-grid .pfp-colour-panel { display: inline-block; width: 100%; vertical-align: top; break-inside: avoid; margin: 0 0 16px; }
+@media (max-width: 600px) { .pfp-control-grid { columns: 1; } }
