@@ -1136,7 +1136,7 @@ write("index.html", page({
 </div>
 
 <aside class="owner-profile" aria-label="Owner profile">
-  <img class="owner-profile-image" src="owner-profile.png" alt="Minecraft skin for lie_kg" width="160" height="320">
+  <img class="owner-profile-image" src="owner-profile.png?v=${ver("owner-profile.png")}" alt="Minecraft skin for lie_kg" width="160" height="320">
   <span class="home-eyebrow">OWNER PROFILE</span>
   <h2>lie_kg</h2>
   <p>Owner of Fresh Moves Fix</p>
