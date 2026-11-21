@@ -368,7 +368,14 @@
     im.onerror = () => say("This file could not be read as a picture.", true);
     im.src = url;
   }
-  function loadFile(f) { if (!f) return; const r = new FileReader(); r.onload = () => loadUrl(r.result, f.name); r.readAsDataURL(f); }
+  function loadFile(f) {
+    if (!f) return;
+    if ((f.type && f.type !== "image/png") || (!f.type && !/\.png$/i.test(f.name))) { say("Choose a PNG skin file.", true); return; }
+    const r = new FileReader();
+    r.onload = () => loadUrl(r.result, f.name);
+    r.onerror = () => say("This file could not be read.", true);
+    r.readAsDataURL(f);
+  }
   function save() {
     sctx.putImageData(new ImageData(px, 64, 64), 0, 0);
     skin.toBlob((b) => {
@@ -430,9 +437,16 @@
   $("pcolor").addEventListener("change", remember);
   $("phex").addEventListener("change", () => { if (/^#?[0-9a-fA-F]{6}$/.test($("phex").value.trim())) remember(); });
   $("pundo").addEventListener("click", doUndo); $("predo").addEventListener("click", doRedo);
-  $("psave").addEventListener("click", save);
   $("psave-top").addEventListener("click", save);
-  $("pfile-top").addEventListener("click", () => $("pfile").click());
+  const uploadButton = $("pfile-top");
+  uploadButton.addEventListener("click", () => $("pfile").click());
+  uploadButton.addEventListener("dragover", (e) => { e.preventDefault(); if (e.dataTransfer) e.dataTransfer.dropEffect = "copy"; uploadButton.classList.add("over"); });
+  uploadButton.addEventListener("dragleave", () => uploadButton.classList.remove("over"));
+  uploadButton.addEventListener("drop", (e) => {
+    e.preventDefault(); uploadButton.classList.remove("over");
+    if (e.dataTransfer && e.dataTransfer.files.length) loadFile(e.dataTransfer.files[0]);
+    else say("Drop a PNG skin file here.", true);
+  });
   $("pfile").addEventListener("change", (e) => { loadFile(e.target.files[0]); e.target.value = ""; });
   document.querySelectorAll("#pstart button").forEach((b) => b.addEventListener("click", () => loadUrl(b.dataset.skin, b.dataset.name, b.dataset.slim ? b.dataset.slim === "1" : undefined)));
   $("pclear").addEventListener("click", () => { undo.push(new Uint8ClampedArray(px)); redo.length = 0; px = new Uint8ClampedArray(64 * 64 * 4); dirty = true; autosave(); buttons(); say("Empty skin. Use Undo to get the old one back."); });
@@ -537,10 +551,6 @@
   })();
   $("ppose").addEventListener("change", (e) => { pose = e.target.value; dirty = true; });
   $("pzoom").addEventListener("input", (e) => { zoom = Number(e.target.value); dirty = true; });
-  const drop = $("pdrop");
-  const over = (e) => { e.preventDefault(); drop.classList.add("over"); }, out = () => drop.classList.remove("over");
-  const dropped = (e) => { e.preventDefault(); out(); loadFile(e.dataTransfer.files[0]); };
-  drop.addEventListener("dragover", over); drop.addEventListener("dragleave", out); drop.addEventListener("drop", dropped);
   const KEYS = { t: "tone", b: "pen", p: "pen", e: "erase", g: "fill", f: "fill", i: "pick", l: "light", d: "dark" };
   const key = (e) => {
     const t = e.target && e.target.tagName; if (t === "INPUT" || t === "SELECT" || t === "TEXTAREA") return;

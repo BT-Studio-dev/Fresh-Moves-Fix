@@ -697,3 +697,5 @@ html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936;
 .fmf-option > span small { color: var(--muted); font-size: 12px; }
 .fmf-settings .fmf-choice { width: min(130px, 45%); }
 .fmf-switch input:disabled { cursor: not-allowed; }
+/* The toolbar upload button also accepts a dropped PNG. */
+#pfile-top.over { border-color: var(--accent); outline: 2px dashed var(--accent); outline-offset: 3px; }

@@ -344,7 +344,8 @@ write("editor/index.html", page({
     <h3 class="ehead"><span class="tool-ic">${ICON.eye}</span><span><b>2. Eyes</b><small>Shape and place of the eyes, eyebrows, eyelashes, mouth</small></span></h3>
     <p class="elabel">Quick choice</p>
     <p class="row"><button type="button" class="btn ghost" id="eyeboy">Boy eyes</button> <button type="button" class="btn ghost" id="eyegirl">Girl eyes</button></p>
-    <p class="ehint">${ICON.info} <span>Boy: small eyes, 2 wide and 1 tall, with eyebrows. Girl: big eyes, 2 wide and 2 tall, with eyelashes. You can still change everything below.</span></p>
+    <p class="ehint">${ICON.info} <span>Boy: small eyes, 2 wide and 1 tall, with eyebrows. Girl: big eyes, 2 wide and 2 tall, with eyelashes. Choose a preset and adjust the colours below.</span></p>
+    <div hidden aria-hidden="true">
     <p><label>Eye shape
       <select id="type"></select></label></p>
     <p><label>Position on the face
@@ -363,6 +364,7 @@ write("editor/index.html", page({
         <option value="h5">On the hat layer, bottom (above the eyes)</option>
         <option value="villager">Villager (one long eyebrow, above the eyes)</option>
       </select></label></p>
+    </div>
     <p><label>Mouth
       <select id="mouth">
         <option value="keep">Do not change</option>
@@ -657,7 +659,7 @@ write("paint/index.html", page({
 <p>Paint your Minecraft skin pixel by pixel, on the 3D model or on the flat skin file. Everything happens in your browser; the skin is not uploaded anywhere. It works without 3D graphics (WebGL).</p>
 </div>
 
-<div class="painter-workspace-bar"><div><b>Skin Painter</b><small>64 × 64 skin editor</small></div><div class="painter-view-switch" role="group" aria-label="Painter views"><button type="button" data-pview="3d" aria-pressed="true">${ICON.box} 3D</button><button type="button" data-pview="2d" aria-pressed="false">${ICON.grid} 2D</button></div><button type="button" class="btn" id="psave-top">${ICON.down} Save skin (.png)</button><button type="button" class="btn ghost" id="pfile-top">${ICON.up} Choose skin file</button><div class="painter-history"><p class="prow"><button type="button" class="btn ghost" id="pundo" title="Ctrl+Z">Undo</button> <button type="button" class="btn ghost" id="predo" title="Ctrl+Y">Redo</button></p></div><a class="btn ghost" href="#painter-file">${ICON.up} Skin file</a></div>
+<div class="painter-workspace-bar"><div><b>Skin Painter</b><small>64 × 64 skin editor</small></div><div class="painter-view-switch" role="group" aria-label="Painter views"><button type="button" data-pview="3d" aria-pressed="true">${ICON.box} 3D</button><button type="button" data-pview="2d" aria-pressed="false">${ICON.grid} 2D</button></div><button type="button" class="btn" id="psave-top">${ICON.down} Save skin (.png)</button><button type="button" class="btn ghost" id="pfile-top" title="Choose or drop a PNG skin file here">${ICON.up} Choose skin file</button><div class="painter-history"><p class="prow"><button type="button" class="btn ghost" id="pundo" title="Ctrl+Z">Undo</button> <button type="button" class="btn ghost" id="predo" title="Ctrl+Y">Redo</button></p></div><a class="btn ghost" href="#painter-file">${ICON.up} Skin file</a></div>
 <div class="ed paint workspace-layout">
   <div class="ed-col painter-tools-column">
   <section class="panel ecard painter-tools-card">
@@ -703,11 +705,7 @@ write("paint/index.html", page({
   </section>
   <section class="panel ecard" id="painter-file">
     <h3 class="ehead"><img class="tool-img" src="../icon-skin.png" alt="" width="44" height="44"><span><b>Skin file</b><small>Load a skin, or start from one of these</small></span></h3>
-    <label class="drop" id="pdrop">
-      <input type="file" id="pfile" accept="image/png" class="vh">
-      <span class="drop-ic">${ICON.up}</span>
-      <span><b>Choose your skin file</b><br><small>or drop the .png here</small></span>
-    </label>
+    <input type="file" id="pfile" accept="image/png" class="vh" tabindex="-1" aria-hidden="true">
     <div class="pick" id="pstart">
       <button type="button" class="pickb" data-name="Steve" data-slim="0" data-skin="${skinData("wide/steve.png")}"><img src="../icon-skin.png" alt="" width="36" height="36"><span><b>Steve</b><small>Default skin</small></span></button>
       <button type="button" class="pickb" data-name="Alex" data-slim="1" data-skin="${skinData("slim/alex.png")}"><img src="../icon-alex.png" alt="" width="36" height="36"><span><b>Alex</b><small>Default skin</small></span></button>
@@ -719,9 +717,7 @@ write("paint/index.html", page({
       <label class="pickb"><input type="radio" name="pfmt" id="pfmtslim" value="slim"><span><b>Alex</b><small>Slim arms</small></span></label>
     </div>
     <p class="prow"><button type="button" class="btn ghost" id="pclear">Empty skin</button></p>
-    <p class="prow"><button type="button" class="btn" id="psave">${ICON.down} Save skin (.png)</button> <a class="btn ghost" href="../editor/">${ICON.eye} Add moving eyes</a></p>
     <p><small id="pmsg" role="status"></small></p>
-    <p><small>Your painting is kept in this browser, so it is still here when you come back.</small></p>
   </section>
   </div>
   <div class="ed-col workspace-preview">
