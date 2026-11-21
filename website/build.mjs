@@ -1102,7 +1102,7 @@ write("cape/index.html", page({
 write("creations/index.html", page({
   title: "Projects - Fresh Moves Fix", active: "creations", depth: 1,
   description: "Explore Fresh Moves Fix projects and creative tools.",
-  body: `<div class="wrap projects-page"><div class="crumb"><a href="../">${ICON.home} Home</a></div>
+  body: `<div class="wrap projects-page">
 <header class="projects-heading"><h1>Projects</h1><p>Projects and creative tools from Fresh Moves Fix.</p></header>
 <div class="projects-grid">
   <a class="project-card" href="../#download"><img src="../pack.png" alt="" width="112" height="112"><h2>Fresh Moves Fix</h2><p>Player animations and animated eyes for Minecraft Java.</p><span>View downloads ${ICON.right}</span></a>
