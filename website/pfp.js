@@ -63,6 +63,16 @@
       draw();
     });
   });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-pfp-target]'), function (button) {
+    button.addEventListener('click', function () {
+      var target = button.getAttribute('data-pfp-target');
+      $(target).value = button.getAttribute('data-value');
+      Array.prototype.forEach.call(document.querySelectorAll('[data-pfp-target]'), function (item) {
+        if (item.getAttribute('data-pfp-target') === target) item.setAttribute('aria-pressed', item === button ? 'true' : 'false');
+      });
+      draw();
+    });
+  });
   ['pfp-background', 'pfp-color', 'pfp-shape', 'pfp-size', 'pfp-outer', 'pfp-preset', 'pfp-model', 'pfp-yaw', 'pfp-pitch'].forEach(function (id) {
     $(id).addEventListener('input', draw); $(id).addEventListener('change', draw);
   });

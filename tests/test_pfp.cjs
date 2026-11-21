@@ -10,9 +10,16 @@ w.URL.createObjectURL=()=> 'blob:test';w.URL.revokeObjectURL=u=>revoked.push(u);
 w.eval(fs.readFileSync('website/pfp-3d.js','utf8'));
 w.eval(fs.readFileSync('website/pfp.js','utf8'));
 const $=id=>w.document.getElementById(id),change=id=>$(id).dispatchEvent(new w.Event('change'));
+const style=w.document.createElement('style');style.textContent=fs.readFileSync('website/refresh-2026.css','utf8');w.document.head.appendChild(style);
+assert.equal(w.getComputedStyle($('pfp-preset')).display,'none','internal preset dropdown is hidden');
+for (const id of ['pfp-model','pfp-background','pfp-shape']) assert.equal(w.getComputedStyle($(id)).display,'none');
+for (const [id,value] of [['pfp-model','slim'],['pfp-background','transparent'],['pfp-shape','circle']]) {
+ const button=w.document.querySelector('[data-pfp-target="'+id+'"][data-value="'+value+'"]');button.click();assert.equal($(id).value,value);assert.equal(button.getAttribute('aria-pressed'),'true');
+ const other=w.document.querySelector('[data-pfp-target="'+id+'"]:not([data-value="'+value+'"])');assert.equal(other.getAttribute('aria-pressed'),'false');other.click();
+}
 assert($('pfp-download').disabled); images[0].width=64;images[0].height=64;images[0].onload();assert(!$('pfp-download').disabled);
 assert(polygons>0,'3D headshot draws skin polygons'); let first=polygons; w.document.querySelector('[data-pfp-preset=wave]').click();assert.equal($('pfp-preset').value,'wave');assert.equal(w.document.querySelector('[data-pfp-preset=wave]').getAttribute('aria-pressed'),'true');assert(polygons>first); $('pfp-model').value='slim';change('pfp-model');$('pfp-yaw').value='-45';change('pfp-yaw');$('pfp-preset').value='flat';draws=[];change('pfp-preset');assert.deepEqual(draws.map(x=>x.slice(1,5)),[[8,8,8,8],[40,8,8,8]]);
-$('pfp-background').value='transparent';$('pfp-shape').value='circle';$('pfp-outer').checked=false;draws=[];let f=fills;change('pfp-shape');assert.equal(fills,f);assert.equal(clips,1);assert.equal(draws.length,1);
+$('pfp-background').value='transparent';$('pfp-shape').value='circle';$('pfp-outer').checked=false;draws=[];let f=fills,c=clips;change('pfp-shape');assert.equal(fills,f);assert.equal(clips,c+1);assert.equal(draws.length,1);
 $('pfp-size').value='50';change('pfp-size');assert.equal(draws.at(-1)[7],256);
 $('pfp-download').click();assert.equal(downloads,1);
 const input=$('pfp-skin');function upload(name,type){Object.defineProperty(input,'files',{value:[{name,type}],configurable:true});change('pfp-skin');}

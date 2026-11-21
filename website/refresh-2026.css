@@ -717,3 +717,13 @@ html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936;
 .pfp-presets button small { display: block; color: var(--muted); margin-top: 4px; }
 .pfp-presets button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
 .pfp-presets button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* PFP controls: keep internal selects hidden despite the shared render-control rule. */
+.pfp-page .render-controls select[hidden] { display: none; }
+.pfp-page .render-controls h3 { font-size: 15px; margin: 22px 0 10px; }
+.pfp-page .render-controls .pfp-upload, .pfp-page .render-controls .pfp-layer { border: 1px solid var(--line); border-radius: 9px; padding: 12px; }
+.pfp-page .render-controls .pfp-upload small, .pfp-page .render-controls .pfp-layer small { display: block; font-size: 12px; font-weight: 400; color: var(--muted); margin-top: 3px; }
+.pfp-page .render-controls .pfp-layer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pfp-page .render-controls .pfp-layer input { display: inline-block; width: 18px; height: 18px; flex: 0 0 auto; margin: 0; accent-color: var(--accent); }
+.pfp-page .render-controls input[type=file] { color: var(--muted); font-size: 13px; }
+.pfp-page .render-controls input[type=file]::file-selector-button { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; cursor: pointer; }
+.pfp-page .render-controls input[type=color] { width: 56px; height: 36px; border: 1px solid var(--line); border-radius: 6px; padding: 3px; background: var(--panel); cursor: pointer; }

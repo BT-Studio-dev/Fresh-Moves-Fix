@@ -1127,9 +1127,9 @@ write("render/index.html", page({
 write("pfp/index.html", page({
   title: "Minecraft PFP Maker - Fresh Moves Fix", active: "creations", depth: 1,
   description: "Make a Minecraft 3D skin profile picture without WebGL.",
-  body: `<div class="wrap render-page"><h1>Minecraft PFP Maker</h1><p>Make a 3D avatar from your skin. No WebGL or account needed.</p>
+  body: `<div class="wrap render-page pfp-page"><h1>Minecraft PFP Maker</h1><p>Make a 3D avatar from your skin. No WebGL or account needed.</p>
   <div class="render-layout"><section class="card render-controls"><h2>Customize</h2>
-  <label>Upload skin PNG <input id="pfp-skin" type="file" accept="image/png,.png"></label><p id="pfp-status" role="status" aria-live="polite">Using the default skin.</p>
+  <label class="pfp-upload"><span><b>Upload skin PNG</b><small>Choose a skin from your device</small></span><input id="pfp-skin" type="file" accept="image/png,.png"></label><p id="pfp-status" role="status" aria-live="polite">Using the default skin.</p>
   <h3>Choose a preset</h3><div class="pfp-presets" aria-label="Profile picture presets">
     <button type="button" data-pfp-preset="headshot" aria-pressed="true"><b>Headshot</b><small>3D portrait</small></button>
     <button type="button" data-pfp-preset="head" aria-pressed="false"><b>Head</b><small>3D close-up</small></button>
@@ -1137,14 +1137,17 @@ write("pfp/index.html", page({
     <button type="button" data-pfp-preset="wave" aria-pressed="false"><b>Wave</b><small>3D pose</small></button>
     <button type="button" data-pfp-preset="flat" aria-pressed="false"><b>Pixel face</b><small>2D classic</small></button>
   </div><select id="pfp-preset" hidden aria-label="Selected preset"><option value="headshot">3D headshot</option><option value="head">3D head</option><option value="full">3D full body</option><option value="wave">3D wave</option><option value="flat">2D face</option></select>
-  <label>Arm size <select id="pfp-model"><option value="classic">Classic (4 pixels)</option><option value="slim">Slim (3 pixels)</option></select></label>
+  <h3>Arm size</h3><div class="pfp-presets" role="group" aria-label="Arm size"><button type="button" data-pfp-target="pfp-model" data-value="classic" aria-pressed="true"><b>Classic</b><small>4 pixels</small></button><button type="button" data-pfp-target="pfp-model" data-value="slim" aria-pressed="false"><b>Slim</b><small>3 pixels</small></button></div>
+  <select id="pfp-model" hidden aria-label="Selected arm size"><option value="classic">Classic</option><option value="slim">Slim</option></select>
   <label>Camera angle <input id="pfp-yaw" type="range" min="-180" max="180" value="25"></label>
   <label>Camera height <input id="pfp-pitch" type="range" min="-45" max="45" value="10"></label>
-  <label>Background <select id="pfp-background"><option value="color">Color</option><option value="transparent">Transparent</option></select></label>
+  <h3>Background</h3><div class="pfp-presets" role="group" aria-label="Background"><button type="button" data-pfp-target="pfp-background" data-value="color" aria-pressed="true"><b>Color</b><small>Solid background</small></button><button type="button" data-pfp-target="pfp-background" data-value="transparent" aria-pressed="false"><b>Transparent</b><small>No background</small></button></div>
+  <select id="pfp-background" hidden aria-label="Selected background"><option value="color">Color</option><option value="transparent">Transparent</option></select>
   <label>Background color <input id="pfp-color" type="color" value="#486d92"></label>
-  <label>Shape <select id="pfp-shape"><option value="square">Square</option><option value="circle">Circle</option></select></label>
+  <h3>Shape</h3><div class="pfp-presets" role="group" aria-label="Shape"><button type="button" data-pfp-target="pfp-shape" data-value="square" aria-pressed="true"><b>Square</b></button><button type="button" data-pfp-target="pfp-shape" data-value="circle" aria-pressed="false"><b>Circle</b></button></div>
+  <select id="pfp-shape" hidden aria-label="Selected shape"><option value="square">Square</option><option value="circle">Circle</option></select>
   <label>Zoom <input id="pfp-size" type="range" min="50" max="100" value="80"></label>
-  <label><input id="pfp-outer" type="checkbox" checked> Show outer skin layer</label>
+  <label class="pfp-layer"><span><b>Show outer skin layer</b><small>Include hats and clothing</small></span><input id="pfp-outer" type="checkbox" checked></label>
   <button class="btn" id="pfp-download" type="button" disabled>Download PNG</button>
   <p>Supports 64×64 and classic 64×32 PNG skins. Your skin stays in your browser. Output: 512×512.</p></section>
   <section class="card render-preview"><h2>Preview</h2><canvas id="pfp-canvas" width="512" height="512" aria-label="Profile picture preview"></canvas></section></div></div>
