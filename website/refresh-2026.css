@@ -808,3 +808,19 @@ html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936;
 .pfp-control-grid { display: block; columns: 2; column-gap: 16px; }
 .pfp-control-grid .pfp-control-group, .pfp-control-grid .pfp-colour-panel { display: inline-block; width: 100%; vertical-align: top; break-inside: avoid; margin: 0 0 16px; }
 @media (max-width: 600px) { .pfp-control-grid { columns: 1; } }
+/* Backdrop controls: theme-aware tiles and a custom, keyboard-accessible upload. */
+.pfp-background-card .pfp-background-intro { margin: -6px 0 16px; }
+.pfp-background-options { gap: 10px; }
+.pfp-page .pfp-background-options button { position: relative; min-height: 78px; padding: 14px; background: var(--panel); }
+.pfp-background-options button b, .pfp-background-options button small { display: block; }
+.pfp-background-options button[aria-pressed="true"] b { color: var(--accent); }
+.pfp-page .render-controls .pfp-background-upload { position: relative; display: flex; align-items: center; gap: 14px; overflow: hidden; margin: 16px 0 0; padding: 16px; border: 1px dashed var(--line); border-radius: 12px; background: var(--panel); cursor: pointer; }
+.pfp-page .render-controls .pfp-background-upload:hover, .pfp-page .render-controls .pfp-background-upload:focus-within { border-color: var(--accent); }
+.pfp-background-upload:focus-within { outline: 2px solid var(--accent); outline-offset: 3px; }
+.pfp-upload-icon { display: grid; place-items: center; flex: 0 0 42px; height: 42px; border: 1px solid var(--line); border-radius: 12px; color: var(--accent); background: var(--bg); font-size: 23px; }
+.pfp-upload-copy { min-width: 0; display: grid; gap: 4px; }
+.pfp-upload-copy small { color: var(--muted); font-size: 12px; font-weight: normal; }
+.pfp-upload-action { color: var(--accent); font-size: 13px; }
+.pfp-page .render-controls .pfp-background-upload input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.pfp-background-card #pfp-bg-status { margin: 10px 0 16px; font-size: 12px; }
+[data-theme="minecraft"] .pfp-page .render-controls .pfp-background-upload, [data-theme="minecraft"] .pfp-upload-icon { border-radius: 3px; }
