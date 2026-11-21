@@ -1,16 +1,16 @@
 :root, [data-theme="dark"] {
-  --bg: #0f1412;
-  --panel: #18201c;
-  --line: #2a3630;
-  --text: #e6ece8;
-  --muted: #9aa8a0;
+  --bg: #121212;
+  --panel: #202020;
+  --line: #383838;
+  --text: #eeeeee;
+  --muted: #b0b0b0;
   --accent: #3fd07f;
   --on-accent: #06130b;
-  --header: #0c100e;
+  --header: #0d0d0d;
   --note-bg: #2a2412;
   --note-line: #5a4a1c;
   --note-text: #f2dfae;
-  --scroll-thumb: #3a4740;
+  --scroll-thumb: #555555;
   color-scheme: dark;
 }
 [data-theme="oled"] {

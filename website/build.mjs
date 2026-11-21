@@ -915,9 +915,9 @@ write("settings/index.html", page({
     <h2 class="shead"><span class="tool-ic">${ICON.brush}</span><span><b>Color theme</b><small>Light, dark, OLED, glass or Minecraft</small></span></h2>
     <p>Select your preferred color theme for this website. It is saved in this browser only.</p>
     <div class="themes">
-      ${themeCard("system", "Sync with system", "linear-gradient(90deg,#f4f6f5 50%,#0f1412 50%)", "#18201c", "#2a3630", "#9aa8a0")}
+      ${themeCard("system", "Sync with system", "linear-gradient(90deg,#f4f6f5 50%,#121212 50%)", "#18201c", "#2a3630", "#9aa8a0")}
       ${themeCard("light", "Light", "#f4f6f5", "#ffffff", "#d5dcd8", "#17201b")}
-      ${themeCard("dark", "Dark", "#0f1412", "#18201c", "#2a3630", "#9aa8a0")}
+      ${themeCard("dark", "Dark", "#121212", "#202020", "#383838", "#b0b0b0")}
       ${themeCard("oled", "OLED", "#000000", "#0d0f0e", "#222826", "#98a39d")}
       ${themeCard("glass", "Glass", "radial-gradient(circle at 20% 20%,#2fae78 0,transparent 55%),radial-gradient(circle at 85% 80%,#3b6fd0 0,transparent 55%),#0a1210", "rgba(255,255,255,.16)", "rgba(255,255,255,.34)", "#eef6f1")}
       ${themeCard("minecraft", "Minecraft", "linear-gradient(#50869a 0 52%, #63884e 52% 74%, #5b4532 74%)", "rgba(27,38,33,.84)", "rgba(200,226,207,.5)", "#f2f0dc")}
