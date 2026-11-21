@@ -20,14 +20,21 @@ const png = new Blob([new Uint8Array([137,80,78,71,13,10,26,10])], {type:'image/
 const document = { getElementById: element, querySelectorAll: () => [], body: { appendChild(){} }, cookie: '',
   createElement(tag) { if (tag === 'canvas') return {getContext:()=>context, toBlob: fn=>fn(png), toDataURL: ()=>'data:image/png;base64,iVBORw=='};
     if (tag === 'button') return element('recent-button'); if (tag === 'option') return {}; if (tag === 'a') return {click(){downloads.push({name:this.download, url:this.href});},remove(){}}; throw Error(tag); } };
+let previewUpdates = 0, sourceCanvas, disposed = false;
+const window = { FMFCapePreview: { create(source) { sourceCanvas = source; return { update() { previewUpdates++; }, dispose() { disposed = true; } }; } } };
 const storage = {};
 function Image() { this.width=64; this.height=32; Object.defineProperty(this, 'src', {set:()=>this.onload()}); }
-const sandbox = {document, JSZip, Blob, Image, localStorage: {getItem:k=>storage[k]||null,setItem:(k,v)=>storage[k]=v}, URL: {createObjectURL(o){objects.push(o);return 'blob:'+(objects.length-1);},revokeObjectURL(){}}, setTimeout(){} };
+const sandbox = {window, document, JSZip, Blob, Image, localStorage: {getItem:k=>storage[k]||null,setItem:(k,v)=>storage[k]=v}, URL: {createObjectURL(o){objects.push(o);return 'blob:'+(objects.length-1);},revokeObjectURL(){}}, setTimeout(){} };
 vm.runInNewContext(fs.readFileSync('website/cape.js','utf8'), sandbox);
 (async()=>{
+  assert(sourceCanvas && sourceCanvas !== element('cape-canvas'), 'preview receives the original texture canvas');
+  const initial = previewUpdates;
   element('cape-canvas').events.pointerdown({button:0, pointerId:1, clientX:20, clientY:20});
   element('cape-canvas').events.pointerup();
   element('cape-undo').events.click(); element('cape-redo').events.click();
+  element('cape-tool').value = 'erase'; element('cape-canvas').events.pointerdown({button:0, pointerId:1, clientX:30, clientY:20}); element('cape-canvas').events.pointerup();
+  element('cape-clear').events.click();
+  assert(previewUpdates >= initial + 5, 'paint, erase, undo, redo and clear refresh preview');
   element('cape-grid').events.change(); element('cape-template').events.change();
   await element('cape-png').events.click();
   assert.equal(downloads[0].name, 'cape.png');
@@ -48,6 +55,10 @@ vm.runInNewContext(fs.readFileSync('website/cape.js','utf8'), sandbox);
   element('cape-name').value='Other'; element('cape-description').value='';
   element('cape-projects').value='My Cape'; element('cape-load-project').events.click();
   assert.equal(element('cape-name').value,'My Cape'); assert.equal(element('cape-description').value,'Changed');
+  const beforeImport = previewUpdates;
+  element('cape-file').files = [{ type: 'image/png' }]; element('cape-file').events.change.call(element('cape-file'));
+  assert(previewUpdates > beforeImport, 'PNG import refreshes preview');
   element('cape-delete-project').events.click(); assert.equal(JSON.parse(storage['fmf-cape-projects-v1']).length,0);
+  window.fmfCleanup(); assert(disposed, 'preview disposed on SPA navigation');
   console.log('Cape PNG, elytra ZIP and saved-project create/update/load/delete passed');
 })().catch(e=>{console.error(e);process.exitCode=1});

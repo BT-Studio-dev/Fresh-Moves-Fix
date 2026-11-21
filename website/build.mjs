@@ -1,5 +1,6 @@
 // Builds the static website into ./public from the repository files.
 import { marked } from "marked";
+import { build as bundle } from "esbuild";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -301,6 +302,7 @@ fs.copyFileSync(path.join(here, "studio.js"), path.join(out, "studio.js"));
 fs.copyFileSync(path.join(here, "ui.js"), path.join(out, "ui.js"));
 fs.copyFileSync(path.join(here, "title.js"), path.join(out, "title.js"));
 fs.copyFileSync(path.join(here, "cape.js"), path.join(out, "cape.js"));
+await bundle({ entryPoints: [path.join(here, "cape-preview.js")], outfile: path.join(out, "cape-preview.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
 fs.copyFileSync(path.join(here, "node_modules/jszip/dist/jszip.min.js"), path.join(out, "jszip.min.js"));
 // 3D preview library (skinview3d, MIT licence), served from this site
 fs.copyFileSync(path.join(here, "node_modules/skinview3d/bundles/skinview3d.bundle.js"), path.join(out, "skinview3d.bundle.js"));
@@ -1073,7 +1075,7 @@ write("cape/index.html", page({
   </aside>
   <section class="cape-stage" aria-label="Texture editor">
     <div class="cape-stage-bar"><span>TEXTURE GRID</span><span>64 × 32 pixels</span></div>
-    <div class="cape-stage-center"><div class="cape-canvas-wrap"><canvas id="cape-canvas" width="640" height="320" aria-label="Cape texture drawing area, 64 by 32 pixels"></canvas></div></div>
+    <div class="cape-stage-center"><section class="cape-preview" aria-label="3D cape preview"><div class="cape-preview-header"><b>3D cape preview</b><button type="button" class="btn small ghost" id="cape-preview-reset">Reset view</button></div><div id="cape-preview-view" class="cape-preview-view"></div><p id="cape-preview-error" class="cape-preview-error" role="status" hidden></p><div class="cape-preview-controls"><label>View <select id="cape-preview-side"><option value="outside">Outside</option><option value="inside">Inside</option></select></label><label><input type="checkbox" id="cape-preview-auto"> Auto-rotate</label></div><p class="cape-preview-help">Drag to rotate · Scroll or pinch to zoom</p></section><div class="cape-canvas-wrap"><canvas id="cape-canvas" width="640" height="320" aria-label="Cape texture drawing area, 64 by 32 pixels"></canvas></div></div>
     <div class="cape-stage-options"><label><input type="checkbox" id="cape-grid" checked> Pixel grid</label><label><input type="checkbox" id="cape-template" checked> Face guides</label></div>
   </section>
   <aside class="cape-inspector">
@@ -1088,7 +1090,7 @@ write("cape/index.html", page({
 <section class="cape-settings card"><h2>Java elytra pack</h2><p>Choose your Minecraft Java version and put the ZIP in <code>resourcepacks</code>. Wings use the texture differently from the cape; the result may need editing and has not been tested in-game.</p><label>Minecraft version <select id="cape-version">${versions.map((v) => `<option value="${v.format}" data-mc="${v.mc}"${v.mc === versions[versions.length - 1].mc ? " selected" : ""}>${v.mc}</option>`).join("")}</select></label><p><button class="btn" id="cape-zip" type="button">Download elytra pack ZIP</button></p></section>
 </div>
 </article></div>
-<script src="../jszip.min.js"></script><script src="../cape.js?v=${ver("cape.js")}"></script><script src="../ui.js?v=${ver("ui.js")}"></script>`,
+<script src="../jszip.min.js"></script><script src="../cape-preview.bundle.js?v=${ver("cape-preview.js")}"></script><script src="../cape.js?v=${ver("cape.js")}"></script><script src="../ui.js?v=${ver("ui.js")}"></script>`,
 }));
 
 // ---------- projects ----------

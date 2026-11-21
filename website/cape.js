@@ -5,6 +5,8 @@
   var canvas = $('cape-canvas'), view = canvas.getContext('2d');
   var texture = document.createElement('canvas'); texture.width = 64; texture.height = 32;
   var ctx = texture.getContext('2d'), status = $('cape-status'), drawing = false;
+  var preview = window.FMFCapePreview ? window.FMFCapePreview.create(texture) : null;
+  if (preview) { var previousCleanup = window.fmfCleanup; window.fmfCleanup = function () { preview.dispose(); if (previousCleanup) previousCleanup(); }; }
   var undo = [], redo = [];
   function snapshot() { return ctx.getImageData(0, 0, 64, 32); }
   function saveUndo() { undo.push(snapshot()); if (undo.length > 30) undo.shift(); redo = []; }
@@ -26,6 +28,7 @@
   $('cape-color').addEventListener('change', remember); remember();
   function message(text, bad) { status.textContent = text; status.classList.toggle('bad', !!bad); }
   function draw() {
+    if (preview) preview.update();
     view.clearRect(0, 0, 640, 320); view.imageSmoothingEnabled = false;
     view.drawImage(texture, 0, 0, 640, 320);
     if ($('cape-grid').checked) {
