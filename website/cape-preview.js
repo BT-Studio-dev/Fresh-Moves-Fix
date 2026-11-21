@@ -37,6 +37,17 @@ export function createDummy() {
   return { group: dummy, dispose() { geometries.forEach(g => g.dispose()); materials.forEach(m => m.dispose()); } };
 }
 
+// Preview-only outlines keep transparent / blank elytra visible without changing exports.
+export function addWingGuides(elytra) {
+  const material = new THREE.LineBasicMaterial({ color: 0x91a79d, transparent: true, opacity: .45, depthTest: true });
+  const geometries = [];
+  [elytra.leftWing, elytra.rightWing].forEach(wing => {
+    const mesh = wing.children[0], edges = new THREE.EdgesGeometry(mesh.geometry);
+    geometries.push(edges); mesh.add(new THREE.LineSegments(edges, material));
+  });
+  return { dispose() { geometries.forEach(g => g.dispose()); material.dispose(); } };
+}
+
 export function createCapePreview(source) {
   const host = document.getElementById('cape-preview-view');
   const error = document.getElementById('cape-preview-error');
@@ -75,6 +86,7 @@ export function createCapePreview(source) {
   capeGroup.add(new THREE.Mesh(backingGeometry, backingMaterial));
   // skinview3d's MIT-licensed geometry implements the Java elytra 64x32 UV layout.
   const elytra = new ElytraObject(); elytra.map = texture;
+  const wingGuides = addWingGuides(elytra);
   elytra.position.set(0, 8, .6); elytra.rotation.y = Math.PI; elytra.visible = false; root.add(elytra);
   host.appendChild(renderer.domElement);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
@@ -126,7 +138,7 @@ export function createCapePreview(source) {
   }
   function onSkinFile() { const file = skinFile.files[0]; if (!file) return; if (file.type !== 'image/png') { skinStatus.textContent = 'Choose a PNG skin.'; return; } applySkin(URL.createObjectURL(file), true); skinFile.value = ''; }
   function onSkinLoad() { const name = username.value.trim(); if (!/^[A-Za-z0-9_]{1,16}$/.test(name)) { skinStatus.textContent = 'Enter a valid Minecraft username.'; return; } skinStatus.textContent = 'Loading skin from mc-heads.net…'; applySkin('https://mc-heads.net/skin/' + encodeURIComponent(name), false); }
-  function onSkinReset() { ++request; usingSkin = false; updatePlayer(); skinStatus.textContent = 'Using grey dummy.'; schedule(); }
+  function onSkinReset() { skinStatus.textContent = 'Loading Steve…'; applySkin(host.dataset.defaultSkin, false); }
   skinFile.addEventListener('change', onSkinFile); loadSkin.addEventListener('click', onSkinLoad); resetSkin.addEventListener('click', onSkinReset); pose.addEventListener('change', setPose);
   const dummyToggle = document.getElementById('cape-preview-dummy');
   dummy.group.visible = dummyToggle.checked;
@@ -179,6 +191,7 @@ export function createCapePreview(source) {
   document.addEventListener('visibilitychange', onVisibility); window.addEventListener('resize', schedule);
   const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(schedule) : null;
   if (observer) observer.observe(host);
+  if (host.dataset.defaultSkin) applySkin(host.dataset.defaultSkin, false);
   schedule();
   return { update, setMode, dispose() {
     disposed = true; if (frame) cancelAnimationFrame(frame);
@@ -189,7 +202,7 @@ export function createCapePreview(source) {
     ++request;
     skinFile.removeEventListener('change', onSkinFile); loadSkin.removeEventListener('click', onSkinLoad); resetSkin.removeEventListener('click', onSkinReset); pose.removeEventListener('change', setPose);
     [playerSkin, elytra].forEach(object => { const seen = new Set(); object.traverse(child => { if (child.geometry) child.geometry.dispose(); if (child.material) { const list = Array.isArray(child.material) ? child.material : [child.material]; list.forEach(m => { if (!seen.has(m)) { seen.add(m); m.dispose(); } }); } }); });
-    if (skinTexture) skinTexture.dispose(); dummy.dispose(); geometries.forEach(g => g.dispose()); backingGeometry.dispose(); material.dispose(); backingMaterial.dispose(); texture.dispose(); renderer.dispose(); el.remove();
+    if (skinTexture) skinTexture.dispose(); wingGuides.dispose(); dummy.dispose(); geometries.forEach(g => g.dispose()); backingGeometry.dispose(); material.dispose(); backingMaterial.dispose(); texture.dispose(); renderer.dispose(); el.remove();
   }};
 }
 window.FMFCapePreview = { create: createCapePreview };

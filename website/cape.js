@@ -35,6 +35,24 @@
   function draw() {
     if (preview) preview.update();
     view.clearRect(0, 0, 640, 320); view.imageSmoothingEnabled = false;
+    // The guides live on the display canvas only, underneath the actual texture.
+    // They never touch the 64x32 source canvas, previews, projects or exports.
+    if ($('cape-template').checked) {
+      function guide(x, y, w, h, colour) { view.fillStyle = colour; view.fillRect(x * 10, y * 10, w * 10, h * 10); }
+      guide(1, 1, 10, 16, 'rgba(76, 160, 100, .65)'); // outside
+      guide(12, 1, 10, 16, 'rgba(78, 122, 180, .65)'); // inside
+      guide(0, 1, 1, 16, 'rgba(159, 112, 202, .7)');
+      guide(11, 1, 1, 16, 'rgba(159, 112, 202, .7)');
+      guide(1, 0, 10, 1, 'rgba(211, 163, 65, .8)');
+      guide(11, 0, 10, 1, 'rgba(75, 172, 159, .8)');
+      // Java elytra cuboid UV: two 10x20 faces, 2px edges and caps.
+      guide(24, 2, 10, 20, 'rgba(222, 132, 72, .65)');
+      guide(36, 2, 10, 20, 'rgba(222, 132, 72, .65)');
+      guide(22, 2, 2, 20, 'rgba(172, 105, 68, .7)');
+      guide(34, 2, 2, 20, 'rgba(172, 105, 68, .7)');
+      guide(24, 0, 10, 2, 'rgba(211, 163, 65, .8)');
+      guide(34, 0, 10, 2, 'rgba(75, 172, 159, .8)');
+    }
     view.drawImage(texture, 0, 0, 640, 320);
     if ($('cape-grid').checked) {
       view.strokeStyle = 'rgba(180,180,180,.45)'; view.lineWidth = 1; view.beginPath();
@@ -45,6 +63,7 @@
     if ($('cape-template').checked) {
       view.strokeStyle = '#ffffff'; view.lineWidth = 2;
       view.strokeRect(10, 10, 100, 160); view.strokeRect(120, 10, 100, 160);
+      view.strokeRect(240, 20, 100, 200); view.strokeRect(360, 20, 100, 200);
     }
   }
   function point(e) {
@@ -107,7 +126,7 @@
   canvas.addEventListener('pointerup', function () { drawing = false; base = panOrigin = null; });
   canvas.addEventListener('pointercancel', function () { drawing = false; base = panOrigin = null; });
   $('cape-grid').addEventListener('change', draw);
-  $('cape-template').addEventListener('change', draw);
+  $('cape-template').addEventListener('change', function () { $('cape-legend').hidden = !this.checked; draw(); });
   $('cape-clear').addEventListener('click', function () { saveUndo(); ctx.clearRect(0, 0, 64, 32); draw(); message('Texture cleared.'); });
   $('cape-file').addEventListener('change', function () {
     var file = this.files[0]; if (!file) return;
@@ -191,8 +210,14 @@
       if (readProjects().length) return;
       ctx.fillStyle = '#146c58'; ctx.fillRect(0, 0, 22, 17);
       ctx.fillStyle = '#35c980'; ctx.fillRect(1, 1, 10, 16); ctx.fillRect(12, 1, 10, 16);
+      // Elytra UVs occupy the separate x=22..45 region, so an untouched starter
+      // is visible on wings as well as on both cape faces.
+      ctx.fillStyle = '#146c58'; ctx.fillRect(22, 0, 24, 22);
+      ctx.fillStyle = '#35c980'; ctx.fillRect(24, 2, 10, 20); ctx.fillRect(36, 2, 10, 20);
       ctx.fillStyle = '#b6f4ce';
-      [[5, 4, 2, 2], [4, 6, 4, 2], [3, 8, 6, 2], [4, 10, 4, 2], [5, 12, 2, 2],
+      [[28, 6, 2, 2], [27, 8, 4, 2], [26, 10, 6, 2], [27, 12, 4, 2], [28, 14, 2, 2],
+       [40, 6, 2, 2], [39, 8, 4, 2], [38, 10, 6, 2], [39, 12, 4, 2], [40, 14, 2, 2],
+       [5, 4, 2, 2], [4, 6, 4, 2], [3, 8, 6, 2], [4, 10, 4, 2], [5, 12, 2, 2],
        [16, 4, 2, 2], [15, 6, 4, 2], [14, 8, 6, 2], [15, 10, 4, 2], [16, 12, 2, 2]].forEach(function (r) { ctx.fillRect(r[0], r[1], r[2], r[3]); });
     } catch (e) { /* If storage is unavailable, do not assume projects are absent. */ }
   }
