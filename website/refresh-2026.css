@@ -239,6 +239,7 @@ a.release-all > i svg { width: 18px; height: 18px; }
 .hero-art { display: flex; align-items: center; justify-content: center; min-width: 0; }
 .home-hero .hero-art img { display: block; width: 180px; max-width: 100%; height: auto; image-rendering: pixelated; border-radius: 12px; box-shadow: none; }
 .home-section { padding: 38px 0; }
+#minecraft-skins-download { border-top: 0; }
 .home-heading { display: flex; justify-content: space-between; align-items: end; gap: 14px; margin-bottom: 20px; }
 .home-heading h2 { margin: 4px 0 0; }
 .home-heading > p { color: var(--muted); margin: 0; font-size: 14px; }
