@@ -964,7 +964,6 @@ write("settings/index.html", page({
       ${themeCard("dark", "Dark", "#121212", "#202020", "#383838", "#b0b0b0")}
       ${themeCard("oled", "OLED", "#000000", "#0d0f0e", "#222826", "#98a39d")}
       ${themeCard("glass", "Glass", "radial-gradient(circle at 20% 20%,#2fae78 0,transparent 55%),radial-gradient(circle at 85% 80%,#3b6fd0 0,transparent 55%),#0a1210", "rgba(255,255,255,.16)", "rgba(255,255,255,.34)", "#eef6f1")}
-      ${themeCard("minecraft", "Minecraft", "linear-gradient(#50869a 0 52%, #63884e 52% 74%, #5b4532 74%)", "rgba(27,38,33,.84)", "rgba(200,226,207,.5)", "#f2f0dc")}
       ${themeCard("nightsky", "Night Sky", "radial-gradient(circle at 78% 25%, #f0f2fa 0 9%, transparent 10%), #1a173f", "#252249", "#4b4a76", "#eef0ff")}
     </div>
     <div class="fmf-blur-setting">
