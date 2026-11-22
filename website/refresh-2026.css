@@ -1039,3 +1039,34 @@ body.account-page > footer { margin-top: 0; }
 .project-card.project-locked { opacity: .7; cursor: not-allowed; }
 .project-card.project-locked .project-link-label { color: var(--muted); }
 #project-lock-status:empty { display: none; }
+/* Give the full navigation room; never clip the last item behind the actions. */
+header.top .bar { max-width: 1400px; }
+header.top nav { flex: 0 0 auto; overflow: visible; }
+@media (max-width: 1300px) {
+  header.top .bar { height: auto; flex-wrap: wrap; padding-top: 10px; padding-bottom: 8px; gap: 6px 12px; }
+  header.top nav { order: 3; flex: 0 0 100%; width: 100%; margin: 0; flex-wrap: wrap; overflow: visible; }
+  header.top .snd-wrap { margin-inline-start: auto; }
+  header.top .get { margin-left: 0; }
+}
+@media (max-width: 380px) {
+  header.top .bar { gap: 6px; }
+  header.top nav a { padding: 7px 9px; }
+}
+html.project-guard-active body > :not(#project-lock-screen) { display: none !important; }
+#project-lock-screen { position: fixed; inset: 0; z-index: 100000; display: grid; place-items: center; padding: 20px; background: var(--bg); color: var(--text); }
+.project-lock-dialog { width: min(100%, 460px); padding: 28px; border: 1px solid var(--line); border-top: 3px solid var(--accent); border-radius: 14px; background: var(--panel); }
+.project-lock-dialog h1 { margin-top: 0; }
+.project-lock-dialog p { color: var(--muted); }
+.project-lock-dialog a { display: inline-block; margin: 12px 0 0 12px; color: var(--accent); }
+.project-lock-dialog button[hidden] { display: none; }
+[data-theme="minecraft"] .project-lock-dialog { border-radius: 3px; }
+/* Compact owner controls without shrinking the project cards below. */
+.project-lock-admin { padding: 16px 18px; }
+.project-lock-admin h2 { margin: 0 0 4px; font-size: 18px; }
+.project-lock-admin p { margin: 0 0 12px; font-size: 13px; }
+#project-lock-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 12px; }
+.project-lock-row { min-width: 0; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); font-size: 13px; }
+.project-lock-row span { overflow-wrap: anywhere; }
+.project-lock-row .btn { flex: none; min-width: 76px; min-height: 36px; padding: 6px 10px; font-size: 13px; }
+[data-theme="minecraft"] .project-lock-row { border-radius: 2px; }
+@media (max-width: 600px) { #project-lock-controls { grid-template-columns: 1fr; } }
