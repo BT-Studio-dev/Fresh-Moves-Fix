@@ -337,5 +337,5 @@
     if (!image) return;
     var a = document.createElement('a'); a.download = 'minecraft-pfp.png'; a.href = canvas.toDataURL('image/png'); a.click();
   });
-  renderAvatarViews(); draw(); load('../owner-skin.png', true);
+  renderAvatarViews(); draw(); load('../pfp-default-skin.png', true, 'Using the default skin.');
 })();

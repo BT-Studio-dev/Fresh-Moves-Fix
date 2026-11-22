@@ -347,6 +347,7 @@ fs.copyFileSync(path.join(here, "highlights.js"), path.join(out, "highlights.js"
 fs.copyFileSync(path.join(here, "pfp-3d.js"), path.join(out, "pfp-3d.js"));
 fs.copyFileSync(path.join(here, "painter-dummy.png"), path.join(out, "render-dummy.png"));
 fs.copyFileSync(path.join(here, "pfp-dummy.png"), path.join(out, "pfp-dummy.png"));
+fs.copyFileSync(path.join(here, "pfp-default-skin.png"), path.join(out, "pfp-default-skin.png"));
 fs.copyFileSync(path.join(here, "backdrop.js"), path.join(out, "backdrop.js"));
 fs.copyFileSync(path.join(here, "player.js"), path.join(out, "player.js"));
 fs.copyFileSync(path.join(here, "studio.js"), path.join(out, "studio.js"));
