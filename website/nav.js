@@ -38,6 +38,9 @@
         scripts.push({ src: s.getAttribute("src") ? new URL(s.getAttribute("src"), target.href).href : "", textContent: s.textContent });
         s.remove();
       });
+      // Apply the lock screen before inserting a guarded page; cancel any old check.
+      window.fmfProjectGuardToken = (window.fmfProjectGuardToken || 0) + 1;
+      document.documentElement.classList.toggle("project-guard-active", !!doc.getElementById("project-lock-screen"));
       document.body.innerHTML = doc.body.innerHTML;
       runScripts(scripts, 0);
       var el = target.hash && document.getElementById(decodeURIComponent(target.hash.slice(1)));

@@ -181,6 +181,11 @@ function write(rel, html) {
     const comments = `<div class="wrap comments-wrap"><section class="card comments-card" id="tool-comments" data-page="${pageId}" aria-labelledby="comments-title"><h2 id="comments-title">Comments</h2><p>Share your thoughts about this tool. Comments are public.</p><p data-comments-login>Want to join in? <a href="../account/">Sign in to comment</a>.</p><form hidden><label for="comment-body">Your comment</label><textarea id="comment-body" maxlength="1000" rows="3" required placeholder="Write a comment…"></textarea><div class="comments-actions"><small>Up to 1,000 characters</small><button class="btn" type="submit">Post comment</button></div></form><p data-comments-status role="status" aria-live="polite"></p><div data-comments-list></div></section></div><script src="../comments.bundle.js?v=${ver("comments.js")}"></script>`;
     html = html.replace("<footer>", comments + "<footer>");
   }
+  if (new Set(["paint", "editor", "pfp", "creator", "title", "animation"]).has(pageId)) {
+    html = html.replace("</head>", `<script>document.documentElement.classList.add("project-guard-active");</script></head>`);
+    const guard = `<div id="project-lock-screen" data-project-guard="${pageId}" role="status"><div class="project-lock-dialog"><h1>Checking project availability</h1><p>Please wait…</p><button type="button" class="btn" hidden>Try again</button><a href="../creations/">Back to Projects</a></div></div><script src="../project-guard.js?v=${ver("project-guard.js")}"></script>`;
+    html = html.replace('<header class="top">', guard + '<header class="top">');
+  }
   const file = path.join(out, rel);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, html);
@@ -325,6 +330,7 @@ fs.copyFileSync(path.join(here, "editor.js"), path.join(out, "editor.js"));
 fs.copyFileSync(path.join(here, "paint.js"), path.join(out, "paint.js"));
 fs.copyFileSync(path.join(here, "render.js"), path.join(out, "render.js"));
 fs.copyFileSync(path.join(here, "pfp.js"), path.join(out, "pfp.js"));
+fs.copyFileSync(path.join(here, "project-guard.js"), path.join(out, "project-guard.js"));
 fs.copyFileSync(path.join(here, "creator.js"), path.join(out, "creator.js"));
 fs.copyFileSync(path.join(here, "pose.js"), path.join(out, "pose.js"));
 fs.copyFileSync(path.join(here, "pfp-studio.js"), path.join(out, "pfp-studio.js"));
@@ -1314,7 +1320,7 @@ write("creations/index.html", page({
   description: "Explore Fresh Moves Fix projects and creative tools.",
   body: `<div class="wrap projects-page">
 <header class="projects-heading"><h1>Projects</h1><p>Projects and creative tools from Fresh Moves Fix.</p></header>
-<section id="project-lock-admin" class="card project-lock-admin" hidden><h2>Owner project controls</h2><p>Lock or unlock links on this Projects page. Direct links and downloads can still be accessed.</p><div id="project-lock-controls"></div></section><p id="project-lock-status" role="status" aria-live="polite"></p>
+<section id="project-lock-admin" class="card project-lock-admin" hidden><h2>Owner project controls</h2><p>Lock or unlock project cards and their tool pages. This does not secure files or external downloads.</p><div id="project-lock-controls"></div></section><p id="project-lock-status" role="status" aria-live="polite"></p>
 <div class="projects-grid">
   <a class="project-card" data-project-card="pack" href="../#download"><img class="project-pack-image" src="../pack.png" alt="" width="112" height="112"><h2>Fresh Moves Fix</h2><p>Player animations and animated eyes for Minecraft Java.</p><span class="project-link-label">View downloads ${ICON.right}</span></a>
   <a class="project-card" data-project-card="paint" href="../paint/"><img src="../icon-paint-pixel.svg" alt="" width="112" height="112"><h2>Skin Painter 3D</h2><p>Paint a skin pixel by pixel in your browser.</p><span class="project-link-label">Open painter ${ICON.right}</span></a>
