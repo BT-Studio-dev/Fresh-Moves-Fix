@@ -102,7 +102,7 @@
       ctx.putImageData(frame, 0, 0);
     }
   }
-  function load(url, isDefault) {
+  function load(url, isDefault, defaultMessage) {
     var current = ++version, candidate = new Image();
     function release() { if (!isDefault) URL.revokeObjectURL(url); }
     candidate.onload = function () {
@@ -114,18 +114,22 @@
       legacy = candidate.height === 32;
       if (legacy) { skin.drawImage(source, 0, 16, 16, 16, 16, 48, 16, 16); skin.drawImage(source, 40, 16, 16, 16, 32, 48, 16, 16); }
       image = candidate; download.disabled = false; renderAvatarViews();
-      status.textContent = isDefault ? 'Using the example skin.' : 'Skin loaded. It stays in this browser.';
+      status.textContent = isDefault ? (defaultMessage || 'Using the example skin.') : 'Skin loaded. It stays in this browser.';
       draw();
     };
     candidate.onerror = function () { release(); if (current === version) status.textContent = 'Could not read that PNG. Please choose a valid skin.'; };
     candidate.src = url;
   }
+  $('pfp-use-dummy').addEventListener('click', function () { $('pfp-skin').value=''; load('../pfp-dummy.png', true, 'Using the Dummy skin.'); });
   if (window.FMFUI) window.FMFUI.colour($('pfp-color'));
   function backgroundColourChanged() { if($('pfp-background').value!=='gradient')$('pfp-background').value='color'; $('pfp-bg-hex').value=$('pfp-color').value; draw(); }
   $('pfp-color').addEventListener('input', backgroundColourChanged);
   $('pfp-color').addEventListener('change', backgroundColourChanged);
   $('pfp-bg-hex').addEventListener('input', function () { var value=this.value.trim(); if(value.charAt(0)!=='#') value='#'+value; if(/^#[0-9a-f]{6}$/i.test(value)){ $('pfp-color').value=value; if($('pfp-background').value!=='gradient')$('pfp-background').value='color'; draw(); } });
   $('pfp-bg-hex').addEventListener('change',function(){this.value=$('pfp-color').value;});
+  // Remember the gallery visibility in this browser, including across page navigation.
+  try { var savedAvatarVisibility = localStorage.getItem('fmf-pfp-avatar-views'); if (savedAvatarVisibility === 'off' || savedAvatarVisibility === 'on') $('avatar-show').checked = savedAvatarVisibility === 'on'; } catch (e) {}
+  $('avatar-show').addEventListener('change', function () { try { localStorage.setItem('fmf-pfp-avatar-views', this.checked ? 'on' : 'off'); } catch (e) {} });
   // Generate the gallery only on request to avoid nine renders while dragging.
   var avatarViews=[
     {id:'head-angle',head:true,yaw:35,pitch:18},{id:'head-front',head:true,yaw:0,pitch:0},{id:'head-side',head:true,yaw:90,pitch:0},
@@ -333,5 +337,5 @@
     if (!image) return;
     var a = document.createElement('a'); a.download = 'minecraft-pfp.png'; a.href = canvas.toDataURL('image/png'); a.click();
   });
-  draw(); load('../owner-skin.png', true);
+  renderAvatarViews(); draw(); load('../owner-skin.png', true);
 })();

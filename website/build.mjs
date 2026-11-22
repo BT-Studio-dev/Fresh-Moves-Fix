@@ -51,10 +51,10 @@ const ICON = {
   grid: svg('<rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 9.300h16M4 14.700h16M9.300 4v16M14.700 4v16"/>'),
   info: svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7.500h.01"/>'),
   left: svg('<path d="M15 5l-7 7 7 7"/>'),
-  person: svg('<circle cx="12" cy="6" r="3"/><path d="M8 21v-9h8v9"/><path d="M5 12h3M16 12h3"/>'),
+  person: svg('<path d="M9 3h6v6H9zM7 12h10v5h-2v4h-2v-4h-2v4H9v-4H7z"/>'),
   home: svg('<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>'),
-  book: svg('<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21a2 2 0 0 1 2-2h13"/>'),
-  eye: svg('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>'),
+  book: svg('<path d="M5 3h14v16H7l-2 2zM5 3v18M7 19v2h12"/>'),
+  eye: svg('<path d="M2 12h2V9h3V7h10v2h3v3h2v1h-2v3h-3v2H7v-2H4v-3H2z"/><path d="M10 10h4v5h-4z"/>'),
   gear: svg('<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/>'),
   code: svg('<path d="M8 6l-6 6 6 6"/><path d="M16 6l6 6-6 6"/>'),
   ext: svg('<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v6H4V6h6"/>'),
@@ -64,7 +64,7 @@ const ICON = {
   star: svg('<path d="M12 3l2.700 5.600 6.100.800-4.500 4.300 1.100 6.100L12 16.900 6.600 19.800l1.100-6.100L3.200 9.400l6.100-.800z"/>'),
   list: svg('<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/>'),
   box: svg('<path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/>'),
-  bug: svg('<rect x="8" y="7" width="8" height="12" rx="4"/><path d="M12 7V4M4 13h4M16 13h4M5 7l3 2M19 7l-3 2M5 20l3-3M19 20l-3-3"/>'),
+  bug: svg('<path d="M8 8h8v10H8zM10 5h4M12 8v10M4 11h4M16 11h4M4 16h4M16 16h4M6 5l2 3M18 5l-2 3"/>'),
   tag: svg('<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.500" cy="7.500" r="1.200"/>'),
 };
 function page({ title, body, depth = 0, description = "", active = "" }) {
@@ -156,6 +156,7 @@ ${body}
       <a rel="noopener" href="${REPO}">${ICON.code} GitHub</a>
       <a rel="noopener" href="${REPO}/issues">${ICON.bug} Report issues</a>
       <a href="${up}settings/">${ICON.gear} Settings</a>
+      <a href="${up}profiles/">${ICON.person} Community profiles</a>
     </div>
   </div>
   <p class="legal">Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.</p>
@@ -176,7 +177,7 @@ const commentPages = new Set(["editor", "title", "paint", "model", "animation", 
 function write(rel, html) {
   const pageId = rel.endsWith("/index.html") ? rel.slice(0, -"/index.html".length) : "";
   if (commentPages.has(pageId)) {
-    const comments = `<div class="wrap comments-wrap"><section class="card comments-card" id="tool-comments" data-page="${pageId}" aria-labelledby="comments-title"><h2 id="comments-title">Comments</h2><p>Share your thoughts about this tool. Comments are public.</p><p data-comments-login>Want to join in? <a href="../account/">Sign in to comment</a>.</p><form hidden><label for="comment-body">Your comment</label><textarea id="comment-body" maxlength="1000" rows="3" required placeholder="Write a comment…"></textarea><div class="comments-actions"><small>Up to 1,000 characters</small><button class="btn" type="submit">Post comment</button></div></form><p data-comments-status role="status" aria-live="polite"></p><div data-comments-list></div></section></div><script src="../comments.bundle.js?v=${ver("comments.js")}"></script>`;
+    const comments = `<div class="wrap comments-wrap"><section class="card comments-card" id="tool-comments" data-page="${pageId}" aria-labelledby="comments-title"><h2 id="comments-title">Comments</h2><p>Share your thoughts about this tool. Comments are public.</p><p data-comments-login>Want to join in? <a href="../account/">Sign in to comment</a>.</p><form hidden><label for="comment-body">Your comment</label><textarea id="comment-body" maxlength="1000" rows="3" required placeholder="Write a comment…"></textarea><div class="comment-image-field"><label for="comment-image">Add an image (optional)</label><input id="comment-image" type="file" accept="image/png,image/jpeg,image/webp"><small>PNG, JPEG or WebP, up to 2 MB. Images are resized before posting.</small><img data-comment-preview alt="Selected image preview" hidden></div><div class="comments-actions"><small>Up to 1,000 characters</small><button class="btn" type="submit">Post comment</button></div></form><p data-comments-status role="status" aria-live="polite"></p><div data-comments-list></div></section></div><script src="../comments.bundle.js?v=${ver("comments.js")}"></script>`;
     html = html.replace("<footer>", comments + "<footer>");
   }
   if (new Set(["paint", "editor", "pfp", "creator", "title", "animation"]).has(pageId)) {
@@ -191,6 +192,7 @@ function write(rel, html) {
 
 fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
+await bundle({ entryPoints: [path.join(here, "profiles.js")], outfile: path.join(out, "profiles.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
 await bundle({ entryPoints: [path.join(here, "project-locks.js")], outfile: path.join(out, "project-locks.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
 await bundle({ entryPoints: [path.join(here, "account-nav.js")], outfile: path.join(out, "account-nav.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
 await bundle({ entryPoints: [path.join(here, "comments.js")], outfile: path.join(out, "comments.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
@@ -318,8 +320,16 @@ write("account/index.html", page({ title: "Account - Fresh Moves Fix", active: "
 <div id="account-signup" hidden><span class="account-kicker">JOIN US</span><h1>Create your account</h1><p>Get started with your email and a display name.</p><form id="signup-form"><label>Username<input name="username" maxlength="40" autocomplete="nickname" required></label><label>Email<input name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label><label>Password<input name="password" type="password" minlength="6" autocomplete="new-password" required></label><label>Repeat password<input name="repeat" type="password" minlength="6" autocomplete="new-password" required></label><button class="btn" type="submit">Sign up</button></form><p>Username is a display name; sign in with your email.</p><div class="account-links"><button type="button" data-account-view="signin">Already have an account? Sign in</button></div></div>
 <div id="account-forgot" hidden><span class="account-kicker">ACCOUNT HELP</span><h1>Password reset</h1><p>Enter your email and we’ll send you reset instructions.</p><form id="forgot-form"><label>Email<input name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label><button class="btn" type="submit">Send reset link</button></form><div class="account-links"><button type="button" data-account-view="signin">Back to sign in</button></div></div>
 <div id="account-reset" hidden><span class="account-kicker">ACCOUNT SECURITY</span><h1>Choose a new password</h1><form id="reset-form"><label>New password<input name="password" type="password" minlength="6" autocomplete="new-password" required></label><label>Repeat password<input name="repeat" type="password" minlength="6" autocomplete="new-password" required></label><button class="btn" type="submit">Update password</button></form></div>
-<div id="account-signed-in" hidden><span class="account-kicker">WELCOME BACK</span><h1>Your account</h1><p>Manage your Fresh Moves Fix account.</p><div class="account-profile"><span class="account-avatar" id="account-avatar" aria-hidden="true"></span><div class="account-profile-info"><span class="account-profile-label">DISPLAY NAME</span><strong id="account-user"></strong><span id="account-role" class="account-role" hidden></span><span class="account-status"><span aria-hidden="true"></span> Signed in</span></div></div><div class="account-details"><span>Email</span><strong id="account-email"></strong></div><button class="btn account-signout" id="account-signout" type="button">Sign out</button></div>
-<p id="account-message" role="status" aria-live="polite"></p><div class="account-footnote">${ICON.lock}<span>Accounts powered by Supabase</span></div></section></main></div><script src="../account.bundle.js?v=${ver("account.js")}"></script>` }));
+<div id="account-signed-in" hidden><span class="account-kicker">WELCOME BACK</span><h1>Your account</h1><p>Manage your Fresh Moves Fix account.</p><div class="account-profile"><span class="account-avatar" id="account-avatar" aria-hidden="true"></span><div class="account-profile-info"><span class="account-profile-label">DISPLAY NAME</span><strong id="account-user"></strong><span id="account-role" class="account-role" hidden></span><span class="account-status"><span aria-hidden="true"></span> Signed in</span></div></div><p><a class="btn ghost" href="../profiles/">View community profiles</a></p><div class="account-details"><span>Email</span><strong id="account-email"></strong></div><div class="account-details"><span>Account created</span><strong id="account-created">Not available</strong></div><div class="account-details"><span>Last active</span><strong id="account-last-active">Not available</strong></div><p class="account-activity-note">Last active is approximate and starts tracking after this feature was added.</p><button class="btn account-signout" id="account-signout" type="button">Sign out</button><div class="account-delete-area"><button class="btn ghost" id="account-delete" type="button">Delete account</button><div id="account-delete-confirm" class="account-delete-confirm" role="group" aria-labelledby="account-delete-title" hidden><h2 id="account-delete-title">Delete your account?</h2><p>This permanently deletes your account, comments, uploads, images and friendships immediately. This cannot be undone.</p><div class="account-delete-actions"><button class="btn ghost" id="account-delete-cancel" type="button">No, keep account</button><button class="btn account-delete-yes" id="account-delete-yes" type="button">Yes, delete account</button></div></div></div></div>
+<p id="account-message" role="status" aria-live="polite"></p><div class="account-footnote">${ICON.lock}<span>Accounts powered by Supabase</span></div></section><section id="project-lock-admin" class="card project-lock-admin" hidden><h2>Owner project controls</h2><p>Lock or unlock project cards and their tool pages. This does not secure files or external downloads.</p><div id="project-lock-controls"></div><p id="project-lock-status" role="status" aria-live="polite"></p></section></main></div><script src="../account.bundle.js?v=${ver("account.js")}"></script><script src="../project-locks.bundle.js?v=${ver("project-locks.js")}"></script>` }));
+
+// ---------- public user profiles ----------
+write("profiles/index.html", page({ title: "Community profiles - Fresh Moves Fix", active: "account", depth: 1, description: "Explore community profiles, uploads and friends.", body: `<div class="wrap profiles-page" id="profiles-page"><header class="tool-page-intro"><span class="home-eyebrow">FRESH MOVES FIX COMMUNITY</span><h1>Community profiles</h1><p>Discover creators, share skins and images, and make friends.</p></header>
+<section class="card profile-directory-card"><h2>Find a creator</h2><div id="profile-directory" class="profile-directory"></div></section>
+<p id="profile-status" role="status" aria-live="polite"></p><div id="profile-view" hidden><section class="card profile-hero"><span class="profile-avatar" id="profile-avatar" aria-hidden="true"></span><div><h2 id="profile-name"></h2><p id="profile-created"></p><p id="profile-active"></p></div><div id="profile-friend-action" class="profile-actions"></div></section>
+<section class="card profile-section"><h2 id="profile-friend-count">Friends</h2><div id="profile-friends" class="profile-directory"></div></section>
+<section class="card profile-section"><h2>Uploads</h2><form id="profile-upload-form" class="profile-upload-form" hidden><div class="profile-upload-intro"><b>Share a creation</b><small>Uploads are public on your profile.</small></div><label for="profile-upload-title">Title</label><input id="profile-upload-title" maxlength="80" placeholder="Name your creation" required><div class="profile-kind-control"><span id="profile-kind-label">Type</span><div class="ed profile-kind-picker"><select id="profile-kind" aria-labelledby="profile-kind-label"><option value="skin">Minecraft skin</option><option value="image">Image</option></select></div></div><label class="profile-file-card" for="profile-file"><span class="profile-file-icon" aria-hidden="true">${ICON.up}</span><span><b>Choose a file</b><small>Skin PNG or image from your device</small></span></label><input id="profile-file" type="file" accept="image/png,image/jpeg,image/webp" required><small>PNG skins: 64×64 or 64×32. Images: PNG, JPEG or WebP up to 2 MB.</small><button class="btn" type="submit">Share upload</button></form><div id="profile-uploads" class="profile-upload-grid"></div></section>
+<section class="card profile-section"><h2>Comments</h2><p id="profile-login">Please <a href="../account/">sign in</a> to comment.</p><form id="profile-comment-form" hidden><label for="profile-comment-text">Your comment</label><textarea id="profile-comment-text" maxlength="1000" required rows="3"></textarea><button class="btn" type="submit">Post comment</button></form><div id="profile-comments"></div></section></div></div><script src="../ui.js?v=${ver("ui.js")}"></script><script src="../profiles.bundle.js?v=${ver("profiles.js")}"></script>` }));
 
 // ---------- skin eye editor ----------
 // the two default skins are embedded in the page, so the editor needs no extra requests
@@ -336,6 +346,7 @@ fs.copyFileSync(path.join(here, "banner-studio.js"), path.join(out, "banner-stud
 fs.copyFileSync(path.join(here, "highlights.js"), path.join(out, "highlights.js"));
 fs.copyFileSync(path.join(here, "pfp-3d.js"), path.join(out, "pfp-3d.js"));
 fs.copyFileSync(path.join(here, "painter-dummy.png"), path.join(out, "render-dummy.png"));
+fs.copyFileSync(path.join(here, "pfp-dummy.png"), path.join(out, "pfp-dummy.png"));
 fs.copyFileSync(path.join(here, "backdrop.js"), path.join(out, "backdrop.js"));
 fs.copyFileSync(path.join(here, "player.js"), path.join(out, "player.js"));
 fs.copyFileSync(path.join(here, "studio.js"), path.join(out, "studio.js"));
@@ -353,8 +364,6 @@ write("editor/index.html", page({
   depth: 1,
   body: `<div class="wrap editor-workspace-wrap"><article class="editor eye-workspace">
 <h1>${ICON.eye} Skin eye editor</h1>
-<p>Adds the extra pixels that make the eyes blink and move, then lets you download the skin. Everything happens in your browser; the skin is not uploaded anywhere.</p>
-<div class="note"><strong>Eyes tested in-game:</strong> a player reported that their eyes blink and move. Other eye shapes and features may behave differently and still need testing (see "How it works" below). Keep a copy of your original skin. <a href="#test">How to test it in the game</a></div>
 
 <div class="ed workspace-layout">
   <div class="ed-col">
@@ -383,7 +392,7 @@ write("editor/index.html", page({
     <h3 class="ehead"><span class="tool-ic">${ICON.eye}</span><span><b>2. Eyes</b><small>Shape and place of the eyes, eyebrows, eyelashes, mouth</small></span></h3>
     <p class="elabel">Quick choice</p>
     <p class="row"><button type="button" class="btn ghost" id="eyeboy">Boy eyes</button> <button type="button" class="btn ghost" id="eyegirl">Girl eyes</button></p>
-    <p class="ehint">${ICON.info} <span>Boy: small eyes, 2 wide and 1 tall, with eyebrows. Girl: big eyes, 2 wide and 2 tall, with eyelashes. Choose a preset and adjust the colours below.</span></p>
+    <div class="ehint eye-tip">${ICON.info} <div><b>Choose a starting look</b><p>Boy: smaller eyes with eyebrows. Girl: larger eyes with eyelashes. You can adjust the colours in the next card.</p></div></div>
     <div hidden aria-hidden="true">
     <p><label>Eye shape
       <select id="type"></select></label></p>
@@ -414,8 +423,8 @@ write("editor/index.html", page({
         <option value="none">No mouth (plain skin, under the eyes)</option>
       </select></label></p>
     <label class="pickb wide" id="lashwrap"><input type="checkbox" id="lash"><span><b>Eyelashes</b><small>Only with the eye shape "2 wide, 2 tall" at the position "Bottom".</small></span></label>
-    <p class="ehint">${ICON.info} <span>Eyebrows are drawn just above the eyes, and the mouth is drawn under the eyes. Hat-layer eyebrows and eyelashes are drawn by the pack in the game, so the preview here does not show them. Not tested in-game.</span></p>
-    <p class="ehint">${ICON.info} <span>The mouth is the lips area in the two bottom rows of the face. With pack 3.1-fix6 or newer the mouth opens in the game when you get hurt, cheer or wave. With 3.1-fix7 or newer you can also switch a talking mouth on and off: tap sneak twice quickly while looking forward. It does not follow your real voice; a pack cannot hear Simple Voice Chat (two hidden pixels in the skin file tell the pack; not tested in the game). It is drawn under the eyes; with eyes at the very bottom there is no room and it is left out. The beard uses the eyebrow colour.</span></p>
+    <div class="ehint eye-tip">${ICON.info} <div><b>Eyebrows and eyelashes</b><p>Hat-layer eyebrows and eyelashes appear in-game, not in this preview. They have not been tested in-game.</p></div></div>
+    <div class="ehint eye-tip">${ICON.info} <div><b>About the mouth</b><p>With pack 3.1-fix6 or newer, the mouth is intended to open when hurt, cheering or waving. In 3.1-fix7 or newer, look forward and double-tap sneak to toggle the talking animation. This is not voice-controlled and has not been tested in-game.</p><p>The mouth is below the eyes; if they are at the bottom there may not be room. The beard uses the eyebrow colour.</p></div></div>
 
   </section>
   </div>
@@ -448,7 +457,7 @@ write("editor/index.html", page({
   </section>
   <section class="panel ecard">
     <h3 class="ehead"><span class="tool-ic">${ICON.down}</span><span><b>4. Save</b><small>Download the finished skin</small></span></h3>
-    <p><button type="button" class="btn" id="save" disabled>${ICON.down} Download skin (.png)</button></p>
+    <p><button type="button" class="btn" id="save" disabled>${ICON.down} Download skin</button></p>
     <p class="statline"><a id="status" class="status" href="#" target="_blank" rel="noopener" title="Open the skin picture in a new tab"></a></p>
   </section>
   </div>
@@ -490,11 +499,11 @@ write("editor/index.html", page({
     </div>
     <p class="statline"><a id="msg3d" class="status" href="#" target="_blank" rel="noopener" title="Open a picture of the 3D preview in a new tab"></a></p>
   </section>
-  <section class="panel ecard">
+  <section class="panel ecard eye-face-card">
     <h3 class="ehead"><span class="tool-ic">${ICON.smile}</span><span><b>Face</b><small>How the eyes look on the skin</small></span></h3>
     <canvas id="face" width="256" height="256"></canvas>
   </section>
-  <section class="panel ecard">
+  <section class="panel ecard eye-pixels-card">
     <h3 class="ehead"><span class="tool-ic">${ICON.grid}</span><span><b>Added pixels</b><small>Top-left corner of the skin file</small></span></h3>
     <canvas id="top" width="480" height="96"></canvas>
   </section>
@@ -509,7 +518,7 @@ write("editor/index.html", page({
 <h2 id="test">${ICON.info} How to test it in the game</h2>
 <p>A player confirmed that blinking and moving eyes worked in their game. Results may differ with other skins, eye shapes or versions. Use Minecraft Java Edition; the website preview cannot test the pack for you. Keep a copy of your original skin.</p>
 <ol class="steps">
-  <li><strong>Make and save your skin.</strong> In card 2 choose the eye shape and position matching your face. If you want a mouth, pick one from the Mouth list. In card 4, press <b>Download skin (.png)</b>.</li>
+  <li><strong>Make and save your skin.</strong> In card 2 choose the eye shape and position matching your face. If you want a mouth, pick one from the Mouth list. In card 4, press <b>Download skin</b>.</li>
   <li><strong>Use the skin.</strong> In the Minecraft Launcher open Skins, choose New skin and Browse, then select your downloaded PNG. Choose Wide or Slim to match your skin and select Save &amp; Use.</li>
   <li><strong>Install the mods.</strong> Use a mod loader supported by your Minecraft version, plus matching versions of <a href="https://modrinth.com/mod/entity-model-features" rel="noopener">Entity Model Features (EMF)</a> and <a href="https://modrinth.com/mod/entitytexturefeatures" rel="noopener">Entity Texture Features (ETF)</a>. Put the mod JARs in the <code>mods</code> folder. For Fabric, also install a matching <a href="https://modrinth.com/mod/fabric-api" rel="noopener">Fabric API</a> and launch the Fabric profile. Fabric does not show a Mods button unless you add Mod Menu.</li>
   <li><strong>Install one pack.</strong> <a href="../#download">Download Fresh Moves Fix</a>, put the ZIP in <code>resourcepacks</code> without unzipping it, then enable it in Options → Resource Packs. Choose either the normal pack or Eyes Only, not both. Eyes Only does not have body emotes.</li>
@@ -543,6 +552,7 @@ write("editor/index.html", page({
 <script src="../skinview3d.bundle.js"></script>
 <script src="../player.js?v=${ver("player.js")}"></script>
 <script src="../editor.js?v=${ver("editor.js")}"></script>
+<script src="../ui.js?v=${ver("ui.js")}"></script>
 <script src="../backdrop.js?v=${ver("backdrop.js")}"></script>`,
 }));
 
@@ -698,7 +708,7 @@ write("paint/index.html", page({
 <p>Paint your Minecraft skin pixel by pixel, on the 3D model or on the flat skin file. Everything happens in your browser; the skin is not uploaded anywhere. It works without 3D graphics (WebGL).</p>
 </div>
 
-<div class="painter-workspace-bar"><div><b>Skin Painter</b><small>64 × 64 skin editor</small></div><div class="painter-view-switch" role="group" aria-label="Painter views"><button type="button" data-pview="3d" aria-pressed="true">${ICON.box} 3D</button><button type="button" data-pview="2d" aria-pressed="false">${ICON.grid} 2D</button></div><button type="button" class="btn" id="psave-top">${ICON.down} Save skin (.png)</button><button type="button" class="btn ghost" id="pfile-top" title="Choose or drop a PNG skin file here">${ICON.up} Choose skin file</button><div class="painter-history"><p class="prow"><button type="button" class="btn ghost" id="pundo" title="Ctrl+Z">Undo</button> <button type="button" class="btn ghost" id="predo" title="Ctrl+Y">Redo</button></p></div><a class="btn ghost" href="#painter-file">${ICON.up} Skin file</a></div>
+<div class="painter-workspace-bar"><div class="painter-workspace-title"><b>Skin Painter</b><small>64 × 64 skin editor</small></div><div class="painter-view-switch" role="group" aria-label="Painter views"><button type="button" data-pview="3d" aria-pressed="true">${ICON.box} 3D</button><button type="button" data-pview="2d" aria-pressed="false">${ICON.grid} 2D</button></div><button type="button" class="btn" id="psave-top">${ICON.down} Save skin</button><button type="button" class="btn ghost" id="pfile-top" title="Choose or drop a PNG skin file here">${ICON.up} Choose skin file</button><div class="painter-history"><p class="prow"><button type="button" class="btn ghost" id="pundo" title="Ctrl+Z">Undo</button> <button type="button" class="btn ghost" id="predo" title="Ctrl+Y">Redo</button></p></div><a class="btn ghost" href="#painter-file">${ICON.up} Skin file</a></div>
 <div class="ed paint workspace-layout">
   <div class="ed-col painter-tools-column">
   <section class="panel ecard painter-tools-card">
@@ -755,7 +765,6 @@ write("paint/index.html", page({
       <label class="pickb"><input type="radio" name="pfmt" id="pfmtwide" value="wide" checked><span><b>Steve</b><small>Wide arms</small></span></label>
       <label class="pickb"><input type="radio" name="pfmt" id="pfmtslim" value="slim"><span><b>Alex</b><small>Slim arms</small></span></label>
     </div>
-    <p class="prow"><button type="button" class="btn ghost" id="pclear">Empty skin</button></p>
     <p><small id="pmsg" role="status"></small></p>
   </section>
   </div>
@@ -764,7 +773,7 @@ write("paint/index.html", page({
     <h3 class="ehead"><span><b id="painter-view-title">3D model</b><small id="painter-view-help">Click the model to paint; right click paints with the second colour. Drag next to the model to turn it. Mouse wheel = zoom.</small></span></h3>
     <div class="painter-brush-controls"><p class="prow"><span>Size</span> <span class="pviews psize"><button type="button" data-psize="1" class="on" aria-pressed="true">1</button><button type="button" data-psize="2" aria-pressed="false">2</button><button type="button" data-psize="3" aria-pressed="false">3</button><button type="button" data-psize="4" aria-pressed="false">4</button></span>
       <label title="Paints the left and the right half of the player at the same time"><input type="checkbox" id="psym"> Symmetry</label>
-      <label><input type="checkbox" id="pgrid" checked> Pixel grid</label></p></div>
+      <label><input type="checkbox" id="pgrid" checked> Pixel grid</label><button type="button" class="btn ghost" id="pclear">Empty skin</button></p></div>
     ${backdropControls}
     <canvas id="p3d" class="p3d" width="460" height="560"></canvas>
     <div id="p2d-view" hidden><p class="painter-flat-hint">Paint the flat skin file. Blue outlines are the base layer; orange outlines are the outer layer.</p><canvas id="p2d" class="p2d" width="512" height="512"></canvas><div class="painter-live-preview"><b>Live 3D preview</b><canvas id="p2d-preview" width="180" height="220" role="img" aria-label="Live 3D skin preview"></canvas></div></div>
@@ -779,7 +788,7 @@ write("paint/index.html", page({
       <label>Zoom <input type="range" id="pzoom" min="0.5" max="3" step="0.01" value="0.9"></label>
       <label>Pose <select id="ppose"><option value="stand">Standing</option><option value="apart">Arms and legs apart</option></select></label>
     </div>
-    <p class="prow"><label>Cape <select id="pcape"><option value="none">No cape</option><option value="red">Red and gold</option><option value="leaf">Leaf</option><option value="blossom">Blossom</option><option value="ice">Ice</option><option value="sunset">Sunset</option><option value="checker">Checker</option><option value="night">Night sky</option><option value="star">Gold cross</option><option value="green">Fresh green</option><option value="gem">Blue gem</option><option value="flowers">Pink flowers</option><option value="smile">Green smile</option><option value="file">Your own cape file...</option></select></label>
+    <p class="prow painter-cape-controls"><label>Cape <select id="pcape"><option value="none">No cape</option><option value="red">Red and gold</option><option value="leaf">Leaf</option><option value="blossom">Blossom</option><option value="ice">Ice</option><option value="sunset">Sunset</option><option value="checker">Checker</option><option value="night">Night sky</option><option value="star">Gold cross</option><option value="green">Fresh green</option><option value="gem">Blue gem</option><option value="flowers">Pink flowers</option><option value="smile">Green smile</option><option value="file">Your own cape file...</option></select></label>
       <input type="file" id="pcapefile" accept="image/png" hidden> <button type="button" class="btn ghost" id="pcapesave" disabled>Save cape (.png)</button></p>
     </div>
   </section>
@@ -793,7 +802,7 @@ write("paint/index.html", page({
 <li>Pick a colour and click the model to paint. Hold the mouse button and move to draw a line.</li>
 <li>To reach hidden sides (under the arms, between the legs) choose the pose "Arms and legs apart" or untick a body part under "Show".</li>
 <li>To paint a hat, jacket or sleeves, choose "Outer layer" under "Paint on".</li>
-<li>Press "Save skin (.png)". Then, if you want blinking eyes, load that file in the <a href="../editor/">Skin eye editor</a>.</li>
+<li>Press "Save skin". Then, if you want blinking eyes, load that file in the <a href="../editor/">Skin eye editor</a>.</li>
 </ol>
 <p><small>Keys: B pen, E eraser, G fill, I take colour, L lighter, D darker, Ctrl+Z undo, Ctrl+Y redo.</small></p>
 </section>
@@ -1139,7 +1148,7 @@ write("cape/index.html", page({
 write("render/index.html", page({
   title: "Minecraft Render - Fresh Moves Fix", active: "creations", depth: 1,
   description: "Create a Minecraft skin thumbnail without WebGL.",
-  body: `<div class="wrap render-page"><h1>Minecraft Render</h1><p>Create an original skin render and thumbnail. The software 3D preview works without WebGL.</p>
+  body: `<div class="wrap render-page"><header class="tool-page-intro"><h1>Minecraft Render</h1><p>Create an original skin render and thumbnail. The software 3D preview works without WebGL.</p></header>
   <div class="render-layout"><section class="card render-controls"><h2>Make your thumbnail</h2>
   <label>Upload skin PNG <input id="render-skin" type="file" accept="image/png,.png"></label><p id="render-status" role="status" aria-live="polite">Using the default skin.</p>
   <label>Arm size <select id="render-model"><option value="classic">Classic (4 pixels)</option><option value="slim">Slim (3 pixels)</option></select></label>
@@ -1164,7 +1173,7 @@ const scenePalette = (id, colors) => `<div class="pfp-scene-swatches" role="grou
 write("pfp/index.html", page({
   title: "Minecraft PFP Maker - Fresh Moves Fix", active: "creations", depth: 1,
   description: "Make a Minecraft 3D skin profile picture without WebGL.",
-  body: `<div class="wrap render-page pfp-page"><h1>Minecraft PFP Maker</h1><p>Make a 3D avatar from your skin. No WebGL or account needed.</p>
+  body: `<div class="wrap render-page pfp-page"><header class="tool-page-intro"><h1>Minecraft PFP Maker</h1><p>Make a 3D avatar from your skin. No WebGL or account needed.</p></header>
   <div class="render-layout">  <div class="pfp-workspace"><section class="card render-preview pfp-interactive-preview"><h2>Preview</h2><p class="pfp-preview-help">Choose Move or Rotate, then drag the skin. Shift-drag rotates in 3D, right-drag turns the head, and scrolling zooms.</p><div class="pfp-mouse-modes" role="group" aria-label="Mouse drag mode"><button id="pfp-mode-move" type="button" aria-pressed="true">Move</button><button id="pfp-mode-rotate" type="button" aria-pressed="false">Rotate</button><button id="pfp-reset-view" type="button">Reset view</button></div><canvas id="pfp-canvas" width="512" height="512" aria-label="Profile picture preview"></canvas>
   <div class="pfp-quick-bar" role="group" aria-label="Quick preview controls"><span class="pfp-quick-label">Background</span>
     <button type="button" class="pfp-swatch" data-pfp-color="#ff5157" style="--swatch:#ff5157" aria-label="Red background" aria-pressed="false"></button>
@@ -1182,7 +1191,7 @@ write("pfp/index.html", page({
   <p id="avatar-status" role="status" aria-live="polite">Loading views…</p><div class="avatar-results" id="avatar-results" hidden><div class="avatar-grid">${avatarViews.map(([id,label]) => `<article class="card avatar-view"><h3>${label}</h3><canvas id="avatar-${id}" width="256" height="256" aria-label="${label} preview"></canvas><button class="btn" id="download-${id}" type="button">Download PNG</button></article>`).join("")}</div></div></section>
   </div>
   <section class="card render-controls"><h2>Customize</h2><p class="pfp-customize-intro">Make your profile picture your own.</p><div class="pfp-control-grid"><div class="pfp-control-group"><h3>Your skin</h3>
-  <label class="pfp-upload"><span><b>Upload skin PNG</b><small>Choose a skin from your device</small></span><input id="pfp-skin" type="file" accept="image/png,.png"></label><p id="pfp-status" role="status" aria-live="polite">Loading the example skin.</p>
+  <label class="pfp-upload"><span><b>Upload skin PNG</b><small>Choose a skin from your device</small></span><input id="pfp-skin" type="file" accept="image/png,.png"></label><button type="button" class="btn ghost pfp-dummy-button" id="pfp-use-dummy">Use Dummy skin</button><p id="pfp-status" role="status" aria-live="polite">Loading the example skin.</p>
   <div class="avatar-settings-card"><label class="avatar-size-setting"><span><b>Output size</b><small>Choose the PNG resolution</small></span><select id="avatar-quality"><option value="128">Low · 128 px</option><option value="256" selected>Medium · 256 px</option><option value="512">High · 512 px</option></select></label><label class="avatar-shading-setting"><span><b>Face shading</b><small>Adds light and dark sides to the model</small></span><input id="avatar-shading" type="checkbox" checked></label></div>
   </div>  <div class="pfp-control-group"><h3>Choose a preset</h3><div class="pfp-presets" aria-label="Profile picture presets">
     <button type="button" data-pfp-preset="headshot" aria-pressed="true"><b>Headshot</b><small>3D portrait</small></button>
@@ -1240,7 +1249,7 @@ write("pfp/index.html", page({
 write("highlights/index.html", page({
   title: "Minecraft Highlight Editor - Fresh Moves Fix", active: "creations", depth: 1,
   description: "Paint highlights on your Minecraft renders locally.",
-  body: `<div class="wrap render-page highlight-page"><h1>Minecraft Highlight Editor</h1><p>Paint highlights on a rendered avatar. Your image stays on your device.</p><div class="render-layout">
+  body: `<div class="wrap render-page highlight-page"><header class="tool-page-intro"><h1>Minecraft Highlight Editor</h1><p>Paint highlights on a rendered avatar. Your image stays on your device.</p></header><div class="render-layout">
   <section class="card render-controls"><h2>Highlight tools</h2><p>Download a transparent PNG from the <a href="../pose/">Pose Maker</a> or <a href="../pfp/">PFP Maker</a>, then upload it here. Transparent PNGs work best.</p>
   <label>Upload image <input id="hl-file" type="file" accept="image/png,image/jpeg,image/webp"><small>PNG, JPEG or WebP up to 10 MB.</small></label><p id="hl-status" role="status" aria-live="polite">No image selected.</p>
   <label>Highlight colour <input id="hl-color" type="color" value="#ffffff"></label><label>Brush size <input id="hl-size" type="range" min="2" max="80" value="12"></label><label>Opacity <input id="hl-opacity" type="range" min="5" max="100" value="45"></label>
@@ -1268,7 +1277,7 @@ write("banner-studio/index.html", page({
 write("pfp-studio/index.html", page({
   title: "PFP Finishing Studio - Fresh Moves Fix", active: "creations", depth: 1,
   description: "Create a Minecraft profile picture with a gradient, overlay and shadow.",
-  body: `<div class="wrap render-page pfp-studio-page"><h1>PFP Finishing Studio</h1><p>Finish a Minecraft profile picture with a gradient and simple effects. No account or WebGL required.</p>
+  body: `<div class="wrap render-page pfp-studio-page"><header class="tool-page-intro"><h1>PFP Finishing Studio</h1><p>Finish a Minecraft profile picture with a gradient and simple effects. No account or WebGL required.</p></header>
   <div class="render-layout"><section class="card render-controls"><h2>Customize</h2><p>First, download a transparent PNG from the <a href="../pose/">Pose Maker</a> or <a href="../pfp/">PFP Maker</a>, then upload it here.</p>
   <label>Upload avatar image <input id="studio-pfp-file" type="file" accept="image/png,image/jpeg,image/webp"><small>PNG, JPEG or WebP up to 10 MB. Transparent PNG works best.</small></label><p id="studio-pfp-status" role="status" aria-live="polite">No image selected. Files stay on your device.</p><button id="studio-pfp-remove" class="btn" type="button">Remove image</button>
   <h3>Background</h3><label>Start colour <input id="studio-pfp-bg1" type="color" value="#154f90"></label><label>End colour <input id="studio-pfp-bg2" type="color" value="#31c77c"></label><label class="studio-pfp-check"><input id="studio-pfp-transparent" type="checkbox"> Transparent background</label>
@@ -1282,7 +1291,7 @@ write("pfp-studio/index.html", page({
 write("pose/index.html", page({
   title: "Minecraft Pose Maker - Fresh Moves Fix", active: "creations", depth: 1,
   description: "Pose and bend a Minecraft skin in your browser without WebGL.",
-  body: `<div class="wrap render-page pose-page"><h1>Minecraft Pose Maker</h1><p>Pose your skin and bend its arms and legs. Your PNG stays on your device.</p>
+  body: `<div class="wrap render-page pose-page"><header class="tool-page-intro"><h1>Minecraft Pose Maker</h1><p>Pose your skin and bend its arms and legs. Your PNG stays on your device.</p></header>
   <div class="render-layout"><section class="card render-controls"><h2>Pose controls</h2>
   <label>Upload skin PNG <input id="pose-file" type="file" accept="image/png,.png"></label><p id="pose-status" role="status" aria-live="polite">Loading example skin.</p>
   <label>Arm size <select id="pose-model"><option value="classic">Classic</option><option value="slim">Slim</option></select></label>
@@ -1318,7 +1327,7 @@ write("creations/index.html", page({
   description: "Explore Fresh Moves Fix projects and creative tools.",
   body: `<div class="wrap projects-page">
 <header class="projects-heading"><span class="projects-heading-label">${ICON.box} FRESH MOVES FIX</span><h1>Projects</h1><p>Explore our projects and creative tools for Minecraft.</p></header>
-<section id="project-lock-admin" class="card project-lock-admin" hidden><h2>Owner project controls</h2><p>Lock or unlock project cards and their tool pages. This does not secure files or external downloads.</p><div id="project-lock-controls"></div></section><p id="project-lock-status" role="status" aria-live="polite"></p>
+<p id="project-lock-status" role="status" aria-live="polite"></p>
 <div class="projects-grid">
   <a class="project-card" data-project-card="pack" href="../#download"><img class="project-pack-image" src="../pack.png" alt="" width="112" height="112"><h2>Fresh Moves Fix</h2><p>Player animations and animated eyes for Minecraft Java.</p><span class="project-link-label">View downloads ${ICON.right}</span></a>
   <a class="project-card" data-project-card="paint" href="../paint/"><img src="../icon-paint-pixel.svg" alt="" width="112" height="112"><h2>Skin Painter 3D</h2><p>Paint a skin pixel by pixel in your browser.</p><span class="project-link-label">Open painter ${ICON.right}</span></a>

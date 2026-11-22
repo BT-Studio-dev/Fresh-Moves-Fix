@@ -139,6 +139,17 @@
     } };
     paintQuads(quads);
     picks.sort((p, q) => q[0] - p[0]); // nearest first
+    // Transparent pixels still need a visible, paintable surface. These are
+    // canvas-only guides on the selected layer, never written into the skin.
+    if (grid) {
+      g3.lineWidth = 0.7; g3.strokeStyle = "rgba(210,220,225,.30)"; g3.beginPath();
+      for (const q of picks) {
+        if (px[(q[6] * 64 + q[5]) * 4 + 3] !== 0) continue;
+        g3.moveTo(q[1][0], q[1][1]); g3.lineTo(q[2][0], q[2][1]);
+        g3.lineTo(q[3][0], q[3][1]); g3.lineTo(q[4][0], q[4][1]); g3.closePath();
+      }
+      g3.stroke();
+    }
     if (hover && grid) { const L = locate(hover[0], hover[1]);
       if (L) { const r = L[4]; g3.lineWidth = 1; g3.strokeStyle = "rgba(255,255,255,.28)"; g3.beginPath();
         for (const q of picks) if (q[5] >= r[0] && q[6] >= r[1] && q[5] < r[0] + r[2] && q[6] < r[1] + r[3]) { g3.moveTo(q[1][0], q[1][1]); g3.lineTo(q[2][0], q[2][1]); g3.lineTo(q[3][0], q[3][1]); g3.lineTo(q[4][0], q[4][1]); g3.closePath(); }

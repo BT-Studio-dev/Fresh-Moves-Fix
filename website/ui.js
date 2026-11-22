@@ -129,7 +129,16 @@
       S = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)); V = 1 - Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
       apply(toHex(hsv2rgb(H, S, V)), true);
     }
-    sw.addEventListener("click", (e) => { e.preventDefault(); if (inline) return; const open = box.hidden; closeAll(); box.hidden = !open; show(); raise(); });
+    const backdrop = inp.hasAttribute("data-backdrop-custom");
+    function positionBackdrop() {
+      if (!backdrop || box.hidden) return;
+      const r = sw.getBoundingClientRect(), width = box.offsetWidth, height = box.offsetHeight;
+      const left = Math.max(4, Math.min(r.left, window.innerWidth - width - 4));
+      const top = r.bottom + 6 + height <= window.innerHeight ? r.bottom + 6 : Math.max(4, r.top - height - 6);
+      box.style.left = left + "px"; box.style.top = top + "px";
+    }
+    if (backdrop) { window.addEventListener("scroll", positionBackdrop, true); window.addEventListener("resize", positionBackdrop); }
+    sw.addEventListener("click", (e) => { e.preventDefault(); if (inline) return; const open = box.hidden; closeAll(); box.hidden = !open; show(); positionBackdrop(); raise(); });
     x.addEventListener("click", close);
     sv.addEventListener("pointerdown", (e) => { try { sv.setPointerCapture(e.pointerId); } catch (er) {} point(e); });
     sv.addEventListener("pointermove", (e) => { if (e.buttons) point(e); });

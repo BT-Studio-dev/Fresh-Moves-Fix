@@ -1,0 +1,1 @@
+create policy "Moderators delete public uploads" on public.profile_uploads for delete to authenticated using (exists(select 1 from public.comment_roles where user_id=(select auth.uid()) and role in ('owner','co-owner')));
