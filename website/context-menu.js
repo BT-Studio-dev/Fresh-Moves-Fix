@@ -15,7 +15,10 @@
   document.body.appendChild(menu); document.body.appendChild(notice);
   var items = Array.prototype.slice.call(menu.querySelectorAll('button')), timer;
   function hide(restore) { if (menu.hidden) return; menu.hidden = true; if (restore && previousFocus && previousFocus.isConnected) previousFocus.focus(); }
-  var previousFocus = null;
+  var previousFocus = null, lastRightClick = null;
+  // Some browsers dispatch contextmenu without coordinates; keep the preceding
+  // right-button press as a fallback, including when the page is scrolled.
+  function rememberClick(e) { if(e.button===2) lastRightClick={x:e.clientX,y:e.clientY,time:Date.now()}; }
   function showNotice(text) { notice.textContent = text; notice.hidden = false; clearTimeout(timer); timer = setTimeout(function () { notice.hidden = true; }, 5000); }
   function open(e) {
     var target = e.target;
@@ -23,11 +26,17 @@
     var selected = window.getSelection && window.getSelection();
     if (selected && !selected.isCollapsed) { hide(false); return; }
     e.preventDefault(); previousFocus = document.activeElement;
-    menu.hidden = false; menu.style.left = '0px'; menu.style.top = '0px';
-    var width = menu.offsetWidth, height = menu.offsetHeight;
-    menu.style.left = Math.max(4, Math.min(e.clientX, window.innerWidth - width - 4)) + 'px';
-    menu.style.top = Math.max(4, Math.min(e.clientY, window.innerHeight - height - 4)) + 'px';
-    items[0].focus();
+    var x=e.clientX, y=e.clientY;
+    if(x===0 && y===0 && lastRightClick && Date.now()-lastRightClick.time<1500){x=lastRightClick.x;y=lastRightClick.y;}
+    else if(x===0 && y===0 && previousFocus && previousFocus.getBoundingClientRect){var focusRect=previousFocus.getBoundingClientRect();x=focusRect.left;y=focusRect.bottom;}
+    // Measure invisibly at the actual click, rather than flashing at the corner.
+    menu.style.visibility='hidden';menu.style.left=x+'px';menu.style.top=y+'px';menu.hidden=false;
+    var width=menu.offsetWidth,height=menu.offsetHeight,margin=4;
+    if(x+width+margin>window.innerWidth)x-=width;
+    if(y+height+margin>window.innerHeight)y-=height;
+    menu.style.left=Math.max(margin,Math.min(x,window.innerWidth-width-margin))+'px';
+    menu.style.top=Math.max(margin,Math.min(y,window.innerHeight-height-margin))+'px';
+    menu.style.visibility='';items[0].focus();
   }
   function closeOutside(e) { if (!menu.hidden && !menu.contains(e.target)) hide(false); }
   function keys(e) {
@@ -51,6 +60,7 @@
       catch (err) { showNotice('Could not copy. Use the address bar instead.'); }
     }
   }
+  document.addEventListener('mousedown', rememberClick, true);
   document.addEventListener('contextmenu', open);
   document.addEventListener('pointerdown', closeOutside);
   document.addEventListener('keydown', keys);
@@ -58,6 +68,7 @@
   window.addEventListener('scroll', hide, true);
   menu.addEventListener('click', click);
   window.__fmfContextCleanup = function () {
+    document.removeEventListener('mousedown', rememberClick, true);
     document.removeEventListener('contextmenu', open); document.removeEventListener('pointerdown', closeOutside); document.removeEventListener('keydown', keys);
     window.removeEventListener('resize', hide); window.removeEventListener('scroll', hide, true);
     clearTimeout(timer); menu.remove(); notice.remove();

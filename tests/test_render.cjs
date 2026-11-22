@@ -1,6 +1,6 @@
 const assert=require('assert'),fs=require('fs'),{JSDOM}=require('../website/node_modules/jsdom');
 const html=fs.readFileSync('website/public/render/index.html','utf8');
-assert(fs.readFileSync('website/public/creations/index.html','utf8').includes('href="../render/"'));
+assert(!fs.readFileSync('website/public/creations/index.html','utf8').includes('href="../render/"')); // The tool remains available by direct URL, without a Projects card.
 const dom=new JSDOM(html,{url:'https://example.com/render/',runScripts:'outside-only'}), w=dom.window;
 let draws=[],downloads=0, images=[], revoked=[];
 const ctx={getImageData(){return {data:new Uint8ClampedArray(64*64*4).fill(255)}},beginPath(){},moveTo(){},lineTo(){},closePath(){},fill(){},stroke(){},clearRect(){},fillRect(){},save(){},restore(){},translate(){},rotate(){},drawImage(...args){draws.push(args)},strokeText(){},fillText(){}};

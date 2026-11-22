@@ -1,0 +1,10 @@
+const assert=require('assert'),fs=require('fs'),{JSDOM}=require('../website/node_modules/jsdom');
+assert(fs.existsSync('website/public/pose.js'));const dom=new JSDOM(fs.readFileSync('website/public/pose/index.html','utf8'),{url:'https://example.com/pose/',runScripts:'outside-only'}),w=dom.window,d=w.document;
+let images=[],opts,downloads=0,revoked=[];
+const ctx={clearRect(){},drawImage(){},getImageData(){return{data:new Uint8ClampedArray(64*64*4)}}};w.HTMLCanvasElement.prototype.getContext=()=>ctx;w.HTMLCanvasElement.prototype.toDataURL=()=>{downloads++;return 'data:image/png;base64,AA=='};w.HTMLAnchorElement.prototype.click=function(){};
+w.Image=class{constructor(){images.push(this)}set src(v){this.url=v}};w.URL.createObjectURL=()=> 'blob:test';w.URL.revokeObjectURL=x=>revoked.push(x);w.drawPfp3d=(c,s,o)=>opts=o;w.eval(fs.readFileSync('website/pose.js','utf8'));
+const $=id=>d.getElementById(id),change=id=>$(id).dispatchEvent(new w.Event('input'));assert($('pose-download').disabled);images[0].width=64;images[0].height=64;images[0].onload();assert(!$('pose-download').disabled);
+$('pose-ra-bend').value='50';change('pose-ra-bend');assert.equal(opts.bends.ra,50);$('pose-ll-bend').value='-40';change('pose-ll-bend');assert.equal(opts.bends.ll,-40);$('pose-ra').value='25';change('pose-ra');assert.equal(opts.angles.ra,25);
+$('pose-download').click();assert.equal(downloads,1);$('pose-reset').click();assert.equal(opts.bends.ra,0);assert.equal(opts.bends.ll,0);assert.equal(opts.angles.ra,0);
+const input=$('pose-file');Object.defineProperty(input,'files',{value:[{name:'skin.png',type:'image/png'}],configurable:true});input.dispatchEvent(new w.Event('change'));images[1].width=12;images[1].height=12;images[1].onload();assert.match($('pose-status').textContent,/64×64/);assert.equal(revoked.length,1);
+console.log('Pose upload validation, bends, reset and download passed');dom.window.close();

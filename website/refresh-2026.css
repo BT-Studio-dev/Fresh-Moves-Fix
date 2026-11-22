@@ -824,3 +824,159 @@ html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936;
 .pfp-page .render-controls .pfp-background-upload input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
 .pfp-background-card #pfp-bg-status { margin: 10px 0 16px; font-size: 12px; }
 [data-theme="minecraft"] .pfp-page .render-controls .pfp-background-upload, [data-theme="minecraft"] .pfp-upload-icon { border-radius: 3px; }
+.creator-page { padding-top: 28px; padding-bottom: 48px; }
+.creator-intro { margin-bottom: 24px; }
+.creator-intro p, .creator-page p, .creator-page small { color: var(--muted); }
+.creator-layout { display: grid; grid-template-columns: minmax(260px, 360px) minmax(0, 1fr); gap: 18px; align-items: start; }
+.creator-page .card { padding: 22px; }
+.creator-page .card:hover { transform: none; }
+.creator-controls label { display: block; margin: 16px 0; font-weight: 600; }
+.creator-controls input[type=text] { box-sizing: border-box; width: 100%; display: block; margin-top: 6px; padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); }
+.creator-controls input[type=file], .creator-controls small { display: block; max-width: 100%; margin-top: 6px; }
+.creator-colors { display: flex; flex-wrap: wrap; gap: 16px; }
+.creator-colors label { margin: 4px 0; }
+.creator-colors input { display: block; margin-top: 6px; }
+.creator-controls .creator-check { display: flex; align-items: center; gap: 10px; }
+.creator-controls .btn { margin: 8px 8px 8px 0; }
+.creator-canvas-wrap { position: relative; }
+.creator-canvas-wrap canvas { display: block; width: 100%; height: auto; border-radius: 8px; }
+.creator-safe { position: absolute; left: 19.8%; top: 35.3%; width: 60.4%; height: 29.4%; box-sizing: border-box; border: 2px dashed rgba(255,255,255,.85); pointer-events: none; }
+.creator-links { margin-top: 18px; }
+.creator-links li { margin: 10px 0; }
+.creator-tool-links { display: flex; flex-wrap: wrap; gap: 10px; }
+@media (max-width: 750px) { .creator-layout { grid-template-columns: minmax(0,1fr); } }
+/* Use the desktop canvas rather than restricting the editor to the article width. */
+@media (min-width: 901px) {
+  .pfp-page.wrap { max-width: none; padding-left: 24px; padding-right: 24px; }
+  .pfp-page .render-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "controls preview"; }
+  .pfp-page .render-controls { grid-area: controls; min-width: 0; }
+  .pfp-page .pfp-workspace { grid-area: preview; position: sticky; top: 90px; }
+}
+.pose-page .render-preview { position: sticky; top: 90px; }
+#pose-canvas { max-width: 512px; margin: auto; background: repeating-conic-gradient(#aaa 0 25%, #ddd 0 50%) 0 0 / 24px 24px; image-rendering: pixelated; }
+.pose-page .render-controls input[type=checkbox] { display: inline-block; width: auto; margin: 0 6px 0 0; }
+@media (max-width: 750px) { .pose-page .render-preview { position: static; } }
+.pfp-studio-page .render-preview { position: sticky; top: 90px; }
+#studio-pfp-canvas { max-width: 512px; margin: auto; background: repeating-conic-gradient(#aaa 0 25%, #ddd 0 50%) 0 0 / 24px 24px; }
+.pfp-studio-page .render-controls .studio-pfp-check { display: flex; align-items: center; gap: 9px; }
+.pfp-studio-page .render-controls .studio-pfp-check input { display: inline-block; width: auto; margin: 0; }
+.pfp-studio-page .render-controls label small { display: block; color: var(--muted); font-weight: normal; margin-top: 5px; }
+@media (max-width: 750px) { .pfp-studio-page .render-preview { position: static; } }
+.creator-safe[hidden] { display: none; }
+.banner-studio .creator-controls input[type=range] { display: block; width: 100%; margin-top: 8px; accent-color: var(--accent); }
+@media (min-width: 751px) { .banner-studio .creator-preview { position: sticky; top: 90px; } }
+.highlight-page .render-preview { position: sticky; top: 90px; }
+#hl-canvas { max-width: 512px; margin: auto; background: repeating-conic-gradient(#aaa 0 25%, #ddd 0 50%) 0 0 / 24px 24px; cursor: crosshair; touch-action: none; }
+.highlight-page .render-controls small { display: block; color: var(--muted); font-weight: normal; margin-top: 5px; }
+.highlight-page .render-controls .btn { margin: 4px; }
+@media (max-width: 750px) { .highlight-page .render-preview { position: static; } }
+.avatar-page .avatar-settings { padding: 24px; }
+.avatar-options { display: flex; flex-wrap: wrap; gap: 16px; align-items: end; }
+.avatar-options label { display: grid; gap: 7px; font-weight: 600; }
+.avatar-options .avatar-check { display: flex; align-items: center; }
+.avatar-options select, .avatar-options input[type=file] { max-width: 100%; }
+.avatar-settings p, .avatar-results p { color: var(--muted); }
+.avatar-results { margin-top: 26px; }
+.avatar-results[hidden] { display: none; }
+.avatar-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; }
+.avatar-view { padding: 18px; text-align: center; }
+.avatar-view:hover { transform: none; }
+.avatar-view canvas { width: 100%; max-width: 256px; height: auto; display: block; margin: 0 auto 14px; image-rendering: pixelated; background: repeating-conic-gradient(#aaa 0 25%,#ddd 0 50%) 0 0 / 20px 20px; border-radius: 8px; }
+@media (max-width: 700px) { .avatar-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 420px) { .avatar-grid { grid-template-columns: minmax(0,1fr); } }
+.pfp-avatar-card { margin-top: 18px; padding: 24px; }
+.pfp-avatar-card > p { color: var(--muted); }
+.pfp-legacy-preview[hidden] { display: none; }
+.pfp-workspace .pfp-avatar-card { margin-top: 0; }
+.pfp-page .render-controls .avatar-settings-card { display: grid; gap: 10px; margin-top: 16px; }
+.pfp-page .render-controls .avatar-size-setting, .pfp-page .render-controls .avatar-shading-setting { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 0; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+.avatar-settings-card label span { min-width: 0; }
+.avatar-settings-card label small { display: block; margin-top: 3px; font-size: 12px; font-weight: 400; color: var(--muted); }
+.pfp-page .render-controls .avatar-size-setting select { width: auto; max-width: 50%; margin: 0; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); }
+.pfp-page .render-controls .avatar-shading-setting input { display: inline-block; width: 18px; height: 18px; margin: 0; flex: 0 0 auto; accent-color: var(--accent); }
+[data-theme="minecraft"] .pfp-page .render-controls .avatar-size-setting, [data-theme="minecraft"] .pfp-page .render-controls .avatar-shading-setting { border-radius: 3px; }
+.pfp-workspace .pfp-interactive-preview canvas { margin: 0 auto; }
+.pfp-advanced-pose { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 14px; }
+.pfp-advanced-pose summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+.pfp-advanced-pose p { font-size: 12px; }
+.pfp-pose-share { border-top: 1px solid var(--line); margin-top: 18px; padding-top: 16px; }
+.pfp-pose-share h3 { margin: 0 0 8px; }
+.pfp-pose-share p { color: var(--muted); font-size: 13px; }
+.pfp-pose-share label { display: block; font-weight: 600; margin-bottom: 6px; }
+.pfp-pose-share textarea { box-sizing: border-box; display: block; width: 100%; resize: vertical; padding: 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--text); font-size: 12px; }
+.pfp-pose-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.pfp-page .render-controls .pfp-items-card select { width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 9px; color: var(--text); background: var(--panel); }
+.pfp-light-pad { width: 120px; height: 120px; position: relative; box-sizing: border-box; margin: 8px 10px; border: 1px solid var(--line); border-radius: 12px; background: linear-gradient(135deg, var(--panel), var(--bg)); cursor: crosshair; touch-action: none; }
+.pfp-light-marker { position: absolute; width: 16px; height: 16px; border-radius: 50%; transform: translate(-50%,-50%); background: #ffe05f; border: 2px solid #fff; box-shadow: 0 1px 5px #0008; pointer-events: none; }
+.pfp-background-card label small, .pfp-scene-card label small { display: block; color: var(--muted); font-weight: normal; font-size: 12px; }
+.pfp-control-grid .pfp-scene-card .pfp-colour-panel { display: block; width: 100%; margin: 16px 0; padding: 14px; background: var(--panel); border-radius: 12px; }
+.pfp-scene-card .pfp-colour-panel .pfp-code-card { background: var(--bg); }
+.pfp-mouse-modes { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 12px 0; }
+.pfp-mouse-modes button { border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--text); padding: 8px 13px; }
+.pfp-mouse-modes button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); color: var(--accent); }
+.pfp-scene-colour-card { margin: 16px 0; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+.pfp-page .render-controls .pfp-scene-colour-card label { margin: 0 0 12px; }
+.pfp-scene-colour-card small { margin: 4px 0; }
+.pfp-scene-swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+.pfp-scene-swatches button { width: 30px; height: 30px; padding: 0; border: 1px solid var(--line); border-radius: 6px; background: var(--scene-color); cursor: pointer; }
+.pfp-scene-swatches button[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pfp-scene-swatches button:focus-visible { outline: 3px solid var(--fmf-focus); outline-offset: 3px; }
+[data-theme="minecraft"] .pfp-scene-colour-card, [data-theme="minecraft"] .pfp-scene-swatches button { border-radius: 3px; }
+.pfp-scene-picker.ed { display: block; margin: 0 0 12px; }
+.pfp-scene-picker.ed .uipick { position: fixed; z-index: 10000; box-sizing: border-box; width: 246px; max-width: calc(100vw - 8px); max-height: calc(100vh - 8px); overflow: auto; }
+.pfp-scene-picker.ed .sw:not(.small) { width: 56px; height: 36px; }
+.pfp-avatar-toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; margin: 12px 0; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+.pfp-avatar-toggle small { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; }
+.pfp-avatar-toggle input { width: 18px; height: 18px; flex: 0 0 auto; accent-color: var(--accent); }
+[data-theme="minecraft"] .pfp-avatar-toggle { border-radius: 3px; }
+.account-wrap { max-width: 480px; margin: 48px auto 80px; }
+.account-card { padding: 28px; }
+.account-card h1 { margin-top: 0; }
+.account-card form { display: grid; gap: 14px; }
+.account-card label { display: grid; gap: 6px; font-weight: 600; }
+.account-card input { width: 100%; box-sizing: border-box; border: 1px solid var(--line); background: var(--bg); color: var(--text); border-radius: 8px; padding: 11px; font: inherit; }
+.account-card .btn { justify-self: start; cursor: pointer; }
+.account-card .btn:disabled { opacity: .6; }
+.account-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+.account-links button { padding: 0; border: 0; background: none; color: var(--accent); cursor: pointer; font: inherit; text-decoration: underline; }
+#account-message { min-height: 1.5em; }
+/* Account card: lightweight, theme-aware styling without backdrop blur. */
+.account-wrap { max-width: 480px; margin: 56px auto 88px; }
+.account-card { padding: 32px; border: 1px solid var(--line); border-top: 3px solid var(--accent); border-radius: 18px; background: var(--panel); box-shadow: 0 14px 36px rgba(0,0,0,.18); }
+.account-brand { display: flex; align-items: center; gap: 12px; padding-bottom: 22px; margin-bottom: 26px; border-bottom: 1px solid var(--line); }
+.account-brand-icon { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid var(--accent); border-radius: 11px; color: var(--accent); background: var(--bg); }
+.account-brand-icon svg { width: 21px; height: 21px; }
+.account-brand b, .account-brand small { display: block; }
+.account-brand small { color: var(--muted); font-size: 10px; letter-spacing: .12em; margin-top: 2px; }
+.account-kicker { color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: .12em; }
+.account-card h1 { margin: 6px 0 7px; font-size: 28px; }
+.account-card p { color: var(--muted); line-height: 1.5; }
+.account-card form { margin-top: 24px; gap: 16px; }
+.account-card label { font-size: 14px; gap: 8px; }
+.account-card input { min-height: 48px; transition: border-color .15s; }
+.account-card input:focus { outline: 2px solid var(--accent); outline-offset: 2px; border-color: var(--accent); }
+.account-card input::placeholder { color: var(--muted); opacity: .75; }
+.account-card form .btn { width: 100%; min-height: 48px; justify-self: stretch; text-align: center; margin-top: 4px; }
+.account-links { justify-content: space-between; padding-top: 20px; border-top: 1px solid var(--line); }
+.account-links button { font-size: 14px; text-decoration: none; }
+.account-links button:hover, .account-links button:focus-visible { text-decoration: underline; }
+#account-message:empty { display: none; }
+#account-message:not(:empty) { margin: 20px 0 0; padding: 12px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 6px; color: var(--text); background: var(--bg); }
+.account-footnote { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 26px; color: var(--muted); font-size: 12px; }
+.account-footnote svg { width: 14px; height: 14px; }
+[data-theme="minecraft"] .account-card, [data-theme="minecraft"] .account-brand-icon, [data-theme="minecraft"] .account-card input { border-radius: 2px; }
+@media (max-width: 520px) { .account-wrap { margin: 28px auto 48px; } .account-card { padding: 22px; } }
+/* Secondary account navigation is clearly clickable in every theme. */
+.account-links { justify-content: stretch; gap: 10px; }
+.account-links button { flex: 1 1 160px; min-height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--text); font-weight: 600; text-align: center; text-decoration: none; transition: border-color .15s, color .15s; }
+.account-links button:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+.account-links button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; text-decoration: none; }
+[data-theme="minecraft"] .account-links button { border-radius: 2px; }
+.account-password { position: relative; display: block; }
+.account-card .account-password input { padding-right: 76px; }
+.account-password-toggle { position: absolute; right: 7px; top: 50%; transform: translateY(-50%); min-width: 56px; min-height: 34px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--text); font: inherit; font-size: 13px; cursor: pointer; }
+.account-password-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.account-password-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+[data-theme="minecraft"] .account-password-toggle { border-radius: 2px; }
+.account-password-toggle { display: grid; place-items: center; min-width: 38px; width: 38px; height: 36px; }
+.account-card .account-password input { padding-right: 52px; }
