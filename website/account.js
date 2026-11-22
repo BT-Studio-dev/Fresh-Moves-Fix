@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 
 // This is a public client key, not a service-role key. Supabase enforces access rules.
 const client = createClient('https://xecdvxknbdwetdlhaazl.supabase.co', 'sb_publishable_9iI-6RC8bYYDD7QRpgiycw_ZMh1HLDs');
+window.FMFAuthClient=client;
 const $ = id => document.getElementById(id);
 const panels = ['signin', 'signup', 'forgot', 'reset', 'signed-in'];
 // Each password field has its own accessible visibility control.
@@ -14,14 +15,29 @@ document.querySelectorAll('.account-card input[type="password"]').forEach(input 
   toggle.addEventListener('click',()=>{input.type=input.type==='password'?'text':'password';update();});
   container.appendChild(toggle);update();
 });
-let recovering = false;
+let recovering = false, roleRequest = 0;
 function show(name) { panels.forEach(p => { $('account-'+p).hidden = p !== name; }); $('account-message').textContent = ''; }
 function status(text) { $('account-message').textContent = text; }
-function displayUser(user) { $('account-user').textContent = user.user_metadata?.username || user.email || 'Your account'; show('signed-in'); }
+function displayUser(user) {
+  const name=user.user_metadata?.username || user.email || 'Your account';
+  $('account-user').textContent=name;
+  $('account-email').textContent=user.email || 'Not available';
+  $('account-avatar').textContent=Array.from(name.trim())[0]?.toUpperCase() || '?';
+  show('signed-in');
+  const request=++roleRequest, badge=$('account-role');badge.hidden=true;badge.textContent='';
+  // Run outside the auth callback to avoid re-entering Supabase auth's lock.
+  setTimeout(async () => {
+    try {
+      const {data,error}=await client.from('comment_roles').select('role').eq('user_id',user.id).maybeSingle();
+      if(request!==roleRequest || error || !data || !['owner','co-owner'].includes(data.role))return;
+      badge.textContent=data.role==='owner'?'OWNER PROFILE':'CO-OWNER PROFILE';badge.hidden=false;
+    } catch (_) { /* A missing badge never grants permissions. */ }
+  },0);
+}
 document.querySelectorAll('[data-account-view]').forEach(button => button.addEventListener('click', () => show(button.dataset.accountView)));
 client.auth.onAuthStateChange((event, session) => {
-  if (event === 'PASSWORD_RECOVERY') { recovering = true; show('reset'); }
-  else if (event === 'SIGNED_OUT') { recovering = false; show('signin'); }
+  if (event === 'PASSWORD_RECOVERY') { roleRequest++; recovering = true; show('reset'); }
+  else if (event === 'SIGNED_OUT') { roleRequest++; recovering = false; show('signin'); }
   else if (session && !recovering) displayUser(session.user);
 });
 function submit(id, action) {

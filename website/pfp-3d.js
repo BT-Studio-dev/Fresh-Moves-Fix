@@ -72,7 +72,7 @@ window.drawPfp3d = function (ctx, skin, options) {
             var cross=(q[1][0]-q[0][0])*(q[3][1]-q[0][1])-(q[1][1]-q[0][1])*(q[3][0]-q[0][0]);
             if(fi===5)cross=-cross;
             if(cross<=0)continue;
-            quads.push({z:bent && fi<4 ? (j<6?upperDepth:lowerDepth) : faceDepth,q:q,opaque:pixels[o+3]===255,color:'rgba('+channel(pixels[o],0)+','+channel(pixels[o+1],1)+','+channel(pixels[o+2],2)+','+(pixels[o+3]/255)+')'});
+            quads.push({face:pi+':'+layer+':'+fi,z:bent && fi<4 ? (j<6?upperDepth:lowerDepth) : faceDepth,q:q,opaque:pixels[o+3]===255,color:'rgba('+channel(pixels[o],0)+','+channel(pixels[o+1],1)+','+channel(pixels[o+2],2)+','+(pixels[o+3]/255)+')'});
           }
         });
       });
@@ -108,5 +108,14 @@ window.drawPfp3d = function (ctx, skin, options) {
     // A slightly overlapping same-colour edge seals antialiased gaps between opaque
     // pixels. Do not double-paint translucent pixels, which would darken glass.
     quads.sort(function(a,b){return a.z-b.z});ctx.lineJoin='round';ctx.lineWidth=1.5;
-    quads.forEach(function(item){ctx.fillStyle=ctx.strokeStyle=item.color;ctx.beginPath();ctx.moveTo(item.q[0][0],item.q[0][1]);for(var i=1;i<4;i++)ctx.lineTo(item.q[i][0],item.q[i][1]);ctx.closePath();ctx.fill();if(item.opaque)ctx.stroke();});
+    // Fill adjoining translucent pixels of the same face and colour in one
+    // path. Canvas then antialiases their shared edge only once, without the
+    // dark double-painting that stroking transparent glass would cause.
+    for(var n=0;n<quads.length;){
+      var item=quads[n],end=n+1;
+      if(!item.opaque && item.face)while(end<quads.length && quads[end].face===item.face && quads[end].z===item.z && quads[end].color===item.color && !quads[end].opaque)end++;
+      ctx.fillStyle=ctx.strokeStyle=item.color;ctx.beginPath();
+      for(var k=n;k<end;k++){var q=quads[k].q;ctx.moveTo(q[0][0],q[0][1]);for(var i=1;i<4;i++)ctx.lineTo(q[i][0],q[i][1]);ctx.closePath();}
+      ctx.fill();if(item.opaque)ctx.stroke();n=end;
+    }
 };

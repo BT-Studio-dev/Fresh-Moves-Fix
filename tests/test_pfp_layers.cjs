@@ -14,4 +14,7 @@ painted.length=0;opt.outer=false;context.window.drawPfp3d(ctx,{getImageData(){re
 // Directional light changes face colours when enabled, without changing alpha.
 opt.outer=true;opt.yaw=0;opt.lightStrength=1;opt.lightHeight=0;opt.lightDirection=0;painted.length=0;context.window.drawPfp3d(ctx,{getImageData(){return {data:pixels}}},opt);assert(painted.some(c=>c==='rgba(255,0,0,0.5019607843137255)'));opt.lightDirection=180;painted.length=0;context.window.drawPfp3d(ctx,{getImageData(){return {data:pixels}}},opt);assert(painted.some(c=>c==='rgba(153,0,0,0.5019607843137255)'));
 opt.lightDirection=0;opt.lightColor='#00ffff';painted.length=0;context.window.drawPfp3d(ctx,{getImageData(){return {data:pixels}}},opt);assert(painted.some(c=>c==='rgba(161,0,0,0.5019607843137255)'),'light colour tints the skin');
+// Adjacent identical translucent pixels share one fill, so their seam is not
+// composited twice or stroked (which would make glass darker).
+pixel(41,8,255,0,0,128); opt.lightStrength=0; opt.yaw=0; painted.length=0;strokes=0;context.window.drawPfp3d(ctx,{getImageData(){return {data:pixels}}},opt);assert.equal(painted.length,1);assert.equal(strokes,0);
 console.log('Outer-layer front, back and alpha rendering passed');

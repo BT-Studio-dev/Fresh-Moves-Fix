@@ -108,7 +108,7 @@ document.documentElement.setAttribute("data-music-button",mb==="off"?"off":"on")
 <link rel="stylesheet" href="${up}style.css?v=${ver("style.css")}">
 <link rel="stylesheet" href="${up}refresh-2026.css?v=${ver("refresh-2026.css")}">
 </head>
-<body>
+<body${active === "account" ? ' class="account-page"' : ""}>
 <header class="top"><div class="bar">
   <a class="brand" href="${up || "./"}"><img src="${up}pack.png" alt=""><span>Fresh Moves Fix</span></a>
   <nav>
@@ -117,8 +117,8 @@ document.documentElement.setAttribute("data-music-button",mb==="off"?"off":"on")
     ${nav("creations", up + "creations/", ICON.box + " Projects")}
     ${nav("editor", up + "editor/", ICON.eye + " Eye editor")}
     ${nav("title", up + "title/", ICON.tag + " Title")}
-    ${nav("settings", up + "settings/", ICON.gear + " Settings")}
-    ${nav("account", up + "account/", ICON.person + " Login")}
+    ${nav("settings", up + "settings/", svg('<path d="M10 2h4l.5 2.2a8 8 0 0 1 2 1.1l2.1-.7 2 3.5-1.7 1.5a8 8 0 0 1 0 2.8l1.7 1.5-2 3.5-2.1-.7a8 8 0 0 1-2 1.1L14 20h-4l-.5-2.2a8 8 0 0 1-2-1.1l-2.1.7-2-3.5 1.7-1.5a8 8 0 0 1 0-2.8L3.4 8.1l2-3.5 2.1.7a8 8 0 0 1 2-1.1z"/><circle cx="12" cy="11" r="2.6"/>') + " Settings")}
+    ${nav("account", up + "account/", svg('<circle cx="12" cy="8" r="3.5"/><path d="M5 20v-1.5a7 7 0 0 1 14 0V20z"/>') + ' <span id="account-nav-label">Login</span>')}
   </nav>
   <span class="snd-wrap">
     <button type="button" class="snd" data-music-toggle aria-pressed="false" aria-label="Music">${ICON.music}</button>
@@ -167,13 +167,20 @@ ${body}
 <script src="${up}nav.js?v=${ver("nav.js")}"></script>
 <script src="${up}enhancements.js?v=${ver("enhancements.js")}"></script>
 <script src="${up}context-menu.js?v=${ver("context-menu.js")}"></script>
+<script src="${up}account-nav.bundle.js?v=${ver("account-nav.js")}"></script>
 <script src="${up}livesky.bundle.js?v=${ver("livesky.js")}"></script>
 </body>
 </html>
 `;
 }
 
+const commentPages = new Set(["editor", "title", "paint", "model", "animation", "cape", "render", "pfp", "highlights", "banner-studio", "pfp-studio", "pose", "creator"]);
 function write(rel, html) {
+  const pageId = rel.endsWith("/index.html") ? rel.slice(0, -"/index.html".length) : "";
+  if (commentPages.has(pageId)) {
+    const comments = `<div class="wrap comments-wrap"><section class="card comments-card" id="tool-comments" data-page="${pageId}" aria-labelledby="comments-title"><h2 id="comments-title">Comments</h2><p>Share your thoughts about this tool. Comments are public.</p><p data-comments-login>Want to join in? <a href="../account/">Sign in to comment</a>.</p><form hidden><label for="comment-body">Your comment</label><textarea id="comment-body" maxlength="1000" rows="3" required placeholder="Write a comment…"></textarea><div class="comments-actions"><small>Up to 1,000 characters</small><button class="btn" type="submit">Post comment</button></div></form><p data-comments-status role="status" aria-live="polite"></p><div data-comments-list></div></section></div><script src="../comments.bundle.js?v=${ver("comments.js")}"></script>`;
+    html = html.replace("<footer>", comments + "<footer>");
+  }
   const file = path.join(out, rel);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, html);
@@ -181,6 +188,9 @@ function write(rel, html) {
 
 fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
+await bundle({ entryPoints: [path.join(here, "project-locks.js")], outfile: path.join(out, "project-locks.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
+await bundle({ entryPoints: [path.join(here, "account-nav.js")], outfile: path.join(out, "account-nav.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
+await bundle({ entryPoints: [path.join(here, "comments.js")], outfile: path.join(out, "comments.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
 fs.copyFileSync(path.join(root, "pack.png"), path.join(out, "pack.png"));
 fs.copyFileSync(path.join(here, "title.png"), path.join(out, "title.png"));
 // Minecraft Skins downloads are temporarily unavailable; keep the JARs out of the public build.
@@ -305,7 +315,7 @@ write("account/index.html", page({ title: "Account - Fresh Moves Fix", active: "
 <div id="account-signup" hidden><span class="account-kicker">JOIN US</span><h1>Create your account</h1><p>Get started with your email and a display name.</p><form id="signup-form"><label>Username<input name="username" maxlength="40" autocomplete="nickname" required></label><label>Email<input name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label><label>Password<input name="password" type="password" minlength="6" autocomplete="new-password" required></label><label>Repeat password<input name="repeat" type="password" minlength="6" autocomplete="new-password" required></label><button class="btn" type="submit">Sign up</button></form><p>Username is a display name; sign in with your email.</p><div class="account-links"><button type="button" data-account-view="signin">Already have an account? Sign in</button></div></div>
 <div id="account-forgot" hidden><span class="account-kicker">ACCOUNT HELP</span><h1>Password reset</h1><p>Enter your email and we’ll send you reset instructions.</p><form id="forgot-form"><label>Email<input name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label><button class="btn" type="submit">Send reset link</button></form><div class="account-links"><button type="button" data-account-view="signin">Back to sign in</button></div></div>
 <div id="account-reset" hidden><span class="account-kicker">ACCOUNT SECURITY</span><h1>Choose a new password</h1><form id="reset-form"><label>New password<input name="password" type="password" minlength="6" autocomplete="new-password" required></label><label>Repeat password<input name="repeat" type="password" minlength="6" autocomplete="new-password" required></label><button class="btn" type="submit">Update password</button></form></div>
-<div id="account-signed-in" hidden><span class="account-kicker">WELCOME BACK</span><h1>Your account</h1><p>Signed in as <strong id="account-user"></strong></p><button class="btn" id="account-signout" type="button">Sign out</button></div>
+<div id="account-signed-in" hidden><span class="account-kicker">WELCOME BACK</span><h1>Your account</h1><p>Manage your Fresh Moves Fix account.</p><div class="account-profile"><span class="account-avatar" id="account-avatar" aria-hidden="true"></span><div class="account-profile-info"><span class="account-profile-label">DISPLAY NAME</span><strong id="account-user"></strong><span id="account-role" class="account-role" hidden></span><span class="account-status"><span aria-hidden="true"></span> Signed in</span></div></div><div class="account-details"><span>Email</span><strong id="account-email"></strong></div><button class="btn account-signout" id="account-signout" type="button">Sign out</button></div>
 <p id="account-message" role="status" aria-live="polite"></p><div class="account-footnote">${ICON.lock}<span>Accounts powered by Supabase</span></div></section></main></div><script src="../account.bundle.js?v=${ver("account.js")}"></script>` }));
 
 // ---------- skin eye editor ----------
@@ -1194,10 +1204,6 @@ write("pfp/index.html", page({
   <div class="pfp-scene-colour-card"><label for="pfp-gradient-edge">Gradient edge colour<small>Choosing a colour turns on Gradient.</small></label><div class="ed pfp-scene-picker"><input id="pfp-gradient-edge" type="color" value="#d5e6f0" aria-label="Custom gradient edge colour"></div>${scenePalette("pfp-gradient-edge",["#243f5a","#365e87","#4d82b0","#83b2d5","#d5e6f0","#ffffff"])}</div>
   <label class="pfp-background-upload"><span class="pfp-upload-icon" aria-hidden="true">↑</span><span class="pfp-upload-copy"><b>Upload background</b><small>PNG, JPEG or WebP · up to 10 MB</small><span class="pfp-upload-action">Choose an image</span></span><input id="pfp-bg-upload" type="file" accept="image/png,image/jpeg,image/webp"></label><p id="pfp-bg-status" role="status" aria-live="polite">No background image selected.</p>
   <label class="pfp-layer"><span><b>Blur background</b><small>Softens an uploaded image or sky details; the avatar stays sharp. Off by default.</small></span><input id="pfp-blur" type="checkbox"></label><p id="pfp-blur-status" role="status" hidden></p>
-  </div><div class="pfp-control-group pfp-items-card"><h3>Held items</h3><p>Choose an original pixel-style item or your own skin face for either hand. Items appear in 3D body views.</p>
-  <label>Right hand <select id="pfp-item-right"><option value="none">Empty</option><option value="sword">Sword</option><option value="pick">Pickaxe</option><option value="gem">Gem</option><option value="apple">Apple</option><option value="torch">Torch</option><option value="skin-face">Your skin face</option><option value="bug">Red-eyed creature</option><option value="coin">Coin</option><option value="berry">Berry</option><option value="book">Book</option></select></label>
-  <label>Left hand <select id="pfp-item-left"><option value="none">Empty</option><option value="sword">Sword</option><option value="pick">Pickaxe</option><option value="gem">Gem</option><option value="apple">Apple</option><option value="torch">Torch</option><option value="skin-face">Your skin face</option><option value="bug">Red-eyed creature</option><option value="coin">Coin</option><option value="berry">Berry</option><option value="book">Book</option></select></label>
-  <p>Items follow the arm pose; they are not included in the separate avatar cards.</p>
   </div><div class="pfp-control-group pfp-scene-card"><h3>Scene</h3><p>Adjust the 3D lighting and add an optional floor. Background choices are in the Background card.</p>
   <div class="pfp-colour-panel"><h3>Background colour</h3><p>Choose a colour for the PFP background.</p>
     <div class="ed pfp-colour-picker"><input type="color" id="pfp-color" data-inline-picker value="#486d92" aria-label="Background colour"></div>
@@ -1308,16 +1314,17 @@ write("creations/index.html", page({
   description: "Explore Fresh Moves Fix projects and creative tools.",
   body: `<div class="wrap projects-page">
 <header class="projects-heading"><h1>Projects</h1><p>Projects and creative tools from Fresh Moves Fix.</p></header>
+<section id="project-lock-admin" class="card project-lock-admin" hidden><h2>Owner project controls</h2><p>Lock or unlock links on this Projects page. Direct links and downloads can still be accessed.</p><div id="project-lock-controls"></div></section><p id="project-lock-status" role="status" aria-live="polite"></p>
 <div class="projects-grid">
-  <a class="project-card" href="../#download"><img class="project-pack-image" src="../pack.png" alt="" width="112" height="112"><h2>Fresh Moves Fix</h2><p>Player animations and animated eyes for Minecraft Java.</p><span>View downloads ${ICON.right}</span></a>
-  <a class="project-card" href="../paint/"><img src="../icon-paint-pixel.svg" alt="" width="112" height="112"><h2>Skin Painter 3D</h2><p>Paint a skin pixel by pixel in your browser.</p><span>Open painter ${ICON.right}</span></a>
-  <a class="project-card" href="../editor/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Skin eye editor</h2><p>Add animated eye markers to your skin.</p><span>Open editor ${ICON.right}</span></a>
-  <a class="project-card" href="../pfp/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Minecraft PFP Maker</h2><p>Create a 3D profile picture from your skin.</p><span>Open PFP maker ${ICON.right}</span></a>
-  <a class="project-card" href="../creator/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Creator Studio</h2><p>Make a channel banner and explore creator tools.</p><span>Open creator studio ${ICON.right}</span></a>
-  <a class="project-card" href="../title/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Title</h2><p>Make and download a block-letter title picture.</p><span>Open title maker ${ICON.right}</span></a>
-  <a class="project-card" href="../animation/"><img src="../icon-anim-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Animation</h2><p>Arrange movements and save an animation as a video.</p><span>Open animation tool ${ICON.right}</span></a>
+  <a class="project-card" data-project-card="pack" href="../#download"><img class="project-pack-image" src="../pack.png" alt="" width="112" height="112"><h2>Fresh Moves Fix</h2><p>Player animations and animated eyes for Minecraft Java.</p><span class="project-link-label">View downloads ${ICON.right}</span></a>
+  <a class="project-card" data-project-card="paint" href="../paint/"><img src="../icon-paint-pixel.svg" alt="" width="112" height="112"><h2>Skin Painter 3D</h2><p>Paint a skin pixel by pixel in your browser.</p><span class="project-link-label">Open painter ${ICON.right}</span></a>
+  <a class="project-card" data-project-card="editor" href="../editor/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Skin eye editor</h2><p>Add animated eye markers to your skin.</p><span class="project-link-label">Open editor ${ICON.right}</span></a>
+  <a class="project-card" data-project-card="pfp" href="../pfp/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Minecraft PFP Maker</h2><p>Create a 3D profile picture from your skin.</p><span class="project-link-label">Open PFP maker ${ICON.right}</span></a>
+  <a class="project-card" data-project-card="creator" href="../creator/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Creator Studio</h2><p>Make a channel banner and explore creator tools.</p><span class="project-link-label">Open creator studio ${ICON.right}</span></a>
+  <a class="project-card" data-project-card="title" href="../title/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Title</h2><p>Make and download a block-letter title picture.</p><span class="project-link-label">Open title maker ${ICON.right}</span></a>
+  <a class="project-card" data-project-card="animation" href="../animation/"><img src="../icon-anim-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Animation</h2><p>Arrange movements and save an animation as a video.</p><span class="project-link-label">Open animation tool ${ICON.right}</span></a>
   <div class="project-card project-soon"><img src="../icon-lock-project-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Skins</h2><p>A separate Fabric mod. Downloads are temporarily locked.</p><span>Coming soon</span></div>
-</div></div>`,
+</div></div><script src="../project-locks.bundle.js?v=${ver("project-locks.js")}"></script>`,
 }));
 
 // ---------- home ----------
@@ -1387,12 +1394,12 @@ write("index.html", page({
     <h2>lie_kg</h2>
     <p>Owner of Fresh Moves Fix</p>
   </aside>
-  <aside class="owner-profile" aria-label="dudualt owner profile">
+  <aside class="owner-profile" aria-label="dudualt co-owner profile">
     <img id="dudualt-fallback" class="owner-profile-image owner-steve-fallback" src="pack.png" alt="Steve icon" width="120" height="120">
     <canvas id="dudualt-model" class="owner-profile-model" width="240" height="240" role="img" aria-label="Steve skin for dudualt" hidden data-skin="${skinData("wide/steve.png")}"></canvas>
     <span class="home-eyebrow">OWNER PROFILE</span>
     <h2>dudualt</h2>
-    <p>Owner of Fresh Moves Fix</p>
+    <p>Co-Owner</p>
   </aside>
 </div>
 
@@ -1407,37 +1414,6 @@ write("index.html", page({
     <a class="card feat" href="editor/"><h3>${ICON.hand} Sit emote</h3><p>Stand still, sneak and look straight down, and you sit on the ground. New in 3.1-fix5, not tested in the game.</p><span class="more">3D preview ${ICON.right}</span></a>
   </div>
 </section>
-<section class="home-section" id="create">
-  <div class="home-heading"><div><span class="home-eyebrow">MAKE IT YOURS</span><h2>${ICON.brush} Create</h2></div><p>Free tools, right in your browser.</p></div>
-  <div class="tools">
-    <a class="tool" href="editor/">
-      <span class="tool-head"><img class="tool-img" src="icon-skin.png" alt="" width="48" height="48"><span><b>Minecraft Skin</b><small>by Fresh Moves Fix</small></span></span>
-      <span class="tool-text">Add blinking, moving eyes and a mouth to your skin and see it in 3D.</span>
-      <span class="tags"><i class="g">Minecraft</i><i>Skin</i><i>Eyes</i><i>Mouth</i></span>
-    </a>
-    <a class="tool" href="paint/">
-      <span class="tool-head"><img class="tool-img" src="icon-paint-pixel.svg" alt="" width="48" height="48"><span><b>Skin Painter 3D</b><small>by Fresh Moves Fix</small></span></span>
-      <span class="tool-text">Paint your Minecraft skin right on a 3D model, pixel by pixel.</span>
-      <span class="tags"><i class="g">Minecraft</i><i>Skin</i><i>Paint</i><i>3D</i></span>
-    </a>
-    <a class="tool" href="title/">
-      <span class="tool-head"><img class="tool-img" src="icon-title.png" alt="" width="48" height="48"><span><b>Minecraft Title</b><small>Type a text, get the picture</small></span></span>
-      <span class="tool-text">Type your text and download a block-letter title picture. Blockbench is on the same page.</span>
-      <span class="tags"><i class="g">Minecraft</i><i>Title</i><i>Logo</i></span>
-    </a>
-    <a class="tool" href="model/">
-      <span class="tool-head"><img class="tool-img" src="icon-model-pixel.svg" alt="" width="48" height="48"><span><b>Minecraft 3D Model</b><small>by Fresh Moves Fix</small></span></span>
-      <span class="tool-text">Turn your skin into an animated 3D model file for Blender or Blockbench.</span>
-      <span class="tags"><i class="g">Minecraft</i><i>3D Model</i><i>Animated</i></span>
-    </a>
-    <a class="tool" href="animation/">
-      <span class="tool-head"><img class="tool-img" src="icon-anim-pixel.svg" alt="" width="48" height="48"><span><b>Minecraft Animation</b><small>by Fresh Moves Fix</small></span></span>
-      <span class="tool-text">Put movements in a row with your own skin and save the animation as a video.</span>
-      <span class="tags"><i class="g">Minecraft</i><i>Animation</i><i>Video</i></span>
-    </a>
-  </div>
-</section>
-
 <section class="home-section" id="requirements">
   <div class="home-heading"><div><span class="home-eyebrow">BEFORE YOU PLAY</span><h2>${ICON.wrench} Requirements</h2></div><p>Get the right mods for your version.</p></div>
   <div class="text-card">
