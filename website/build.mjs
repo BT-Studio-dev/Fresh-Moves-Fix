@@ -346,7 +346,6 @@ fs.copyFileSync(path.join(here, "banner-studio.js"), path.join(out, "banner-stud
 fs.copyFileSync(path.join(here, "highlights.js"), path.join(out, "highlights.js"));
 fs.copyFileSync(path.join(here, "pfp-3d.js"), path.join(out, "pfp-3d.js"));
 fs.copyFileSync(path.join(here, "painter-dummy.png"), path.join(out, "render-dummy.png"));
-fs.copyFileSync(path.join(here, "pfp-dummy.png"), path.join(out, "pfp-dummy.png"));
 fs.copyFileSync(path.join(here, "pfp-default-skin.png"), path.join(out, "pfp-default-skin.png"));
 fs.copyFileSync(path.join(here, "backdrop.js"), path.join(out, "backdrop.js"));
 fs.copyFileSync(path.join(here, "player.js"), path.join(out, "player.js"));
@@ -394,7 +393,7 @@ write("editor/index.html", page({
     <p class="elabel">Quick choice</p>
     <p class="row"><button type="button" class="btn ghost" id="eyeboy">Boy eyes</button> <button type="button" class="btn ghost" id="eyegirl">Girl eyes</button></p>
     <div class="ehint eye-tip">${ICON.info} <div><b>Choose a starting look</b><p>Boy: smaller eyes with eyebrows. Girl: larger eyes with eyelashes. You can adjust the colours in the next card.</p></div></div>
-    <div hidden aria-hidden="true">
+    <div class="eye-advanced-controls">
     <p><label>Eye shape
       <select id="type"></select></label></p>
     <p><label>Position on the face

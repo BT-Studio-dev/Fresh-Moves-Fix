@@ -576,6 +576,7 @@
   function enhance(sel) {
     const wrap = document.createElement("span"); wrap.className = "dd";
     const btn = document.createElement("button"); btn.type = "button"; btn.className = "dd-btn"; btn.setAttribute("aria-haspopup", "listbox");
+    const label = sel.closest("label"); if (label) btn.setAttribute("aria-label", label.firstChild.textContent.trim());
     const list = document.createElement("span"); list.className = "dd-list"; list.setAttribute("role", "listbox"); list.hidden = true;
     wrap.appendChild(btn); wrap.appendChild(list);
     sel.classList.add("vh"); sel.tabIndex = -1; sel.after(wrap);
