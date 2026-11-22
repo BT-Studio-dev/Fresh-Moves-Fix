@@ -673,10 +673,22 @@
     a.addEventListener("click", (e) => { if (String(a.getAttribute("href") || "").indexOf("blob:") !== 0) e.preventDefault(); });
   }
   blobLink($("status"), skinCanvas);
+  function previewPicture(source) {
+    const canvas = document.createElement("canvas"); canvas.width = source.width; canvas.height = source.height;
+    const ctx = canvas.getContext("2d");
+    // The backdrop is CSS on the preview canvas, not part of its pixels.
+    // Composite it only into this picture; never change the downloaded skin.
+    const colour = getComputedStyle(source).backgroundColor;
+    if (colour && colour !== "transparent" && colour !== "rgba(0, 0, 0, 0)") {
+      ctx.fillStyle = colour; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    ctx.drawImage(source, 0, 0);
+    return canvas;
+  }
   blobLink($("msg3d"), () => {
     if (!viewer) return skinCanvas();
     try { viewer.render(); } catch (e) {}
-    return $("view3d");
+    return previewPicture($("view3d"));
   });
 
   $("save").addEventListener("click", () => {

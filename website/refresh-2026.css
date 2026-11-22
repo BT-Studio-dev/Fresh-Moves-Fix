@@ -402,9 +402,9 @@ a.project-card:focus-visible { outline: 2px solid var(--accent); outline-offset:
 /* Preview backdrop swatches, shared by the painter and eye editor. */
 .backdrop-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 14px; }
 .backdrop-controls > span { color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
-.backdrop-controls button { width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 7px; background: var(--swatch, var(--panel)); cursor: pointer; }
-.backdrop-controls button[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: 2px; }
-.backdrop-controls button:focus-visible, .backdrop-custom:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.backdrop-controls > button { width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 7px; background: var(--swatch, var(--panel)); cursor: pointer; }
+.backdrop-controls > button[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: 2px; }
+.backdrop-controls > button:focus-visible, .backdrop-custom:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
 .backdrop-custom { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; }
 .backdrop-custom input[type="color"] { width: 30px; height: 30px; padding: 0; }
 .workspace-preview #view3d, .workspace-preview canvas.p3d { background: var(--editor-backdrop, var(--bg)); }
@@ -1141,3 +1141,169 @@ footer h4 { color: var(--accent); }
   .home-hero .hero-art img { width: 120px; }
   .projects-heading { padding: 24px; }
 }
+.comment-image-field { display: grid; gap: 8px; margin: 14px 0; }
+.comment-image-field input { max-width: 100%; color: var(--text); }
+.comment-image-field small { color: var(--muted); }
+.comment-image-field img, .comment-image { display: block; max-width: min(100%, 480px); max-height: 400px; width: auto; height: auto; object-fit: contain; border: 1px solid var(--line); border-radius: 8px; margin: 10px 0; }
+.comment-image-field img[hidden] { display: none; }
+/* Consistent page-title and file-upload surfaces across creator tools. */
+.tool-page-intro { padding: 22px 24px; margin: 24px 0; background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; }
+.tool-page-intro h1 { margin: 0 0 8px; line-height: 1.2; }
+.tool-page-intro p { margin: 0; color: var(--muted); }
+.comment-image-field { padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+.comment-image-field label { font-weight: 700; }
+input[type="file"]:not(.vh):not([hidden]) { max-width: 100%; color: var(--text); }
+input[type="file"]:not(.vh):not([hidden])::-webkit-file-upload-button { padding: 8px 12px; margin-right: 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel); color: var(--text); font: inherit; font-weight: 700; cursor: pointer; }
+input[type="file"]:not(.vh):not([hidden])::file-selector-button { padding: 8px 12px; margin-right: 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel); color: var(--text); font: inherit; font-weight: 700; cursor: pointer; }
+input[type="file"]:not(.vh):not([hidden]):hover::file-selector-button { border-color: var(--accent); }
+input[type="file"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+[data-theme="minecraft"] .tool-page-intro, [data-theme="minecraft"] .comment-image-field { border-radius: 3px; }
+@media (max-width: 560px) { .tool-page-intro { padding: 18px; margin: 16px 0; } }
+.pfp-page .pfp-dummy-button { width: 100%; margin: 10px 0 0; text-align: center; }
+/* Responsive workspaces: preserve room for controls and keep previews usable. */
+.pfp-page .render-layout, .pfp-page .pfp-workspace, .pfp-page .render-controls,
+.pfp-control-grid .pfp-control-group, .pfp-page .pfp-scene-card,
+.painter-page .workspace-layout, .painter-page .workspace-layout > .ed-col { min-width: 0; }
+.pfp-page .render-preview canvas, .painter-page .workspace-preview canvas { max-width: 100%; height: auto; }
+.pfp-page .pfp-scene-card .inline-picker, .pfp-page .pfp-scene-card .pk-sv,
+.pfp-page .pfp-scene-card .pk-hue { max-width: 100%; box-sizing: border-box; }
+@media (min-width: 901px) and (max-width: 1450px) {
+  .pfp-page .pfp-control-grid { columns: 1; }
+}
+@media (max-width: 900px) {
+  .pfp-page .pfp-workspace { position: static; }
+}
+@media (max-width: 700px) {
+  .painter-page .workspace-layout > .painter-tools-column { order: 0; }
+  .painter-page .workspace-layout > .workspace-preview { order: 1; }
+  .painter-page .workspace-layout > .workspace-side { order: 2; }
+  .painter-page .paint .ptools { grid-template-columns: repeat(auto-fit, minmax(76px, 1fr)); }
+  .painter-workspace-bar > div { width: auto; max-width: 100%; }
+  .painter-workspace-bar .btn { max-width: 100%; }
+}
+@media (max-width: 600px) {
+  .pfp-page .render-controls, .pfp-page .render-preview { padding: 16px; }
+  .pfp-page .pfp-control-grid { columns: 1; }
+  .pfp-page .pfp-control-grid .pfp-control-group { padding: 14px; }
+  .pfp-page .pfp-mouse-modes { flex-wrap: wrap; }
+  .painter-page .workspace-layout > .ed-col, .painter-page .panel { min-width: 0; }
+}
+.account-delete-area { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
+.account-delete-area > .btn { margin: 0; }
+.account-delete-confirm { margin-top: 12px; padding: 16px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; }
+.account-delete-confirm[hidden], .account-delete-area > .btn[hidden] { display: none; }
+.account-delete-confirm h2 { margin: 0 0 8px; font-size: 18px; }
+.account-delete-confirm p { color: var(--muted); margin: 0 0 14px; }
+.account-delete-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.account-delete-actions .btn { margin: 0; }
+.account-delete-yes { background: #b42318; color: #fff; }
+[data-theme="minecraft"] .account-delete-confirm { border-radius: 3px; }
+.account-activity-note { color: var(--muted); font-size: 12px; margin: 10px 0 16px; }
+.account-wrap .project-lock-admin { margin: 20px 0 0; }
+.account-wrap #project-lock-controls { grid-template-columns: 1fr; }
+.profiles-page { max-width: 1100px; padding-bottom: 40px; }
+.profile-directory-card, .profile-section, .profile-hero { padding: 20px; margin: 16px 0; }
+.profile-directory { display: flex; flex-wrap: wrap; gap: 8px; }
+.profile-directory > a, .profile-pending > a { padding: 7px 10px; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 7px; text-decoration: none; }
+.profile-directory a:hover { border-color: var(--accent); }
+.profile-hero { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.profile-hero h2, .profile-hero p { margin: 0; }
+.profile-avatar { display: grid; place-items: center; width: 72px; height: 72px; flex: none; color: var(--accent); background: var(--bg); border: 1px solid var(--accent); border-radius: 12px; font-size: 32px; font-weight: 800; }
+.profile-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.profile-actions .btn, .profile-pending .btn { margin: 0; }
+.profile-pending { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.profile-upload-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,170px),1fr)); gap: 12px; }
+.profile-upload-card { padding: 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; display: flex; flex-direction: column; gap: 8px; overflow-wrap: anywhere; }
+.profile-upload-card img { width: 100%; height: 160px; object-fit: contain; image-rendering: pixelated; }
+.profile-upload-card small { color: var(--muted); }
+.profile-upload-card .btn { margin: 0; text-align: center; }
+.profile-section form { display: grid; gap: 10px; margin: 14px 0; }
+.profile-section form[hidden], #profile-view[hidden] { display: none; }
+.profile-section label { display: grid; gap: 4px; }
+.profile-section input:not([type=file]), .profile-section select, .profile-section textarea { width: 100%; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 7px; font: inherit; }
+.profile-section form .btn { justify-self: start; }
+@media(max-width: 600px) { .profile-actions { width: 100%; margin-left: 0; } .profile-hero, .profile-section { padding: 16px; } }
+/* One consistent, keyboard-accessible switch for visible checkbox controls. */
+body input[type="checkbox"]:not([hidden]):not([data-part]) {
+  -webkit-appearance: none; appearance: none; display: inline-block; position: relative;
+  width: 42px !important; height: 24px !important; min-width: 42px; flex: 0 0 42px;
+  padding: 0; margin: 0 8px 0 0; vertical-align: middle; border: 1px solid var(--line);
+  border-radius: 999px; background: var(--bg); cursor: pointer;
+}
+body input[type="checkbox"]:not([hidden]):not([data-part])::before {
+  content: ""; display: block; position: absolute; top: 3px; left: 3px;
+  width: 16px; height: 16px; border-radius: 50%; background: var(--muted);
+  clip-path: none; transform: none; transition: transform .12s, background .12s;
+}
+body input[type="checkbox"]:not([hidden]):not([data-part]):checked { background: var(--accent); border-color: var(--accent); }
+body input[type="checkbox"]:not([hidden]):not([data-part]):checked::before { transform: translateX(18px); background: var(--on-accent); }
+body .fmf-switch input[type="checkbox"]::after { display: none; }
+body input[type="checkbox"]:not([hidden]):not([data-part]):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+body input[type="checkbox"]:not([hidden]):not([data-part]):disabled { opacity: .5; cursor: not-allowed; }
+@media (forced-colors: active) {
+  body input[type="checkbox"]:not([hidden]):not([data-part]) { -webkit-appearance: auto; appearance: auto; width: 20px !important; height: 20px !important; min-width: 20px; flex-basis: 20px; }
+  body input[type="checkbox"]:not([hidden]):not([data-part])::before { display: none; }
+}
+.profile-section .profile-upload-form { padding: 18px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; }
+.profile-upload-intro { display: grid; gap: 2px; }
+.profile-upload-intro small, .profile-file-card small, .profile-upload-form > small { display: block; color: var(--muted); }
+.profile-kind-control { display: grid; gap: 5px; }
+.profile-kind-picker.ed { display: block; margin: 0; }
+.profile-kind-picker .dd, .profile-kind-picker .dd-btn { width: 100%; }
+.profile-kind-picker .dd-list { width: 100%; max-width: none; }
+.profile-file-card { display: flex !important; align-items: center; gap: 12px !important; padding: 12px; border: 1px dashed var(--line); border-radius: 8px; background: var(--panel); cursor: pointer; }
+.profile-file-card:hover { border-color: var(--accent); }
+.profile-file-card > span:last-child { display: grid; gap: 3px; }
+.profile-file-icon { display: grid; place-items: center; width: 42px; height: 42px; flex: none; color: var(--accent); background: var(--bg); border-radius: 8px; }
+.profile-upload-form input[type="file"] { max-width: 100%; }
+.profile-upload-form:focus-within { border-color: var(--accent); }
+[data-theme="minecraft"] .profile-upload-form, [data-theme="minecraft"] .profile-file-card { border-radius: 3px; }
+/* Iron-silver interface icons, with darker iron on the light theme. */
+:root { --icon-iron: #bdc5c9; --icon-iron-on-accent: #293236; }
+[data-theme="light"] { --icon-iron: #48555c; }
+body :is(.ic, button > svg, a > svg:not(.fmf-live-moon), .profile-file-icon > svg) { color: var(--icon-iron); }
+body :is(a.card.go:hover .ic, a.card.go span .ic, .crumb a:hover .ic, .ed .ehint .ic, .shint .ic, .layer-eye input:checked + .ic) { color: var(--icon-iron); }
+/* Solid accent controls need a dark icon to remain legible. */
+body :is(.btn:not(.ghost), .painter-page .paint .ptools button.on, .painter-page .paint .ptools button[aria-pressed="true"]) .ic { color: var(--icon-iron-on-accent); }
+body .layer-eye .ic { opacity: .3; }
+body .layer-eye input:checked + .ic { opacity: 1; }
+@media (forced-colors: active) { body :is(.ic, button > svg, a > svg) { color: currentColor; } }
+/* Crisp forged edges echo Minecraft's iron tools without expensive effects. */
+body .ic { stroke-linecap: square; stroke-linejoin: miter; }
+body footer .cols a .ic { opacity: 1; }
+.painter-brush-controls #pclear { margin: 0; }
+.painter-page .painter-cape-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; }
+.painter-page .painter-cape-controls label { display: grid; gap: 5px; min-width: 0; }
+.painter-page .painter-cape-controls .dd { max-width: 100%; }
+.painter-page .painter-cape-controls .dd-list { max-width: min(320px, 80vw); }
+.painter-page .painter-cape-controls .btn { margin: 0; max-width: 100%; }
+/* Keep the view buttons together and let the toolbar wrap naturally. */
+.painter-workspace-bar { justify-content: flex-start; gap: 8px; }
+.painter-workspace-bar > .painter-workspace-title { display: grid; flex: 1 1 130px; width: auto; margin-right: 8px; }
+.painter-workspace-bar > .painter-view-switch { display: flex; flex: 0 0 auto; width: auto; margin: 0; }
+.painter-workspace-bar > .painter-history { flex: 0 0 auto; width: auto; margin: 0; }
+.painter-workspace-bar .btn, .painter-view-switch button { white-space: nowrap; }
+@media (max-width: 560px) {
+  .painter-workspace-bar { align-items: center; }
+  .painter-workspace-bar > .painter-workspace-title { flex-basis: 100%; }
+}
+/* Eye editor: compact, responsive preview and clearer control cards. */
+.eye-workspace .workspace-preview .eye-face-card canvas,
+.eye-workspace .workspace-preview .eye-pixels-card canvas,
+.eye-workspace #flat canvas { display: block; margin: 0 auto; max-width: 100%; height: auto; image-rendering: pixelated; border: 1px solid var(--line); border-radius: 8px; }
+.eye-workspace .workspace-preview .eye-face-card canvas { width: min(256px, 100%); }
+.eye-workspace .workspace-preview .eye-pixels-card canvas { width: min(480px, 100%); }
+.eye-workspace #wrap3d .ctl { gap: 8px; }
+.eye-workspace #wrap3d .ctl > label, .eye-workspace #wrap3d .ctl > button { margin: 0; }
+.eye-workspace .ed .ecard .row { gap: 8px; }
+.eye-workspace .ed .ecard .statline { margin-top: 10px; }
+.eye-workspace #lashwrap, .eye-workspace label.pickb.wide { gap: 10px; align-items: center; }
+.ed .backdrop-custom .dd { display: inline-flex; }
+.ed .backdrop-custom .sw { width: 32px; height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 7px; }
+.ed .backdrop-custom .uipick { position: fixed; z-index: 10000; max-width: calc(100vw - 8px); max-height: calc(100vh - 8px); overflow: auto; box-sizing: border-box; }
+[data-theme="minecraft"] .eye-workspace :is(#face, #top, #full), [data-theme="minecraft"] .ed .backdrop-custom .sw { border-radius: 3px; }
+.eye-workspace .eye-tip { border: 1px solid var(--line); }
+.eye-workspace .eye-tip > div { min-width: 0; }
+.eye-workspace .eye-tip b { display: block; color: var(--text); margin-bottom: 3px; }
+.eye-workspace .eye-tip p { margin: 0; }
+.eye-workspace .eye-tip p + p { margin-top: 8px; }

@@ -23,6 +23,8 @@ function displayUser(user) {
   $('account-user').textContent=name;
   $('account-email').textContent=user.email || 'Not available';
   $('account-avatar').textContent=Array.from(name.trim())[0]?.toUpperCase() || '?';
+  const created=new Date(user.created_at);$('account-created').textContent=user.created_at && !isNaN(created) ? created.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}) : 'Not available';
+  $('account-last-active').textContent='Loading…';
   show('signed-in');
   const request=++roleRequest, badge=$('account-role');badge.hidden=true;badge.textContent='';
   // Run outside the auth callback to avoid re-entering Supabase auth's lock.
@@ -32,6 +34,14 @@ function displayUser(user) {
       if(request!==roleRequest || error || !data || !['owner','co-owner'].includes(data.role))return;
       badge.textContent=data.role==='owner'?'OWNER PROFILE':'CO-OWNER PROFILE';badge.hidden=false;
     } catch (_) { /* A missing badge never grants permissions. */ }
+  },0);
+  setTimeout(async () => {
+    try {
+      const {data,error}=await client.from('account_activity').select('last_seen_at').eq('user_id',user.id).maybeSingle();
+      if(request!==roleRequest)return;
+      const date=new Date(data?.last_seen_at);
+      $('account-last-active').textContent=!error && data?.last_seen_at && !isNaN(date) ? date.toLocaleString(undefined,{year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : 'Not recorded yet';
+    } catch (_) { if(request===roleRequest)$('account-last-active').textContent='Not available'; }
   },0);
 }
 document.querySelectorAll('[data-account-view]').forEach(button => button.addEventListener('click', () => show(button.dataset.accountView)));
@@ -68,3 +78,18 @@ submit('reset-form', async f => {
   if(error) throw error; f.reset(); recovering=false; await client.auth.signOut(); show('signin'); status('Password updated. Sign in with your new password.');
 });
 $('account-signout').addEventListener('click', async () => { const {error}=await client.auth.signOut(); if(error) status(error.message); });
+
+// Deletion requires an explicit confirmation; the server chooses the authenticated user.
+const deleteConfirm=$('account-delete-confirm'), deleteButton=$('account-delete'), deleteYes=$('account-delete-yes');
+deleteButton.addEventListener('click',()=>{deleteConfirm.hidden=false;deleteButton.hidden=true;$('account-delete-cancel').focus();});
+$('account-delete-cancel').addEventListener('click',()=>{deleteConfirm.hidden=true;deleteButton.hidden=false;deleteButton.focus();});
+deleteYes.addEventListener('click',async()=>{
+  deleteYes.disabled=true;$('account-delete-cancel').disabled=true;status('Deleting your account…');
+  try {
+    const {error}=await client.rpc('delete_own_account');if(error)throw error;
+    roleRequest++;recovering=false;
+    try {await client.auth.signOut({scope:'local'});} catch (_) {}
+    deleteConfirm.hidden=true;deleteButton.hidden=false;show('signin');status('Your account and comments have been deleted.');
+  } catch (_) {status('Could not delete your account. Please try again.');}
+  finally {deleteYes.disabled=false;$('account-delete-cancel').disabled=false;}
+});
