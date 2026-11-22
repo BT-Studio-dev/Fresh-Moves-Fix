@@ -357,9 +357,13 @@ article.editor > p:not([class]) { padding: 18px 22px; background: var(--panel); 
 
 /* Projects: original block lettering and theme-aware, lightweight cards. */
 .projects-page { padding-top: 32px; padding-bottom: 60px; }
-.projects-heading { text-align: center; padding: 30px 12px 36px; }
-.projects-heading h1 { margin: 0; font-size: clamp(42px, 9vw, 76px); line-height: 1.2; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: #ed8cff; text-shadow: 2px 2px 0 #aa22d2, 4px 4px 0 #6e168e, 6px 6px 0 #40115d; }
-.projects-heading p { margin: 16px 0 0; color: var(--muted); }
+.projects-heading { text-align: center; padding: 36px 20px; margin: 24px 0; border: 1px solid var(--line); border-top: 3px solid var(--accent); border-radius: 16px; background: var(--panel); }
+.projects-heading-label { display: inline-flex; align-items: center; gap: 7px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: .1em; }
+.projects-heading-label .ic { width: 15px; height: 15px; }
+.projects-heading h1 { margin: 14px 0 0; font-size: clamp(38px, 7vw, 64px); line-height: 1.15; font-weight: 900; color: var(--text); }
+.projects-heading p { margin: 12px 0 0; color: var(--muted); }
+[data-theme="minecraft"] .projects-heading, [data-theme="minecraft"] .projects-heading-label { border-radius: 3px; }
+@media (max-width: 520px) { .projects-heading { padding: 28px 16px; margin: 16px 0; } }
 .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 16px; }
 .project-card { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; box-sizing: border-box; padding: 26px 20px; min-width: 0; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--text); text-decoration: none; }
 .project-card img { width: 112px; height: 112px; object-fit: contain; image-rendering: pixelated; border-radius: 12px; }
@@ -1070,3 +1074,35 @@ html.project-guard-active body > :not(#project-lock-screen) { display: none !imp
 .project-lock-row .btn { flex: none; min-width: 76px; min-height: 36px; padding: 6px 10px; font-size: 13px; }
 [data-theme="minecraft"] .project-lock-row { border-radius: 2px; }
 @media (max-width: 600px) { #project-lock-controls { grid-template-columns: 1fr; } }
+/* A lightweight, themed destination for missing pages. */
+.nf { padding: 56px 0 72px; }
+.nf-card { max-width: 680px; margin: 0 auto; padding: 38px; border: 1px solid var(--line); border-top: 3px solid var(--accent); border-radius: 18px; background: var(--panel); }
+.nf-eyebrow { display: inline-flex; align-items: center; gap: 7px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: .1em; }
+.nf-eyebrow .ic { width: 15px; height: 15px; }
+.nf-card .nf-code { font-size: clamp(76px, 15vw, 128px); margin: 22px 0 4px; }
+.nf-card h1 { margin: 8px 0; }
+.nf-description { max-width: 470px; margin: 0 auto; color: var(--muted); line-height: 1.6; }
+.nf-card .nf-go { margin: 26px 0 0; }
+.nf-help { margin: 26px 0 0; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+.nf-help a { color: var(--accent); }
+[data-theme="minecraft"] .nf-card, [data-theme="minecraft"] .nf-eyebrow { border-radius: 3px; }
+@media (max-width: 520px) { .nf { padding: 28px 0 48px; } .nf-card { padding: 25px 18px; } .nf-card .nf-go .btn { flex: 1 1 40%; } }
+/* Solid, theme-aware secondary buttons throughout the site. */
+.btn.ghost { background: var(--bg); color: var(--text); border: 1px solid var(--line); }
+.btn.ghost:hover { border-color: var(--accent); }
+.btn.ghost:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+[data-theme="glass"] .btn.ghost { background: #15231e; }
+/* Give text links in content and footer paragraphs a compact button treatment. */
+p a:not([class]), li a:not([class]) { display: inline; padding: 2px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--text); text-decoration: none; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+p a:not([class]):hover, li a:not([class]):hover { border-color: var(--accent); color: var(--accent); }
+p a:not([class]):focus-visible, li a:not([class]):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+[data-theme="glass"] p a:not([class]), [data-theme="glass"] li a:not([class]) { background: #15231e; }
+[data-theme="minecraft"] p a:not([class]), [data-theme="minecraft"] li a:not([class]) { border-radius: 2px; }
+.project-lock-dialog a.project-lock-back { margin: 16px 0 0; color: var(--text); }
+.home-hero .hero-meta .btn { margin: 0; color: var(--text); font-size: inherit; }
+/* Give the Projects page room on wide displays without widening other pages. */
+.wrap.projects-page { max-width: 1440px; }
+.projects-grid .project-card { max-width: calc((100% - 48px) / 4); }
+@media (max-width: 1200px) { .projects-grid .project-card { max-width: calc((100% - 32px) / 3); } }
+@media (max-width: 820px) { .projects-grid .project-card { max-width: calc((100% - 16px) / 2); } }
+@media (max-width: 560px) { .projects-grid .project-card { max-width: 100%; } }

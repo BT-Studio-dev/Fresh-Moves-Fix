@@ -115,8 +115,6 @@ document.documentElement.setAttribute("data-music-button",mb==="off"?"off":"on")
     ${nav("home", up || "./", ICON.home + " Home")}
     ${nav("guides", up + "guides/", ICON.book + " Guides")}
     ${nav("creations", up + "creations/", ICON.box + " Projects")}
-    ${nav("editor", up + "editor/", ICON.eye + " Eye editor")}
-    ${nav("title", up + "title/", ICON.tag + " Title")}
     ${nav("settings", up + "settings/", svg('<path d="M10 2h4l.5 2.2a8 8 0 0 1 2 1.1l2.1-.7 2 3.5-1.7 1.5a8 8 0 0 1 0 2.8l1.7 1.5-2 3.5-2.1-.7a8 8 0 0 1-2 1.1L14 20h-4l-.5-2.2a8 8 0 0 1-2-1.1l-2.1.7-2-3.5 1.7-1.5a8 8 0 0 1 0-2.8L3.4 8.1l2-3.5 2.1.7a8 8 0 0 1 2-1.1z"/><circle cx="12" cy="11" r="2.6"/>') + " Settings")}
     ${nav("account", up + "account/", svg('<circle cx="12" cy="8" r="3.5"/><path d="M5 20v-1.5a7 7 0 0 1 14 0V20z"/>') + ' <span id="account-nav-label">Login</span>')}
   </nav>
@@ -183,7 +181,7 @@ function write(rel, html) {
   }
   if (new Set(["paint", "editor", "pfp", "creator", "title", "animation"]).has(pageId)) {
     html = html.replace("</head>", `<script>document.documentElement.classList.add("project-guard-active");</script></head>`);
-    const guard = `<div id="project-lock-screen" data-project-guard="${pageId}" role="status"><div class="project-lock-dialog"><h1>Checking project availability</h1><p>Please wait…</p><button type="button" class="btn" hidden>Try again</button><a href="../creations/">Back to Projects</a></div></div><script src="../project-guard.js?v=${ver("project-guard.js")}"></script>`;
+    const guard = `<div id="project-lock-screen" data-project-guard="${pageId}" role="status"><div class="project-lock-dialog"><h1>Checking project availability</h1><p>Please wait…</p><button type="button" class="btn" hidden>Try again</button><a class="btn ghost project-lock-back" href="../creations/">${ICON.left} Back to Projects</a></div></div><script src="../project-guard.js?v=${ver("project-guard.js")}"></script>`;
     html = html.replace('<header class="top">', guard + '<header class="top">');
   }
   const file = path.join(out, rel);
@@ -1319,7 +1317,7 @@ write("creations/index.html", page({
   title: "Projects - Fresh Moves Fix", active: "creations", depth: 1,
   description: "Explore Fresh Moves Fix projects and creative tools.",
   body: `<div class="wrap projects-page">
-<header class="projects-heading"><h1>Projects</h1><p>Projects and creative tools from Fresh Moves Fix.</p></header>
+<header class="projects-heading"><span class="projects-heading-label">${ICON.box} FRESH MOVES FIX</span><h1>Projects</h1><p>Explore our projects and creative tools for Minecraft.</p></header>
 <section id="project-lock-admin" class="card project-lock-admin" hidden><h2>Owner project controls</h2><p>Lock or unlock project cards and their tool pages. This does not secure files or external downloads.</p><div id="project-lock-controls"></div></section><p id="project-lock-status" role="status" aria-live="polite"></p>
 <div class="projects-grid">
   <a class="project-card" data-project-card="pack" href="../#download"><img class="project-pack-image" src="../pack.png" alt="" width="112" height="112"><h2>Fresh Moves Fix</h2><p>Player animations and animated eyes for Minecraft Java.</p><span class="project-link-label">View downloads ${ICON.right}</span></a>
@@ -1364,12 +1362,14 @@ write("404.html", page({
   active: "",
   description: "This page does not exist.",
   depth: 0,
-  body: `<div class="wrap"><article class="nf">
-  <p class="nf-code">404</p>
-  <h1>Page not found</h1>
-  <p>This address does not exist on the site. It may have been moved, or the link was typed wrong.</p>
-  <p class="nf-go"><a class="btn" href="./">${ICON.home} Home</a> <a class="btn ghost" href="editor/">${ICON.eye} Eye editor</a> <a class="btn ghost" href="guides/">${ICON.book} Guides</a> <a class="btn ghost" href="./#download">${ICON.down} Download</a></p>
-</article></div>`,
+  body: `<div class="wrap"><main class="nf"><article class="card nf-card" aria-labelledby="nf-title">
+  <span class="nf-eyebrow">${ICON.info} PAGE NOT FOUND</span>
+  <p class="nf-code" aria-hidden="true">404</p>
+  <h1 id="nf-title">Lost your way?</h1>
+  <p class="nf-description">We couldn’t find that page. The link may be wrong or the page may have moved.</p>
+  <div class="nf-go"><a class="btn" href="./">${ICON.home} Back to home</a> <a class="btn ghost" href="editor/">${ICON.eye} Eye editor</a> <a class="btn ghost" href="guides/">${ICON.book} Guides</a> <a class="btn ghost" href="./#download">${ICON.down} Download</a></div>
+  <p class="nf-help">Looking for something else? Explore our <a href="creations/">Projects</a>.</p>
+</article></main></div>`,
 }).replace("<head>", '<head>\n<base href="/">'));
 
 write("index.html", page({
@@ -1388,7 +1388,7 @@ write("index.html", page({
       <a class="btn" href="#download">${ICON.down} Choose a download</a>
       <a class="btn ghost" href="editor/">${ICON.eye} Open skin eye editor</a>
     </div>
-    <div class="hero-meta"><span>${ICON.tag} ${esc(version)}</span><a href="guides/">${ICON.book} Eye guides</a></div>
+    <div class="hero-meta"><a class="btn ghost" href="${REPO}/releases/tag/v${encodeURIComponent(version)}" aria-label="View release v${esc(version)}">${ICON.tag} ${esc(version)}</a><a class="btn ghost" href="guides/">${ICON.book} Eye guides</a></div>
   </div>
 </div>
 
