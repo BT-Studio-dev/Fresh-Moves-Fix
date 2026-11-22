@@ -118,6 +118,7 @@ document.documentElement.setAttribute("data-music-button",mb==="off"?"off":"on")
     ${nav("editor", up + "editor/", ICON.eye + " Eye editor")}
     ${nav("title", up + "title/", ICON.tag + " Title")}
     ${nav("settings", up + "settings/", ICON.gear + " Settings")}
+    ${nav("account", up + "account/", ICON.person + " Login")}
   </nav>
   <span class="snd-wrap">
     <button type="button" class="snd" data-music-toggle aria-pressed="false" aria-label="Music">${ICON.music}</button>
@@ -296,6 +297,17 @@ const backdropControls = `<div class="backdrop-controls" role="group" aria-label
   <label class="backdrop-custom">Custom <input type="color" data-backdrop-custom value="#7fb8ff" aria-label="Custom backdrop colour"></label>
 </div>`;
 
+// Supabase client is bundled locally; only its public publishable key is included.
+await bundle({ entryPoints: [path.join(here, "account.js")], outfile: path.join(out, "account.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
+write("account/index.html", page({ title: "Account - Fresh Moves Fix", active: "account", depth: 1, body: `<div class="wrap"><main class="account-wrap"><section class="card account-card" aria-label="Fresh Moves Fix account">
+<div class="account-brand"><span class="account-brand-icon">${svg('<circle cx="12" cy="8" r="3.5"/><path d="M5 20v-1.5a7 7 0 0 1 14 0V20z"/>')}</span><span><b>Fresh Moves Fix</b><small>YOUR ACCOUNT</small></span></div>
+<div id="account-signin"><span class="account-kicker">WELCOME BACK</span><h1>Sign in</h1><p>Sign in with your email and password.</p><form id="signin-form"><label>Email<input name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label><label>Password<input name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required></label><button type="submit" class="btn">Sign in</button></form><div class="account-links"><button type="button" data-account-view="signup">Sign up with email</button><button type="button" data-account-view="forgot">Forgot your password?</button></div></div>
+<div id="account-signup" hidden><span class="account-kicker">JOIN US</span><h1>Create your account</h1><p>Get started with your email and a display name.</p><form id="signup-form"><label>Username<input name="username" maxlength="40" autocomplete="nickname" required></label><label>Email<input name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label><label>Password<input name="password" type="password" minlength="6" autocomplete="new-password" required></label><label>Repeat password<input name="repeat" type="password" minlength="6" autocomplete="new-password" required></label><button class="btn" type="submit">Sign up</button></form><p>Username is a display name; sign in with your email.</p><div class="account-links"><button type="button" data-account-view="signin">Already have an account? Sign in</button></div></div>
+<div id="account-forgot" hidden><span class="account-kicker">ACCOUNT HELP</span><h1>Password reset</h1><p>Enter your email and we’ll send you reset instructions.</p><form id="forgot-form"><label>Email<input name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label><button class="btn" type="submit">Send reset link</button></form><div class="account-links"><button type="button" data-account-view="signin">Back to sign in</button></div></div>
+<div id="account-reset" hidden><span class="account-kicker">ACCOUNT SECURITY</span><h1>Choose a new password</h1><form id="reset-form"><label>New password<input name="password" type="password" minlength="6" autocomplete="new-password" required></label><label>Repeat password<input name="repeat" type="password" minlength="6" autocomplete="new-password" required></label><button class="btn" type="submit">Update password</button></form></div>
+<div id="account-signed-in" hidden><span class="account-kicker">WELCOME BACK</span><h1>Your account</h1><p>Signed in as <strong id="account-user"></strong></p><button class="btn" id="account-signout" type="button">Sign out</button></div>
+<p id="account-message" role="status" aria-live="polite"></p><div class="account-footnote">${ICON.lock}<span>Accounts powered by Supabase</span></div></section></main></div><script src="../account.bundle.js?v=${ver("account.js")}"></script>` }));
+
 // ---------- skin eye editor ----------
 // the two default skins are embedded in the page, so the editor needs no extra requests
 const skinData = (p) => "data:image/png;base64," + fs.readFileSync(path.join(root, "assets/minecraft/textures/entity/player", p)).toString("base64");
@@ -303,6 +315,11 @@ fs.copyFileSync(path.join(here, "editor.js"), path.join(out, "editor.js"));
 fs.copyFileSync(path.join(here, "paint.js"), path.join(out, "paint.js"));
 fs.copyFileSync(path.join(here, "render.js"), path.join(out, "render.js"));
 fs.copyFileSync(path.join(here, "pfp.js"), path.join(out, "pfp.js"));
+fs.copyFileSync(path.join(here, "creator.js"), path.join(out, "creator.js"));
+fs.copyFileSync(path.join(here, "pose.js"), path.join(out, "pose.js"));
+fs.copyFileSync(path.join(here, "pfp-studio.js"), path.join(out, "pfp-studio.js"));
+fs.copyFileSync(path.join(here, "banner-studio.js"), path.join(out, "banner-studio.js"));
+fs.copyFileSync(path.join(here, "highlights.js"), path.join(out, "highlights.js"));
 fs.copyFileSync(path.join(here, "pfp-3d.js"), path.join(out, "pfp-3d.js"));
 fs.copyFileSync(path.join(here, "painter-dummy.png"), path.join(out, "render-dummy.png"));
 fs.copyFileSync(path.join(here, "backdrop.js"), path.join(out, "backdrop.js"));
@@ -1125,12 +1142,16 @@ write("render/index.html", page({
   <script src="../render.js?v=${ver("render.js")}"></script>`,
 }));
 
+const avatarViews = [["head-angle","Angled head"],["head-front","Front head"],["head-side","Side head"],["body-front","Front body"],["body-angle","Angled body"],["body-side","Side body"],["body-wave","Wave"],["body-step","Step"],["body-tilt","Arms out"]];
+
+const scenePalette = (id, colors) => `<div class="pfp-scene-swatches" role="group" aria-label="${id === 'pfp-gradient-edge' ? 'Gradient edge' : id === 'pfp-light-color' ? 'Light' : 'Floor'} colour presets">${colors.map(c => `<button type="button" data-scene-color="${c}" data-scene-target="${id}" style="--scene-color:${c}" aria-label="${c}" aria-pressed="false"></button>`).join("")}</div>`;
+
 // ---------- profile picture maker ----------
 write("pfp/index.html", page({
   title: "Minecraft PFP Maker - Fresh Moves Fix", active: "creations", depth: 1,
   description: "Make a Minecraft 3D skin profile picture without WebGL.",
   body: `<div class="wrap render-page pfp-page"><h1>Minecraft PFP Maker</h1><p>Make a 3D avatar from your skin. No WebGL or account needed.</p>
-  <div class="render-layout">  <div class="pfp-workspace"><section class="card render-preview"><h2>Preview</h2><p class="pfp-preview-help">In 3D, drag to rotate the camera or right-drag to turn the head. Scroll to zoom. The sliders also work.</p><canvas id="pfp-canvas" width="512" height="512" aria-label="Profile picture preview"></canvas>
+  <div class="render-layout">  <div class="pfp-workspace"><section class="card render-preview pfp-interactive-preview"><h2>Preview</h2><p class="pfp-preview-help">Choose Move or Rotate, then drag the skin. Shift-drag rotates in 3D, right-drag turns the head, and scrolling zooms.</p><div class="pfp-mouse-modes" role="group" aria-label="Mouse drag mode"><button id="pfp-mode-move" type="button" aria-pressed="true">Move</button><button id="pfp-mode-rotate" type="button" aria-pressed="false">Rotate</button><button id="pfp-reset-view" type="button">Reset view</button></div><canvas id="pfp-canvas" width="512" height="512" aria-label="Profile picture preview"></canvas>
   <div class="pfp-quick-bar" role="group" aria-label="Quick preview controls"><span class="pfp-quick-label">Background</span>
     <button type="button" class="pfp-swatch" data-pfp-color="#ff5157" style="--swatch:#ff5157" aria-label="Red background" aria-pressed="false"></button>
     <button type="button" class="pfp-swatch" data-pfp-color="#27c96d" style="--swatch:#27c96d" aria-label="Green background" aria-pressed="false"></button>
@@ -1141,16 +1162,15 @@ write("pfp/index.html", page({
     <button type="button" class="pfp-swatch" data-pfp-color="#a47ad4" style="--swatch:#a47ad4" aria-label="Purple background" aria-pressed="false"></button>
     <button type="button" class="pfp-swatch" data-pfp-color="#161b29" style="--swatch:#161b29" aria-label="Dark background" aria-pressed="false"></button>
     <button type="button" id="pfp-quick-3d" aria-pressed="true" title="Switch between 3D and 2D">3D</button>
+  <div class="pfp-pose-share"><h3>Share custom pose</h3><p>Copy these settings to share or paste pose JSON to load it. Some external limb and head poses can be imported approximately; your skin is not included.</p><label for="pfp-pose-data">Pose settings</label><textarea id="pfp-pose-data" rows="3" spellcheck="false" placeholder="Copy a pose or paste settings here"></textarea><div class="pfp-pose-actions"><button type="button" class="btn" id="pfp-pose-copy">Copy pose</button><button type="button" class="btn" id="pfp-pose-load">Load pose</button></div><p id="pfp-pose-share-status" role="status" aria-live="polite"></p></div>
   </div></section>
-
+  <section class="card pfp-avatar-card"><h2>Avatar views</h2><label class="pfp-avatar-toggle"><span><b>Show avatar views</b><small>Hide the cards when you don’t need them.</small></span><input id="avatar-show" type="checkbox" checked></label><p>Nine transparent head and body pictures, updated automatically.</p>
+  <p id="avatar-status" role="status" aria-live="polite">Loading views…</p><div class="avatar-results" id="avatar-results" hidden><div class="avatar-grid">${avatarViews.map(([id,label]) => `<article class="card avatar-view"><h3>${label}</h3><canvas id="avatar-${id}" width="256" height="256" aria-label="${label} preview"></canvas><button class="btn" id="download-${id}" type="button">Download PNG</button></article>`).join("")}</div></div></section>
   </div>
   <section class="card render-controls"><h2>Customize</h2><p class="pfp-customize-intro">Make your profile picture your own.</p><div class="pfp-control-grid"><div class="pfp-control-group"><h3>Your skin</h3>
   <label class="pfp-upload"><span><b>Upload skin PNG</b><small>Choose a skin from your device</small></span><input id="pfp-skin" type="file" accept="image/png,.png"></label><p id="pfp-status" role="status" aria-live="polite">Loading the example skin.</p>
-  </div><div class="pfp-colour-panel pfp-control-group"><h3>Background colour</h3><p>Choose a colour for the PFP background.</p>
-    <div class="ed pfp-colour-picker"><input type="color" id="pfp-color" data-inline-picker value="#486d92" aria-label="Background colour"></div>
-    <label class="pfp-code-card"><span><b>Background colour code</b><small>Enter a six-digit hex colour</small></span><span class="pfp-code-field"><span id="pfp-code-swatch" aria-hidden="true"></span><input type="text" id="pfp-bg-hex" value="#486d92" maxlength="7" spellcheck="false" aria-label="Background colour code"></span></label>
-  </div>
-  <div class="pfp-control-group"><h3>Choose a preset</h3><div class="pfp-presets" aria-label="Profile picture presets">
+  <div class="avatar-settings-card"><label class="avatar-size-setting"><span><b>Output size</b><small>Choose the PNG resolution</small></span><select id="avatar-quality"><option value="128">Low · 128 px</option><option value="256" selected>Medium · 256 px</option><option value="512">High · 512 px</option></select></label><label class="avatar-shading-setting"><span><b>Face shading</b><small>Adds light and dark sides to the model</small></span><input id="avatar-shading" type="checkbox" checked></label></div>
+  </div>  <div class="pfp-control-group"><h3>Choose a preset</h3><div class="pfp-presets" aria-label="Profile picture presets">
     <button type="button" data-pfp-preset="headshot" aria-pressed="true"><b>Headshot</b><small>3D portrait</small></button>
     <button type="button" data-pfp-preset="head" aria-pressed="false"><b>Head</b><small>3D close-up</small></button>
     <button type="button" data-pfp-preset="full" aria-pressed="false"><b>Full body</b><small>3D standing</small></button>
@@ -1162,18 +1182,124 @@ write("pfp/index.html", page({
   </div><div class="pfp-control-group"><h3>Head &amp; camera</h3><label>Head look left / right <input id="pfp-head-yaw" type="range" min="-60" max="60" value="0"></label>
   <label>Head look up / down <input id="pfp-head-pitch" type="range" min="-45" max="45" value="0"><small>Left is up, right is down. Applies to 3D presets.</small></label>
   <label>Camera angle <input id="pfp-yaw" type="range" min="-180" max="180" value="25"></label>
-  <label>Camera height <input id="pfp-pitch" type="range" min="-45" max="45" value="10"></label>
-  </div><div class="pfp-control-group pfp-background-card"><h3>Background</h3><p class="pfp-background-intro">Choose a backdrop for your picture.</p><div class="pfp-presets pfp-background-options" role="group" aria-label="Background"><button type="button" data-pfp-target="pfp-background" data-value="color" aria-pressed="true"><b>Color</b><small>Solid background</small></button><button type="button" data-pfp-target="pfp-background" data-value="transparent" aria-pressed="false"><b>Transparent</b><small>No background</small></button><button type="button" data-pfp-target="pfp-background" data-value="day" aria-pressed="false"><b>Day sky</b><small>Sun</small></button><button type="button" data-pfp-target="pfp-background" data-value="night" aria-pressed="false"><b>Night sky</b><small>Moon and stars</small></button></div>
-  <select id="pfp-background" hidden aria-label="Selected background"><option value="color">Color</option><option value="transparent">Transparent</option><option value="day">Day sky</option><option value="night">Night sky</option><option value="image">Uploaded image</option></select>
+  <label>Camera height <input id="pfp-pitch" type="range" min="-180" max="180" value="10"></label>
+  <label>Skin position left / right <input id="pfp-position-x" type="range" min="-256" max="256" value="0"></label><label>Skin position up / down <input id="pfp-position-y" type="range" min="-256" max="256" value="0"></label>
+  <label>Right arm pose <input id="pfp-arm-right" type="range" min="-150" max="150" value="0"><small>Adjusts 3D poses; Wave starts raised.</small></label>
+  <label>Left arm pose <input id="pfp-arm-left" type="range" min="-150" max="150" value="0"></label>
+  <details class="pfp-advanced-pose"><summary>More 3D pose controls</summary><p>Rotate each part independently. X tilts forward/back, Y turns, and Z tilts sideways. Applies to the interactive 3D preview.</p>
+  ${[["model-roll","Model tilt"],["head-roll","Head tilt"],["body-x","Body X"],["body-y","Body Y"],["body-z","Body Z"],["ra-x","Right arm X"],["ra-y","Right arm Y"],["la-x","Left arm X"],["la-y","Left arm Y"],["rl-x","Right leg X"],["rl-y","Right leg Y"],["rl-z","Right leg Z"],["ll-x","Left leg X"],["ll-y","Left leg Y"],["ll-z","Left leg Z"]].map(([id,label]) => `<label>${label} <input id="pfp-${id}" type="range" min="-90" max="90" value="0"></label>`).join("")}
+  <button type="button" class="btn" id="pfp-reset-pose">Reset pose</button></details>
+  </div><div class="pfp-control-group pfp-background-card"><h3>Background</h3><p class="pfp-background-intro">Choose a backdrop for your picture.</p><div class="pfp-presets pfp-background-options" role="group" aria-label="Background"><button type="button" data-pfp-target="pfp-background" data-value="color" aria-pressed="true"><b>Color</b><small>Solid background</small></button><button type="button" data-pfp-target="pfp-background" data-value="gradient" aria-pressed="false"><b>Gradient</b><small>Two colours</small></button><button type="button" data-pfp-target="pfp-background" data-value="transparent" aria-pressed="false"><b>Transparent</b><small>No background</small></button><button type="button" data-pfp-target="pfp-background" data-value="day" aria-pressed="false"><b>Day sky</b><small>Sun</small></button><button type="button" data-pfp-target="pfp-background" data-value="night" aria-pressed="false"><b>Night sky</b><small>Moon and stars</small></button></div>
+  <select id="pfp-background" hidden aria-label="Selected background"><option value="color">Color</option><option value="gradient">Gradient</option><option value="transparent">Transparent</option><option value="day">Day sky</option><option value="night">Night sky</option><option value="image">Uploaded image</option></select>
+  <div class="pfp-scene-colour-card"><label for="pfp-gradient-edge">Gradient edge colour<small>Choosing a colour turns on Gradient.</small></label><div class="ed pfp-scene-picker"><input id="pfp-gradient-edge" type="color" value="#d5e6f0" aria-label="Custom gradient edge colour"></div>${scenePalette("pfp-gradient-edge",["#243f5a","#365e87","#4d82b0","#83b2d5","#d5e6f0","#ffffff"])}</div>
   <label class="pfp-background-upload"><span class="pfp-upload-icon" aria-hidden="true">↑</span><span class="pfp-upload-copy"><b>Upload background</b><small>PNG, JPEG or WebP · up to 10 MB</small><span class="pfp-upload-action">Choose an image</span></span><input id="pfp-bg-upload" type="file" accept="image/png,image/jpeg,image/webp"></label><p id="pfp-bg-status" role="status" aria-live="polite">No background image selected.</p>
   <label class="pfp-layer"><span><b>Blur background</b><small>Softens an uploaded image or sky details; the avatar stays sharp. Off by default.</small></span><input id="pfp-blur" type="checkbox"></label><p id="pfp-blur-status" role="status" hidden></p>
+  </div><div class="pfp-control-group pfp-items-card"><h3>Held items</h3><p>Choose an original pixel-style item or your own skin face for either hand. Items appear in 3D body views.</p>
+  <label>Right hand <select id="pfp-item-right"><option value="none">Empty</option><option value="sword">Sword</option><option value="pick">Pickaxe</option><option value="gem">Gem</option><option value="apple">Apple</option><option value="torch">Torch</option><option value="skin-face">Your skin face</option><option value="bug">Red-eyed creature</option><option value="coin">Coin</option><option value="berry">Berry</option><option value="book">Book</option></select></label>
+  <label>Left hand <select id="pfp-item-left"><option value="none">Empty</option><option value="sword">Sword</option><option value="pick">Pickaxe</option><option value="gem">Gem</option><option value="apple">Apple</option><option value="torch">Torch</option><option value="skin-face">Your skin face</option><option value="bug">Red-eyed creature</option><option value="coin">Coin</option><option value="berry">Berry</option><option value="book">Book</option></select></label>
+  <p>Items follow the arm pose; they are not included in the separate avatar cards.</p>
+  </div><div class="pfp-control-group pfp-scene-card"><h3>Scene</h3><p>Adjust the 3D lighting and add an optional floor. Background choices are in the Background card.</p>
+  <div class="pfp-colour-panel"><h3>Background colour</h3><p>Choose a colour for the PFP background.</p>
+    <div class="ed pfp-colour-picker"><input type="color" id="pfp-color" data-inline-picker value="#486d92" aria-label="Background colour"></div>
+    <label class="pfp-code-card"><span><b>Background colour code</b><small>Enter a six-digit hex colour</small></span><span class="pfp-code-field"><span id="pfp-code-swatch" aria-hidden="true"></span><input type="text" id="pfp-bg-hex" value="#486d92" maxlength="7" spellcheck="false" aria-label="Background colour code"></span></label>
+  </div>
+
+  <div id="pfp-light-pad" class="pfp-light-pad" aria-hidden="true"><span class="pfp-light-marker" id="pfp-light-marker"></span></div><p>Drag the dot to position the light, or use the sliders below.</p>
+  <div class="pfp-scene-colour-card"><label for="pfp-light-color">Light colour<small>Choosing a colour turns on directional light.</small></label><div class="ed pfp-scene-picker"><input id="pfp-light-color" type="color" value="#ffffff" aria-label="Custom light colour"></div>${scenePalette("pfp-light-color",["#ffffff","#ffe5ad","#ffb49b","#b8d9ff","#d7b9ff","#c6ffd8"])}</div>
+  <label>Light direction <input id="pfp-light-direction" type="range" min="-180" max="180" value="45"><small>Turns the light around the model.</small></label>
+  <label>Light height <input id="pfp-light-height" type="range" min="0" max="90" value="45"></label>
+  <label>Directional light strength <input id="pfp-light-strength" type="range" min="0" max="100" value="0"><small>Off by default; applies to 3D skin faces.</small></label>
+  <label class="pfp-layer"><span><b>Show floor</b><small>Simple flat backdrop beneath the model.</small></span><input id="pfp-floor" type="checkbox"></label>
+  <div class="pfp-scene-colour-card"><label for="pfp-floor-color">Floor colour<small>Choosing a colour shows the floor.</small></label><div class="ed pfp-scene-picker"><input id="pfp-floor-color" type="color" value="#526b5b" aria-label="Custom floor colour"></div>${scenePalette("pfp-floor-color",["#526b5b","#779270","#b79c79","#85716e","#4c6179","#262e3b"])}</div><p>This lightweight floor does not cast shadows.</p>
   </div><div class="pfp-control-group"><h3>Shape &amp; export</h3><h3>Shape</h3><div class="pfp-presets" role="group" aria-label="Shape"><button type="button" data-pfp-target="pfp-shape" data-value="square" aria-pressed="true"><b>Square</b></button><button type="button" data-pfp-target="pfp-shape" data-value="circle" aria-pressed="false"><b>Circle</b></button></div>
   <select id="pfp-shape" hidden aria-label="Selected shape"><option value="square">Square</option><option value="circle">Circle</option></select>
-  <label>Zoom <input id="pfp-size" type="range" min="50" max="100" value="80"></label>
+  <h3>Lighting &amp; finish</h3>
+  <label>Skin brightness <input id="pfp-light" type="range" min="50" max="150" value="100"><small>Applies to 3D skin rendering.</small></label>
+  <label>Side shading <input id="pfp-shading" type="range" min="0" max="100" value="100"><small>Controls 3D face shading.</small></label>
+  <label>Contrast <input id="pfp-contrast" type="range" min="50" max="150" value="100"><small>Applies to the finished picture.</small></label>
+  <label>Colour intensity <input id="pfp-saturation" type="range" min="0" max="200" value="100"></label>
+  <label>Zoom <input id="pfp-size" type="range" min="20" max="140" value="80"></label>
   <label class="pfp-layer"><span><b>Show outer skin layer</b><small>Include hats and clothing</small></span><input id="pfp-outer" type="checkbox" checked></label>
   <button class="btn" id="pfp-download" type="button" disabled>Download PNG</button>
-  <p>Supports 64×64 and classic 64×32 PNG skins. Your skin stays in your browser. Output: 512×512.</p></div></div></section></div></div>
+  <p>Supports 64×64 and classic 64×32 PNG skins. Your skin stays in your browser. Output: 512×512.</p></div></div></section></div>
+</div>
   <script src="../ui.js?v=${ver("ui.js")}"></script><script src="../pfp-3d.js?v=${ver("pfp-3d.js")}"></script><script src="../pfp.js?v=${ver("pfp.js")}"></script>`,
+}));
+
+// ---------- highlight painter ----------
+write("highlights/index.html", page({
+  title: "Minecraft Highlight Editor - Fresh Moves Fix", active: "creations", depth: 1,
+  description: "Paint highlights on your Minecraft renders locally.",
+  body: `<div class="wrap render-page highlight-page"><h1>Minecraft Highlight Editor</h1><p>Paint highlights on a rendered avatar. Your image stays on your device.</p><div class="render-layout">
+  <section class="card render-controls"><h2>Highlight tools</h2><p>Download a transparent PNG from the <a href="../pose/">Pose Maker</a> or <a href="../pfp/">PFP Maker</a>, then upload it here. Transparent PNGs work best.</p>
+  <label>Upload image <input id="hl-file" type="file" accept="image/png,image/jpeg,image/webp"><small>PNG, JPEG or WebP up to 10 MB.</small></label><p id="hl-status" role="status" aria-live="polite">No image selected.</p>
+  <label>Highlight colour <input id="hl-color" type="color" value="#ffffff"></label><label>Brush size <input id="hl-size" type="range" min="2" max="80" value="12"></label><label>Opacity <input id="hl-opacity" type="range" min="5" max="100" value="45"></label>
+  <button id="hl-undo" class="btn" type="button" disabled>Undo stroke</button> <button id="hl-clear" class="btn" type="button" disabled>Clear highlights</button> <button id="hl-download" class="btn" type="button" disabled>Download PNG</button>
+  <p>Draw on the image with your mouse or touch. Highlights stay inside the image’s visible pixels. Output: 512×512.</p><p><a href="https://www.youtube.com/watch?v=_Z2VFokwlbI" target="_blank" rel="noopener noreferrer">Watch the original highlights tutorial by DNStream</a></p></section>
+  <section class="card render-preview"><h2>Paint highlights</h2><canvas id="hl-canvas" width="512" height="512" aria-label="Highlight painting canvas"></canvas></section></div></div><script src="../highlights.js?v=${ver("highlights.js")}"></script>`,
+}));
+
+// ---------- channel banner editor ----------
+write("banner-studio/index.html", page({
+  title: "YouTube Banner Studio - Fresh Moves Fix", active: "creations", depth: 1,
+  description: "Make a channel banner with text, backgrounds and Minecraft artwork.",
+  body: `<div class="wrap creator-page banner-studio"><header class="creator-intro"><h1>YouTube Banner Studio</h1><p>Make an original channel banner using your own artwork. No account or WebGL required.</p></header>
+  <div class="creator-layout"><section class="card creator-controls"><h2>Customize banner</h2><p>Make a render in the <a href="../pose/">Pose Maker</a>, then upload its transparent PNG below.</p>
+  <h3>Background</h3><div class="creator-colors"><label>Start colour <input id="banner-color1" type="color" value="#17345b"></label><label>End colour <input id="banner-color2" type="color" value="#27a971"></label></div>
+  <label>Background image <input id="banner-background" type="file" accept="image/png,image/jpeg,image/webp"><small>Optional; fills the whole banner. PNG, JPEG or WebP up to 10 MB.</small></label><p id="banner-background-status" role="status" aria-live="polite">Using gradient background.</p><button id="banner-background-remove" type="button" class="btn">Remove background image</button>
+  <h3>Channel text</h3><label>Channel name <input id="banner-title" type="text" maxlength="40" value="YOUR CHANNEL"></label><label>Subtitle <input id="banner-subtitle" type="text" maxlength="60" value="Minecraft adventures"></label><label>Text colour <input id="banner-text-color" type="color" value="#ffffff"></label><label>Text horizontal position <input id="banner-text-x" type="range" min="600" max="1960" value="1000"></label><label>Title size <input id="banner-text-size" type="range" min="56" max="160" value="108"></label>
+  <h3>Artwork</h3><label>Upload render <input id="banner-art" type="file" accept="image/png,image/jpeg,image/webp"><small>Transparent PNG recommended. Files stay on your device.</small></label><p id="banner-art-status" role="status" aria-live="polite">No artwork selected.</p><button id="banner-art-remove" type="button" class="btn">Remove artwork</button>
+  <label>Artwork horizontal position <input id="banner-art-x" type="range" min="0" max="2560" value="1700"></label><label>Artwork vertical position <input id="banner-art-y" type="range" min="0" max="1440" value="720"></label><label>Artwork size <input id="banner-art-size" type="range" min="100" max="1400" value="700"></label><label class="creator-check"><input id="banner-glow" type="checkbox"> Glow around artwork</label><label>Glow colour <input id="banner-glow-color" type="color" value="#ffffff"></label>
+  <label class="creator-check"><input id="banner-guide" type="checkbox" checked> Show safe-area guide</label><button id="banner-download" class="btn" type="button">Download banner PNG</button><p>Output 2560×1440. The guide is not exported. Important text should stay inside it.</p></section>
+  <section class="card creator-preview"><h2>Preview</h2><p>Keep important details inside the dashed area for smaller screens.</p><div class="creator-canvas-wrap"><canvas id="banner-canvas" width="2560" height="1440" aria-label="YouTube banner preview"></canvas><div id="banner-safe" class="creator-safe" aria-hidden="true"></div></div><p><a href="https://www.youtube.com/watch?v=WiMgrCItWgo" target="_blank" rel="noopener noreferrer">Watch the original tutorial by DNStream</a></p></section></div></div><script src="../banner-studio.js?v=${ver("banner-studio.js")}"></script>`,
+}));
+
+// ---------- profile picture compositor ----------
+write("pfp-studio/index.html", page({
+  title: "PFP Finishing Studio - Fresh Moves Fix", active: "creations", depth: 1,
+  description: "Create a Minecraft profile picture with a gradient, overlay and shadow.",
+  body: `<div class="wrap render-page pfp-studio-page"><h1>PFP Finishing Studio</h1><p>Finish a Minecraft profile picture with a gradient and simple effects. No account or WebGL required.</p>
+  <div class="render-layout"><section class="card render-controls"><h2>Customize</h2><p>First, download a transparent PNG from the <a href="../pose/">Pose Maker</a> or <a href="../pfp/">PFP Maker</a>, then upload it here.</p>
+  <label>Upload avatar image <input id="studio-pfp-file" type="file" accept="image/png,image/jpeg,image/webp"><small>PNG, JPEG or WebP up to 10 MB. Transparent PNG works best.</small></label><p id="studio-pfp-status" role="status" aria-live="polite">No image selected. Files stay on your device.</p><button id="studio-pfp-remove" class="btn" type="button">Remove image</button>
+  <h3>Background</h3><label>Start colour <input id="studio-pfp-bg1" type="color" value="#154f90"></label><label>End colour <input id="studio-pfp-bg2" type="color" value="#31c77c"></label><label class="studio-pfp-check"><input id="studio-pfp-transparent" type="checkbox"> Transparent background</label>
+  <label>Shape <select id="studio-pfp-shape"><option value="square">Square</option><option value="circle">Circle</option></select></label><label>Avatar size <input id="studio-pfp-size" type="range" min="40" max="120" value="100"></label>
+  <h3>Effects</h3><label>Overlay colour <input id="studio-pfp-overlay" type="color" value="#64b5ff"></label><label>Overlay strength <input id="studio-pfp-overlay-opacity" type="range" min="0" max="80" value="0"><small>Optional gradient tint, off by default.</small></label><label class="studio-pfp-check"><input id="studio-pfp-shadow" type="checkbox"> Drop shadow</label><label>Shadow colour <input id="studio-pfp-shadow-color" type="color" value="#17243d"></label>
+  <button id="studio-pfp-download" class="btn" type="button">Download PNG</button><p>Output: 512×512. Images are processed locally.</p></section>
+  <section class="card render-preview"><h2>Preview</h2><canvas id="studio-pfp-canvas" width="512" height="512" aria-label="Profile picture finishing preview"></canvas></section></div></div><script src="../pfp-studio.js?v=${ver("pfp-studio.js")}"></script>`,
+}));
+
+// ---------- lightweight skin pose maker ----------
+write("pose/index.html", page({
+  title: "Minecraft Pose Maker - Fresh Moves Fix", active: "creations", depth: 1,
+  description: "Pose and bend a Minecraft skin in your browser without WebGL.",
+  body: `<div class="wrap render-page pose-page"><h1>Minecraft Pose Maker</h1><p>Pose your skin and bend its arms and legs. Your PNG stays on your device.</p>
+  <div class="render-layout"><section class="card render-controls"><h2>Pose controls</h2>
+  <label>Upload skin PNG <input id="pose-file" type="file" accept="image/png,.png"></label><p id="pose-status" role="status" aria-live="polite">Loading example skin.</p>
+  <label>Arm size <select id="pose-model"><option value="classic">Classic</option><option value="slim">Slim</option></select></label>
+  <label><input id="pose-outer" type="checkbox" checked> Show outer skin layer</label>
+  <h3>Camera &amp; head</h3><label>Camera angle <input id="pose-yaw" type="range" min="-180" max="180" value="25"></label><label>Camera height <input id="pose-pitch" type="range" min="-45" max="45" value="10"></label><label>Head direction <input id="pose-head" type="range" min="-60" max="60" value="0"></label>
+  <h3>Arms</h3><label>Right arm rotation <input id="pose-ra" type="range" min="-150" max="150" value="0"></label><label>Right elbow bend <input id="pose-ra-bend" type="range" min="-80" max="80" value="0"></label><label>Left arm rotation <input id="pose-la" type="range" min="-150" max="150" value="0"></label><label>Left elbow bend <input id="pose-la-bend" type="range" min="-80" max="80" value="0"></label>
+  <h3>Legs</h3><label>Right leg rotation <input id="pose-rl" type="range" min="-90" max="90" value="0"></label><label>Right knee bend <input id="pose-rl-bend" type="range" min="-80" max="80" value="0"></label><label>Left leg rotation <input id="pose-ll" type="range" min="-90" max="90" value="0"></label><label>Left knee bend <input id="pose-ll-bend" type="range" min="-80" max="80" value="0"></label>
+  <button id="pose-reset" class="btn" type="button">Reset pose</button> <button id="pose-download" class="btn" type="button" disabled>Download PNG</button><p>Bends are a simple lightweight approximation, not a Blockbench rig. Output has a transparent background.</p></section>
+  <section class="card render-preview"><h2>Preview</h2><p>Use the sliders to move the model.</p><canvas id="pose-canvas" width="512" height="512" aria-label="Posed skin preview"></canvas></section></div></div><script src="../pfp-3d.js?v=${ver("pfp-3d.js")}"></script><script src="../pose.js?v=${ver("pose.js")}"></script>`,
+}));
+
+// ---------- creator studio ----------
+write("creator/index.html", page({
+  title: "Minecraft Creator Studio - Fresh Moves Fix", active: "creations", depth: 1,
+  description: "Make a Minecraft-style channel banner and explore creator tools.",
+  body: `<div class="wrap creator-page"><header class="creator-intro"><h1>Minecraft Creator Studio</h1><p>Create a channel banner, make a profile picture, and explore pose and highlight tutorials.</p></header>
+  <div class="creator-layout"><section class="card creator-controls"><h2>Banner maker</h2><p>Make a simple 2560×1440 banner locally. Place important content inside the guide.</p>
+    <label>Channel name <input id="creator-title" type="text" maxlength="40" value="YOUR CHANNEL"></label>
+    <label>Subtitle <input id="creator-subtitle" type="text" maxlength="60" value="Minecraft adventures"></label>
+    <div class="creator-colors"><label>Background start <input id="creator-color-a" type="color" value="#17345b"></label><label>Background end <input id="creator-color-b" type="color" value="#27a971"></label><label>Text colour <input id="creator-text-color" type="color" value="#ffffff"></label></div>
+    <label>Upload artwork <input id="creator-image" type="file" accept="image/png,image/jpeg,image/webp"><small>PNG, JPEG or WebP, up to 10 MB. Transparent PNG recommended.</small></label>
+    <p id="creator-status" role="status" aria-live="polite">No image selected. Your files stay on your device.</p><button type="button" id="creator-remove" class="btn">Remove artwork</button>
+    <label class="creator-check"><input type="checkbox" id="creator-highlight"> Glow around artwork</label><label>Glow colour <input type="color" id="creator-highlight-color" value="#ffffff"></label>
+    <button type="button" class="btn" id="creator-download">Download banner PNG</button>
+  </section><section class="card creator-preview"><h2>Banner preview</h2><p>The dashed guide shows the approximate central safe area; it will not appear in the download.</p><div class="creator-canvas-wrap"><canvas id="creator-canvas" width="2560" height="1440" aria-label="Banner preview"></canvas><div class="creator-safe" aria-hidden="true"></div></div></section></div>
+  <section class="card creator-links"><h2>More creator tools</h2><p>Make a transparent PFP or render, then upload it as banner artwork.</p><div class="creator-tool-links"><a class="btn" href="../highlights/">Highlight editor</a><a class="btn" href="../banner-studio/">Banner studio</a><a class="btn" href="../pfp/">PFP maker</a><a class="btn" href="../pfp-studio/">PFP finishing studio</a><a class="btn" href="../pose/">Pose &amp; bend skin</a></div><p>The pose tool includes simple arm and leg bends. Custom moving eyes from the tutorial are not yet available.</p></section>
+  <section class="card creator-links"><h2>Video tutorials</h2><p>External videos for inspiration. They demonstrate other apps and techniques.</p><ul><li><a href="https://www.youtube.com/watch?v=mzI5Ta3tyu8" target="_blank" rel="noopener noreferrer">Bend Minecraft arms and legs — DNStream</a></li><li><a href="https://www.youtube.com/watch?v=or0ZFFpV578" target="_blank" rel="noopener noreferrer">Make Minecraft profile pictures — Klyzo</a></li><li><a href="https://www.youtube.com/watch?v=WiMgrCItWgo" target="_blank" rel="noopener noreferrer">Make Minecraft YouTube banners — DNStream</a></li><li><a href="https://www.youtube.com/watch?v=_Z2VFokwlbI" target="_blank" rel="noopener noreferrer">Add Minecraft highlights — DNStream</a></li></ul></section></div><script src="../creator.js?v=${ver("creator.js")}"></script>`,
 }));
 
 // ---------- projects ----------
@@ -1187,6 +1313,7 @@ write("creations/index.html", page({
   <a class="project-card" href="../paint/"><img src="../icon-paint-pixel.svg" alt="" width="112" height="112"><h2>Skin Painter 3D</h2><p>Paint a skin pixel by pixel in your browser.</p><span>Open painter ${ICON.right}</span></a>
   <a class="project-card" href="../editor/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Skin eye editor</h2><p>Add animated eye markers to your skin.</p><span>Open editor ${ICON.right}</span></a>
   <a class="project-card" href="../pfp/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Minecraft PFP Maker</h2><p>Create a 3D profile picture from your skin.</p><span>Open PFP maker ${ICON.right}</span></a>
+  <a class="project-card" href="../creator/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Creator Studio</h2><p>Make a channel banner and explore creator tools.</p><span>Open creator studio ${ICON.right}</span></a>
   <a class="project-card" href="../title/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Title</h2><p>Make and download a block-letter title picture.</p><span>Open title maker ${ICON.right}</span></a>
   <a class="project-card" href="../animation/"><img src="../icon-anim-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Animation</h2><p>Arrange movements and save an animation as a video.</p><span>Open animation tool ${ICON.right}</span></a>
   <div class="project-card project-soon"><img src="../icon-lock-project-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Skins</h2><p>A separate Fabric mod. Downloads are temporarily locked.</p><span>Coming soon</span></div>

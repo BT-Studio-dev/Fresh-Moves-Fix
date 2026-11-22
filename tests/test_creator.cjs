@@ -1,0 +1,14 @@
+const assert=require('assert'),fs=require('fs'),{JSDOM}=require('../website/node_modules/jsdom');
+assert(fs.existsSync('website/public/creator.js'),'creator script is included in build');
+const html=fs.readFileSync('website/public/creator/index.html','utf8'),dom=new JSDOM(html,{url:'https://example.com/creator/',runScripts:'outside-only'}),w=dom.window,d=w.document;
+let images=[],draws=[],texts=[],downloads=0,revoked=[];
+const ctx={createLinearGradient(){return{addColorStop(){}}},fillRect(){},save(){},restore(){},drawImage(...a){draws.push(a)},fillText(...a){texts.push(a)}};
+w.HTMLCanvasElement.prototype.getContext=()=>ctx;w.HTMLCanvasElement.prototype.toDataURL=()=>{downloads++;return 'data:image/png;base64,AA=='};w.HTMLAnchorElement.prototype.click=function(){};
+w.Image=class {constructor(){images.push(this)}set src(v){this.url=v}};w.URL.createObjectURL=()=> 'blob:test';w.URL.revokeObjectURL=x=>revoked.push(x);
+w.eval(fs.readFileSync('website/creator.js','utf8'));const $=id=>d.getElementById(id),change=id=>$(id).dispatchEvent(new w.Event('change'));
+assert(texts.some(a=>a[0]==='YOUR CHANNEL'));$('creator-title').value='Hello';change('creator-title');assert(texts.some(a=>a[0]==='Hello'));
+const input=$('creator-image');Object.defineProperty(input,'files',{value:[{type:'image/png',size:12}],configurable:true});change('creator-image');images[0].width=500;images[0].height=1000;images[0].onload();assert(draws.some(a=>a[0]===images[0]));assert.equal(revoked.length,1);
+$('creator-highlight').checked=true;change('creator-highlight');assert.equal(ctx.shadowBlur,38);$('creator-download').click();assert.equal(downloads,1);$('creator-remove').click();assert.match($('creator-status').textContent,/removed/);
+Object.defineProperty(input,'files',{value:[{type:'text/plain',size:12}],configurable:true});change('creator-image');assert.match($('creator-status').textContent,/Choose a PNG/);
+assert.equal(d.querySelectorAll('a[href*="youtube.com/watch"]').length,4);assert(fs.readFileSync('website/public/creations/index.html','utf8').includes('../creator/'));
+console.log('Creator banner drawing, upload, highlight, download and tutorial links passed');dom.window.close();

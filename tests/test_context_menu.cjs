@@ -4,7 +4,10 @@ const assert=require('assert'),fs=require('fs'),{JSDOM}=require('../website/node
  let prints=0,copied='',scrolls=0;w.print=()=>prints++;w.scrollTo=()=>scrolls++;Object.defineProperty(w.navigator,'clipboard',{value:{writeText(t){copied=t;return Promise.resolve()}}});
  const src=fs.readFileSync('website/context-menu.js','utf8');w.eval(src);
  const $=s=>d.querySelector(s),menu=$('.fmf-context-menu'),evt=(selector,opts={})=>{let e=new w.MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:50,clientY:60,...opts});$(selector).dispatchEvent(e);return e};
- assert(evt('#plain').defaultPrevented);assert(!menu.hidden);assert.equal(d.activeElement.dataset.action,'save');
+ Object.defineProperty(menu,'offsetWidth',{value:225});Object.defineProperty(menu,'offsetHeight',{value:200});
+ assert(evt('#plain',{clientX:350,clientY:270}).defaultPrevented);assert(!menu.hidden);assert.equal(menu.style.left,'350px');assert.equal(menu.style.top,'270px');assert.equal(d.activeElement.dataset.action,'save');
+ evt('#plain',{clientX:w.innerWidth-10,clientY:w.innerHeight-10});assert.equal(menu.style.left,(w.innerWidth-10-225)+'px');assert.equal(menu.style.top,(w.innerHeight-10-200)+'px');
+ $('#plain').dispatchEvent(new w.MouseEvent('mousedown',{bubbles:true,button:2,clientX:310,clientY:320}));evt('#plain',{clientX:0,clientY:0});assert.equal(menu.style.left,'310px');assert.equal(menu.style.top,'320px');
  d.activeElement.dispatchEvent(new w.KeyboardEvent('keydown',{key:'ArrowDown',bubbles:true}));assert.equal(d.activeElement.dataset.action,'print');d.activeElement.click();assert.equal(prints,1);assert(menu.hidden);
  evt('#plain');$('[data-action=save]').click();assert.match($('.fmf-context-notice').textContent,/Ctrl\+S/);
  evt('#plain');$('[data-action=copy]').click();await Promise.resolve();assert.equal(copied,w.location.href);assert.match($('.fmf-context-notice').textContent,/copied/i);

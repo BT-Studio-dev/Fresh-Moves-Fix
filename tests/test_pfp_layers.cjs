@@ -11,4 +11,7 @@ assert.deepEqual(painted,['rgba(255,0,0,0.5019607843137255)'],'front glass visib
 painted.length=0;opt.yaw=180;context.window.drawPfp3d(ctx,{getImageData(){return {data:pixels}}},opt);
 assert(strokes>0 && ctx.lineWidth===1.5,'opaque pixel edges seal seams');assert(painted.some(c=>c==='rgba(0,0,255,1)'),'back side visible when camera turns around');assert(!painted.some(c=>c.includes('255,0,0')));
 painted.length=0;opt.outer=false;context.window.drawPfp3d(ctx,{getImageData(){return {data:pixels}}},opt);assert.equal(painted.length,0);
+// Directional light changes face colours when enabled, without changing alpha.
+opt.outer=true;opt.yaw=0;opt.lightStrength=1;opt.lightHeight=0;opt.lightDirection=0;painted.length=0;context.window.drawPfp3d(ctx,{getImageData(){return {data:pixels}}},opt);assert(painted.some(c=>c==='rgba(255,0,0,0.5019607843137255)'));opt.lightDirection=180;painted.length=0;context.window.drawPfp3d(ctx,{getImageData(){return {data:pixels}}},opt);assert(painted.some(c=>c==='rgba(153,0,0,0.5019607843137255)'));
+opt.lightDirection=0;opt.lightColor='#00ffff';painted.length=0;context.window.drawPfp3d(ctx,{getImageData(){return {data:pixels}}},opt);assert(painted.some(c=>c==='rgba(161,0,0,0.5019607843137255)'),'light colour tints the skin');
 console.log('Outer-layer front, back and alpha rendering passed');

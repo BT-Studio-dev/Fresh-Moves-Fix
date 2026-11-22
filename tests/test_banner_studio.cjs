@@ -1,0 +1,10 @@
+const assert=require('assert'),fs=require('fs'),{JSDOM}=require('../website/node_modules/jsdom');
+assert(fs.existsSync('website/public/banner-studio.js'));const dom=new JSDOM(fs.readFileSync('website/public/banner-studio/index.html','utf8'),{url:'https://example.com/banner-studio/',runScripts:'outside-only'}),w=dom.window,d=w.document;
+let images=[],draws=[],texts=[],downloads=0,revoked=[];const ctx={createLinearGradient(){return{addColorStop(){}}},fillRect(){},drawImage(...a){draws.push(a)},fillText(...a){texts.push(a)},save(){},restore(){}};
+w.HTMLCanvasElement.prototype.getContext=()=>ctx;w.HTMLCanvasElement.prototype.toDataURL=()=>{downloads++;return 'data:image/png;base64,AA=='};w.HTMLAnchorElement.prototype.click=function(){};w.Image=class{constructor(){images.push(this)}set src(v){this.url=v}};w.URL.createObjectURL=()=> 'blob:test';w.URL.revokeObjectURL=u=>revoked.push(u);
+w.eval(fs.readFileSync('website/banner-studio.js','utf8'));const $=id=>d.getElementById(id);assert(texts.some(t=>t[0]==='YOUR CHANNEL'));
+function upload(id,file){Object.defineProperty($(id),'files',{value:[file],configurable:true});$(id).dispatchEvent(new w.Event('change'));}
+upload('banner-art',{type:'image/png',size:300});images[0].width=300;images[0].height=600;images[0].onload();assert(draws.some(a=>a[0]===images[0]));$('banner-art-x').value='1200';$('banner-art-x').dispatchEvent(new w.Event('input'));assert(draws.at(-1)[1]<1200);
+upload('banner-background',{type:'image/jpeg',size:10});images[1].width=1000;images[1].height=1000;images[1].onload();assert(draws.some(a=>a[0]===images[1]));assert.equal(revoked.length,2);
+$('banner-guide').checked=false;$('banner-guide').dispatchEvent(new w.Event('change'));assert($('banner-safe').hidden);$('banner-download').click();assert.equal(downloads,1);$('banner-art-remove').click();assert.match($('banner-art-status').textContent,/removed/);
+upload('banner-art',{type:'text/plain',size:10});assert.match($('banner-art-status').textContent,/Choose a PNG/);console.log('Banner studio background, artwork, positioning, guide and download passed');dom.window.close();
