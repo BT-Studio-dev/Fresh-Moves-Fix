@@ -1046,7 +1046,7 @@ body.account-page > footer { margin-top: 0; }
 /* Give the full navigation room; never clip the last item behind the actions. */
 header.top .bar { max-width: 1400px; }
 header.top nav { flex: 0 0 auto; overflow: visible; }
-@media (max-width: 1300px) {
+@media (max-width: 1000px) {
   header.top .bar { height: auto; flex-wrap: wrap; padding-top: 10px; padding-bottom: 8px; gap: 6px 12px; }
   header.top nav { order: 3; flex: 0 0 100%; width: 100%; margin: 0; flex-wrap: wrap; overflow: visible; }
   header.top .snd-wrap { margin-inline-start: auto; }
