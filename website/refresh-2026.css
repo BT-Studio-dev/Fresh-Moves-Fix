@@ -980,3 +980,62 @@ html[data-theme="livesky"] { --fmf-popup: #263849; --fmf-popup-control: #1b2936;
 [data-theme="minecraft"] .account-password-toggle { border-radius: 2px; }
 .account-password-toggle { display: grid; place-items: center; min-width: 38px; width: 38px; height: 36px; }
 .account-card .account-password input { padding-right: 52px; }
+/* Keep short account pages full-height without changing the browser's zoom. */
+body.account-page { min-height: 100vh; display: flex; flex-direction: column; }
+body.account-page > header, body.account-page > footer { flex: 0 0 auto; }
+body.account-page > .wrap { width: 100%; flex: 1 0 auto; }
+body.account-page > footer { margin-top: 0; }
+.account-profile { display: flex; align-items: center; gap: 15px; margin: 24px 0 0; padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+.account-avatar { display: grid; place-items: center; flex: 0 0 54px; width: 54px; height: 54px; border: 1px solid var(--accent); border-radius: 12px; color: var(--accent); font-size: 24px; font-weight: 700; }
+.account-profile-info { min-width: 0; display: grid; gap: 4px; }
+.account-profile-label { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .1em; }
+.account-profile-info strong, .account-details strong { overflow-wrap: anywhere; }
+.account-status { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; }
+.account-status span { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.account-details { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; padding: 17px 2px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.account-details > span { color: var(--muted); }
+.account-signout { width: 100%; margin-top: 20px; text-align: center; }
+[data-theme="minecraft"] .account-profile, [data-theme="minecraft"] .account-avatar { border-radius: 2px; }
+/* A labelled, keyboard-accessible on/off switch for avatar face shading. */
+.pfp-page .render-controls .avatar-shading-setting { cursor: pointer; }
+.pfp-page .render-controls .avatar-shading-setting input[type="checkbox"] { appearance: none; -webkit-appearance: none; position: relative; display: block; width: 46px; height: 26px; flex: 0 0 46px; margin: 0; border: 1px solid var(--line); border-radius: 999px; background: var(--bg); cursor: pointer; transition: background-color .15s, border-color .15s; }
+.pfp-page .render-controls .avatar-shading-setting input[type="checkbox"]::before { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--muted); transition: transform .15s, background-color .15s; }
+.pfp-page .render-controls .avatar-shading-setting input[type="checkbox"]:checked { background: var(--accent); border-color: var(--accent); }
+.pfp-page .render-controls .avatar-shading-setting input[type="checkbox"]:checked::before { transform: translateX(20px); background: var(--on-accent); }
+.pfp-page .render-controls .avatar-shading-setting input[type="checkbox"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+[data-theme="minecraft"] .pfp-page .render-controls .avatar-shading-setting input[type="checkbox"], [data-theme="minecraft"] .pfp-page .render-controls .avatar-shading-setting input[type="checkbox"]::before { border-radius: 3px; }
+@media (forced-colors: active) { .pfp-page .render-controls .avatar-shading-setting input[type="checkbox"] { appearance: auto; -webkit-appearance: auto; width: 20px; height: 20px; flex-basis: 20px; } .pfp-page .render-controls .avatar-shading-setting input[type="checkbox"]::before { display: none; } }
+.comments-wrap { margin-top: 34px; margin-bottom: 40px; }
+.comments-card { padding: 24px; }
+.comments-card h2 { margin: 0 0 8px; }
+.comments-card > p { color: var(--muted); }
+.comments-card a { color: var(--accent); }
+.comments-card form { display: grid; gap: 8px; margin: 18px 0; }
+.comments-card form[hidden] { display: none; }
+.comments-card textarea { width: 100%; resize: vertical; min-height: 90px; padding: 12px; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 9px; font: inherit; }
+.comments-card textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.comments-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.comments-actions small, .comments-empty, .comment-header time { color: var(--muted); }
+.comment-item { padding: 16px 0; border-top: 1px solid var(--line); }
+.comment-header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+.comment-header time { font-size: 12px; }
+.comment-item p { white-space: pre-wrap; overflow-wrap: anywhere; margin: 8px 0; }
+.comment-delete { border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--muted); padding: 5px 10px; cursor: pointer; font: inherit; font-size: 12px; }
+.comment-delete:hover { color: var(--text); border-color: var(--accent); }
+[data-theme="minecraft"] .comments-card textarea, [data-theme="minecraft"] .comment-delete { border-radius: 2px; }
+.comment-badge, .comment-pinned { display: inline-block; padding: 2px 8px; border: 1px solid var(--accent); border-radius: 999px; color: var(--accent); font-size: 11px; font-weight: 700; line-height: 1.5; }
+.comment-pinned { border-color: var(--line); color: var(--muted); }
+.comment-pin { margin-left: 8px; }
+[data-theme="minecraft"] .comment-badge, [data-theme="minecraft"] .comment-pinned { border-radius: 2px; }
+.account-role { display: inline-block; justify-self: start; padding: 3px 8px; border: 1px solid var(--accent); border-radius: 999px; color: var(--accent); font-size: 10px; font-weight: 700; letter-spacing: .08em; }
+.account-role[hidden] { display: none; }
+[data-theme="minecraft"] .account-role { border-radius: 2px; }
+.project-lock-admin { padding: 20px; margin: 20px 0; }
+.project-lock-admin[hidden] { display: none; }
+.project-lock-admin h2 { margin-top: 0; }
+.project-lock-admin p { color: var(--muted); }
+.project-lock-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); }
+.project-lock-row .btn { min-width: 86px; padding: 8px 12px; cursor: pointer; }
+.project-card.project-locked { opacity: .7; cursor: not-allowed; }
+.project-card.project-locked .project-link-label { color: var(--muted); }
+#project-lock-status:empty { display: none; }

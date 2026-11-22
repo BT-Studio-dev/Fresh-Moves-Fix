@@ -86,7 +86,7 @@
       } else {
         var head = preset === 'head', full = preset === 'full' || preset === 'wave';
         window.drawPfp3d(ctx, skin, {slim: $('pfp-model').value === 'slim', outer: $('pfp-outer').checked, legacy: legacy,
-          yaw: +$('pfp-yaw').value, pitch: +$('pfp-pitch').value, headYaw: +$('pfp-head-yaw').value, headPitch: +$('pfp-head-pitch').value, roll: +$('pfp-model-roll').value, rotations: poseRotations(), items:{ra:$('pfp-item-right').value,la:$('pfp-item-left').value}, angles: {ra: (preset === 'wave' ? -135 : 0) + +$('pfp-arm-right').value, la: +$('pfp-arm-left').value}, brightness: +$('pfp-light').value / 100, shading: +$('pfp-shading').value / 100, lightDirection: +$('pfp-light-direction').value, lightHeight: +$('pfp-light-height').value, lightStrength: +$('pfp-light-strength').value / 100, lightColor:$('pfp-light-color').value,
+          yaw: +$('pfp-yaw').value, pitch: +$('pfp-pitch').value, headYaw: +$('pfp-head-yaw').value, headPitch: +$('pfp-head-pitch').value, roll: +$('pfp-model-roll').value, rotations: poseRotations(), angles: {ra: (preset === 'wave' ? -135 : 0) + +$('pfp-arm-right').value, la: +$('pfp-arm-left').value}, brightness: +$('pfp-light').value / 100, shading: +$('pfp-shading').value / 100, lightDirection: +$('pfp-light-direction').value, lightHeight: +$('pfp-light-height').value, lightStrength: +$('pfp-light-strength').value / 100, lightColor:$('pfp-light-color').value,
           offsetX: +$('pfp-position-x').value, offsetY: +$('pfp-position-y').value, headOnly: head, scale: (head ? 36 : full ? 12 : 19) * zoom, centerY: head ? 12 : full ? 0 : 7});
       }
     }
@@ -259,7 +259,7 @@
     $(id).addEventListener('input',activate);$(id).addEventListener('change',activate);syncSceneSwatches(id);
   });
   Array.prototype.forEach.call(document.querySelectorAll('[data-scene-target]'),function(button){button.addEventListener('click',function(){var input=$(button.getAttribute('data-scene-target'));input.value=button.getAttribute('data-scene-color');input.dispatchEvent(new Event('input',{bubbles:true}));});});
-  ['pfp-background', 'pfp-color', 'pfp-shape', 'pfp-size', 'pfp-outer', 'pfp-preset', 'pfp-model', 'pfp-yaw', 'pfp-pitch', 'pfp-blur', 'pfp-head-yaw', 'pfp-head-pitch', 'pfp-position-x', 'pfp-position-y', 'pfp-arm-right', 'pfp-arm-left', 'pfp-light', 'pfp-shading', 'pfp-light-direction', 'pfp-light-height', 'pfp-light-strength', 'pfp-light-color', 'pfp-gradient-edge', 'pfp-floor', 'pfp-floor-color', 'pfp-item-right', 'pfp-item-left', 'pfp-contrast', 'pfp-saturation'].forEach(function (id) {
+  ['pfp-background', 'pfp-color', 'pfp-shape', 'pfp-size', 'pfp-outer', 'pfp-preset', 'pfp-model', 'pfp-yaw', 'pfp-pitch', 'pfp-blur', 'pfp-head-yaw', 'pfp-head-pitch', 'pfp-position-x', 'pfp-position-y', 'pfp-arm-right', 'pfp-arm-left', 'pfp-light', 'pfp-shading', 'pfp-light-direction', 'pfp-light-height', 'pfp-light-strength', 'pfp-light-color', 'pfp-gradient-edge', 'pfp-floor', 'pfp-floor-color', 'pfp-contrast', 'pfp-saturation'].forEach(function (id) {
     $(id).addEventListener('input', draw); $(id).addEventListener('change', draw);
   });
   extraPoseIds.forEach(function(id){$('pfp-'+id).addEventListener('input',draw);$('pfp-'+id).addEventListener('change',draw);});
