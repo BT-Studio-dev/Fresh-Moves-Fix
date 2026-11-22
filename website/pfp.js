@@ -120,7 +120,7 @@
     candidate.onerror = function () { release(); if (current === version) status.textContent = 'Could not read that PNG. Please choose a valid skin.'; };
     candidate.src = url;
   }
-  $('pfp-use-dummy').addEventListener('click', function () { $('pfp-skin').value=''; load('../pfp-dummy.png', true, 'Using the Dummy skin.'); });
+  $('pfp-use-dummy').addEventListener('click', function () { $('pfp-skin').value=''; load('../pfp-default-skin.png', true, 'Using the Dummy skin.'); });
   if (window.FMFUI) window.FMFUI.colour($('pfp-color'));
   function backgroundColourChanged() { if($('pfp-background').value!=='gradient')$('pfp-background').value='color'; $('pfp-bg-hex').value=$('pfp-color').value; draw(); }
   $('pfp-color').addEventListener('input', backgroundColourChanged);

@@ -1307,3 +1307,5 @@ body footer .cols a .ic { opacity: 1; }
 .eye-workspace .eye-tip b { display: block; color: var(--text); margin-bottom: 3px; }
 .eye-workspace .eye-tip p { margin: 0; }
 .eye-workspace .eye-tip p + p { margin-top: 8px; }
+.eye-advanced-controls { margin-top: 14px; }
+.eye-advanced-controls p { margin: 10px 0; }
