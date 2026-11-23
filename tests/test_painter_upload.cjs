@@ -9,6 +9,7 @@ w.requestAnimationFrame=()=>1; w.cancelAnimationFrame=()=>{};
 w.Image=class {set src(v){this._src=v}};
 w.FileReader=class {readAsDataURL(f){loaded.push(f.name); this.result='data:image/png;base64,AA=='; if(this.onload)this.onload()}};
 w.eval(fs.readFileSync('website/paint.js','utf8'));
+const tools=[...w.document.querySelectorAll('#ptools button')];assert.equal(tools.length,7);for(const tool of tools){tool.click();assert.equal(tool.getAttribute('aria-pressed'),'true');assert.equal(tools.filter(b=>b.getAttribute('aria-pressed')==='true').length,1);assert(tool.querySelector('svg'));}
 const button=w.document.getElementById('pfile-top'), input=w.document.getElementById('pfile'); input.click=()=>selected++; button.click(); assert.equal(selected,1,'opens picker');
 function drag(type,files){let e=new w.Event(type,{bubbles:true,cancelable:true}); Object.defineProperty(e,'dataTransfer',{value:{files,dropEffect:'none'}}); button.dispatchEvent(e);return e;}
 assert(drag('dragover',[]).defaultPrevented); assert(button.classList.contains('over'));
