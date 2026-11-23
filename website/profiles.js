@@ -23,26 +23,55 @@ async function publicDirectory(){
  }finally{clearTimeout(timer);}
 }
 function button(text,action){const b=el('button',text,'btn ghost');b.type='button';b.addEventListener('click',async()=>{b.disabled=true;try{await action();await load();}catch(_){status.textContent='Could not complete that action. Please try again.';b.disabled=false;}});return b;}
+// Compact pixel-inspired person glyphs keep the friend actions legible without external assets.
+function friendButton(text,action,kind){
+ const b=button(text,action), ns='http://www.w3.org/2000/svg', svg=document.createElementNS(ns,'svg');
+ svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');svg.setAttribute('focusable','false');svg.classList.add('friend-action-icon');
+ const person=document.createElementNS(ns,'path');person.setAttribute('d','M6 3h6v6H6zM4 11h10v2H4zM3 13h12v7H3z');person.setAttribute('fill','currentColor');svg.append(person);
+ const mark=document.createElementNS(ns,'path');mark.setAttribute('d',kind==='add'?'M18 11v8M14 15h8':kind==='accept'?'M14 15l3 3 5-6':'M15 12l6 6m0-6l-6 6');mark.setAttribute('fill','none');mark.setAttribute('stroke','currentColor');mark.setAttribute('stroke-width','2');mark.setAttribute('stroke-linecap','square');svg.append(mark);
+ b.prepend(svg);b.classList.add('friend-action-button');return b;
+}
 function itemMessage(node,text){node.replaceChildren(el('p',text));}
 function filterCreators(){const term=$('profile-search').value.trim().toLocaleLowerCase();const cards=[...$('profile-directory').querySelectorAll('.profile-creator')];let visible=0;cards.forEach(card=>{const match=card.querySelector('strong').textContent.toLocaleLowerCase().includes(term);card.hidden=!match;if(match)visible++;});$('profile-search-empty').hidden=!term || !cards.length || visible>0;}
 $('profile-search').addEventListener('input',filterCreators);
-let commentNames=new Map(), commentRole=null, commentSignature='', commentRefresh=0, pollBusy=false;
+let commentNames=new Map(), commentRole=null, commentSignature='', commentRefresh=0, pollBusy=false, editingComment=null, replyTarget=null;
+const commentForm=$('profile-comment-form'), commentText=$('profile-comment-text');
+const replyBar=el('div',null,'profile-reply-bar');replyBar.hidden=true;commentForm.prepend(replyBar);
+function clearReply(){replyTarget=null;replyBar.hidden=true;replyBar.replaceChildren();}
+function chooseReply(c,name){replyTarget=c.id;replyBar.replaceChildren(el('span','Replying to '+name));const cancel=el('button','Cancel','btn ghost');cancel.type='button';cancel.addEventListener('click',clearReply);replyBar.append(cancel);replyBar.hidden=false;commentText.focus();}
+function commentAction(label,handler){const b=el('button',label);b.type='button';b.addEventListener('click',handler);return b;}
 function renderComments(comments,names,role){
  const signature=JSON.stringify([comments,[...names],role,viewer?.id]);
- if(signature===commentSignature)return;
+ if(signature===commentSignature || editingComment)return;
  commentSignature=signature;
- const list=$('profile-comments');list.replaceChildren();comments.forEach(c=>{
-   const card=el('article',null,'comment-item'),head=el('div',null,'comment-header');
-   head.append(link(c.author_id,names.get(c.author_id)||'Player'),el('time',date(c.created_at)));card.append(head,el('p',c.body));
-   if(viewer && (viewer.id===profileId || viewer.id===c.author_id || ['owner','co-owner'].includes(role?.role)))card.append(button('Delete',()=>query(client.from('profile_comments').delete().eq('id',c.id))));
-   list.append(card);
+ const list=$('profile-comments');list.replaceChildren();const byId=new Map(comments.map(c=>[c.id,c]));
+ comments.forEach(c=>{
+   const author=names.get(c.author_id)||'Player', card=el('article',null,'comment-item profile-comment-card');
+   const avatar=el('span',Array.from(author)[0]?.toUpperCase()||'P','profile-comment-avatar');avatar.setAttribute('aria-hidden','true');
+   const content=el('div',null,'profile-comment-content'),head=el('div',null,'comment-header');
+   head.append(link(c.author_id,author),el('time',date(c.created_at)));if(c.edited_at)head.append(el('span','edited','profile-comment-edited'));
+   content.append(head);
+   if(c.reply_to){const parent=byId.get(c.reply_to), quote=el('div',parent?'Replying to '+(names.get(parent.author_id)||'Player')+': '+parent.body:'Reply to an earlier comment','profile-comment-quote');content.append(quote);}
+   const body=el('p',c.body);content.append(body);
+   const menu=el('details',null,'profile-comment-menu'),summary=el('summary','⋯');summary.setAttribute('aria-label','Comment actions');menu.append(summary);const actions=el('div',null,'profile-comment-actions');
+   if(viewer)actions.append(commentAction('Reply',()=>{menu.open=false;chooseReply(c,author);}));
+   actions.append(commentAction('Copy text',async()=>{try{await navigator.clipboard.writeText(c.body);status.textContent='Comment copied.';}catch(_){status.textContent='Could not copy text. Please select and copy it manually.';}menu.open=false;}));
+   if(viewer?.id===c.author_id)actions.append(commentAction('Edit',()=>{
+     menu.open=false;editingComment=c.id;const edit=el('form',null,'profile-comment-edit'),field=el('textarea');field.value=c.body;field.maxLength=1000;field.required=true;field.setAttribute('aria-label','Edit comment');
+     const save=el('button','Save','btn'),cancel=el('button','Cancel','btn ghost');save.type='submit';cancel.type='button';
+     cancel.addEventListener('click',()=>{editingComment=null;commentSignature='';renderComments(comments,names,role);});
+     edit.addEventListener('submit',async e=>{e.preventDefault();const value=field.value.trim();if(!value)return;save.disabled=true;try{const result=await query(client.from('profile_comments').update({body:value}).eq('id',c.id).select('id'));if(!result?.length)throw Error('Not permitted');editingComment=null;commentSignature='';await refreshComments();}catch(_){status.textContent='Could not edit this comment. Please try again.';save.disabled=false;}});
+     edit.append(field,save,cancel);body.replaceWith(edit);field.focus();
+   }));
+   if(viewer && (viewer.id===profileId || viewer.id===c.author_id || ['owner','co-owner'].includes(role?.role)))actions.append(commentAction('Delete',async()=>{try{const result=await query(client.from('profile_comments').delete().eq('id',c.id).select('id'));if(!result?.length)throw Error('Not permitted');commentSignature='';await refreshComments();}catch(_){status.textContent='Could not delete this comment. Please try again.';}}));
+   menu.append(actions);card.append(avatar,content,menu);list.append(card);
  });if(!comments.length)itemMessage(list,'No messages yet.');
 }
 async function refreshComments(){
  if(pollBusy || document.hidden || !root.isConnected || !profileId || $('profile-view').hidden)return;
  const version=seq, refresh=++commentRefresh, id=profileId;pollBusy=true;
  try{
-   const comments=await query(client.from('profile_comments').select('id,profile_id,author_id,body,created_at').eq('profile_id',id).order('created_at',{ascending:false}).limit(50));
+   const comments=await query(client.from('profile_comments').select('id,profile_id,author_id,body,created_at,reply_to,edited_at').eq('profile_id',id).order('created_at',{ascending:false}).limit(50));
    if(version===seq && refresh===commentRefresh && root.isConnected && id===profileId && !document.hidden)renderComments(comments,commentNames,commentRole);
  }catch(_){}finally{pollBusy=false;}
 }
@@ -69,7 +98,7 @@ async function load(){
    names.set(person.user_id,person.display_name);
    const [uploads,comments,friends,activity,role]=await Promise.all([
      query(client.from('profile_uploads').select('id,user_id,title,kind,image_data,created_at').eq('user_id',profileId).order('created_at',{ascending:false}).limit(50)),
-     query(client.from('profile_comments').select('id,profile_id,author_id,body,created_at').eq('profile_id',profileId).order('created_at',{ascending:false}).limit(50)),
+     query(client.from('profile_comments').select('id,profile_id,author_id,body,created_at,reply_to,edited_at').eq('profile_id',profileId).order('created_at',{ascending:false}).limit(50)),
      query(client.from('profile_friendships').select('id,requester,recipient,accepted').or('requester.eq.'+profileId+',recipient.eq.'+profileId).limit(100)),
      query(client.from('account_activity').select('last_seen_at').eq('user_id',profileId).maybeSingle()),
      viewer ? query(client.from('comment_roles').select('role').eq('user_id',viewer.id).maybeSingle()) : Promise.resolve(null)
@@ -81,14 +110,14 @@ async function load(){
    const action=$('profile-friend-action');action.replaceChildren();
    const relation=viewer && friends.find(f=>(f.requester===viewer.id || f.recipient===viewer.id));
    if(viewer && !own){
-     if(!relation)action.append(button('Add friend',()=>query(client.from('profile_friendships').insert({recipient:profileId}))));
-     else if(relation.accepted)action.append(el('span','Friends'),button('Remove friend',()=>query(client.from('profile_friendships').delete().eq('id',relation.id))));
-     else if(relation.recipient===viewer.id)action.append(button('Accept request',()=>query(client.rpc('accept_friend_request',{request_id:relation.id}))),button('Decline',()=>query(client.from('profile_friendships').delete().eq('id',relation.id))));
-     else action.append(el('span','Friend request sent'),button('Cancel request',()=>query(client.from('profile_friendships').delete().eq('id',relation.id))));
+     if(!relation)action.append(friendButton('Add friend',()=>query(client.from('profile_friendships').insert({recipient:profileId})),'add'));
+     else if(relation.accepted)action.append(el('span','Friends'),friendButton('Remove friend',()=>query(client.from('profile_friendships').delete().eq('id',relation.id)),'remove'));
+     else if(relation.recipient===viewer.id)action.append(friendButton('Accept request',()=>query(client.rpc('accept_friend_request',{request_id:relation.id})),'accept'),friendButton('Decline',()=>query(client.from('profile_friendships').delete().eq('id',relation.id)),'remove'));
+     else action.append(el('span','Friend request sent'),friendButton('Cancel request',()=>query(client.from('profile_friendships').delete().eq('id',relation.id)),'remove'));
    }
    const friendList=$('profile-friends');friendList.replaceChildren();const accepted=friends.filter(f=>f.accepted);$('profile-friend-count').textContent=accepted.length+' '+(accepted.length===1?'friend':'friends');
    accepted.forEach(f=>{const id=f.requester===profileId?f.recipient:f.requester;friendList.append(link(id,names.get(id)||'View friend'));});
-   if(own){const pending=friends.filter(f=>!f.accepted && f.recipient===viewer.id);pending.forEach(f=>{const row=el('div',null,'profile-pending');row.append(link(f.requester,names.get(f.requester)||'Friend request'),button('Accept',()=>query(client.rpc('accept_friend_request',{request_id:f.id}))),button('Decline',()=>query(client.from('profile_friendships').delete().eq('id',f.id))));friendList.append(row);});}
+   if(own){const pending=friends.filter(f=>!f.accepted && f.recipient===viewer.id);pending.forEach(f=>{const row=el('div',null,'profile-pending');row.append(link(f.requester,names.get(f.requester)||'Friend request'),friendButton('Accept',()=>query(client.rpc('accept_friend_request',{request_id:f.id})),'accept'),friendButton('Decline',()=>query(client.from('profile_friendships').delete().eq('id',f.id)),'remove'));friendList.append(row);});}
    const gallery=$('profile-uploads');gallery.replaceChildren();
    uploads.forEach(u=>{if(!safeImage(u.image_data))return;const card=el('article',null,'profile-upload-card');const img=el('img');img.src=u.image_data;img.alt=u.title;img.loading='lazy';card.append(img,el('strong',u.title),el('small',u.kind==='skin'?'Minecraft skin':'Image'));const a=el('a','Download','btn ghost');a.href=u.image_data;a.download=u.kind==='skin'?'minecraft-skin.png':'image';card.append(a);if(own || (viewer && ['owner','co-owner'].includes(role?.role)))card.append(button('Delete',()=>query(client.from('profile_uploads').delete().eq('id',u.id))));gallery.append(card);});
    if(!gallery.children.length)itemMessage(gallery,'No creations shared yet.');
@@ -96,7 +125,7 @@ async function load(){
    status.textContent='';
  }catch(_){if(request===seq && root.isConnected){status.replaceChildren(document.createTextNode('Could not load profiles. Check your connection and '));const retry=el('button','Try again','btn ghost');retry.type='button';retry.addEventListener('click',load);status.append(retry);}}
 }
-$('profile-comment-form').addEventListener('submit',async e=>{e.preventDefault();const text=$('profile-comment-text'),b=e.currentTarget.querySelector('button');if(!viewer||!text.value.trim())return;b.disabled=true;try{await query(client.from('profile_comments').insert({profile_id:profileId,body:text.value.trim()}));text.value='';await load();}catch(_){status.textContent='Could not post the comment.';}finally{b.disabled=false;}});
+$('profile-comment-form').addEventListener('submit',async e=>{e.preventDefault();const text=$('profile-comment-text'),b=e.currentTarget.querySelector('button');if(!viewer||!text.value.trim())return;b.disabled=true;try{await query(client.from('profile_comments').insert({profile_id:profileId,body:text.value.trim(),reply_to:replyTarget}));text.value='';clearReply();await load();}catch(_){status.textContent='Could not post the comment.';}finally{b.disabled=false;}});
 $('profile-upload-form').addEventListener('submit',async e=>{e.preventDefault();const f=$('profile-file').files[0],kind=$('profile-kind').value,title=$('profile-upload-title').value.trim(),b=e.currentTarget.querySelector('button');if(!viewer || viewer.id!==profileId || !f || !title)return;if(f.size>2*1024*1024 || !['image/png','image/jpeg','image/webp'].includes(f.type) || (kind==='skin'&&f.type!=='image/png')){status.textContent='Choose a PNG skin or a PNG, JPEG or WebP image under 2 MB.';return;}b.disabled=true;status.textContent='Preparing upload…';try{
  const src=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(f);});
  const img=await new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=reject;i.src=src;});let data=src;
