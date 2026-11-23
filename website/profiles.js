@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
-const client=createClient('https://xecdvxknbdwetdlhaazl.supabase.co','sb_publishable_9iI-6RC8bYYDD7QRpgiycw_ZMh1HLDs');
+const base='https://xecdvxknbdwetdlhaazl.supabase.co', key='sb_publishable_9iI-6RC8bYYDD7QRpgiycw_ZMh1HLDs';
+const client=window.FMFAuthClient || createClient(base,key);
 window.FMFAuthClient=client;
 const $=id=>document.getElementById(id), root=$('profiles-page'), status=$('profile-status');
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -9,19 +10,58 @@ const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!=null)n.te
 function link(id,name){const a=el('a',name||'Player');a.href='?id='+encodeURIComponent(id);return a;}
 function date(value){const d=new Date(value);return value && !isNaN(d)?d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}):'Not available';}
 async function query(promise){let timer;try{const r=await Promise.race([Promise.resolve(promise),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Request timed out')),12000);})]);if(r.error)throw r.error;return r.data;}finally{clearTimeout(timer);}}
+// Public directory does not depend on restoring a user's session. A stalled
+// auth refresh must not prevent visitors from browsing public profiles.
+async function publicDirectory(){
+ const controller=typeof AbortController==='function'?new AbortController():null;
+ let timer;try{
+   const request=fetch(base+'/rest/v1/user_profiles?select=user_id,display_name,created_at&order=created_at.desc&limit=100',{headers:{apikey:key,Authorization:'Bearer '+key},signal:controller?.signal}).then(async response=>{
+     if(!response.ok)throw new Error('Directory unavailable');
+     const people=await response.json();if(!Array.isArray(people))throw new Error('Invalid directory');return people;
+   });
+   return await Promise.race([request,new Promise((_,reject)=>{timer=setTimeout(()=>{controller?.abort();reject(new Error('Request timed out'));},8000);})]);
+ }finally{clearTimeout(timer);}
+}
 function button(text,action){const b=el('button',text,'btn ghost');b.type='button';b.addEventListener('click',async()=>{b.disabled=true;try{await action();await load();}catch(_){status.textContent='Could not complete that action. Please try again.';b.disabled=false;}});return b;}
 function itemMessage(node,text){node.replaceChildren(el('p',text));}
-async function load(){
- const request=++seq; status.textContent='Loading…';
+function filterCreators(){const term=$('profile-search').value.trim().toLocaleLowerCase();const cards=[...$('profile-directory').querySelectorAll('.profile-creator')];let visible=0;cards.forEach(card=>{const match=card.querySelector('strong').textContent.toLocaleLowerCase().includes(term);card.hidden=!match;if(match)visible++;});$('profile-search-empty').hidden=!term || !cards.length || visible>0;}
+$('profile-search').addEventListener('input',filterCreators);
+let commentNames=new Map(), commentRole=null, commentSignature='', commentRefresh=0, pollBusy=false;
+function renderComments(comments,names,role){
+ const signature=JSON.stringify([comments,[...names],role,viewer?.id]);
+ if(signature===commentSignature)return;
+ commentSignature=signature;
+ const list=$('profile-comments');list.replaceChildren();comments.forEach(c=>{
+   const card=el('article',null,'comment-item'),head=el('div',null,'comment-header');
+   head.append(link(c.author_id,names.get(c.author_id)||'Player'),el('time',date(c.created_at)));card.append(head,el('p',c.body));
+   if(viewer && (viewer.id===profileId || viewer.id===c.author_id || ['owner','co-owner'].includes(role?.role)))card.append(button('Delete',()=>query(client.from('profile_comments').delete().eq('id',c.id))));
+   list.append(card);
+ });if(!comments.length)itemMessage(list,'No messages yet.');
+}
+async function refreshComments(){
+ if(pollBusy || document.hidden || !root.isConnected || !profileId || $('profile-view').hidden)return;
+ const version=seq, refresh=++commentRefresh, id=profileId;pollBusy=true;
  try{
-   const people=await query(client.from('user_profiles').select('user_id,display_name,created_at').order('created_at',{ascending:false}).limit(100));
+   const comments=await query(client.from('profile_comments').select('id,profile_id,author_id,body,created_at').eq('profile_id',id).order('created_at',{ascending:false}).limit(50));
+   if(version===seq && refresh===commentRefresh && root.isConnected && id===profileId && !document.hidden)renderComments(comments,commentNames,commentRole);
+ }catch(_){}finally{pollBusy=false;}
+}
+const commentTimer=setInterval(refreshComments,15000);
+function refreshWhenVisible(){if(!document.hidden)refreshComments();}
+function cleanupProfiles(){if(root.isConnected)return;clearInterval(commentTimer);document.removeEventListener('visibilitychange',refreshWhenVisible);document.removeEventListener('fmf-nav',cleanupProfiles);authSubscription?.data?.subscription?.unsubscribe();seq++;commentRefresh++;}
+document.addEventListener('visibilitychange',refreshWhenVisible);document.addEventListener('fmf-nav',cleanupProfiles);
+
+async function load(){
+ const request=++seq; status.textContent='Getting profiles ready…';
+ try{
+   const people=await publicDirectory();
    if(request!==seq || !root.isConnected)return;
    const names=new Map(people.map(p=>[p.user_id,p.display_name]));
    const directory=$('profile-directory');directory.replaceChildren();
    if(!people.length)directory.append(el('p','No community profiles yet.'));
-   people.forEach(p=>directory.append(link(p.user_id,p.display_name)));
+   people.forEach(p=>{const a=link(p.user_id,'');a.className='profile-creator';const avatar=el('span',Array.from(p.display_name || 'P')[0].toUpperCase(),'profile-creator-avatar');avatar.setAttribute('aria-hidden','true');const info=el('span',null,'profile-creator-info');info.append(el('strong',p.display_name || 'Player'),el('small','View profile'));const arrow=el('span','→','profile-creator-arrow');arrow.setAttribute('aria-hidden','true');a.replaceChildren(avatar,info,arrow);directory.append(a);});filterCreators();
    if(!profileId && viewer)profileId=viewer.id;
-   if(!profileId){$('profile-view').hidden=true;status.textContent='Choose a profile to view.';return;}
+   if(!profileId){$('profile-view').hidden=true;status.textContent=people.length?'Select a creator to get started.':'Be the first to join the community.';return;}
    if(!uuid.test(profileId)){ $('profile-view').hidden=true;status.textContent='Invalid profile link.';return; }
    const person=people.find(p=>p.user_id===profileId) || await query(client.from('user_profiles').select('user_id,display_name,created_at').eq('user_id',profileId).maybeSingle());
    if(request!==seq || !root.isConnected)return;
@@ -51,8 +91,8 @@ async function load(){
    if(own){const pending=friends.filter(f=>!f.accepted && f.recipient===viewer.id);pending.forEach(f=>{const row=el('div',null,'profile-pending');row.append(link(f.requester,names.get(f.requester)||'Friend request'),button('Accept',()=>query(client.rpc('accept_friend_request',{request_id:f.id}))),button('Decline',()=>query(client.from('profile_friendships').delete().eq('id',f.id))));friendList.append(row);});}
    const gallery=$('profile-uploads');gallery.replaceChildren();
    uploads.forEach(u=>{if(!safeImage(u.image_data))return;const card=el('article',null,'profile-upload-card');const img=el('img');img.src=u.image_data;img.alt=u.title;img.loading='lazy';card.append(img,el('strong',u.title),el('small',u.kind==='skin'?'Minecraft skin':'Image'));const a=el('a','Download','btn ghost');a.href=u.image_data;a.download=u.kind==='skin'?'minecraft-skin.png':'image';card.append(a);if(own || (viewer && ['owner','co-owner'].includes(role?.role)))card.append(button('Delete',()=>query(client.from('profile_uploads').delete().eq('id',u.id))));gallery.append(card);});
-   if(!gallery.children.length)itemMessage(gallery,'No uploads yet.');
-   const list=$('profile-comments');list.replaceChildren();comments.forEach(c=>{const card=el('article',null,'comment-item');const head=el('div',null,'comment-header');head.append(link(c.author_id,names.get(c.author_id)||'Player'),el('time',date(c.created_at)));card.append(head,el('p',c.body));if(viewer && (own || viewer.id===c.author_id || ['owner','co-owner'].includes(role?.role)))card.append(button('Delete',()=>query(client.from('profile_comments').delete().eq('id',c.id))));list.append(card);});if(!comments.length)itemMessage(list,'No comments yet.');
+   if(!gallery.children.length)itemMessage(gallery,'No creations shared yet.');
+   commentNames=names;commentRole=role;commentRefresh++;renderComments(comments,names,role);
    status.textContent='';
  }catch(_){if(request===seq && root.isConnected){status.replaceChildren(document.createTextNode('Could not load profiles. Check your connection and '));const retry=el('button','Try again','btn ghost');retry.type='button';retry.addEventListener('click',load);status.append(retry);}}
 }
@@ -65,6 +105,7 @@ $('profile-upload-form').addEventListener('submit',async e=>{e.preventDefault();
  if(!safeImage(data))throw Error('Image is too large after processing. Try a smaller image.');await query(client.from('profile_uploads').insert({title,kind,image_data:data}));e.target.reset();$('profile-kind').value='skin';await load();
  }catch(err){status.textContent=err.message||'Could not upload the image.';}finally{b.disabled=false;}});
 let authReady=false;
-client.auth.onAuthStateChange((_event,session)=>{authReady=true;viewer=session?.user||null;setTimeout(()=>{if(root.isConnected)load();},0);});
+load();
+const authSubscription=client.auth.onAuthStateChange((_event,session)=>{authReady=true;viewer=session?.user||null;setTimeout(()=>{if(root.isConnected)load();},0);});
 // If session initialization stalls, show a recoverable error rather than a permanent loader.
-setTimeout(()=>{if(!authReady && root.isConnected){status.replaceChildren(document.createTextNode('Sign-in is taking too long. '));const retry=el('button','Try again','btn ghost');retry.type='button';retry.addEventListener('click',()=>location.reload());status.append(retry);}},12000);
+setTimeout(()=>{if(!authReady && root.isConnected){status.replaceChildren(document.createTextNode('Sign-in is taking too long. You can still browse the player list. '));const retry=el('button','Try again','btn ghost');retry.type='button';retry.addEventListener('click',()=>location.reload());status.append(retry);}},12000);

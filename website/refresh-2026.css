@@ -1309,3 +1309,66 @@ body footer .cols a .ic { opacity: 1; }
 .eye-workspace .eye-tip p + p { margin-top: 8px; }
 .eye-advanced-controls { margin-top: 14px; }
 .eye-advanced-controls p { margin: 10px 0; }
+/* Forged-iron tool rail: distinct pixel-shaped icons and clear selected state. */
+.painter-page .paint .painter-tools-card { border-color: var(--line); }
+.painter-page .paint .ptools button { position: relative; box-sizing: border-box; gap: 6px; min-width: 0; padding: 10px 5px; border-radius: 8px; line-height: 1.2; }
+.painter-page .paint .ptools button .ic { width: 21px; height: 21px; stroke-width: 1.8; }
+.painter-page .paint .ptools button span { overflow-wrap: anywhere; }
+.painter-page .paint .ptools button.on { border-color: var(--accent); box-shadow: inset 0 -3px 0 rgba(0,0,0,.22); }
+.painter-page .paint .ptools button:not(.on):hover { background: var(--panel); border-color: var(--accent); }
+[data-theme="minecraft"] .painter-page .paint .ptools button { border-radius: 3px; }
+@media (forced-colors: active) { .painter-page .paint .ptools button.on { outline: 2px solid Highlight; outline-offset: -3px; } }
+/* Community profile refresh: lightweight cards with readable player details. */
+.profiles-page { max-width: 1100px; }
+.profile-welcome { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: clamp(22px,4vw,38px); margin: 24px 0 16px; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 14px; background: var(--panel); }
+.profile-welcome h1 { margin: 8px 0; font-size: clamp(28px,4vw,42px); line-height: 1.15; }
+.profile-welcome p { max-width: 580px; color: var(--muted); line-height: 1.6; margin: 0 0 16px; }
+.profile-welcome .btn { margin: 0; }
+.profile-welcome-mark, .profile-section-icon { display: grid; place-items: center; flex: none; border: 1px solid var(--line); border-radius: 14px; background: var(--bg); }
+.profile-welcome-mark { width: 92px; height: 92px; }
+.profile-welcome-mark .ic { width: 46px; height: 46px; }
+.profile-section-icon { width: 44px; height: 44px; }
+.profile-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.profile-section-heading h2 { margin: 4px 0; }
+.profile-section-heading p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.profile-kicker { display: block; color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: .1em; }
+.profile-creator-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(min(100%,220px),1fr)); gap: 10px; }
+.profile-creator-grid > a.profile-creator { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 12px; border-radius: 10px; }
+.profile-creator-grid > a.profile-creator:hover, .profile-creator-grid > a.profile-creator:focus-visible { border-color: var(--accent); outline-offset: 2px; }
+.profile-creator-avatar { display: grid; place-items: center; width: 42px; height: 42px; flex: none; border: 1px solid var(--line); border-radius: 9px; background: var(--panel); color: var(--accent); font-weight: 800; font-size: 19px; }
+.profile-creator-info { display: grid; gap: 3px; min-width: 0; overflow-wrap: anywhere; }
+.profile-creator-info small { color: var(--muted); }
+.profile-creator-arrow { margin-left: auto; color: var(--icon-iron); }
+#profile-status { color: var(--muted); margin: 12px 0 0; }
+#profile-status:empty { display: none; }
+.profile-identity { min-width: 0; overflow-wrap: anywhere; }
+.profile-identity p { color: var(--muted); font-size: 14px; line-height: 1.5; }
+.profile-upload-grid > p, #profile-comments > p { color: var(--muted); }
+[data-theme="minecraft"] :is(.profile-welcome,.profile-welcome-mark,.profile-section-icon,.profile-creator-grid > a.profile-creator,.profile-creator-avatar) { border-radius: 3px; }
+@media (max-width: 600px) { .profile-welcome { padding: 20px; } .profile-welcome-mark { display: none; } .profile-section-icon { width: 38px; height: 38px; } }
+.profile-search { display: grid; gap: 6px; max-width: 420px; margin: 0 0 16px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.profile-search input { box-sizing: border-box; width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--text); font: inherit; }
+.profile-search input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.profile-creator-grid > a.profile-creator[hidden], .profile-search-empty[hidden] { display: none; }
+.profile-search-empty { color: var(--muted); margin: 12px 0; }
+[data-theme="minecraft"] .profile-search input { border-radius: 3px; }
+/* Site-wide help: compact header button and theme-aware resource card. */
+.site-help { position: relative; display: inline-flex; flex: none; }
+.site-help-toggle { display: grid; place-items: center; width: 42px; height: 42px; padding: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--text); }
+.site-help-toggle:hover, .site-help-toggle[aria-expanded="true"] { border-color: var(--accent); }
+.site-help-toggle .ic { width: 20px; height: 20px; }
+.site-help-card { position: absolute; z-index: 100; right: 0; top: calc(100% + 10px); box-sizing: border-box; width: min(340px, calc(100vw - 24px)); max-height: min(70vh, 570px); overflow-y: auto; padding: 16px; background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 10px 28px #0005; }
+.site-help-card[hidden] { display: none; }
+.site-help-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.site-help-heading span { color: var(--accent); font-size: 10px; font-weight: 700; letter-spacing: .09em; }
+.site-help-heading h2 { font-size: 19px; margin: 4px 0; }
+.site-help-close { display: grid; place-items: center; width: 32px; height: 32px; flex: none; padding: 0; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); color: var(--text); }
+.site-help-card > p { margin: 6px 0 14px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.site-help-links { display: grid; gap: 7px; }
+.site-help-links a { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; color: var(--text); text-decoration: none; }
+.site-help-links a:hover, .site-help-links a:focus-visible { border-color: var(--accent); }
+.site-help-links a > span { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.site-help-links a small { color: var(--muted); font-size: 12px; }
+.site-help-links .ic { margin: 0; }
+[data-theme="minecraft"] :is(.site-help-card,.site-help-toggle,.site-help-close,.site-help-links a) { border-radius: 3px; }
+@media(max-width: 400px) { .site-help-card { right: -70px; max-width: calc(100vw - 24px); } }
