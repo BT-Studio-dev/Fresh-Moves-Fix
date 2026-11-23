@@ -1,11 +1,13 @@
-// The browser retains control of editable elements, links, images, and canvases.
+// Editable elements, images, and canvases retain their native browser menus.
 (function () {
   'use strict';
   if (window.__fmfContextCleanup) window.__fmfContextCleanup();
   var menu = document.createElement('div');
   menu.className = 'fmf-context-menu'; menu.hidden = true;
   menu.setAttribute('role', 'menu'); menu.setAttribute('aria-label', 'Page actions');
-  menu.innerHTML = '<button type="button" role="menuitem" data-action="save"><span>Save page as…</span><small>Ctrl+S</small></button>' +
+  menu.innerHTML = '<button type="button" role="menuitem" data-action="open-link" hidden><span>Open link in new tab</span></button>' +
+    '<button type="button" role="menuitem" data-action="copy-link" hidden><span>Copy link address</span></button>' +
+    '<button type="button" role="menuitem" data-action="save"><span>Save page as…</span><small>Ctrl+S</small></button>' +
     '<button type="button" role="menuitem" data-action="print"><span>Print</span><small>Ctrl+P</small></button>' +
     '<button type="button" role="menuitem" data-action="copy"><span>Copy page link</span></button>' +
     '<button type="button" role="menuitem" data-action="top"><span>Back to top</span></button>' +
@@ -15,16 +17,23 @@
   document.body.appendChild(menu); document.body.appendChild(notice);
   var items = Array.prototype.slice.call(menu.querySelectorAll('button')), timer;
   function hide(restore) { if (menu.hidden) return; menu.hidden = true; if (restore && previousFocus && previousFocus.isConnected) previousFocus.focus(); }
-  var previousFocus = null, lastRightClick = null;
+  var previousFocus = null, lastRightClick = null, linkUrl = null;
   // Some browsers dispatch contextmenu without coordinates; keep the preceding
   // right-button press as a fallback, including when the page is scrolled.
   function rememberClick(e) { if(e.button===2) lastRightClick={x:e.clientX,y:e.clientY,time:Date.now()}; }
   function showNotice(text) { notice.textContent = text; notice.hidden = false; clearTimeout(timer); timer = setTimeout(function () { notice.hidden = true; }, 5000); }
   function open(e) {
     var target = e.target;
-    if (e.defaultPrevented || e.shiftKey || !target || !target.closest || target.closest('a, button, input, textarea, select, option, canvas, img, video, audio, [contenteditable]:not([contenteditable="false"]), .fmf-context-menu')) { hide(false); return; }
+    if (e.defaultPrevented || e.shiftKey || !target || !target.closest || target.closest('button, input, textarea, select, option, canvas, img, video, audio, [contenteditable]:not([contenteditable="false"]), .fmf-context-menu')) { hide(false); return; }
     var selected = window.getSelection && window.getSelection();
     if (selected && !selected.isCollapsed) { hide(false); return; }
+    var link = target.closest('a[href]');
+    linkUrl = null;
+    if (link) {
+      try { var url = new URL(link.href, location.href); if (!/^https?:$/.test(url.protocol)) { hide(false); return; } linkUrl = url.href; }
+      catch (_) { hide(false); return; }
+    }
+    items.forEach(function (item) { var a=item.getAttribute('data-action'); item.hidden=linkUrl ? a!=='open-link' && a!=='copy-link' : a==='open-link' || a==='copy-link'; });
     e.preventDefault(); previousFocus = document.activeElement;
     var x=e.clientX, y=e.clientY;
     if(x===0 && y===0 && lastRightClick && Date.now()-lastRightClick.time<1500){x=lastRightClick.x;y=lastRightClick.y;}
@@ -36,22 +45,28 @@
     if(y+height+margin>window.innerHeight)y-=height;
     menu.style.left=Math.max(margin,Math.min(x,window.innerWidth-width-margin))+'px';
     menu.style.top=Math.max(margin,Math.min(y,window.innerHeight-height-margin))+'px';
-    menu.style.visibility='';items[0].focus();
+    menu.style.visibility='';items.filter(function(item){return !item.hidden;})[0].focus();
   }
   function closeOutside(e) { if (!menu.hidden && !menu.contains(e.target)) hide(false); }
   function keys(e) {
     if (menu.hidden) return;
     if (e.key === 'Escape') { e.preventDefault(); hide(true); return; }
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Home' || e.key === 'End') {
-      e.preventDefault(); var i = items.indexOf(document.activeElement);
-      i = e.key === 'Home' ? 0 : e.key === 'End' ? items.length - 1 : (i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
-      items[i].focus();
+      e.preventDefault(); var visible=items.filter(function(item){return !item.hidden;}), i = visible.indexOf(document.activeElement);
+      i = e.key === 'Home' ? 0 : e.key === 'End' ? visible.length - 1 : (i + (e.key === 'ArrowDown' ? 1 : -1) + visible.length) % visible.length;
+      visible[i].focus();
     }
   }
   function click(e) {
     var item = e.target.closest('button[data-action]'); if (!item) return;
     var action = item.getAttribute('data-action'); hide(true);
-    if (action === 'print') window.print();
+    if (action === 'open-link' && linkUrl) window.open(linkUrl, '_blank', 'noopener,noreferrer');
+    else if (action === 'copy-link' && linkUrl) {
+      if (!navigator.clipboard || !navigator.clipboard.writeText) { showNotice('Could not copy. Use Shift + right-click for the browser menu.'); return; }
+      try { navigator.clipboard.writeText(linkUrl).then(function () { showNotice('Link copied.'); }, function () { showNotice('Could not copy. Use Shift + right-click for the browser menu.'); }); }
+      catch (_) { showNotice('Could not copy. Use Shift + right-click for the browser menu.'); }
+    }
+    else if (action === 'print') window.print();
     else if (action === 'save') showNotice('Press Ctrl+S (or Command+S on Mac) to save this page using your browser.');
     else if (action === 'top') window.scrollTo(0, 0);
     else if (action === 'copy') {
