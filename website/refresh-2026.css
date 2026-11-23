@@ -1372,3 +1372,22 @@ body footer .cols a .ic { opacity: 1; }
 .site-help-links .ic { margin: 0; }
 [data-theme="minecraft"] :is(.site-help-card,.site-help-toggle,.site-help-close,.site-help-links a) { border-radius: 3px; }
 @media(max-width: 400px) { .site-help-card { right: -70px; max-width: calc(100vw - 24px); } }
+
+/* Public profile messages */
+.profile-comment-card { display:flex; gap:12px; position:relative; padding:16px; margin:10px 0; border:1px solid var(--line); border-radius:12px; background:var(--surface, rgba(0,0,0,.12)); }
+.profile-comment-avatar { flex:0 0 36px; width:36px; height:36px; display:grid; place-items:center; border-radius:50%; background:var(--accent, #35ce80); color:#101a15; font-weight:bold; }
+.profile-comment-content { flex:1; min-width:0; }
+.profile-comment-edited { color:var(--muted); font-size:.8em; }
+.profile-comment-quote { color:var(--muted); border-left:2px solid var(--line); padding:4px 10px; margin-top:8px; overflow-wrap:anywhere; }
+.profile-comment-menu { position:relative; }
+.profile-comment-menu summary { cursor:pointer; list-style:none; padding:4px 10px; border-radius:8px; font-size:1.2rem; }
+.profile-comment-menu summary::-webkit-details-marker { display:none; }
+.profile-comment-actions { position:absolute; z-index:5; right:0; top:100%; min-width:140px; padding:6px; border:1px solid var(--line); border-radius:10px; background:var(--surface, #202020); box-shadow:0 6px 20px #0005; }
+.profile-comment-actions button { display:block; width:100%; border:0; background:transparent; color:inherit; text-align:left; padding:9px; cursor:pointer; border-radius:6px; }
+.profile-comment-actions button:hover, .profile-comment-actions button:focus-visible { background:rgba(128,128,128,.2); }
+.profile-comment-edit textarea { width:100%; min-height:90px; }
+.profile-comment-edit button { margin:6px 8px 0 0; }
+.profile-reply-bar:not([hidden]) { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; color:var(--muted); }
+
+.friend-action-button { display:inline-flex; align-items:center; justify-content:center; gap:8px; }
+.friend-action-icon { width:20px; height:20px; flex:none; color:#aeb7be; filter:drop-shadow(0 1px 0 #333); }
