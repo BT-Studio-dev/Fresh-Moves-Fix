@@ -1391,3 +1391,12 @@ body footer .cols a .ic { opacity: 1; }
 
 .friend-action-button { display:inline-flex; align-items:center; justify-content:center; gap:8px; }
 .friend-action-icon { width:20px; height:20px; flex:none; color:#aeb7be; filter:drop-shadow(0 1px 0 #333); }
+
+.messages-page { padding-bottom:40px; }
+.dm-conversations { display:flex; flex-wrap:wrap; gap:8px; }
+.dm-conversations [aria-pressed="true"] { border-color:var(--accent, #39cb7a); }
+.dm-heading { display:flex; gap:12px; justify-content:space-between; align-items:center; flex-wrap:wrap; }
+.dm-list { max-height:480px; overflow:auto; margin:16px 0; }
+.dm-message { padding:12px; margin:8px 0; border:1px solid var(--line); border-radius:10px; }
+.dm-message p { white-space:pre-wrap; overflow-wrap:anywhere; margin:8px 0 0; }
+#dm-form textarea { display:block; width:100%; margin:8px 0; }

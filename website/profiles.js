@@ -110,6 +110,7 @@ async function load(){
    const action=$('profile-friend-action');action.replaceChildren();
    const relation=viewer && friends.find(f=>(f.requester===viewer.id || f.recipient===viewer.id));
    if(viewer && !own){
+     const message=el('a','Message','btn ghost');message.href='../messages/?to='+encodeURIComponent(profileId);action.append(message);
      if(!relation)action.append(friendButton('Add friend',()=>query(client.from('profile_friendships').insert({recipient:profileId})),'add'));
      else if(relation.accepted)action.append(el('span','Friends'),friendButton('Remove friend',()=>query(client.from('profile_friendships').delete().eq('id',relation.id)),'remove'));
      else if(relation.recipient===viewer.id)action.append(friendButton('Accept request',()=>query(client.rpc('accept_friend_request',{request_id:relation.id})),'accept'),friendButton('Decline',()=>query(client.from('profile_friendships').delete().eq('id',relation.id)),'remove'));
