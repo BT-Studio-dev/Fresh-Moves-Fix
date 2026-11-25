@@ -1455,6 +1455,22 @@ body footer .cols a .ic { opacity: 1; }
 .eye-workspace .je-editor .je-controls, .eye-workspace .je-editor .je-workspace { padding: 0; width: 100%; }
 .eye-workspace .je-editor .je-controls h4, .eye-workspace .je-editor .je-workspace h4 { margin: 10px 0 0; }
 .eye-workspace .je-editor .je-controls label:not(.pickb) { display: block; }
-.eye-workspace .je-editor .je-controls .dd, .eye-workspace .je-editor .je-controls .dd-btn { width: 100%; }
+.eye-workspace .je-editor .je-controls select + .dd, .eye-workspace .je-editor .je-controls .dd-btn { width: 100%; }
 .eye-workspace .je-editor #je-mask-options { display: flex; flex-direction: column; gap: 10px; }
 .eye-workspace .je-editor #je-mask-options[hidden] { display: none; }
+
+/* Compact the eye card without changing other editors or the site layout. */
+.eye-workspace .je-editor .je-controls { gap: 7px; }
+.eye-workspace .je-editor .je-brief { margin: 2px 0; line-height: 1.45; }
+.eye-workspace .je-editor .je-color-action { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+.eye-workspace .je-editor .je-color-choice { display: flex; gap: 8px; align-items: center; }
+.eye-workspace .je-editor .je-color-choice label { margin: 0; }
+.eye-workspace .je-editor .je-color-action .btn { flex: 1 1 auto; }
+.eye-workspace .je-editor .je-details { border: 1px solid var(--line); border-radius: 8px; }
+.eye-workspace .je-editor .je-details > summary { cursor: pointer; padding: 10px 12px; font-weight: 600; }
+.eye-workspace .je-editor .je-details-content { padding: 0 12px 12px; }
+.eye-workspace .je-editor .je-details-content p { color: var(--muted); line-height: 1.5; }
+.eye-workspace .je-editor .je-extra-controls { display: flex; flex-direction: column; gap: 8px; }
+.eye-workspace .je-editor .je-workspace { margin-top: 4px; }
+.eye-workspace .je-editor #je-status { margin: 2px 0; }
+@media (max-width: 360px) { .eye-workspace .je-editor .je-color-action { flex-wrap: wrap; } }

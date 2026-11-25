@@ -239,7 +239,7 @@
       copy.set(value, index * 4);
     }
     remember(); for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) pixels.set(copy.subarray((y * 8 + x) * 4, (y * 8 + x) * 4 + 4), at(56 + x, y));
-    $('je-view').value = 'top-right'; draw();
+    $('je-view').value = 'top-right'; $('je-pixel-tools').open = true; draw();
     status((missingDotSelection ? 'Choose a supported dots, short or long eye shape and row to hide those eyes. ' : '') + 'Mask copied. Review and edit it: selected areas may include shading or hair, and other features may still need hiding.');
   });
   root.querySelectorAll('[data-je-tool]').forEach((button) => button.addEventListener('click', function () {
