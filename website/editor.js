@@ -6,7 +6,22 @@
   skin.width = skin.height = 64;
   const sctx = skin.getContext("2d", { willReadFrequently: true });
   let original = null; // ImageData of the loaded skin
-  let loaded = false;
+  let loaded = false, loadToken = 0, protectTransferredSkin = false;
+  const modeSelect = $("eye-editor-mode");
+  let mode = modeSelect && new URLSearchParams(window.location.search).get("mode") === "just-expressions" ? "just-expressions" : "fresh-moves";
+  if (modeSelect) modeSelect.value = mode;
+  function modeUI() {
+    if (!modeSelect) return;
+    const je = mode === "just-expressions";
+    $("je-editor").hidden = !je;
+    $("fmf-eye-controls").hidden = je || protectTransferredSkin;
+    $("fmf-colour-controls").hidden = je || protectTransferredSkin;
+    $("fmf-format-controls").hidden = je || protectTransferredSkin;
+    $("fmf-unlock-notice").hidden = je || !protectTransferredSkin;
+    $("fmf-testing").hidden = je;
+    $("fmf-info").hidden = je;
+  }
+
 
   // face = skin pixels (8..15, 8..15); face column 0 is the left edge as you look at the skin.
   // Marker positions: 2x1 and 2x2 match the example skins shipped in the pack; the other
@@ -71,9 +86,10 @@
     $("status").className = bad ? "status bad" : "status";
   }
 
-  function loadImage(src, name, preset) {
+  function loadImage(src, name, preset, token = ++loadToken, requestedMode = mode) {
     const img = new Image();
     img.onload = () => {
+      if (token !== loadToken) return;
       if (img.width !== 64 || img.height !== 64) {
         setStatus(`"${name}" is ${img.width}x${img.height}. The skin must be 64x64 pixels.`, true);
         return;
@@ -83,6 +99,15 @@
       sctx.drawImage(img, 0, 0);
       original = sctx.getImageData(0, 0, 64, 64);
       loaded = true;
+      if ((mode === "just-expressions" || requestedMode === "just-expressions") && window.JustExpressionsEditor) {
+        protectTransferredSkin = true;
+        origSlim = original.data[idx(54, 20) + 3] === 0;
+        $("fmtslim").checked = origSlim; $("fmtwide").checked = !origSlim;
+        current = new ImageData(new Uint8ClampedArray(original.data), 64, 64);
+        window.JustExpressionsEditor.setSkin(current.data, name, true);
+        modeUI(); render(); return;
+      }
+      protectTransferredSkin = false; modeUI();
       const marked = findOldEyes(original.data);
       const guessed = !marked && window.FMFEyeDetect ? window.FMFEyeDetect(original.data) : null;
       oldEyes = marked || guessed;
@@ -107,7 +132,7 @@
       pickDefaults();
       render();
     };
-    img.onerror = () => setStatus(`Could not read "${name}" as an image.`, true);
+    img.onerror = () => { if (token === loadToken) setStatus(`Could not read "${name}" as an image.`, true); };
     img.src = src;
   }
 
@@ -461,7 +486,7 @@
   function eyeTick() {
     if (!viewer || !current || !loaded) return;
     let st = "";
-    if ($("eyes3d").checked && !paused3d && !preserveUnknown) {
+    if (mode === "fresh-moves" && !protectTransferredSkin && $("eyes3d").checked && !paused3d && !preserveUnknown) {
       const t = ((Date.now() - eyeT0) / 1000) % 6.4;
       st = t < 0.16 ? "shut" : t > 1.8 && t < 2.7 ? "left" : t >= 2.7 && t < 2.86 ? "shut" : t > 4.2 && t < 5.1 ? "right" : "";
     }
@@ -600,9 +625,12 @@
     syncExtras();
     if (!loaded) return;
     syncSwatches();
-    const { out, c } = build();
+    const protectedPixels = mode === "just-expressions" || protectTransferredSkin;
+    const result = protectedPixels ? { out: current, c: choice() } : build();
+    const { out, c } = result;
+    if (!out) return;
     current = out;
-    currentPreview = previewSkin(out);
+    currentPreview = protectedPixels ? new ImageData(new Uint8ClampedArray(out.data), 64, 64) : previewSkin(out);
     try { // the small picture in the "1. Skin" heading shows the face of the skin being edited
       const ic = $("skinicon"), g = ic && ic.getContext && ic.getContext("2d");
       if (g) {
@@ -616,21 +644,26 @@
       }
     } catch (e) {}
     draw($("face"), faceComposite(currentPreview), 8, 8, 8, 8);
-    draw($("top"), out, 0, 0, 40, 8, c.box);
-    draw($("full"), out, 0, 0, 64, 64, c.box);
+    draw($("top"), out, 0, 0, 40, 8, protectedPixels ? null : c.box);
+    draw($("full"), out, 0, 0, 64, 64, protectedPixels ? null : c.box);
     update3d(currentPreview);
-    refreshThumbnails();
+    if (!protectedPixels) refreshThumbnails();
     $("save").disabled = false;
   }
 
   function readFile(f) {
     if (!f) return;
+    const token = ++loadToken;
+    if ((f.type && f.type !== "image/png") || !/\.png$/i.test(f.name) || f.size > 10 * 1024 * 1024) {
+      setStatus("Choose a PNG file up to 10 MB. Your current skin was not changed.", true); return;
+    }
     $("filename").textContent = f.name; $("filename").className = "has";
-    const r = new FileReader();
-    r.onload = () => loadImage(r.result, f.name);
+    const requestedMode = mode, r = new FileReader();
+    r.onload = () => { if (token === loadToken) loadImage(r.result, f.name, null, token, requestedMode); };
+    r.onerror = () => { if (token === loadToken) setStatus("Could not read the selected file.", true); };
     r.readAsDataURL(f);
   }
-  $("file").addEventListener("change", (e) => readFile(e.target.files[0]));
+  $("file").addEventListener("change", (e) => { readFile(e.target.files[0]); e.target.value = ""; });
   // dropping a file on the box works too, without the system file window
   ["dragenter", "dragover"].forEach((t) => $("drop").addEventListener(t, (e) => { e.preventDefault(); $("drop").classList.add("over"); }));
   ["dragleave", "drop"].forEach((t) => $("drop").addEventListener(t, (e) => { e.preventDefault(); $("drop").classList.remove("over"); }));
@@ -804,15 +837,51 @@
     if (!current) return;
     const c = document.createElement("canvas"); c.width = c.height = 64;
     c.getContext("2d").putImageData(current, 0, 0);
+    const filename = mode === "just-expressions" ? "just-expressions-skin.png" : "skin-fresh-moves.png";
     c.toBlob((blob) => {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "skin-fresh-moves.png";
+      a.download = filename;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-      setStatus("Downloaded skin-fresh-moves.png.");
+      setStatus("Skin downloaded.");
     }, "image/png");
   });
 
+  if (modeSelect && window.JustExpressionsEditor) {
+    window.JustExpressionsEditor.onChange = (data) => {
+      if (mode !== "just-expressions") return;
+      current = new ImageData(data, 64, 64);
+      if (loaded) render();
+    };
+    modeSelect.addEventListener("change", () => {
+      const next = modeSelect.value;
+      if (next === mode) return;
+      if (next === "just-expressions") {
+        mode = next;
+        if (current) window.JustExpressionsEditor.setSkin(current.data, "Current skin");
+      } else {
+        const data = window.JustExpressionsEditor.getSkin();
+        mode = next;
+        if (data) {
+          original = new ImageData(new Uint8ClampedArray(data), 64, 64);
+          current = new ImageData(new Uint8ClampedArray(data), 64, 64);
+          protectTransferredSkin = true;
+          origSlim = $("fmtslim").checked;
+        }
+      }
+      modeUI(); if (loaded) render();
+    });
+    $("fmf-unlock").addEventListener("click", () => {
+      if (!window.confirm("Enable Fresh Moves 1.x editing? Its controls may replace existing face and marker pixels, including 2.0 data. Download a backup first.")) return;
+      protectTransferredSkin = false;
+      // Start from the transferred skin. Detection is advisory; the user explicitly
+      // approved applying the currently selected 1.x controls.
+      oldEyes = findOldEyes(original.data) || (window.FMFEyeDetect && window.FMFEyeDetect(original.data)) || null;
+      preserveUnknown = false; preserveDetectedBrow = false;
+      modeUI(); render();
+    });
+    modeUI();
+  }
   loadImage($("steve").dataset.skin, "Steve");
 })();

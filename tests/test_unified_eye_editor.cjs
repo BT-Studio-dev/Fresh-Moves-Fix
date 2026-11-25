@@ -1,0 +1,37 @@
+const assert = require('assert'), fs = require('fs'), {JSDOM} = require('../website/node_modules/jsdom');
+function setup(query = '') {
+ const dom = new JSDOM(fs.readFileSync('website/public/editor/index.html','utf8'), {url:'https://example.com/editor/'+query, runScripts:'outside-only'}), w=dom.window, d=w.document;
+ const states = new WeakMap(); let imageQueue=[], download, exported;
+ const fixture = new Uint8ClampedArray(64*64*4); for(let y=8;y<16;y++)for(let x=8;x<16;x++)fixture.set([10,20,30,255],(y*64+x)*4); fixture.set([44,55,66,255],(30*64+50)*4);
+ w.ImageData=class {constructor(data,width,height){this.data=data;this.width=width;this.height=height;}};
+ w.HTMLCanvasElement.prototype.getContext=function(type){if(type!=='2d') return null;if(!states.has(this)){let state={data:new Uint8ClampedArray(64*64*4)};let ctx={state,clearRect(){},fillRect(){},strokeRect(){},drawImage(obj){if(obj instanceof w.Image) state.data=new Uint8ClampedArray(obj.data);},createImageData(x,y){return new w.ImageData(new Uint8ClampedArray(x*y*4),x,y)},getImageData(){return new w.ImageData(new Uint8ClampedArray(state.data),64,64)},putImageData(im){state.data=new Uint8ClampedArray(im.data)}};states.set(this,ctx);}return states.get(this)};
+ w.HTMLCanvasElement.prototype.toBlob=function(cb){exported=new Uint8ClampedArray(this.getContext('2d').state.data);cb({})};w.URL.createObjectURL=()=> 'blob:test';w.URL.revokeObjectURL=()=>{};w.HTMLAnchorElement.prototype.click=function(){download=this.download};
+ w.Image=class {constructor(){this.width=64;this.height=64;this.data=fixture;}set src(v){imageQueue.push(this)}};
+ w.FileReader=class {readAsDataURL(f){this.result=f.data;f.reader=this}};
+ w.FMFPlayer={EMOTES:{},MOVES:{},moveOf(){},LOOP:{},buildGltf(){},SoftViewer:class{constructor(){throw Error('no preview')}}};
+ w.confirm=()=>true;w.eval(fs.readFileSync('website/just-expressions-editor.js','utf8'));w.eval(fs.readFileSync('website/editor.js','utf8'));
+ const finish=()=>{let img=imageQueue.shift();assert(img);img.onload()};
+ const switchTo=(mode)=>{let e=d.getElementById('eye-editor-mode');e.value=mode;e.dispatchEvent(new w.Event('change'))};
+ const upload=(file)=>{let input=d.getElementById('file');Object.defineProperty(input,'files',{value:[file],configurable:true});input.dispatchEvent(new w.Event('change'))};
+ return {dom,w,d,fixture,finish,switchTo,upload,getExport:()=>exported,getDownload:()=>download, imageQueue};
+}
+{
+ let {dom,w,d,fixture,finish,switchTo,upload,getExport,getDownload,imageQueue}=setup('?mode=just-expressions');finish();
+ assert.equal(d.getElementById('je-editor').hidden,false);assert.equal(d.getElementById('fmf-eye-controls').hidden,true);
+ assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),Array.from(fixture),'2.0 deep link loads original without 1.x regeneration');
+ const cv=d.getElementById('je-canvas');cv.getBoundingClientRect=()=>({left:0,top:0,right:640,bottom:640,width:640,height:640});d.getElementById('je-color').value='#aabbcc';
+ const ptr=(type,x,y)=>{const e=new w.Event(type,{bubbles:true,cancelable:true});Object.defineProperties(e,{button:{value:0},clientX:{value:x},clientY:{value:y},pointerId:{value:1}});cv.dispatchEvent(e)};
+ ptr('pointerdown',105,105);ptr('pointerup',105,105);const edited=w.JustExpressionsEditor.getSkin();assert.deepEqual(Array.from(edited.slice((10*64+10)*4,(10*64+10)*4+4)),[170,187,204,255]);
+ d.getElementById('save').click();assert.equal(getDownload(),'just-expressions-skin.png');assert.deepEqual(Array.from(getExport()),Array.from(edited));
+ switchTo('fresh-moves');assert(!d.getElementById('fmf-unlock-notice').hidden);assert(d.getElementById('fmf-eye-controls').hidden);d.getElementById('save').click();assert.deepEqual(Array.from(getExport()),Array.from(edited),'switch to 1.x must not rewrite data');
+ w.confirm=()=>false;d.getElementById('fmf-unlock').click();assert(d.getElementById('fmf-eye-controls').hidden);
+ switchTo('just-expressions');assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),Array.from(edited));d.getElementById('je-undo').click();assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),Array.from(fixture),'undo survives a no-change round trip');
+ const a={name:'a.png',data:'a'}, b={name:'b.png',data:'b'};upload(a);upload(b);a.reader.onload();assert.equal(imageQueue.length,0,'older read is ignored');b.reader.onload();assert.equal(imageQueue.length,1);switchTo('fresh-moves');finish();assert(!d.getElementById('fmf-unlock-notice').hidden,'pending 2.0 load stays protected after mode switch');d.getElementById('save').click();assert.deepEqual(Array.from(getExport()),Array.from(fixture));
+ switchTo('just-expressions');const before=Array.from(w.JustExpressionsEditor.getSkin());let invalid={name:'bad.png',data:'bad'};upload(invalid);invalid.reader.onload();imageQueue[0].width=32;finish();assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),before);assert.match(d.getElementById('status').textContent,/64x64/);
+ w.confirm=()=>true;switchTo('fresh-moves');d.getElementById('fmf-unlock').click();assert(!d.getElementById('fmf-eye-controls').hidden,'editing may be deliberately enabled');
+ dom.window.close();
+}
+{
+ let {dom,w,d,finish,switchTo,getExport}=setup();finish();d.getElementById('eyeboy').click();d.getElementById('save').click();const one=Array.from(getExport());switchTo('just-expressions');assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),one,'1.x edits transfer to 2.0');switchTo('fresh-moves');d.getElementById('save').click();assert.deepEqual(Array.from(getExport()),one,'round trip preserves all pixels');dom.window.close();
+}
+console.log('Unified editor mode transfer, download, undo, overwrite safety, validation and async races passed');
