@@ -31,6 +31,10 @@ jobs:
             yarn: '1.20.2+build.4'
             fabric: '0.91.6+1.20.2'
             skin_api: 'modern'
+          - minecraft: '1.20.3'
+            yarn: '1.20.3+build.1'
+            fabric: '0.91.1+1.20.3'
+            skin_api: 'modern'
           - minecraft: '1.20.4'
             yarn: '1.20.4+build.3'
             fabric: '0.97.3+1.20.4'
@@ -194,6 +198,7 @@ jobs:
               assert meta['id'] == 'fmf_skins'
               assert meta['depends']['minecraft'] == '=' + version
               assert meta['depends']['java'] == '>=' + java_version
+              assert json.loads(jar.read('fmfskins.mixins.json'))['compatibilityLevel'] == 'JAVA_' + java_version
               assert any(name.endswith('MinecraftSkinsClient.class') for name in jar.namelist())
               assert any(name.endswith('LocalPlayerSkinMixin.class') for name in jar.namelist())
           print('Verified mod metadata and classes in', path)

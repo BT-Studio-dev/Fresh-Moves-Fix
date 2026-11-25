@@ -1,6 +1,6 @@
 # Minecraft Skins by Fresh Moves Fix (Fabric)
 
-An independently written, **client-only** Fabric mod for applying local 64×64 PNG skins. It does not contain, repackage, or depend on HD Skins. This is an early implementation: it is **not verified in-game** and currently targets Minecraft Java 1.20, 1.20.1, 1.20.2 and 1.20.4 only. Other versions through 26.3 require separate porting and testing. Do not advertise unbuilt versions as available.
+An independently written, **client-only** Fabric mod for applying local 64×64 PNG skins. It does not contain, repackage, or depend on HD Skins. This is an early implementation and is **not verified in-game**. Version-specific CI builds cover Minecraft 1.20 through 1.21.11; Minecraft 26.x uses the separate unobfuscated project in `../minecraft-skins-fabric-26/`. Only versions with a successful CI build have a verified JAR, and compilation does not prove the mixin or skin display works at runtime.
 
 ## Usage
 
@@ -14,8 +14,6 @@ The local override **only appears to you**; it does not change the Mojang/Micros
 
 ## Build
 
-Use Java 17 and Gradle 8.5. From this folder run `gradle build` (requires access to Fabric Maven and Minecraft dependencies). The `Build Minecraft Skins JAR` action builds version-specific artifacts for the versions in its matrix. Only successful builds are valid artifacts; there are no automatically published GitHub Release downloads yet.
+From this folder run `gradle build` with access to Fabric Maven and Minecraft dependencies. The workflow matrix records the exact Minecraft, mappings, Fabric API, Java, Gradle, Loom and adapter values for each target. Minecraft 1.20–1.20.4 uses Java 17; newer 1.20 and 1.21 builds use Java 21. Each JAR declares an exact Minecraft version, not support for adjacent versions.
 
-To build for 1.20, pass `-Pminecraft_version=1.20 -Pyarn_mappings=1.20+build.1 -Pfabric_version=0.83.0+1.20`. For 1.20.2 and 1.20.4, the workflow selects the separate `-Pskin_api=modern` adapter. The build targets the exact version in `fabric.mod.json` and does not claim adjacent-version support.
-
-Minecraft 26.1+ uses a different, unobfuscated development toolchain and Java 25; the 1.20 source is **not** a 26.x build. Windows 7 support for modern Java/Minecraft is not guaranteed.
+Minecraft 26.1+ uses the separate `minecraft-skins-fabric-26` source and workflow, unobfuscated Loom and Java 25. Windows 7 support for modern Java/Minecraft is not guaranteed. A green build verifies compilation and JAR metadata, not in-game behavior.
