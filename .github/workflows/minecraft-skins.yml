@@ -94,6 +94,7 @@ jobs:
             fabric: '0.128.2+1.21.5'
             skin_api: 'modern'
             identifier_api: 'factory'
+            texture_api: 'named'
             java: '21'
             gradle: '8.14'
             loom: '1.11.8'
@@ -102,6 +103,7 @@ jobs:
             fabric: '0.128.2+1.21.6'
             skin_api: 'modern'
             identifier_api: 'factory'
+            texture_api: 'named'
             java: '21'
             gradle: '8.14'
             loom: '1.11.8'
@@ -110,6 +112,7 @@ jobs:
             fabric: '0.129.0+1.21.7'
             skin_api: 'modern'
             identifier_api: 'factory'
+            texture_api: 'named'
             java: '21'
             gradle: '8.14'
             loom: '1.11.8'
@@ -118,6 +121,7 @@ jobs:
             fabric: '0.136.1+1.21.8'
             skin_api: 'modern'
             identifier_api: 'factory'
+            texture_api: 'named'
             java: '21'
             gradle: '8.14'
             loom: '1.11.8'
@@ -135,7 +139,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          gradle build --no-daemon -Pminecraft_version='${{ matrix.minecraft }}' -Pyarn_mappings='${{ matrix.yarn }}' -Pfabric_version='${{ matrix.fabric }}' -Pskin_api='${{ matrix.skin_api }}' -Pidentifier_api='${{ matrix.identifier_api || 'legacy' }}' -Ploom_version='${{ matrix.loom || '1.3.8' }}' -Pjava_version='${{ matrix.java || '17' }}' > "$RUNNER_TEMP/minecraft-skins-build.log" 2>&1
+          gradle build --no-daemon -Pminecraft_version='${{ matrix.minecraft }}' -Pyarn_mappings='${{ matrix.yarn }}' -Pfabric_version='${{ matrix.fabric }}' -Pskin_api='${{ matrix.skin_api }}' -Pidentifier_api='${{ matrix.identifier_api || 'legacy' }}' -Ptexture_api='${{ matrix.texture_api || 'legacy' }}' -Ploom_version='${{ matrix.loom || '1.3.8' }}' -Pjava_version='${{ matrix.java || '17' }}' > "$RUNNER_TEMP/minecraft-skins-build.log" 2>&1
           result=$?
           cat "$RUNNER_TEMP/minecraft-skins-build.log"
           if [ "$result" -ne 0 ]; then
