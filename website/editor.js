@@ -95,7 +95,8 @@
       // slim (Alex) skins leave the last arm column empty
       const slim = original.data[idx(54, 20) + 3] === 0;
       origSlim = slim; $("fmtslim").checked = slim; $("fmtwide").checked = !slim;
-      setStatus(`Loaded ${name}. ` + (marked ? "Existing eye markers detected." : guessed ? "Eye shape and position estimated; please check them." : preset ? "Using the selected default eye shape." : "Could not confidently detect eyes; the original face is preserved. Choose a shape if needed."));
+      // Keep useful detection guidance, but do not show a success banner for a loaded skin.
+      setStatus(marked ? "" : guessed ? "Eye shape and position estimated; please check them." : preset ? "" : "Could not confidently detect eyes; the original face is preserved. Choose a shape if needed.");
       if (!preset && oldEyes) preset = oldEyes; // a skin that already has moving eyes keeps their shape and place
       if (preset && TYPES[preset.type]) { // start skins that already have eyes choose the matching shape and place
         $("type").value = preset.type; fillPositions();
@@ -265,6 +266,12 @@
     $("lashcolwrap").style.display = ok && $("lash").checked ? "" : "none";
     const b = $("brow").value, m = $("mouth").value; $("browwrap").style.display = (b === "keep" || b === "none") && m !== "beard" ? "none" : "";
     $("mouthwrap").style.display = m === "keep" || m === "none" ? "none" : "";
+    const low = Math.max(...choice().face.map((f) => f[1]));
+    const row = low < 5 ? 6 : low + 1;
+    $("mouth-fit-note").textContent = m === "keep" || m === "none" ? "" : row > 7
+      ? "There is no room below these eyes for a mouth. Choose a higher eye position."
+      : row !== 6 ? "The mouth will be drawn, but this eye position does not use the pack's animated-mouth marker. Choose a higher eye position to try the animated mouth."
+      : "This position can use the pack's animated-mouth marker; in-game animation has not been verified.";
   }
 
   function draw(canvas, data, sx, sy, sw, sh, mark) {

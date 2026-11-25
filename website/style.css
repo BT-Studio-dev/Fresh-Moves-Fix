@@ -124,6 +124,9 @@ footer .about p { margin: 12px 0 0; }
 footer h4 { color: var(--text); font-size: 15px; margin: 0 0 10px; }
 footer .cols > div:not(.about) a { display: block; color: var(--muted); text-decoration: none; margin-bottom: 8px; }
 footer .cols > div:not(.about) a:hover { color: var(--text); }
+footer .cols > div:not(.about) a.footer-mod { display: flex; align-items: center; gap: 8px; }
+footer .footer-mod img { flex: none; width: 36px; height: 36px; object-fit: contain; }
+footer .footer-mod span { min-width: 0; }
 footer .legal { text-align: center; text-transform: uppercase; font-size: 11px; letter-spacing: .04em; margin: 30px 0 0; opacity: .8; }
 @media (max-width: 860px) { footer .cols { grid-template-columns: 1fr 1fr; } footer .about { grid-column: 1 / -1; } }
 @media (max-width: 560px) {
@@ -400,6 +403,9 @@ header.top nav::-webkit-scrollbar { display: none; }
 .ed h3.ehead > span:last-child { display: flex; flex-direction: column; min-width: 0; }
 .ed h3.ehead b { font-weight: 600; line-height: 1.2; }
 .ed h3.ehead small { font-size: 13px; font-weight: 400; color: var(--muted); }
+.ed .eye-preview-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.ed .eye-preview-heading h3.ehead { margin: 0; }
+.ed .eye-preview-heading #save { max-width: 100%; }
 .ed .ecard > :last-child { margin-bottom: 0; }
 .ed .ecard .status:empty { display: none; }
 .ed .ecard canvas { border-radius: 10px; }
@@ -435,6 +441,9 @@ header.top nav::-webkit-scrollbar { display: none; }
 .ed .pickb small { font-size: 12px; }
 .ed .ehint { display: flex; gap: 8px; align-items: flex-start; margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--bg); color: var(--muted); font-size: 13px; line-height: 1.5; }
 .ed .ehint .ic { flex: none; width: 16px; height: 16px; margin-top: 2px; color: var(--accent); }
+.eye-workspace .ehint:empty { display: none; }
+.eye-workspace #mouth-fit-note:not(:empty) { margin: 0 0 12px; }
+.eye-workspace #lashwrap { margin-top: 12px; }
 
 /* editor: status lines as link pills that open the picture (blob: address) */
 .ed .statline { margin: 12px 0 0; }

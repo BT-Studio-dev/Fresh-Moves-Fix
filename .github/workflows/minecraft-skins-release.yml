@@ -1,0 +1,65 @@
+name: Publish Minecraft Skins alpha
+on:
+  push:
+    branches: ['arena/58d86182-fresh-moves-fix']
+    paths:
+      - 'minecraft-skins/original-release-request.json'
+      - '.github/workflows/minecraft-skins-release.yml'
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    if: startsWith(github.event.head_commit.message, 'Publish compiled Minecraft Skins alpha')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve artifacts from the two successful build runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, subprocess
+          req = json.load(open('minecraft-skins/original-release-request.json'))
+          for run_id in req['runs']:
+              run = json.loads(subprocess.check_output(['gh', 'run', 'view', str(run_id), '--json', 'status,conclusion,headSha,headBranch,name']))
+              assert run['status'] == 'completed' and run['conclusion'] == 'success', run
+              assert run['headSha'] == req['build_commit'] and run['headBranch'] == 'arena/58d86182-fresh-moves-fix', run
+              assert run['name'] in ['Build Minecraft Skins JAR', 'Build Minecraft Skins JAR for 26.x'], run
+              subprocess.run(['gh', 'run', 'download', str(run_id), '--dir', f'artifacts/{run_id}'], check=True)
+          PY
+      - name: Verify the exact JARs and prepare checksums
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, pathlib, shutil, zipfile
+          req = json.load(open('minecraft-skins/original-release-request.json'))
+          versions = req['versions']
+          assert len(versions) == len(set(versions))
+          jars = list(pathlib.Path('artifacts').rglob('*.jar'))
+          expected = {f'minecraft-skins-fabric-{v}.jar': v for v in versions}
+          assert len(jars) == len(expected) and {p.name for p in jars} == set(expected), [str(p) for p in jars]
+          out = pathlib.Path('release-assets'); out.mkdir()
+          checksums = []
+          for jar in sorted(jars):
+              version = expected[jar.name]
+              with zipfile.ZipFile(jar) as z:
+                  assert z.testzip() is None
+                  meta = json.loads(z.read('fabric.mod.json'))
+                  assert meta['id'] == 'fmf_skins' and meta['depends']['minecraft'] == '=' + version
+                  assert any(n.endswith('MinecraftSkinsClient.class') for n in z.namelist())
+                  assert any(n.endswith('LocalPlayerSkinMixin.class') for n in z.namelist())
+              shutil.copyfile(jar, out / jar.name)
+              checksums.append(hashlib.sha256(jar.read_bytes()).hexdigest() + '  ' + jar.name)
+          (out / 'SHA256SUMS.txt').write_text('\n'.join(checksums) + '\n')
+          PY
+      - name: Publish a non-latest experimental release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag=$(python3 -c "import json; print(json.load(open('minecraft-skins/original-release-request.json'))['tag'])")
+          sha=$(python3 -c "import json; print(json.load(open('minecraft-skins/original-release-request.json'))['build_commit'])")
+          gh release create "$tag" release-assets/* --target "$sha" --prerelease --latest=false --title 'Minecraft Skins 0.1.0 alpha (Fabric)' --notes 'Experimental original client-only Fabric mod. These JARs passed compilation and metadata checks, but have not been tested in Minecraft. Use the exact JAR for your Minecraft version and install matching Fabric Loader and Fabric API. The local skin override is visible only to you; it does not change your account skin or other players’ view. Back up your skins. Requires Java 17 for 1.20–1.20.4, Java 21 for 1.20.5–1.21.11, and Java 25 for 26.x.'

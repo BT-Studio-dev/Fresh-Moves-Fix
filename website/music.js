@@ -5,7 +5,7 @@
 // Settings are stored in localStorage: fmf-music, fmf-volume and fmf-song.
 (function () {
   var on = false, vol = 40, song = "calm";
-  var INFO = { calm: { name: "Calm", len: 214, bars: 64 }, minecraft: { name: "Minecraft", len: 360, bars: 96 }, fresh: { name: "Fresh Moves Fix", len: 160, bars: 64 }, night: { name: "Night Sky", len: 192, bars: 48 }, end: { name: "The End", len: 240, bars: 48 }, left: { name: "Player Left", len: 200, bars: 40 } };
+  var INFO = { calm: { name: "Calm", len: 214, bars: 64 }, minecraft: { name: "Minecraft", len: 360, bars: 96 }, fresh: { name: "Fresh Moves Fix", len: 160, bars: 64 }, night: { name: "Night Sky", len: 192, bars: 48 }, end: { name: "The End", len: 240, bars: 48 }, left: { name: "Player Left", len: 200, bars: 40 }, horizon: { name: "Quiet Horizons", len: 216, bars: 48 }, fading: { name: "Fading Lights", len: 228, bars: 48 } };
   try { var saved = localStorage.getItem("fmf-song"); if (INFO[saved]) song = saved; } catch (e) {}
   try { on = localStorage.getItem("fmf-music") === "on"; var v = parseInt(localStorage.getItem("fmf-volume"), 10); if (v >= 0 && v <= 100) vol = v; } catch (e) {}
   var AC = window.AudioContext || window.webkitAudioContext;
@@ -100,7 +100,23 @@
     { bars: 16, chords: [Am, Dm, F, Em], layers: "pam", arp: 3, level: 0.52, piano: true },
     { bars: 8, chords: [Dm, F, Em, Am], layers: "a", arp: 3, level: 0.4, piano: true }
   ];
-  var SONGS = { calm: compose(SECTIONS, SCALE, 7), minecraft: compose(M_SECTIONS, SCALE, 21), fresh: compose(FRESH_SECTIONS, SCALE, 31), night: compose(NIGHT_SECTIONS, SCALE, 67), end: compose(END_SECTIONS, SCALE, 103), left: compose(LEFT_SECTIONS, SCALE, 149) };
+  // Quiet Horizons: original gentle piano and ambient pads, 48 bars / 3:36.
+  var HORIZON_SECTIONS = [
+    { bars: 8, chords: [F, Am, C, Em], layers: "a", arp: 3, level: 0.55, piano: true },
+    { bars: 8, chords: [F, Am, C, Em], layers: "pa", arp: 3, level: 0.6, piano: true },
+    { bars: 16, chords: [Dm, C, G, Am], layers: "pam", arp: 4, level: 0.65, piano: true },
+    { bars: 8, chords: [F, Dm, Em, Am], layers: "pas", arp: 3, level: 0.55, piano: true },
+    { bars: 8, chords: [F, Am, C, Am], layers: "a", arp: 3, level: 0.45, piano: true }
+  ];
+  // Fading Lights: original reflective piano and soft pads, 48 bars / 3:48.
+  var FADING_SECTIONS = [
+    { bars: 8, chords: [Am, Dm, F, Em], layers: "a", arp: 3, level: 0.45, piano: true },
+    { bars: 16, chords: [Am, Dm, F, Em], layers: "pa", arp: 3, level: 0.5, piano: true },
+    { bars: 8, chords: [Dm, F, Am, Em], layers: "pam", arp: 4, level: 0.53, piano: true },
+    { bars: 8, chords: [F, Dm, Am, Em], layers: "pas", arp: 3, level: 0.46, piano: true },
+    { bars: 8, chords: [Dm, Em, F, Am], layers: "a", arp: 3, level: 0.38, piano: true }
+  ];
+  var SONGS = { calm: compose(SECTIONS, SCALE, 7), minecraft: compose(M_SECTIONS, SCALE, 21), fresh: compose(FRESH_SECTIONS, SCALE, 31), night: compose(NIGHT_SECTIONS, SCALE, 67), end: compose(END_SECTIONS, SCALE, 103), left: compose(LEFT_SECTIONS, SCALE, 149), horizon: compose(HORIZON_SECTIONS, SCALE, 211), fading: compose(FADING_SECTIONS, SCALE, 283) };
   function freq(semi) { return 220 * Math.pow(2, semi / 12); }
   function tone(f, t, len, peak, type, attack, slideTo) {
     var o = ctx.createOscillator(), g = ctx.createGain();
