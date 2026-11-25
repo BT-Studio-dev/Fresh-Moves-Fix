@@ -644,7 +644,16 @@
       }
     } catch (e) {}
     draw($("face"), faceComposite(currentPreview), 8, 8, 8, 8);
-    draw($("top"), out, 0, 0, 40, 8, protectedPixels ? null : c.box);
+    const added = $("top");
+    if (mode === "just-expressions") {
+      added.width = 384; added.height = 384;
+      $("eye-pixels-caption").textContent = "Whole skin file, including 2.0 markers and mask";
+      draw(added, out, 0, 0, 64, 64, null);
+    } else {
+      added.width = 480; added.height = 96;
+      $("eye-pixels-caption").textContent = "Top-left corner of the skin file";
+      draw(added, out, 0, 0, 40, 8, protectedPixels ? null : c.box);
+    }
     draw($("full"), out, 0, 0, 64, 64, protectedPixels ? null : c.box);
     update3d(currentPreview);
     if (!protectedPixels) refreshThumbnails();
@@ -774,6 +783,7 @@
     document.querySelectorAll(".ed .panel").forEach((p) => p.classList.toggle("dd-open", !!p.querySelector('.dd-btn[aria-expanded="true"]')));
   }
   function syncMenus() { menus.forEach((m) => m.sync()); }
+  document.addEventListener("je-controls-sync", syncMenus);
   document.addEventListener("fmf-lang", () => setTimeout(syncMenus, 0));
   setTimeout(syncMenus, 0); // pick up translated option texts
   document.addEventListener("click", (e) => { if (!(e.target.closest && e.target.closest(".dd"))) closeMenus(); });

@@ -1474,3 +1474,6 @@ body footer .cols a .ic { opacity: 1; }
 .eye-workspace .je-editor .je-workspace { margin-top: 4px; }
 .eye-workspace .je-editor #je-status { margin: 2px 0; }
 @media (max-width: 360px) { .eye-workspace .je-editor .je-color-action { flex-wrap: wrap; } }
+
+/* The 2.0 marker map spans the entire skin, not just its top-left corner. */
+.eye-workspace .workspace-preview .eye-pixels-card canvas[width="384"] { width: min(384px, 100%); }

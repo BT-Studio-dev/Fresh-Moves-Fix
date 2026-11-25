@@ -3,6 +3,7 @@
 (function () {
   function pixels(base, id, value, s) {
     const out = new Uint8ClampedArray(base);
+    if (value === 'keep') return out;
     const put = (x, y, c) => { if (x < 0 || x > 7 || y < 0 || y > 7) return; out.set(c, (y * 8 + x) * 4); };
     const color = (hex, fallback) => /^#[0-9a-f]{6}$/i.test(hex || '') ? [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)).concat(255) : fallback;
     const white = color(s.white, [255,255,255,255]), pupil = color(s.pupil, [65,68,150,255]);
