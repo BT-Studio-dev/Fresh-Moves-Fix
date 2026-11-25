@@ -10,6 +10,9 @@ base { archivesName = 'minecraft-skins-fabric' }
 def skinApi = project.findProperty('skin_api') ?: 'legacy'
 if (!(skinApi in ['legacy', 'modern'])) throw new GradleException('Unknown skin_api: ' + skinApi)
 sourceSets.main.java.srcDir "src/mc-${skinApi}/java"
+def identifierApi = project.findProperty('identifier_api') ?: 'legacy'
+if (!(identifierApi in ['legacy', 'factory'])) throw new GradleException('Unknown identifier_api: ' + identifierApi)
+sourceSets.main.java.srcDir "src/id-${identifierApi}/java"
 
 repositories { mavenCentral() }
 

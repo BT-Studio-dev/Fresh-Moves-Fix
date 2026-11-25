@@ -80,7 +80,7 @@ public final class SkinStore {
     }
 
     private static void display(MinecraftClient client, NativeImage image, boolean useSlim) {
-        Identifier next = new Identifier("fmf_skins", "local/skin_" + (++serial));
+        Identifier next = TextureIds.local("local/skin_" + (++serial));
         NativeImageBackedTexture newTexture = new NativeImageBackedTexture(image);
         client.getTextureManager().registerTexture(next, newTexture);
         Identifier old = texture;
