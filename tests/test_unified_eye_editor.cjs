@@ -1,23 +1,24 @@
 const assert = require('assert'), fs = require('fs'), {JSDOM} = require('../website/node_modules/jsdom');
-function setup(query = '') {
+function setup(query = '', withViewer = false) {
  const dom = new JSDOM(fs.readFileSync('website/public/editor/index.html','utf8'), {url:'https://example.com/editor/'+query, runScripts:'outside-only'}), w=dom.window, d=w.document;
- const states = new WeakMap(); let imageQueue=[], download, exported;
+ const states = new WeakMap(); let imageQueue=[], download, exported, clock=1000, tickEye, frames=[];
+ if (withViewer) { w.Date.now=()=>clock; w.setInterval=(fn)=>{tickEye=fn;return 1}; w.clearInterval=()=>{}; }
  const fixture = new Uint8ClampedArray(64*64*4); for(let y=8;y<16;y++)for(let x=8;x<16;x++)fixture.set([10,20,30,255],(y*64+x)*4); fixture.set([44,55,66,255],(30*64+50)*4);
  w.ImageData=class {constructor(data,width,height){this.data=data;this.width=width;this.height=height;}};
- w.HTMLCanvasElement.prototype.getContext=function(type){if(type!=='2d') return null;if(!states.has(this)){let state={data:new Uint8ClampedArray(64*64*4)};let ctx={state,clearRect(){},fillRect(){},strokeRect(){},drawImage(obj){if(obj instanceof w.Image) state.data=new Uint8ClampedArray(obj.data);},createImageData(x,y){return new w.ImageData(new Uint8ClampedArray(x*y*4),x,y)},getImageData(){return new w.ImageData(new Uint8ClampedArray(state.data),64,64)},putImageData(im){state.data=new Uint8ClampedArray(im.data)}};states.set(this,ctx);}return states.get(this)};
+ w.HTMLCanvasElement.prototype.getContext=function(type){if(type!=='2d') return null;if(!states.has(this)){let state={data:new Uint8ClampedArray(64*64*4)};let ctx={state,clearRect(){},fillRect(){},strokeRect(){},drawImage(obj){if(obj instanceof w.Image) state.data=new Uint8ClampedArray(obj.data);else if(obj instanceof w.HTMLCanvasElement) state.data=new Uint8ClampedArray(obj.getContext('2d').state.data);},createImageData(x,y){return new w.ImageData(new Uint8ClampedArray(x*y*4),x,y)},getImageData(){return new w.ImageData(new Uint8ClampedArray(state.data),64,64)},putImageData(im){state.data=new Uint8ClampedArray(im.data)}};states.set(this,ctx);}return states.get(this)};
  w.HTMLCanvasElement.prototype.toBlob=function(cb){exported=new Uint8ClampedArray(this.getContext('2d').state.data);cb({})};w.URL.createObjectURL=()=> 'blob:test';w.URL.revokeObjectURL=()=>{};w.HTMLAnchorElement.prototype.click=function(){download=this.download};
  w.Image=class {constructor(){this.width=64;this.height=64;this.data=fixture;}set src(v){imageQueue.push(this)}};
  w.FileReader=class {readAsDataURL(f){this.result=f.data;f.reader=this}};
- w.FMFPlayer={EMOTES:{},MOVES:{},moveOf(){},LOOP:{},buildGltf(){},SoftViewer:class{constructor(){throw Error('no preview')}}};
+ w.FMFPlayer={EMOTES:{},MOVES:{},moveOf(){},LOOP:{},buildGltf(){},SoftViewer:withViewer ? class{constructor(){this.soft=true;}loadSkin(canvas){frames.push(new Uint8ClampedArray(canvas.getContext('2d').state.data));}dispose(){}} : class{constructor(){throw Error('no preview')}}};
  w.confirm=()=>true;w.eval(fs.readFileSync('website/je-thumbnails.js','utf8'));w.eval(fs.readFileSync('website/just-expressions-editor.js','utf8'));w.eval(fs.readFileSync('website/editor.js','utf8'));
  const finish=()=>{let img=imageQueue.shift();assert(img);img.onload()};
  const switchTo=(mode)=>{let e=d.getElementById('eye-editor-mode');e.value=mode;e.dispatchEvent(new w.Event('change'))};
  const upload=(file)=>{let input=d.getElementById('file');Object.defineProperty(input,'files',{value:[file],configurable:true});input.dispatchEvent(new w.Event('change'))};
- return {dom,w,d,fixture,finish,switchTo,upload,getExport:()=>exported,getDownload:()=>download, imageQueue};
+ return {dom,w,d,fixture,finish,switchTo,upload,getExport:()=>exported,getDownload:()=>download, imageQueue, fireEye:(time)=>{clock=time;tickEye()}, frames};
 }
 {
  let {dom,w,d,fixture,finish,switchTo,upload,getExport,getDownload,imageQueue}=setup('?mode=just-expressions');finish();
- assert.equal(d.getElementById('je-editor').hidden,false);assert.equal(d.getElementById('top').width,384);assert.match(d.getElementById('eye-pixels-caption').textContent,/Whole skin/);assert(!d.getElementById('je-pixel-tools').open,'pixel editor starts compact');assert(!d.getElementById('je-help').open,'extra guidance starts compact');for(const id of ['je-eye-shape','je-eye-position','je-brow','je-mouth','je-undo']) assert(!d.getElementById(id).closest('details'),'main control remains visible: '+id);assert(d.getElementById('je-guide').closest('#je-pixel-tools'));assert(d.getElementById('je-canvas').closest('#je-pixel-tools'));assert(d.getElementById('eye-editor-mode').closest('#fmf-eye-controls'));assert(d.getElementById('je-editor').closest('#fmf-eye-controls'));
+ assert.equal(d.getElementById('je-editor').hidden,false);assert.equal(d.getElementById('top').width,384);assert.match(d.getElementById('eye-pixels-caption').textContent,/Changed pixels/);assert(!d.getElementById('je-pixel-tools').open,'pixel editor starts compact');assert(!d.getElementById('je-help').open,'extra guidance starts compact');for(const id of ['je-eye-shape','je-eye-position','je-brow','je-mouth','je-undo']) assert(!d.getElementById(id).closest('details'),'main control remains visible: '+id);assert(d.getElementById('je-guide').closest('#je-pixel-tools'));assert(d.getElementById('je-canvas').closest('#je-pixel-tools'));assert(d.getElementById('eye-editor-mode').closest('#fmf-eye-controls'));assert(d.getElementById('je-editor').closest('#fmf-eye-controls'));
  for (const id of ['je-eye-shape','je-eye-position','je-toon-position','je-curious-position','je-dot-position','je-brow','je-mouth']) {const el=d.getElementById(id), wrapper=el.nextElementSibling;assert.equal(wrapper.querySelectorAll('.dd-opt').length,el.options.length,id);assert.equal(wrapper.querySelectorAll('canvas.eye-option-thumb').length,el.options.length,id+' thumbnails');wrapper.querySelector('.dd-btn').click();for (const c of wrapper.querySelectorAll('canvas')) assert.equal(c.getContext('2d').state.data.length,256,'thumbnail is rendered');wrapper.querySelector('.dd-btn').click();}
  assert(d.getElementById('je-mask-toggle').checked);d.getElementById('je-mask-toggle').click();assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),Array.from(fixture),'mask toggle without a preset leaves pixels unchanged');d.getElementById('je-mask-toggle').click();assert.equal(d.getElementById('fmf-eye-options').hidden,true);
  assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),Array.from(fixture),'2.0 deep link loads original without 1.x regeneration');
@@ -37,5 +38,16 @@ function setup(query = '') {
 }
 {
  let {dom,w,d,finish,switchTo,getExport}=setup();finish();d.getElementById('eyeboy').click();d.getElementById('save').click();const one=Array.from(getExport());switchTo('just-expressions');assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),one,'1.x edits transfer to 2.0');switchTo('fresh-moves');d.getElementById('save').click();assert.deepEqual(Array.from(getExport()),one,'round trip preserves all pixels');dom.window.close();
+}
+{
+ const {dom,w,d,fixture,finish,fireEye,frames,getExport}=setup('?mode=just-expressions',true);finish();
+ const shape=d.getElementById('je-eye-shape');shape.value='standard';shape.dispatchEvent(new w.Event('change'));
+ const skin=Array.from(w.JustExpressionsEditor.getSkin());const ix=(x,y)=>(y*64+x)*4;
+ const diff=d.getElementById('top').getContext('2d').state.data;assert.equal(diff[ix(50,30)+3],0,'unchanged texture omitted from Added pixels');assert.deepEqual(Array.from(diff.slice(ix(9,12),ix(9,12)+4)),[255,255,255,255],'changed face pixels appear in Added pixels');
+ assert.deepEqual(skin.slice(ix(9,12),ix(9,12)+4),[255,255,255,255],'actual eye white is painted');
+ assert.deepEqual(skin.slice(ix(10,12),ix(10,12)+4),[56,56,56,255],'actual pupil is painted');
+ d.getElementById('eyes3d').checked=true;fireEye(1050);const closed=frames[frames.length-1];assert.notDeepEqual(Array.from(closed.slice(ix(9,12),ix(9,12)+4)),[255,255,255,255],'2.0 simulation closes the eyes');
+ assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),skin,'simulation never changes exported pixels');fireEye(1500);const open=frames[frames.length-1];assert.deepEqual(Array.from(open.slice(ix(9,12),ix(9,12)+4)),[255,255,255,255],'eyes reopen');
+ d.getElementById('save').click();assert.deepEqual(Array.from(getExport()),skin);dom.window.close();
 }
 console.log('Unified editor mode transfer, download, undo, overwrite safety, validation and async races passed');

@@ -486,13 +486,13 @@
   function eyeTick() {
     if (!viewer || !current || !loaded) return;
     let st = "";
-    if (mode === "fresh-moves" && !protectTransferredSkin && $("eyes3d").checked && !paused3d && !preserveUnknown) {
+    if ($("eyes3d").checked && !paused3d && ((mode === "fresh-moves" && !protectTransferredSkin && !preserveUnknown) || (mode === "just-expressions" && window.JustExpressionsEditor && window.JustExpressionsEditor.hasEye()))) {
       const t = ((Date.now() - eyeT0) / 1000) % 6.4;
       st = t < 0.16 ? "shut" : t > 1.8 && t < 2.7 ? "left" : t >= 2.7 && t < 2.86 ? "shut" : t > 4.2 && t < 5.1 ? "right" : "";
     }
     if (st === eyeState) return;
     eyeState = st;
-    try { tex.getContext("2d").putImageData(st ? eyeFrame(st) : currentPreview, 0, 0); viewer.loadSkin(tex, { model: $("fmtslim").checked ? "slim" : "default" }); } catch (e) {}
+    try { tex.getContext("2d").putImageData(st ? (mode === "just-expressions" ? new ImageData(window.JustExpressionsEditor.eyeFrame(currentPreview.data, st), 64, 64) : eyeFrame(st)) : currentPreview, 0, 0); viewer.loadSkin(tex, { model: $("fmtslim").checked ? "slim" : "default" }); } catch (e) {}
   }
   const eyeTimer = setInterval(eyeTick, 80);
   { const clean = window.fmfCleanup; window.fmfCleanup = () => { clearInterval(eyeTimer); clean(); }; }
@@ -647,8 +647,16 @@
     const added = $("top");
     if (mode === "just-expressions") {
       added.width = 384; added.height = 384;
-      $("eye-pixels-caption").textContent = "Whole skin file, including 2.0 markers and mask";
-      draw(added, out, 0, 0, 64, 64, null);
+      $("eye-pixels-caption").textContent = "Changed pixels only; red shows removed pixels";
+      const baseline = window.JustExpressionsEditor && window.JustExpressionsEditor.getOriginal();
+      const diff = new ImageData(new Uint8ClampedArray(64*64*4),64,64);
+      if (baseline) for (let i=0;i<baseline.length;i+=4) {
+        if (baseline[i]!==out.data[i] || baseline[i+1]!==out.data[i+1] || baseline[i+2]!==out.data[i+2] || baseline[i+3]!==out.data[i+3]) {
+          if (out.data[i+3]) diff.data.set(out.data.subarray(i,i+4),i);
+          else diff.data.set([255,80,80,255],i);
+        }
+      }
+      draw(added, diff, 0, 0, 64, 64, null);
     } else {
       added.width = 480; added.height = 96;
       $("eye-pixels-caption").textContent = "Top-left corner of the skin file";
@@ -696,7 +704,7 @@
       const detected = current && window.FMFEyeDetect ? window.FMFEyeDetect(current.data) : null;
       const state = { shape: $("je-eye-shape").value, position: $("je-eye-position").value,
         toon: $("je-toon-position").value, curious: $("je-curious-position").value, dot: $("je-dot-position").value,
-        white: $("white").value, pupil: $("pupil").value, lid: (detected && detected.lid) || $("lid").value,
+        white: $("je-eye-white").value, pupil: $("je-eye-pupil").value, lid: (detected && detected.lid) || $("lid").value,
         brow: $("je-brow-color").value, mouth: $("je-mouth-color").value, oldCells: (detected && detected.cells) || [] };
       image.data.set(window.FMFJEThumbnail.pixels(image.data, sel.id, value, state));
       g.putImageData(image,0,0); return;

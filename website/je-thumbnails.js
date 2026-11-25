@@ -1,5 +1,5 @@
-// Illustrative 8x8 face thumbnails. These never alter the skin or write markers;
-// the 2.0 presets sample an existing face rather than drawing these example eyes.
+// Shared 8x8 face layouts. Thumbnails operate on a copy; the 2.0 editor uses
+// the same feature coordinates to paint its selected presets.
 (function () {
   function pixels(base, id, value, s) {
     const out = new Uint8ClampedArray(base);
