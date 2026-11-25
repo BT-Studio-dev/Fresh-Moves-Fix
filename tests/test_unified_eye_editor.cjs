@@ -50,4 +50,13 @@ function setup(query = '', withViewer = false) {
  assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),skin,'simulation never changes exported pixels');fireEye(1500);const open=frames[frames.length-1];assert.deepEqual(Array.from(open.slice(ix(9,12),ix(9,12)+4)),[255,255,255,255],'eyes reopen');
  d.getElementById('save').click();assert.deepEqual(Array.from(getExport()),skin);dom.window.close();
 }
+{
+ const {dom,w,d,fixture,finish}=setup('?mode=just-expressions');finish();
+ const mouth=d.getElementById('je-mouth'), menu=mouth.nextElementSibling;
+ const pick=(label)=>{menu.querySelector('.dd-btn').click();[...menu.querySelectorAll('.dd-opt')].find(b=>b.textContent===label).click();};
+ pick('Top — short');assert.equal(mouth.value,'top-short');assert.notDeepEqual(Array.from(w.JustExpressionsEditor.getSkin()),Array.from(fixture));
+ pick('Do not change');assert.equal(mouth.value,'keep');assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),Array.from(fixture),'dropdown restores original face, markers and mask');
+ d.getElementById('je-undo').click();assert.equal(mouth.value,'top-short');assert.match(menu.querySelector('.dd-btn').textContent,/Top — short/,'undo updates the visible menu');
+ dom.window.close();
+}
 console.log('Unified editor mode transfer, download, undo, overwrite safety, validation and async races passed');

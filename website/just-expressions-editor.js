@@ -31,12 +31,12 @@
     if (window.JustExpressionsEditor && window.JustExpressionsEditor.onChange) window.JustExpressionsEditor.onChange(new Uint8ClampedArray(pixels));
   }
   const controlIds = ['je-eye-shape','je-eye-position','je-toon-position','je-curious-position','je-dot-position','je-brow','je-mouth','je-brow-color','je-mouth-color','je-eye-white','je-eye-pupil','je-mask-toggle','je-mask-dots','je-mask-mode','je-mask-color'];
-  let active = { brow: null, mouth: null }, ownership = new Uint8Array(4096), patches = { eye: [], brow: [], mouth: [] };
+  let active = { brow: null, mouth: null }, ownership = new Uint8Array(4096), patches = { eye: [], brow: [], mouth: [] }, maskBackup = null;
   let committed = controls(), otherMarkers = false;
   function controls() { const result = {}; for (const id of controlIds) { const e = $(id); result[id] = e.type === 'checkbox' ? e.checked : e.value; } return result; }
   function restoreControls(values) { for (const id of controlIds) { const e = $(id); if (e.type === 'checkbox') e.checked = values[id]; else e.value = values[id]; } syncOptions(); document.dispatchEvent(new Event('je-controls-sync')); }
-  function snapshot() { return { pixels: new Uint8ClampedArray(pixels), ownership: new Uint8Array(ownership), patches: JSON.parse(JSON.stringify(patches)), active: { ...active }, controls: { ...committed } }; }
-  function restore(entry) { pixels = new Uint8ClampedArray(entry.pixels); ownership = new Uint8Array(entry.ownership); patches = JSON.parse(JSON.stringify(entry.patches)); active = { ...entry.active }; restoreControls(entry.controls); committed = controls(); }
+  function snapshot() { return { pixels: new Uint8ClampedArray(pixels), ownership: new Uint8Array(ownership), patches: JSON.parse(JSON.stringify(patches)), maskBackup: maskBackup && JSON.parse(JSON.stringify(maskBackup)), active: { ...active }, controls: { ...committed } }; }
+  function restore(entry) { pixels = new Uint8ClampedArray(entry.pixels); ownership = new Uint8Array(entry.ownership); patches = JSON.parse(JSON.stringify(entry.patches)); maskBackup = entry.maskBackup && JSON.parse(JSON.stringify(entry.maskBackup)); active = { ...entry.active }; restoreControls(entry.controls); committed = controls(); }
   function remember(entry = snapshot()) { history.push(entry); if (history.length > 30) history.shift(); }
   function syncOptions() {
     const shape = $('je-eye-shape').value;
@@ -55,29 +55,48 @@
     const id = { eye: 1, brow: 2, mouth: 3 }[group];
     for (const p of patches[group]) {
       if (ownership[p.index] === id && p.after.every((v, k) => pixels[p.index * 4 + k] === v)) {
-        pixels.set(p.before, p.index * 4); ownership[p.index] = 0;
+        pixels.set(p.before, p.index * 4); ownership[p.index] = p.beforeOwner || 0;
+      } else {
+        // If a newer feature covers this pixel, remove this layer from its restore chain.
+        for (const other of Object.keys(patches)) if (other !== group) for (const next of patches[other]) {
+          if (next.index === p.index && next.beforeOwner === id && next.before.every((v,k) => v === p.after[k])) {
+            next.before = p.before.slice(); next.beforeOwner = p.beforeOwner || 0;
+          }
+        }
       }
     }
     patches[group] = [];
+  }
+  function maskNeeded() {
+    return !!active.brow || !!active.mouth || ($('je-mask-dots').checked && /^(dots|short|long)-(close|far)$/.test($('je-eye-shape').value));
+  }
+  function restoreMask() {
+    if (!maskBackup) return;
+    for (const p of maskBackup) if (p.after.every((v,k) => pixels[p.index * 4 + k] === v)) {
+      pixels.set(p.before, p.index * 4); ownership[p.index] = p.beforeOwner;
+    }
+    maskBackup = null;
   }
   function transact(group, apply, mask) {
     if (!pixels) { committed = controls(); return; }
     const before = snapshot(); otherMarkers = false;
     if (group) release(group);
-    const baseline = new Uint8ClampedArray(pixels);
+    const baseline = new Uint8ClampedArray(pixels), baselineOwnership = new Uint8Array(ownership);
     if (apply && !apply()) { restore(before); draw(); return; }
     if (group) {
       const id = { eye: 1, brow: 2, mouth: 3 }[group];
       for (let i=0;i<4096;i++) {
         const offset=i*4, previous=baseline.slice(offset,offset+4), next=pixels.slice(offset,offset+4);
-        if (previous.some((v,k)=>v!==next[k])) { patches[group].push({index:i,before:Array.from(previous),after:Array.from(next)}); ownership[i]=id; }
+        if (previous.some((v,k)=>v!==next[k])) { patches[group].push({index:i,before:Array.from(previous),after:Array.from(next),beforeOwner:baselineOwnership[i]}); ownership[i]=id; }
       }
     }
-    if (mask) generateMask();
+    if (mask === 'auto') { if (maskNeeded()) generateMask(); else restoreMask(); }
+    else if (mask) generateMask();
     const changed = before.pixels.some((v,i)=>v!==pixels[i]);
-    if (changed) remember(before);
-    committed = controls(); draw();
-    if (changed) status('Updated automatically. Undo restores the previous skin. ' + (otherMarkers ? 'Other marker-area pixels were preserved; review them. ' : '') + 'Review the mask and test in-game.');
+    const nextControls = controls(), controlChanged = Object.keys(nextControls).some(id => nextControls[id] !== before.controls[id]);
+    if (changed || controlChanged) remember(before);
+    committed = nextControls; draw();
+    if (changed || controlChanged) status('Updated automatically. Undo restores the previous skin. ' + (otherMarkers ? 'Other marker-area pixels were preserved; review them. ' : '') + 'Review the mask and test in-game.');
   }
   // Loading a new skin never applies presets implicitly; returning unchanged keeps undo.
   window.JustExpressionsEditor = {
@@ -86,7 +105,7 @@
       const same = pixels && pixels.length === incoming.length && pixels.every((v, i) => v === incoming[i]);
       if (forceNew || !same) {
         pixels = incoming; original = new Uint8ClampedArray(incoming); history = [];
-        active = { brow: null, mouth: null }; ownership = new Uint8Array(4096); patches = { eye: [], brow: [], mouth: [] };
+        active = { brow: null, mouth: null }; ownership = new Uint8Array(4096); patches = { eye: [], brow: [], mouth: [] }; maskBackup = null;
         $('je-eye-shape').value = $('je-brow').value = $('je-mouth').value = 'keep';
         $('je-eye-position').value = 'upper'; $('je-toon-position').value = $('je-curious-position').value = 'bottom'; $('je-dot-position').value = '6';
         $('je-mask-toggle').checked = true; $('je-mask-dots').checked = false;
@@ -303,7 +322,14 @@
       }
       copy.set(value, index * 4);
     }
-    for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) { const i=at(56+x,y); pixels.set(copy.subarray((y * 8 + x) * 4, (y * 8 + x) * 4 + 4), i); ownership[i/4] = 0; }
+    if (!maskBackup) maskBackup = [];
+    for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) {
+      const i=at(56+x,y), index=i/4, value=Array.from(copy.subarray((y*8+x)*4,(y*8+x)*4+4));
+      let entry=maskBackup.find(p => p.index === index);
+      if (!entry) { entry={index, before:Array.from(pixels.slice(i,i+4)), beforeOwner:ownership[index], after:value}; maskBackup.push(entry); }
+      else if (!entry.after.every((v,k) => pixels[i+k] === v)) { entry.before=Array.from(pixels.slice(i,i+4)); entry.beforeOwner=ownership[index]; }
+      entry.after=value; pixels.set(value,i); ownership[index] = 0;
+    }
     if (missingDotSelection) status('Choose a supported dots, short or long eye shape and row to hide those eyes.');
   }
   root.querySelectorAll('[data-je-tool]').forEach((button) => button.addEventListener('click', function () {
@@ -333,19 +359,25 @@
   function stop() { drawing = false; last = null; }
   canvas.addEventListener('pointerup', stop); canvas.addEventListener('pointercancel', stop); canvas.addEventListener('lostpointercapture', stop);
   $('je-undo').addEventListener('click', function () { if (!history.length) return; restore(history.pop()); draw(); status('Undid the last edit.'); });
-  $('je-reset').addEventListener('click', function () { if (!original || !pixels) return; remember(); pixels = new Uint8ClampedArray(original); ownership = new Uint8Array(4096); patches = { eye: [], brow: [], mouth: [] }; active = { brow: null, mouth: null }; $('je-eye-shape').value = $('je-brow').value = $('je-mouth').value = 'keep'; syncOptions(); committed = controls(); document.dispatchEvent(new Event('je-controls-sync')); draw(); status('Skin reset to the loaded image.'); });
-  $('je-eye-shape').addEventListener('change', function () { syncOptions(); if (this.value !== 'keep') transact('eye', applyEye, $('je-mask-dots').checked || !!active.brow || !!active.mouth); else committed = controls(); });
-  for (const id of ['je-eye-position','je-toon-position','je-curious-position','je-dot-position']) $(id).addEventListener('change', function () { if ($('je-eye-shape').value !== 'keep') transact('eye', applyEye, $('je-mask-dots').checked || !!active.brow || !!active.mouth); else committed = controls(); });
-  $('je-brow').addEventListener('change', function () { if (this.value !== 'keep') transact('brow', applyBrow, true); else committed = controls(); });
-  $('je-mouth').addEventListener('change', function () { if (this.value !== 'keep') transact('mouth', applyMouth, true); else committed = controls(); });
+  $('je-reset').addEventListener('click', function () { if (!original || !pixels) return; remember(); pixels = new Uint8ClampedArray(original); ownership = new Uint8Array(4096); patches = { eye: [], brow: [], mouth: [] }; maskBackup = null; active = { brow: null, mouth: null }; $('je-eye-shape').value = $('je-brow').value = $('je-mouth').value = 'keep'; syncOptions(); committed = controls(); document.dispatchEvent(new Event('je-controls-sync')); draw(); status('Skin reset to the loaded image.'); });
+  $('je-eye-shape').addEventListener('change', function () {
+    syncOptions();
+    if (this.value !== 'keep') transact('eye', applyEye, maskNeeded() ? 'auto' : false);
+    else transact('eye', null, 'auto');
+  });
+  for (const id of ['je-eye-position','je-toon-position','je-curious-position','je-dot-position']) $(id).addEventListener('change', function () { if ($('je-eye-shape').value !== 'keep') transact('eye', applyEye, maskNeeded() ? 'auto' : false); else committed = controls(); });
+  for (const [id, group, apply] of [['je-brow','brow',applyBrow], ['je-mouth','mouth',applyMouth]]) $(id).addEventListener('change', function () {
+    if (this.value !== 'keep') transact(group, apply, 'auto');
+    else transact(group, () => { active[group] = null; return true; }, 'auto');
+  });
   for (const [id, group, select, apply] of [['je-brow-color','brow','je-brow',applyBrow], ['je-mouth-color','mouth','je-mouth',applyMouth], ['je-eye-white','eye','je-eye-shape',applyEye], ['je-eye-pupil','eye','je-eye-shape',applyEye]]) {
-    const update = () => { if ($(id).value === committed[id]) return; if ($(select).value !== 'keep') transact(group, apply, group !== 'eye' || $('je-mask-dots').checked || !!active.brow || !!active.mouth); else committed = controls(); };
+    const update = () => { if ($(id).value === committed[id]) return; if ($(select).value !== 'keep') transact(group, apply, group !== 'eye' || maskNeeded()); else committed = controls(); };
     $(id).addEventListener('input', update); $(id).addEventListener('change', update);
   }
   for (const id of ['je-mask-toggle','je-mask-dots','je-mask-mode','je-mask-color']) {
     const update = () => { if (controls()[id] === committed[id]) return; if (active.brow || active.mouth || $('je-mask-dots').checked) transact(null, null, true); else committed = controls(); };
     $(id).addEventListener('input', update); $(id).addEventListener('change', update);
   }
-  $('je-copy-mask').addEventListener('click', () => { if (!pixels) return; transact(null, null, true); $('je-view').value = 'top-right'; $('je-pixel-tools').open = true; draw(); });
+  $('je-copy-mask').addEventListener('click', () => { if (!pixels) return; transact(null, null, true); if (!maskNeeded()) maskBackup = null; $('je-view').value = 'top-right'; $('je-pixel-tools').open = true; draw(); });
   syncOptions();
 })();
