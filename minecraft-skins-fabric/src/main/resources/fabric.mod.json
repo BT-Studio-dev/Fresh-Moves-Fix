@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "fmf_skins",
+  "version": "${version}",
+  "name": "Minecraft Skins by Fresh Moves Fix",
+  "description": "Use local 64x64 PNG player skins on this client.",
+  "environment": "client",
+  "entrypoints": { "client": ["dev.btstudio.fmfskins.MinecraftSkinsClient"] },
+  "mixins": ["fmfskins.mixins.json"],
+  "depends": { "fabricloader": ">=${loader_version}", "fabric-api": "*", "minecraft": "=${minecraft_version}", "java": ">=17" }
+}

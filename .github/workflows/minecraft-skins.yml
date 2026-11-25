@@ -3,35 +3,72 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - 'minecraft-skins/**'
+      - 'minecraft-skins-fabric/**'
       - '.github/workflows/minecraft-skins.yml'
   push:
     paths:
-      - 'minecraft-skins/**'
+      - 'minecraft-skins-fabric/**'
       - '.github/workflows/minecraft-skins.yml'
 permissions:
   contents: read
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - minecraft: '1.20'
+            yarn: '1.20+build.1'
+            fabric: '0.83.0+1.20'
+          - minecraft: '1.20.1'
+            yarn: '1.20.1+build.10'
+            fabric: '0.92.6+1.20.1'
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-java@v4
         with:
-          python-version: '3.x'
-      - name: Download, verify and prepare version-specific JARs
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 minecraft-skins/build-all.py dist/minecraft-skins
-      - name: Upload all Minecraft Skins JARs
-        uses: actions/upload-artifact@v4
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
         with:
-          name: minecraft-skins-fabric-versions
-          path: dist/minecraft-skins/*.jar
+          gradle-version: '8.5'
+      - name: Compile and remap the Fabric mod
+        working-directory: minecraft-skins-fabric
+        shell: bash
+        run: |
+          set +e
+          gradle build --no-daemon -Pminecraft_version='${{ matrix.minecraft }}' -Pyarn_mappings='${{ matrix.yarn }}' -Pfabric_version='${{ matrix.fabric }}' > "$RUNNER_TEMP/minecraft-skins-build.log" 2>&1
+          result=$?
+          cat "$RUNNER_TEMP/minecraft-skins-build.log"
+          if [ "$result" -ne 0 ]; then
+            python3 - "$RUNNER_TEMP/minecraft-skins-build.log" <<'PY'
+          import sys
+          lines = open(sys.argv[1], errors='replace').read().splitlines()
+          interesting = [line for line in lines if 'error:' in line or line.startswith('* What went wrong:') or line.startswith('> ')]
+          for line in interesting[:15]:
+              print('::error::' + line.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))
+          PY
+            exit "$result"
+          fi
+      - name: Check the built JAR metadata
+        run: |
+          python3 - '${{ matrix.minecraft }}' <<'PY'
+          import json, sys, zipfile
+          version = sys.argv[1]
+          path = f'minecraft-skins-fabric/build/libs/minecraft-skins-fabric-{version}.jar'
+          with zipfile.ZipFile(path) as jar:
+              assert jar.testzip() is None
+              meta = json.loads(jar.read('fabric.mod.json'))
+              assert meta['id'] == 'fmf_skins'
+              assert meta['depends']['minecraft'] == '=' + version
+              assert any(name.endswith('MinecraftSkinsClient.class') for name in jar.namelist())
+          print('Verified mod metadata and classes in', path)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: minecraft-skins-fabric-${{ matrix.minecraft }}
+          path: minecraft-skins-fabric/build/libs/minecraft-skins-fabric-${{ matrix.minecraft }}.jar
           if-no-files-found: error
-      - name: Upload 26.3 JAR separately
-        uses: actions/upload-artifact@v4
-        with:
-          name: minecraft-skins-fabric-26.3
-          path: dist/minecraft-skins/minecraft-skins-fabric-26.3.jar
-          if-no-files-found: error
+          retention-days: 7
