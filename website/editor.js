@@ -14,7 +14,7 @@
     if (!modeSelect) return;
     const je = mode === "just-expressions";
     $("je-editor").hidden = !je;
-    $("fmf-eye-controls").hidden = je || protectTransferredSkin;
+    $("fmf-eye-options").hidden = je || protectTransferredSkin;
     $("fmf-colour-controls").hidden = je || protectTransferredSkin;
     $("fmf-format-controls").hidden = je || protectTransferredSkin;
     $("fmf-unlock-notice").hidden = je || !protectTransferredSkin;
@@ -674,6 +674,24 @@
   function closeMenus(except) { menus.forEach((m) => { if (m !== except) m.close(); }); }
   function paintThumbnail(canvas, sel, value) {
     const g=canvas.getContext("2d"); if (!g || !g.fillRect) return;
+    if (sel.id.startsWith("je-")) {
+      if (!window.FMFJEThumbnail || !g.createImageData || !g.putImageData) return;
+      const image = g.createImageData(8, 8);
+      if (current) {
+        const face = faceComposite(current);
+        for (let y=0;y<8;y++) for (let x=0;x<8;x++) {
+          const from=idx(8+x,8+y), to=(y*8+x)*4;
+          for (let k=0;k<4;k++) image.data[to+k]=face.data[from+k];
+        }
+      } else for (let i=0;i<image.data.length;i+=4) image.data.set([155,99,73,255],i);
+      const detected = current && window.FMFEyeDetect ? window.FMFEyeDetect(current.data) : null;
+      const state = { shape: $("je-eye-shape").value, position: $("je-eye-position").value,
+        toon: $("je-toon-position").value, curious: $("je-curious-position").value, dot: $("je-dot-position").value,
+        white: $("white").value, pupil: $("pupil").value, lid: (detected && detected.lid) || $("lid").value,
+        brow: $("je-brow-color").value, mouth: $("je-mouth-color").value, oldCells: (detected && detected.cells) || [] };
+      image.data.set(window.FMFJEThumbnail.pixels(image.data, sel.id, value, state));
+      g.putImageData(image,0,0); return;
+    }
     const type=sel.id === "type" ? value : $("type").value, t=TYPES[type]; if (!t) return;
     const pos=sel.id === "pos" ? value : sel.id === "type" && value !== $("type").value ? t.def : $("pos").value;
     if (loaded && g.createImageData && g.putImageData) {
@@ -701,7 +719,7 @@
   function enhance(sel) {
     const wrap = document.createElement("span"); wrap.className = "dd";
     const btn = document.createElement("button"); btn.type = "button"; btn.className = "dd-btn"; btn.setAttribute("aria-haspopup", "listbox");
-    const label = sel.closest("label"); if (label) btn.setAttribute("aria-label", label.firstChild.textContent.trim());
+    const parentLabel = sel.closest("label"), label = parentLabel || document.querySelector(`label[for="${sel.id}"]`); if (label) btn.setAttribute("aria-label", parentLabel ? label.firstChild.textContent.trim() : label.textContent.trim());
     const list = document.createElement("span"); list.className = "dd-list"; list.setAttribute("role", "listbox"); list.hidden = true;
     wrap.appendChild(btn); wrap.appendChild(list);
     sel.classList.add("vh"); sel.tabIndex = -1; sel.after(wrap);
@@ -715,7 +733,7 @@
         for (const o of opts) {
           const b = document.createElement("button");
           b.type = "button"; b.disabled = o.disabled; b.className = "dd-opt" + (o === cur ? " on" : "");
-          if (sel.id === "type" || sel.id === "pos" || sel.id === "mouth" || sel.id === "brow") { const canvas=document.createElement("canvas");canvas.width=canvas.height=8;canvas.className="eye-option-thumb";canvas.dataset.select=sel.id;canvas.dataset.value=o.value;canvas.setAttribute("aria-hidden","true");b.appendChild(canvas); }
+          if (["type", "pos", "mouth", "brow", "je-eye-shape", "je-eye-position", "je-toon-position", "je-curious-position", "je-dot-position", "je-brow", "je-mouth"].includes(sel.id)) { const canvas=document.createElement("canvas");canvas.width=canvas.height=8;canvas.className="eye-option-thumb";canvas.dataset.select=sel.id;canvas.dataset.value=o.value;canvas.setAttribute("aria-hidden","true");b.appendChild(canvas); }
           b.appendChild(document.createTextNode(o.textContent));
           b.setAttribute("role", "option"); b.setAttribute("aria-selected", o === cur ? "true" : "false"); if (o.disabled) b.setAttribute("aria-disabled", "true");
           b.addEventListener("click", (e) => {
@@ -769,7 +787,7 @@
   $("type").value = "2x1";
   fillPositions(); syncBrowOptions();
   $("type").addEventListener("change", () => { fillPositions(); preserveUnknown=false; $("custom").checked=true; syncBrowOptions(); syncMenus(); render(); });
-  ["type", "pos", "anim", "brow", "mouth"].forEach((id) => enhance($(id)));
+  ["type", "pos", "anim", "brow", "mouth", "je-eye-shape", "je-eye-position", "je-toon-position", "je-curious-position", "je-dot-position", "je-brow", "je-mouth"].forEach((id) => { if ($(id)) enhance($(id)); });
   function eyePreset(type, pos, brow, lash) { // "Boy eyes" / "Girl eyes"
     $("type").value = type; fillPositions(); $("pos").value = pos;
     $("brow").value = brow; $("lash").checked = lash; $("custom").checked = true;

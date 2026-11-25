@@ -9,7 +9,7 @@ function setup(query = '') {
  w.Image=class {constructor(){this.width=64;this.height=64;this.data=fixture;}set src(v){imageQueue.push(this)}};
  w.FileReader=class {readAsDataURL(f){this.result=f.data;f.reader=this}};
  w.FMFPlayer={EMOTES:{},MOVES:{},moveOf(){},LOOP:{},buildGltf(){},SoftViewer:class{constructor(){throw Error('no preview')}}};
- w.confirm=()=>true;w.eval(fs.readFileSync('website/just-expressions-editor.js','utf8'));w.eval(fs.readFileSync('website/editor.js','utf8'));
+ w.confirm=()=>true;w.eval(fs.readFileSync('website/je-thumbnails.js','utf8'));w.eval(fs.readFileSync('website/just-expressions-editor.js','utf8'));w.eval(fs.readFileSync('website/editor.js','utf8'));
  const finish=()=>{let img=imageQueue.shift();assert(img);img.onload()};
  const switchTo=(mode)=>{let e=d.getElementById('eye-editor-mode');e.value=mode;e.dispatchEvent(new w.Event('change'))};
  const upload=(file)=>{let input=d.getElementById('file');Object.defineProperty(input,'files',{value:[file],configurable:true});input.dispatchEvent(new w.Event('change'))};
@@ -17,18 +17,22 @@ function setup(query = '') {
 }
 {
  let {dom,w,d,fixture,finish,switchTo,upload,getExport,getDownload,imageQueue}=setup('?mode=just-expressions');finish();
- assert.equal(d.getElementById('je-editor').hidden,false);assert.equal(d.getElementById('fmf-eye-controls').hidden,true);
+ assert.equal(d.getElementById('je-editor').hidden,false);assert(d.getElementById('eye-editor-mode').closest('#fmf-eye-controls'));assert(d.getElementById('je-editor').closest('#fmf-eye-controls'));
+ for (const id of ['je-eye-shape','je-eye-position','je-toon-position','je-curious-position','je-dot-position','je-brow','je-mouth']) {const el=d.getElementById(id), wrapper=el.nextElementSibling;assert.equal(wrapper.querySelectorAll('.dd-opt').length,el.options.length,id);assert.equal(wrapper.querySelectorAll('canvas.eye-option-thumb').length,el.options.length,id+' thumbnails');wrapper.querySelector('.dd-btn').click();for (const c of wrapper.querySelectorAll('canvas')) assert.equal(c.getContext('2d').state.data.length,256,'thumbnail is rendered');wrapper.querySelector('.dd-btn').click();}
+ assert(d.getElementById('je-mask-options').hidden);d.getElementById('je-mask-toggle').click();assert(!d.getElementById('je-mask-options').hidden);assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),Array.from(fixture),'mask toggle alone never changes pixels');assert.equal(d.getElementById('fmf-eye-options').hidden,true);
  assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),Array.from(fixture),'2.0 deep link loads original without 1.x regeneration');
+ const shape=d.getElementById('je-eye-shape'),position=d.getElementById('je-eye-position');position.value='super';shape.value='square';shape.dispatchEvent(new w.Event('change'));assert.equal(position.value,'top');assert(position.querySelector('[value=super]').disabled);shape.value='long-far';shape.dispatchEvent(new w.Event('change'));assert(d.getElementById('je-standard-options').hidden);assert(!d.getElementById('je-dot-options').hidden);assert(d.getElementById('je-dot-position').querySelector('[value="3"]').disabled);shape.value='standard';shape.dispatchEvent(new w.Event('change'));
+ position.value='upper'; const menu=shape.nextElementSibling;menu.querySelector('.dd-btn').click();[...menu.querySelectorAll('.dd-opt')].find(b=>b.textContent==='Far-set 2×1').click();assert.equal(shape.value,'far');d.getElementById('je-apply-eye').click();assert.equal(w.JustExpressionsEditor.getSkin()[(2*64)*4+3],255,'the themed 2.0 dropdown controls the preset');d.getElementById('je-undo').click();assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),Array.from(fixture));
  const cv=d.getElementById('je-canvas');cv.getBoundingClientRect=()=>({left:0,top:0,right:640,bottom:640,width:640,height:640});d.getElementById('je-color').value='#aabbcc';
  const ptr=(type,x,y)=>{const e=new w.Event(type,{bubbles:true,cancelable:true});Object.defineProperties(e,{button:{value:0},clientX:{value:x},clientY:{value:y},pointerId:{value:1}});cv.dispatchEvent(e)};
  ptr('pointerdown',105,105);ptr('pointerup',105,105);const edited=w.JustExpressionsEditor.getSkin();assert.deepEqual(Array.from(edited.slice((10*64+10)*4,(10*64+10)*4+4)),[170,187,204,255]);
  d.getElementById('save').click();assert.equal(getDownload(),'just-expressions-skin.png');assert.deepEqual(Array.from(getExport()),Array.from(edited));
- switchTo('fresh-moves');assert(!d.getElementById('fmf-unlock-notice').hidden);assert(d.getElementById('fmf-eye-controls').hidden);d.getElementById('save').click();assert.deepEqual(Array.from(getExport()),Array.from(edited),'switch to 1.x must not rewrite data');
- w.confirm=()=>false;d.getElementById('fmf-unlock').click();assert(d.getElementById('fmf-eye-controls').hidden);
+ switchTo('fresh-moves');assert(!d.getElementById('fmf-unlock-notice').hidden);assert(d.getElementById('fmf-eye-options').hidden);d.getElementById('save').click();assert.deepEqual(Array.from(getExport()),Array.from(edited),'switch to 1.x must not rewrite data');
+ w.confirm=()=>false;d.getElementById('fmf-unlock').click();assert(d.getElementById('fmf-eye-options').hidden);
  switchTo('just-expressions');assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),Array.from(edited));d.getElementById('je-undo').click();assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),Array.from(fixture),'undo survives a no-change round trip');
  const a={name:'a.png',data:'a'}, b={name:'b.png',data:'b'};upload(a);upload(b);a.reader.onload();assert.equal(imageQueue.length,0,'older read is ignored');b.reader.onload();assert.equal(imageQueue.length,1);switchTo('fresh-moves');finish();assert(!d.getElementById('fmf-unlock-notice').hidden,'pending 2.0 load stays protected after mode switch');d.getElementById('save').click();assert.deepEqual(Array.from(getExport()),Array.from(fixture));
  switchTo('just-expressions');const before=Array.from(w.JustExpressionsEditor.getSkin());let invalid={name:'bad.png',data:'bad'};upload(invalid);invalid.reader.onload();imageQueue[0].width=32;finish();assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),before);assert.match(d.getElementById('status').textContent,/64x64/);
- w.confirm=()=>true;switchTo('fresh-moves');d.getElementById('fmf-unlock').click();assert(!d.getElementById('fmf-eye-controls').hidden,'editing may be deliberately enabled');
+ w.confirm=()=>true;switchTo('fresh-moves');d.getElementById('fmf-unlock').click();assert(!d.getElementById('fmf-eye-options').hidden,'editing may be deliberately enabled');
  dom.window.close();
 }
 {
