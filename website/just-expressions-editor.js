@@ -30,45 +30,84 @@
     $('je-reset').disabled = !original || !pixels.some((value, index) => value !== original[index]);
     if (window.JustExpressionsEditor && window.JustExpressionsEditor.onChange) window.JustExpressionsEditor.onChange(new Uint8ClampedArray(pixels));
   }
-  // The unified editor owns loading and exporting. Keep history when returning to an
-  // unchanged skin; a different skin begins a new, clearly bounded 2.0 session.
+  const controlIds = ['je-eye-shape','je-eye-position','je-toon-position','je-curious-position','je-dot-position','je-brow','je-mouth','je-brow-color','je-mouth-color','je-mask-toggle','je-mask-dots','je-mask-mode','je-mask-color'];
+  let active = { brow: null, mouth: null }, ownership = new Uint8Array(4096), patches = { eye: [], brow: [], mouth: [] };
+  let committed = controls(), otherMarkers = false;
+  function controls() { const result = {}; for (const id of controlIds) { const e = $(id); result[id] = e.type === 'checkbox' ? e.checked : e.value; } return result; }
+  function restoreControls(values) { for (const id of controlIds) { const e = $(id); if (e.type === 'checkbox') e.checked = values[id]; else e.value = values[id]; } syncOptions(); document.dispatchEvent(new Event('je-controls-sync')); }
+  function snapshot() { return { pixels: new Uint8ClampedArray(pixels), ownership: new Uint8Array(ownership), patches: JSON.parse(JSON.stringify(patches)), active: { ...active }, controls: { ...committed } }; }
+  function restore(entry) { pixels = new Uint8ClampedArray(entry.pixels); ownership = new Uint8Array(entry.ownership); patches = JSON.parse(JSON.stringify(entry.patches)); active = { ...entry.active }; restoreControls(entry.controls); committed = controls(); }
+  function remember(entry = snapshot()) { history.push(entry); if (history.length > 30) history.shift(); }
+  function syncOptions() {
+    const shape = $('je-eye-shape').value;
+    $('je-standard-options').hidden = !['standard','derp','far','far-derp','square','wide','flat'].includes(shape);
+    $('je-toon-options').hidden = shape !== 'toon';
+    $('je-curious-options').hidden = shape !== 'curious' && shape !== 'cyclops';
+    $('je-dot-options').hidden = !/^(dots|short|long)-(close|far)$/.test(shape);
+    const pos = $('je-eye-position'), superOption = Array.from(pos.options).find(o => o.value === 'super');
+    superOption.disabled = shape === 'square';
+    if (superOption.disabled && pos.value === 'super') pos.value = 'top';
+    const dot = $('je-dot-position'), minimum = shape.startsWith('long-') ? (shape.endsWith('-far') ? 4 : 3) : shape.startsWith('short-') ? 2 : 1;
+    for (const option of dot.options) option.disabled = Number(option.value) < minimum;
+    if (Number(dot.value) < minimum) dot.value = String(minimum);
+  }
+  function release(group) {
+    const id = { eye: 1, brow: 2, mouth: 3 }[group];
+    for (const p of patches[group]) {
+      if (ownership[p.index] === id && p.after.every((v, k) => pixels[p.index * 4 + k] === v)) {
+        pixels.set(p.before, p.index * 4); ownership[p.index] = 0;
+      }
+    }
+    patches[group] = [];
+  }
+  function transact(group, apply, mask) {
+    if (!pixels) { committed = controls(); return; }
+    const before = snapshot(); otherMarkers = false;
+    if (group) release(group);
+    const baseline = new Uint8ClampedArray(pixels);
+    if (apply && !apply()) { restore(before); draw(); return; }
+    if (group) {
+      const id = { eye: 1, brow: 2, mouth: 3 }[group];
+      for (let i=0;i<4096;i++) {
+        const offset=i*4, previous=baseline.slice(offset,offset+4), next=pixels.slice(offset,offset+4);
+        if (previous.some((v,k)=>v!==next[k])) { patches[group].push({index:i,before:Array.from(previous),after:Array.from(next)}); ownership[i]=id; }
+      }
+    }
+    if (mask) generateMask();
+    const changed = before.pixels.some((v,i)=>v!==pixels[i]);
+    if (changed) remember(before);
+    committed = controls(); draw();
+    if (changed) status('Updated automatically. Undo restores the previous skin. ' + (otherMarkers ? 'Other marker-area pixels were preserved; review them. ' : '') + 'Review the mask and test in-game.');
+  }
+  // Loading a new skin never applies presets implicitly; returning unchanged keeps undo.
   window.JustExpressionsEditor = {
     setSkin(data, name, forceNew = false) {
       const incoming = new Uint8ClampedArray(data);
       const same = pixels && pixels.length === incoming.length && pixels.every((v, i) => v === incoming[i]);
-      if (forceNew || !same) { pixels = incoming; original = new Uint8ClampedArray(incoming); history = []; }
-      ['je-apply-eye', 'je-apply-brow', 'je-apply-mouth', 'je-copy-mask'].forEach(id => { $(id).disabled = false; });
-      draw(); status((name || 'Skin') + ' ready. Select a preset or follow a guide to paint pixels.');
+      if (forceNew || !same) {
+        pixels = incoming; original = new Uint8ClampedArray(incoming); history = [];
+        active = { brow: null, mouth: null }; ownership = new Uint8Array(4096); patches = { eye: [], brow: [], mouth: [] };
+        $('je-eye-shape').value = $('je-brow').value = $('je-mouth').value = 'keep';
+        $('je-eye-position').value = 'upper'; $('je-toon-position').value = $('je-curious-position').value = 'bottom'; $('je-dot-position').value = '6';
+        $('je-mask-toggle').checked = true; $('je-mask-dots').checked = false;
+        syncOptions(); committed = controls(); document.dispatchEvent(new Event('je-controls-sync'));
+      }
+      $('je-copy-mask').disabled = false;
+      draw(); status((name || 'Skin') + ' ready. Choose a preset or open the manual tools.');
     },
     getSkin() { return pixels && new Uint8ClampedArray(pixels); },
     onChange: null
   };
-  $('je-mask-toggle').addEventListener('change', function () { $('je-mask-options').hidden = !this.checked; });
   $('je-guide').addEventListener('change', function () { $('je-guide-link').href = '../guides/just-expressions/' + encodeURIComponent(this.value) + '/'; });
   $('je-view').addEventListener('change', draw);
-  $('je-eye-shape').addEventListener('change', function () {
-    $('je-standard-options').hidden = !['standard','derp','far','far-derp','square','wide','flat'].includes(this.value);
-    $('je-toon-options').hidden = this.value !== 'toon';
-    $('je-curious-options').hidden = this.value !== 'curious' && this.value !== 'cyclops';
-    $('je-dot-options').hidden = !/^(dots|short|long)-(close|far)$/.test(this.value);
-    // Only offer positions for which the selected marker layout exists.
-    const pos = $('je-eye-position'), superOption = Array.from(pos.options).find(o => o.value === 'super');
-    superOption.disabled = this.value === 'square';
-    if (superOption.disabled && pos.value === 'super') pos.value = 'top';
-    const dot = $('je-dot-position'), minimum = this.value.startsWith('long-') ? (this.value.endsWith('-far') ? 4 : 3) : this.value.startsWith('short-') ? 2 : 1;
-    for (const option of dot.options) option.disabled = Number(option.value) < minimum;
-    if (Number(dot.value) < minimum) dot.value = String(minimum);
-  });
-  function remember() { history.push(new Uint8ClampedArray(pixels)); if (history.length > 30) history.shift(); }
   function clearArea(x, y, width, height) { for (let j = y; j < y + height; j++) for (let i = x; i < x + width; i++) pixels.fill(0, at(i, j), at(i, j) + 4); }
-  function occupied(x, y, width, height) { for (let j = y; j < y + height; j++) for (let i = x; i < x + width; i++) if (pixels[at(i, j) + 3]) return true; return false; }
-  function confirmArea(x, y, width, height, description) {
-    return !occupied(x, y, width, height) || window.confirm('This will replace existing pixels in ' + description + '. Continue?');
+  function otherPixels(zones, x, y, width, height) {
+    return zones.some(([zx,zy,zw,zh]) => { for (let j=zy;j<zy+zh;j++) for (let i=zx;i<zx+zw;i++) if (!(i>=x && i<x+width && j>=y && j<y+height) && pixels[at(i,j)+3]) return true; return false; });
   }
   function colour(hex) { return [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)).concat(255); }
   // Coordinates are transcribed from the Just Expressions 2.0 guide diagrams.
   // The existing face is never repainted or used as metadata storage.
-  $('je-apply-eye').addEventListener('click', function () {
+  function applyEye() {
     if (!pixels) return;
     const position = $('je-eye-position').value, shape = $('je-eye-shape').value;
     const standard = { super: [2, 24, 0], top: [3, 4, 0], upper: [4, 4, 2], lower: [5, 4, 4], bottom: [6, 4, 6] };
@@ -124,13 +163,10 @@
       }
       if (copies.some(([, , x, y]) => pixels[at(x, y) + 3] !== 255)) { status('The eye pixels at this position are transparent. Paint them on the face first.'); return; }
       const [tx, ty, tw, th] = target;
-      for (const [zx, zy, zw, zh] of zones) for (let y = zy; y < zy + zh; y++) for (let x = zx; x < zx + zw; x++) {
-        if (!(x >= tx && x < tx + tw && y >= ty && y < ty + th) && pixels[at(x, y) + 3]) { status('Other pixels are present in the eye marker area. Review them before applying this preset.'); return; }
-      }
-      if (!confirmArea(tx, ty, tw, th, 'the eye marker area')) return;
+      otherMarkers = otherPixels(zones, tx, ty, tw, th);
       const values = copies.map(([x, y, fromX, fromY]) => [x, y, new Uint8ClampedArray(pixels.subarray(at(fromX, fromY), at(fromX, fromY) + 4))]);
-      remember(); clearArea(tx, ty, tw, th); for (const [x, y, value] of values) pixels.set(value, at(x, y));
-      draw(); status('Eye markers applied. Test the downloaded skin with a compatible 2.0 pack.'); return;
+      clearArea(tx, ty, tw, th); for (const [x, y, value] of values) pixels.set(value, at(x, y));
+      return true;
     }
     if (shape === 'wide' || shape === 'flat') {
       const positions = { super: [2, 0], top: [2, 0], upper: [3, 2], lower: [4, 4], bottom: [5, 6] };
@@ -144,14 +180,11 @@
         [8, 9, 14, 15].forEach((x, i) => copies.push([markerX + i, markerY + 1, x, 8 + row]));
       }
       if (copies.some(([, , x, y]) => pixels[at(x, y) + 3] !== 255)) { status('The eye or eyelid pixels at this position are transparent. Paint them on the face first.'); return; }
-      for (let y = 0; y < 8; y++) for (let x = 32; x < 40; x++) {
-        if (!(x >= markerX && x < markerX + 4 && y >= markerY && y < markerY + 2) && pixels[at(x, y) + 3]) { status('Other pixels are present in the eye marker area. Review them before applying this preset.'); return; }
-      }
-      if (!confirmArea(markerX, markerY, 4, 2, 'the eye marker area')) return;
+      otherMarkers = otherPixels([[32,0,8,8]], markerX, markerY, 4, 2);
       const values = copies.map(([x, y, fromX, fromY]) => [x, y, new Uint8ClampedArray(pixels.subarray(at(fromX, fromY), at(fromX, fromY) + 4))]);
-      remember(); clearArea(markerX, markerY, 4, 2);
+      clearArea(markerX, markerY, 4, 2);
       for (const [x, y, value] of values) pixels.set(value, at(x, y));
-      draw(); status('Eye markers applied. Test the downloaded skin with a compatible 2.0 pack.'); return;
+      return true;
     }
     const isFar = shape === 'far' || shape === 'far-derp', isDerp = shape === 'derp' || shape === 'far-derp';
     const variant = (shape === 'square' ? square : standard)[position];
@@ -167,64 +200,51 @@
       for (let r = 0; r < rows; r++) faceX.forEach((x, k) => copies.push([markerX + k, markerY + 1 + r, x, 8 + row + r]));
     }
     if (copies.some(entry => pixels[at(entry[2], entry[3]) + 3] !== 255)) { status('The eye or eyelid pixels at this position are transparent. Paint them on the face first.'); return; }
-    const zones = shape === 'square' ? [[24, 2, 8, 6]] : [[isFar ? 0 : 4, 0, 4, 8], [isFar ? 28 : 24, 0, 4, 2]];
-    for (const [x0, y0, width, h] of zones) for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + width; x++) {
-      if (!(x >= markerX && x < markerX + 4 && y >= markerY && y < markerY + height) && pixels[at(x, y) + 3]) {
-        status('Other pixels are present in the eye marker area. Review them before applying this preset.'); return;
-      }
-    }
-    if (!confirmArea(markerX, markerY, 4, height, 'the eye marker area')) return;
+    const zones = shape === 'square' ? [[24,2,8,6]] : [[isFar ? 0 : 4,0,4,8],[isFar ? 28 : 24,0,4,2]];
+    otherMarkers = otherPixels(zones, markerX, markerY, 4, height);
     const values = copies.map(([x, y, fromX, fromY]) => [x, y, new Uint8ClampedArray(pixels.subarray(at(fromX, fromY), at(fromX, fromY) + 4))]);
-    remember(); clearArea(markerX, markerY, 4, height);
+    clearArea(markerX, markerY, 4, height);
     for (const [x, y, value] of values) pixels.set(value, at(x, y));
-    draw(); status('Eye markers applied. Test the downloaded skin with a compatible 2.0 pack.');
-  });
-  $('je-apply-brow').addEventListener('click', function () {
-    if (!pixels) return;
+    return true;
+  }
+  function applyBrow() {
     const options = { 'regular-top': [28, 48, 6], 'regular-upper': [28, 49, 6], 'regular-lower': [28, 50, 6], 'regular-bottom': [28, 51, 6], 'regular-super': [14, 48, 6], 'layer-top': [34, 48, 2], 'layer-upper': [34, 49, 2], 'layer-lower': [34, 50, 2], 'layer-bottom': [34, 51, 2] };
-    const selected = options[$('je-brow').value]; if (!selected) return;
+    const selected = options[$('je-brow').value]; if (!selected) return false;
     const [x, y, width] = selected;
-    // Refuse competing eyebrow marker positions instead of silently deleting them.
-    for (const [ox, oy, ow] of Object.values(options)) {
-      if (ox === x && oy === y && ow === width) continue;
-      if (occupied(ox, oy, ow, 1)) { status('Other eyebrow-marker pixels are present. Review them before applying this preset.'); return; }
-    }
-    if (!confirmArea(x, y, width, 1, 'the eyebrow marker area')) return;
-    remember(); for (let i = 0; i < width; i++) pixels.set(colour($('je-brow-color').value), at(x + i, y));
-    draw(); status('Eyebrow markers applied. Add and edit a Universal Mask, then test in-game.');
-  });
-  $('je-apply-mouth').addEventListener('click', function () {
-    if (!pixels) return;
+    otherMarkers = otherPixels([[28,48,8,4],[14,48,6,1]], x, y, width, 1);
+    for (let i=0;i<width;i++) pixels.set(colour($('je-brow-color').value), at(x+i,y));
+    active.brow = $('je-brow').value; return true;
+  }
+  function applyMouth() {
     const options = { 'top-long': [50, 16, 4], 'top-short': [50, 17, 2], 'bottom-long': [51, 16, 4], 'bottom-short': [51, 17, 2] };
-    const selected = options[$('je-mouth').value]; if (!selected) return;
-    const [y, x, width] = selected, otherY = y === 50 ? 51 : 50;
-    if (occupied(16, otherY, 4, 1)) { status('Other mouth-marker pixels are present. Review them before applying this preset.'); return; }
-    if (!confirmArea(16, y, 4, 1, 'the mouth marker area')) return;
-    remember(); clearArea(16, y, 4, 1); for (let i = 0; i < width; i++) pixels.set(colour($('je-mouth-color').value), at(x + i, y));
-    draw(); status('Mouth markers applied. Add and edit a Universal Mask, then test in-game.');
-  });
-  $('je-copy-mask').addEventListener('click', function () {
-    if (!pixels || !confirmArea(56, 0, 8, 8, 'the Universal Mask area')) return;
+    const selected = options[$('je-mouth').value]; if (!selected) return false;
+    const [y, x, width] = selected;
+    otherMarkers = otherPixels([[16,50,4,2]], 16, y, 4, 1);
+    clearArea(16, y, 4, 1); for (let i=0;i<width;i++) pixels.set(colour($('je-mouth-color').value), at(x+i,y));
+    active.mouth = $('je-mouth').value; return true;
+  }
+  function generateMask() {
+    if (!pixels) return;
     const copy = new Uint8ClampedArray(8 * 8 * 4);
     for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) copy.set(pixels.subarray(at(8 + x, 8 + y), at(8 + x, 8 + y) + 4), (y * 8 + x) * 4);
     const fill = colour($('je-mask-color').value), hidden = new Set();
     const hide = (row, columns) => { for (const x of columns) hidden.add(row * 8 + x); };
-    if ($('je-mask-brow').checked) {
-      const [layer, position] = $('je-brow').value.split('-');
+    if ($('je-mask-toggle').checked && active.brow) {
+      const [layer, position] = active.brow.split('-');
       const browRows = { super: 1, top: 2, upper: 3, lower: 4, bottom: 5 };
       const row = browRows[position];
       const columns = layer === 'layer' ? [1, 2, 5, 6] : [0, 1, 2, 5, 6, 7];
       if (row !== undefined) hide(row, columns);
     }
-    if ($('je-mask-mouth').checked) {
-      const [position, width] = $('je-mouth').value.split('-');
+    if ($('je-mask-toggle').checked && active.mouth) {
+      const [position, width] = active.mouth.split('-');
       hide(position === 'bottom' ? 7 : 6, width === 'short' ? [3, 4] : [2, 3, 4, 5]);
     }
     const shape = $('je-eye-shape').value, dotRow = Number($('je-dot-position').value), [kind, spacing] = shape.split('-');
     const singleEye = /^(dots|short|long)-(close|far)$/.test(shape), height = kind === 'short' ? 2 : kind === 'long' ? 3 : 1;
     const minRow = kind === 'long' && spacing === 'far' ? 4 : height;
-    const missingDotSelection = $('je-mask-dots').checked && (!singleEye || !Number.isInteger(dotRow) || dotRow < minRow || dotRow > 6);
-    if ($('je-mask-dots').checked && !missingDotSelection) for (let row = dotRow - height + 1; row <= dotRow; row++) hide(row, spacing === 'far' ? [1, 6] : [2, 5]);
+    const missingDotSelection = $('je-mask-toggle').checked && $('je-mask-dots').checked && (!singleEye || !Number.isInteger(dotRow) || dotRow < minRow || dotRow > 6);
+    if ($('je-mask-toggle').checked && $('je-mask-dots').checked && !missingDotSelection) for (let row = dotRow - height + 1; row <= dotRow; row++) hide(row, spacing === 'far' ? [1, 6] : [2, 5]);
     // Sample only the original copy, excluding all selected feature pixels, so results don't depend on iteration order.
     const originalCopy = new Uint8ClampedArray(copy);
     for (const index of hidden) {
@@ -238,10 +258,9 @@
       }
       copy.set(value, index * 4);
     }
-    remember(); for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) pixels.set(copy.subarray((y * 8 + x) * 4, (y * 8 + x) * 4 + 4), at(56 + x, y));
-    $('je-view').value = 'top-right'; $('je-pixel-tools').open = true; draw();
-    status((missingDotSelection ? 'Choose a supported dots, short or long eye shape and row to hide those eyes. ' : '') + 'Mask copied. Review and edit it: selected areas may include shading or hair, and other features may still need hiding.');
-  });
+    for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) { const i=at(56+x,y); pixels.set(copy.subarray((y * 8 + x) * 4, (y * 8 + x) * 4 + 4), i); ownership[i/4] = 0; }
+    if (missingDotSelection) status('Choose a supported dots, short or long eye shape and row to hide those eyes.');
+  }
   root.querySelectorAll('[data-je-tool]').forEach((button) => button.addEventListener('click', function () {
     tool = this.dataset.jeTool;
     root.querySelectorAll('[data-je-tool]').forEach((b) => { const active = b === this; b.setAttribute('aria-pressed', String(active)); b.classList.toggle('ghost', !active); });
@@ -252,7 +271,7 @@
     return [area[0] + Math.floor((event.clientX - r.left) * area[2] / r.width), area[1] + Math.floor((event.clientY - r.top) * area[2] / r.height)];
   }
   function paint(x, y) {
-    const i = at(x, y), hex = $('je-color').value;
+    const i = at(x, y), hex = $('je-color').value; ownership[i / 4] = 0;
     if (tool === 'eraser') pixels.fill(0, i, i + 4);
     else { pixels[i] = parseInt(hex.slice(1, 3), 16); pixels[i + 1] = parseInt(hex.slice(3, 5), 16); pixels[i + 2] = parseInt(hex.slice(5, 7), 16); pixels[i + 3] = 255; }
   }
@@ -263,11 +282,25 @@
   canvas.addEventListener('pointerdown', function (e) {
     if (!pixels || e.button !== 0) return; const p = locate(e); if (!p) return; e.preventDefault();
     if (tool === 'picker') { const i = at(p[0], p[1]); if (!pixels[i + 3]) { status('That pixel is transparent.'); return; } $('je-color').value = '#' + Array.from(pixels.subarray(i, i + 3), n => n.toString(16).padStart(2, '0')).join(''); status('Picked colour at ' + p.join(', ') + '.'); return; }
-    history.push(new Uint8ClampedArray(pixels)); if (history.length > 30) history.shift(); drawing = true; last = p; if (canvas.setPointerCapture) canvas.setPointerCapture(e.pointerId); paint(p[0], p[1]); draw();
+    remember(); drawing = true; last = p; if (canvas.setPointerCapture) canvas.setPointerCapture(e.pointerId); paint(p[0], p[1]); draw();
   });
   canvas.addEventListener('pointermove', function (e) { const p = locate(e); if (!p) { last = null; return; } $('je-coords').textContent = 'Pixel: X ' + p[0] + ', Y ' + p[1]; if (drawing && pixels) { stroke(last || p, p); last = p; draw(); } });
   function stop() { drawing = false; last = null; }
   canvas.addEventListener('pointerup', stop); canvas.addEventListener('pointercancel', stop); canvas.addEventListener('lostpointercapture', stop);
-  $('je-undo').addEventListener('click', function () { if (!history.length) return; pixels = history.pop(); draw(); status('Undid the last stroke.'); });
-  $('je-reset').addEventListener('click', function () { if (!original) return; history.push(new Uint8ClampedArray(pixels)); if (history.length > 30) history.shift(); pixels = new Uint8ClampedArray(original); draw(); status('Skin reset to the loaded image.'); });
+  $('je-undo').addEventListener('click', function () { if (!history.length) return; restore(history.pop()); draw(); status('Undid the last edit.'); });
+  $('je-reset').addEventListener('click', function () { if (!original || !pixels) return; remember(); pixels = new Uint8ClampedArray(original); ownership = new Uint8Array(4096); patches = { eye: [], brow: [], mouth: [] }; active = { brow: null, mouth: null }; $('je-eye-shape').value = $('je-brow').value = $('je-mouth').value = 'keep'; syncOptions(); committed = controls(); document.dispatchEvent(new Event('je-controls-sync')); draw(); status('Skin reset to the loaded image.'); });
+  $('je-eye-shape').addEventListener('change', function () { syncOptions(); if (this.value !== 'keep') transact('eye', applyEye, $('je-mask-dots').checked); else committed = controls(); });
+  for (const id of ['je-eye-position','je-toon-position','je-curious-position','je-dot-position']) $(id).addEventListener('change', function () { if ($('je-eye-shape').value !== 'keep') transact('eye', applyEye, $('je-mask-dots').checked); else committed = controls(); });
+  $('je-brow').addEventListener('change', function () { if (this.value !== 'keep') transact('brow', applyBrow, true); else committed = controls(); });
+  $('je-mouth').addEventListener('change', function () { if (this.value !== 'keep') transact('mouth', applyMouth, true); else committed = controls(); });
+  for (const [id, group, select, apply] of [['je-brow-color','brow','je-brow',applyBrow], ['je-mouth-color','mouth','je-mouth',applyMouth]]) {
+    const update = () => { if ($(id).value === committed[id]) return; if ($(select).value !== 'keep') transact(group, apply, true); else committed = controls(); };
+    $(id).addEventListener('input', update); $(id).addEventListener('change', update);
+  }
+  for (const id of ['je-mask-toggle','je-mask-dots','je-mask-mode','je-mask-color']) {
+    const update = () => { if (controls()[id] === committed[id]) return; if (active.brow || active.mouth || $('je-mask-dots').checked) transact(null, null, true); else committed = controls(); };
+    $(id).addEventListener('input', update); $(id).addEventListener('change', update);
+  }
+  $('je-copy-mask').addEventListener('click', () => { if (!pixels) return; transact(null, null, true); $('je-view').value = 'top-right'; $('je-pixel-tools').open = true; draw(); });
+  syncOptions();
 })();
