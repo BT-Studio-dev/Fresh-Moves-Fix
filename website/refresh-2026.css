@@ -1400,3 +1400,26 @@ body footer .cols a .ic { opacity: 1; }
 .dm-message { padding:12px; margin:8px 0; border:1px solid var(--line); border-radius:10px; }
 .dm-message p { white-space:pre-wrap; overflow-wrap:anywhere; margin:8px 0 0; }
 #dm-form textarea { display:block; width:100%; margin:8px 0; }
+
+.ed .dd-opt { display:flex; align-items:center; gap:10px; }
+.ed .eye-option-thumb { width:32px; height:32px; flex:none; border-radius:4px; image-rendering:pixelated; border:1px solid var(--line); }
+.home-page .cards > .feat { min-width:0; }
+
+/* Editor dropdowns: muted theme accent and labels that wrap on narrow screens. */
+.ed .dd-list {
+  box-sizing: border-box;
+  width: max-content;
+  min-width: min(100%, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+}
+.ed .dd-opt { white-space: normal; overflow-wrap: anywhere; }
+.ed .ecard .dd-opt.on { background: var(--bg); color: var(--text); box-shadow: inset 3px 0 var(--muted); }
+.ed .dd-btn:hover, .ed .dd-btn[aria-expanded="true"] { border-color: var(--muted); }
+.ed .dd-btn:focus-visible, .ed .dd-opt:focus-visible { outline: 2px solid var(--muted); outline-offset: 2px; }
+@supports (color: color-mix(in srgb, red, blue)) {
+  .ed { --eye-soft-accent: color-mix(in srgb, var(--accent) 48%, var(--muted)); }
+  .ed .ecard .dd-opt.on { background: color-mix(in srgb, var(--accent) 18%, var(--panel)); box-shadow: inset 3px 0 var(--eye-soft-accent); }
+  .ed .dd-btn:hover, .ed .dd-btn[aria-expanded="true"] { border-color: var(--eye-soft-accent); }
+  .ed .dd-btn:focus-visible, .ed .dd-opt:focus-visible { outline-color: var(--eye-soft-accent); }
+}
+.ed .dd-opt:disabled { opacity: .48; cursor: not-allowed; }

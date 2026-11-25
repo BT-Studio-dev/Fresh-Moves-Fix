@@ -1,0 +1,8 @@
+const assert=require('assert'),fs=require('fs'),vm=require('vm');
+const src=fs.readFileSync('website/editor.js','utf8');const fn=src.slice(src.indexOf('  function previewSkin(source, options = {})'),src.indexOf('  function faceComposite(source)'));
+const fields={brow:{value:'none'},browcol:{value:'#452211'},lash:{checked:true},lashcol:{value:'#222233'}};
+const ctx={$:k=>fields[k],rgb:h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)),idx:(x,y)=>(y*64+x)*4,lashOk:()=>true,choice:()=>({face:[[1,4],[2,4]]}),browFits:(b,c)=>b==='none'||b==='keep'||Number(b.slice(1))<4,preserveDetectedBrow:false,ImageData:class{constructor(data){this.data=data}}};vm.runInNewContext(fn+';this.preview=previewSkin;',ctx);
+let source={data:new Uint8ClampedArray(64*64*4)};const idx=(x,y)=>(y*64+x)*4;for(const x of [9,10,13,14]){let i=idx(x,13);source.data.set([240,220,200,255],i)}
+let out=ctx.preview(source);for(const x of [9,10,13,14])assert.deepEqual(Array.from(out.data.slice(idx(x,13),idx(x,13)+4)),[240,220,200,255],'lash must not obscure eye');assert.equal(out.data[idx(40,13)+3],255);assert.equal(out.data[idx(41,13)+3],0);
+fields.lash.checked=false;fields.brow.value='f3';out=ctx.preview(source);assert.equal(out.data[idx(9,11)+3],255);assert.equal(out.data[idx(41,11)+3],0,'face brow must not cover hat');fields.brow.value='h3';out=ctx.preview(source);assert.equal(out.data[idx(9,11)+3],0);assert.equal(out.data[idx(41,11)+3],255);assert.equal(source.data[idx(41,11)+3],0,'preview must not change exported source');
+assert(src.includes('!paused3d && !preserveUnknown'),'unknown eyes must not be animated');console.log('Eye preview retains visible eye pixels and preserves layers');

@@ -65,7 +65,7 @@
   const rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
   const idx = (x, y) => (y * 64 + x) * 4;
 
-  let oldEyes = null;
+  let oldEyes = null, preserveUnknown = false, preserveDetectedBrow = false;
   function setStatus(text, bad) {
     $("status").textContent = text;
     $("status").className = bad ? "status bad" : "status";
@@ -83,18 +83,26 @@
       sctx.drawImage(img, 0, 0);
       original = sctx.getImageData(0, 0, 64, 64);
       loaded = true;
-      oldEyes = findOldEyes(original.data);
-      $("custom").checked = true;
+      const marked = findOldEyes(original.data);
+      const guessed = !marked && window.FMFEyeDetect ? window.FMFEyeDetect(original.data) : null;
+      oldEyes = marked || guessed;
+      preserveUnknown = !preset && !marked && !guessed;
+      preserveDetectedBrow = !!(guessed && guessed.brow);
+      // Uncertain detection must not replace an unfamiliar face with invented eyes.
+      $("custom").checked = !!preset || !!marked;
+      $("brow").value = guessed && guessed.brow ? guessed.brow : "keep";
+      if (guessed && guessed.browColour) $("browcol").value = guessed.browColour;
       // slim (Alex) skins leave the last arm column empty
       const slim = original.data[idx(54, 20) + 3] === 0;
       origSlim = slim; $("fmtslim").checked = slim; $("fmtwide").checked = !slim;
-      setStatus(`Loaded ${name}.`);
+      setStatus(`Loaded ${name}. ` + (marked ? "Existing eye markers detected." : guessed ? "Eye shape and position estimated; please check them." : preset ? "Using the selected default eye shape." : "Could not confidently detect eyes; the original face is preserved. Choose a shape if needed."));
       if (!preset && oldEyes) preset = oldEyes; // a skin that already has moving eyes keeps their shape and place
       if (preset && TYPES[preset.type]) { // start skins that already have eyes choose the matching shape and place
         $("type").value = preset.type; fillPositions();
         if (TYPES[preset.type].variants[preset.pos]) $("pos").value = preset.pos;
         syncMenus();
       }
+      syncBrowOptions(); syncMenus();
       pickDefaults();
       render();
     };
@@ -116,12 +124,30 @@
     $("pupilname").textContent = hasWhite ? "Pupil" : "Eye colour";
   }
 
-  function choice() {
-    const t = TYPES[$("type").value];
-    const va = t.variants[$("pos").value] || t.variants[t.def];
+  function choice(type = $("type").value, pos = $("pos").value) {
+    const t = TYPES[type];
+    const va = t.variants[pos] || t.variants[t.def];
     const xs = va.marker.map((m) => m[0]), ys = va.marker.map((m) => m[1]);
     const x = Math.min(...xs), y = Math.min(...ys);
-    return { type: $("type").value, ...va, box: { x, y, w: Math.max(...xs) - x + 1, h: Math.max(...ys) - y + 1 } };
+    return { type, ...va, box: { x, y, w: Math.max(...xs) - x + 1, h: Math.max(...ys) - y + 1 } };
+  }
+
+  // Pack eyebrow marker positions correspond to fixed face rows. An eyebrow must
+  // be above the highest eye pixel; silently shifting it would mislabel the exported marker.
+  function browFits(brow, eye) {
+    if (brow === "keep" || brow === "none") return true;
+    const row = brow === "villager" ? 3 : /^[fh][2-5]$/.test(brow) ? Number(brow.slice(1)) : null;
+    return row !== null && row < Math.min(...eye.face.map(pixel => pixel[1]));
+  }
+  function syncBrowOptions() {
+    const sel = $("brow"), eye = choice();
+    for (const opt of sel.options) opt.disabled = !browFits(opt.value, eye);
+    if (sel.selectedOptions[0] && sel.selectedOptions[0].disabled) {
+      sel.value = "keep"; preserveDetectedBrow = false;
+      $("brow-fit-note").textContent = "The previous eyebrow position overlaps these eyes, so it was reset to Do not change. Choose an available position above the eyes.";
+    } else {
+      $("brow-fit-note").textContent = "Eyebrow positions that overlap the selected eyes are unavailable. Move the eyes down to use lower positions.";
+    }
   }
 
   // Eyes the loaded skin already has, found through its 2x1 or 2x2 marker.
@@ -171,13 +197,13 @@
     }
   }
   let origSlim = false;
-  function build() {
+  function build(options = {}) {
     const out = new ImageData(new Uint8ClampedArray(original.data), 64, 64);
-    const d = out.data, c = choice();
+    const d = out.data, c = choice(options.type, options.pos);
     if ($("fmtslim").checked !== origSlim) convertArms(d, $("fmtslim").checked);
-    const custom = $("custom").checked;
+    const custom = options.custom === undefined ? $("custom").checked : options.custom;
     const put = (x, y, col) => { const i = idx(x, y); d[i] = col[0]; d[i + 1] = col[1]; d[i + 2] = col[2]; d[i + 3] = 255; };
-    for (const [ax, ay, w, h] of c.type === "2x3" ? [...AREAS, AREA_2X3] : AREAS)
+    if (!preserveUnknown) for (const [ax, ay, w, h] of c.type === "2x3" ? [...AREAS, AREA_2X3] : AREAS)
       for (let y = ay; y < ay + h; y++) for (let x = ax; x < ax + w; x++) { const i = idx(x, y); d[i] = d[i + 1] = d[i + 2] = d[i + 3] = 0; }
     const colour = { white: rgb($("white").value), pupil: rgb($("pupil").value), lid: rgb($("lid").value) };
     if (custom) {
@@ -188,13 +214,14 @@
         if (d[idx(40 + col, 8 + row) + 3] > 127) d[idx(40 + col, 8 + row) + 3] = 0; // nothing solid from the second layer (hat) over the eye; see-through glass may stay
       }
     }
-    for (const [x, y, src] of c.marker) {
+    if (!preserveUnknown) for (const [x, y, src] of c.marker) {
       if (typeof src === "string") put(x, y, colour[src]);
       else { const i = idx(8 + src[0], 8 + src[1]); put(x, y, [d[i], d[i + 1], d[i + 2]]); }
     }
     // ---- eyebrows: the pack draws them itself from two rows of pixels in the top-right corner of the skin file; they are drawn just above the eyes
-    const brow = $("brow").value, wipe = (ax, ay, w, h) => { for (let y = ay; y < ay + h; y++) for (let x = ax; x < ax + w; x++) { const i = idx(x, y); d[i] = d[i + 1] = d[i + 2] = d[i + 3] = 0; } };
-    if (brow !== "keep") {
+    const requestedBrow = options.brow === undefined ? $("brow").value : options.brow;
+    const brow = browFits(requestedBrow, c) ? requestedBrow : "keep", wipe = (ax, ay, w, h) => { for (let y = ay; y < ay + h; y++) for (let x = ax; x < ax + w; x++) { const i = idx(x, y); d[i] = d[i + 1] = d[i + 2] = d[i + 3] = 0; } };
+    if (brow !== "keep" && !(options.brow === undefined && preserveDetectedBrow)) {
       wipe(60, 0, 4, 8); wipe(56, 4, 4, 4); wipe(24, 0, 5, 2);
       const bc = rgb($("browcol").value), r = Number(brow.slice(1));
       if (brow[0] === "f") { // on the face: a cover row in the skin colour (so the drawn eyebrow is not seen twice), then the eyebrow
@@ -216,14 +243,14 @@
       for (const x of [56, 59]) { put(x, 1, lc); put(x, 2, lc); }
     }
     // ---- mouth (lips area): painted on the first layer in the row under the eyes; the pack opens it in the game
-    const mouth = $("mouth").value;
+    const mouth = options.mouth === undefined ? $("mouth").value : options.mouth;
     if (mouth !== "keep") {
       const low = Math.max(...c.face.map((f) => f[1])), row = low < 5 ? 6 : low + 1; // face rows 0..7
       // marker for the pack (3.1-fix6): two pixels at (60,32) give the colour of the open mouth; the pack only knows the mouth in face row 7
       for (const x of [60, 61]) { const i = idx(x, 32); d[i] = d[i + 1] = d[i + 2] = d[i + 3] = 0; }
       if (row === 6 && mouth !== "none") { put(60, 32, [74, 26, 26]); put(61, 32, [74, 26, 26]); }
       if (row <= 7) {
-        const mc = rgb($("mouthcol").value), bc = rgb($("browcol").value), skin = colour.lid;
+        const mc = rgb(options.mouth === "boy" ? "#c4826a" : options.mouth === "girl" ? "#efbbb1" : options.mouth === "beard" ? "#a9604f" : $("mouthcol").value), bc = rgb($("browcol").value), skin = colour.lid;
         for (let r = row; r <= 7; r++) for (let col = 2; col <= 5; col++) put(8 + col, 8 + r, skin); // clear the old mouth and beard
         const cols = mouth === "wide" ? [2, 3, 4, 5] : mouth === "none" ? [] : [3, 4];
         for (const col of cols) put(8 + col, 8 + row, mc);
@@ -331,7 +358,7 @@
             try { const r = v.renderer; v.dispose(); if (r && r.forceContextLoss) r.forceContextLoss(); } catch (x) {}
             viewer = null; failed3d = true;
             try {
-              startSoft(); if (current) update3d(current);
+              startSoft(); if (currentPreview) update3d(currentPreview);
               $("msg3d").textContent = "3D preview on (fast mode).";
               $("why3d").hidden = true; // this is not an error, so no warning card
               try { localStorage.setItem("fmf-3dfast", "on"); } catch (x) {} // next time start in fast mode straight away
@@ -367,7 +394,7 @@
   }
   // "Try again": load the 3D part again if it is missing, then start on a new canvas
   function retry3d() {
-    const go = () => { try { if (viewer) viewer.dispose(); } catch (x) {} failed3d = false; viewer = null; fresh3d(); if (current) update3d(current); else init3d(); };
+    const go = () => { try { if (viewer) viewer.dispose(); } catch (x) {} failed3d = false; viewer = null; fresh3d(); if (currentPreview) update3d(currentPreview); else init3d(); };
     $("why3dtext").textContent = "Trying again...";
     if (window.skinview3d) return go();
     const sc = document.createElement("script");
@@ -379,7 +406,7 @@
     if (viewer && viewer.soft && failed3d) { viewer.layers3d = $("layers3d").checked; return; } // no WebGL: stay in the simple viewer
     try { if (viewer) { const r = viewer.renderer; viewer.dispose(); if (r && r.forceContextLoss) r.forceContextLoss(); } } catch (e) {}
     viewer = null; failed3d = false; fresh3d();
-    if (current) update3d(current); else init3d();
+    if (currentPreview) update3d(currentPreview); else init3d();
   });
   try { $("layers3d").checked = localStorage.getItem("fmf-layers3d") === "on"; } catch (e) {}
   $("view3d").addEventListener("webglcontextlost", (ev) => { if (viewer && !viewer.soft && ev.target === $("view3d")) fail3d(new Error("the browser stopped the 3D picture")); });
@@ -399,7 +426,7 @@
       eyeState = ""; applyPause(); applyOuter();
     } catch (e) { $("msg3d").textContent = "3D preview could not show this skin."; }
   }
-  ["fmtwide", "fmtslim"].forEach((id) => $(id).addEventListener("change", () => { if (loaded) render(); else if (current) update3d(current); }));
+  ["fmtwide", "fmtslim"].forEach((id) => $(id).addEventListener("change", () => { if (loaded) render(); else if (currentPreview) update3d(currentPreview); }));
   window.fmfCleanup = () => { try { if (viewer) { const r = viewer.renderer; viewer.dispose(); if (r && r.forceContextLoss) r.forceContextLoss(); } } catch (e) {} viewer = null; try { blobUrls.forEach((u) => URL.revokeObjectURL(u)); } catch (e) {} };
   // ---- play / pause, and eyes that blink and look around like the pack does in the game (simplified) ----
   let paused3d = false, eyeState = "", eyeT0 = Date.now();
@@ -409,7 +436,7 @@
     else { if (viewer.animation) viewer.animation.paused = paused3d; viewer.autoRotate = !paused3d && $("spin").checked; }
   }
   function eyeFrame(state) { // the skin with the eyes closed or looking to one side
-    const c = choice(), out = new ImageData(new Uint8ClampedArray(current.data), 64, 64), d = out.data;
+    const c = choice(), out = new ImageData(new Uint8ClampedArray(currentPreview.data), 64, 64), d = out.data;
     const get = (col, row) => { const i = idx(8 + col, 8 + row); return [d[i], d[i + 1], d[i + 2]]; };
     const put = (col, row, v) => { const i = idx(8 + col, 8 + row); d[i] = v[0]; d[i + 1] = v[1]; d[i + 2] = v[2]; d[i + 3] = 255; };
     if (state === "shut") { const lid = rgb($("lid").value); for (const [col, row] of c.face) put(col, row, lid); return out; }
@@ -427,13 +454,13 @@
   function eyeTick() {
     if (!viewer || !current || !loaded) return;
     let st = "";
-    if ($("eyes3d").checked && !paused3d) {
+    if ($("eyes3d").checked && !paused3d && !preserveUnknown) {
       const t = ((Date.now() - eyeT0) / 1000) % 6.4;
       st = t < 0.16 ? "shut" : t > 1.8 && t < 2.7 ? "left" : t >= 2.7 && t < 2.86 ? "shut" : t > 4.2 && t < 5.1 ? "right" : "";
     }
     if (st === eyeState) return;
     eyeState = st;
-    try { tex.getContext("2d").putImageData(st ? eyeFrame(st) : current, 0, 0); viewer.loadSkin(tex, { model: $("fmtslim").checked ? "slim" : "default" }); } catch (e) {}
+    try { tex.getContext("2d").putImageData(st ? eyeFrame(st) : currentPreview, 0, 0); viewer.loadSkin(tex, { model: $("fmtslim").checked ? "slim" : "default" }); } catch (e) {}
   }
   const eyeTimer = setInterval(eyeTick, 80);
   { const clean = window.fmfCleanup; window.fmfCleanup = () => { clearInterval(eyeTimer); clean(); }; }
@@ -451,6 +478,18 @@
   $("outer3d").addEventListener("change", applyOuter);
   $("spin").addEventListener("change", () => { if (viewer) viewer.autoRotate = $("spin").checked; applyPause(); });
   $("zoom").addEventListener("input", () => { if (viewer) viewer.zoom = Number($("zoom").value); });
+  $("fit3d").addEventListener("click", () => {
+    $("zoom").value = "0.75";
+    if (!viewer) return;
+    viewer.zoom = 0.75;
+    if (viewer.soft) viewer.view(-0.5, 0.15);
+    else {
+      if (viewer.controls && viewer.controls.target) viewer.controls.target.set(0, 0, 0);
+      if (viewer.resetCameraPose) viewer.resetCameraPose();
+      if (viewer.controls) viewer.controls.update();
+    }
+    if (viewer.soft && viewer.render) viewer.render();
+  });
 
   // ---- colour picker card (replaces the browser's own colour dialog) ----
   const BASIC = ["#ffffff", "#d9d9d9", "#9a9a9a", "#4d4d4d", "#000000", "#3e2b18", "#6b4226", "#a9744f", "#d4ae87", "#f2d3b3",
@@ -487,7 +526,8 @@
     $(pkFor).value = hexv;
     $("pk-hex").value = hexv; $("pk-now").style.background = hexv;
     pkDraw();
-    if (pkFor !== "lid") $("custom").checked = true;
+    if (pkFor === "white" || pkFor === "pupil") { $("custom").checked = true; preserveUnknown = false; }
+    if (pkFor === "browcol") preserveDetectedBrow = false;
     render();
   }
   function pkSwatches(box, list) {
@@ -503,7 +543,7 @@
     const id = btn.dataset.for;
     if (pkFor === id && !$("picker").hidden) { pkClose(); return; }
     pkFor = id;
-    $("pk-title").textContent = { lid: "Eyelid colour", white: "Eye white colour", pupil: $("pupilname").textContent + " colour" }[id];
+    $("pk-title").textContent = { lid: "Eyelid colour", white: "Eye white colour", pupil: $("pupilname").textContent + " colour", browcol: "Eyebrow colour", mouthcol: "Mouth colour", lashcol: "Eyelash colour" }[id];
     const seen = [];
     if (original) for (let y = 8; y < 16; y++) for (let x = 8; x < 16; x++) { const c = hex(original.data, idx(x, y)); if (!seen.includes(c)) seen.push(c); }
     pkSwatches($("pk-skin"), seen.slice(0, 20));
@@ -531,13 +571,31 @@
     if (/^#[0-9a-f]{6}$/.test(t)) pkApply(t); else $("pk-hex").value = $(pkFor).value;
   });
 
-  let current = null;
+  let current = null, currentPreview = null;
+  function previewSkin(source, options = {}) {
+    // Game eyebrow/lash markers are metadata, so paint an approximation only into a preview copy.
+    const out = new ImageData(new Uint8ClampedArray(source.data), 64, 64), d=out.data;
+    const put=(col,row,colour,layer)=>{if(row<0 || row>7 || col<0 || col>7)return;const i=idx((layer === "hat" ? 40 : 8)+col,8+row);d[i]=colour[0];d[i+1]=colour[1];d[i+2]=colour[2];d[i+3]=255;};
+    const requestedBrow=options.brow === undefined ? $("brow").value : options.brow;
+    const b=browFits(requestedBrow, choice(options.type, options.pos)) ? requestedBrow : "keep",bc=rgb($("browcol").value);
+    if (!(options.brow === undefined && preserveDetectedBrow) && /^[fh][2-5]$/.test(b)) for(const col of [1,2,5,6])put(col,Number(b.slice(1)),bc,b[0] === "h" ? "hat" : "face");
+    if (b==='villager') for(let col=1;col<=6;col++)put(col,3,bc,"face");
+    // Draw lashes around the eyes, not over their white or pupil pixels.
+    if ((options.type === undefined ? lashOk() : options.type === "2x2" && options.pos === "bottom") && $("lash").checked) {const lc=rgb($("lashcol").value);for(const col of [1,2,5,6])put(col,4,lc,"hat");for(const col of [0,7])put(col,5,lc,"hat");}
+    return out;
+  }
+  function faceComposite(source) {
+    const out=new ImageData(new Uint8ClampedArray(source.data),64,64),d=out.data;
+    for(let y=0;y<8;y++)for(let x=0;x<8;x++){const a=idx(40+x,8+y),b=idx(8+x,8+y),alpha=d[a+3]/255;if(alpha){for(let k=0;k<3;k++)d[b+k]=Math.round(d[a+k]*alpha+d[b+k]*(1-alpha));d[b+3]=255;}}
+    return out;
+  }
   function render() {
     syncExtras();
     if (!loaded) return;
     syncSwatches();
     const { out, c } = build();
     current = out;
+    currentPreview = previewSkin(out);
     try { // the small picture in the "1. Skin" heading shows the face of the skin being edited
       const ic = $("skinicon"), g = ic && ic.getContext && ic.getContext("2d");
       if (g) {
@@ -550,10 +608,11 @@
         g.putImageData(face, 0, 0);
       }
     } catch (e) {}
-    draw($("face"), out, 8, 8, 8, 8);
+    draw($("face"), faceComposite(currentPreview), 8, 8, 8, 8);
     draw($("top"), out, 0, 0, 40, 8, c.box);
     draw($("full"), out, 0, 0, 64, 64, c.box);
-    update3d(out);
+    update3d(currentPreview);
+    refreshThumbnails();
     $("save").disabled = false;
   }
 
@@ -573,6 +632,32 @@
   // ---- themed drop-down lists (replace the browser's own lists) ----
   const menus = [];
   function closeMenus(except) { menus.forEach((m) => { if (m !== except) m.close(); }); }
+  function paintThumbnail(canvas, sel, value) {
+    const g=canvas.getContext("2d"); if (!g || !g.fillRect) return;
+    const type=sel.id === "type" ? value : $("type").value, t=TYPES[type]; if (!t) return;
+    const pos=sel.id === "pos" ? value : sel.id === "type" && value !== $("type").value ? t.def : $("pos").value;
+    if (loaded && g.createImageData && g.putImageData) {
+      // Render the candidate using the same skin and face-building logic as the main preview.
+      // No controls or export data are changed while showing a choice.
+      const options = { type, pos };
+      if ((sel.id === "type" || sel.id === "pos") && value !== sel.value) options.custom = true;
+      if (sel.id === "brow" && value !== sel.value) options.brow = value;
+      if (sel.id === "mouth" && value !== sel.value) options.mouth = value;
+      const face = faceComposite(previewSkin(build(options).out, options));
+      const thumbnail = g.createImageData(8,8);
+      for (let y=0;y<8;y++) for (let x=0;x<8;x++) {
+        const from=idx(8+x,8+y), to=(y*8+x)*4;
+        for (let k=0;k<4;k++) thumbnail.data[to+k]=face.data[from+k];
+      }
+      g.putImageData(thumbnail,0,0); return;
+    }
+    const variant=t.variants[pos]||t.variants[t.def];
+    g.clearRect(0,0,8,8);g.fillStyle=$("lid").value;g.fillRect(0,0,8,8);
+    for(const [x,y,role] of variant.face){g.fillStyle=$(role==='white'?'white':'pupil').value;g.fillRect(x,y,1,1);}
+    if(sel.id === "brow" && /^[fh][2-5]$/.test(value)){g.fillStyle=$("browcol").value;for(const x of [1,2,5,6])g.fillRect(x,Number(value.slice(1)),1,1);}
+    if(sel.id === "brow" && value === "villager"){g.fillStyle=$("browcol").value;g.fillRect(1,3,6,1);}
+  }
+  function refreshThumbnails(){document.querySelectorAll('.dd-list:not([hidden]) .eye-option-thumb').forEach(c=>paintThumbnail(c,$(c.dataset.select),c.dataset.value));}
   function enhance(sel) {
     const wrap = document.createElement("span"); wrap.className = "dd";
     const btn = document.createElement("button"); btn.type = "button"; btn.className = "dd-btn"; btn.setAttribute("aria-haspopup", "listbox");
@@ -589,8 +674,10 @@
         list.innerHTML = "";
         for (const o of opts) {
           const b = document.createElement("button");
-          b.type = "button"; b.className = "dd-opt" + (o === cur ? " on" : ""); b.textContent = o.textContent;
-          b.setAttribute("role", "option"); b.setAttribute("aria-selected", o === cur ? "true" : "false");
+          b.type = "button"; b.disabled = o.disabled; b.className = "dd-opt" + (o === cur ? " on" : "");
+          if (sel.id === "type" || sel.id === "pos" || sel.id === "mouth" || sel.id === "brow") { const canvas=document.createElement("canvas");canvas.width=canvas.height=8;canvas.className="eye-option-thumb";canvas.dataset.select=sel.id;canvas.dataset.value=o.value;canvas.setAttribute("aria-hidden","true");b.appendChild(canvas); }
+          b.appendChild(document.createTextNode(o.textContent));
+          b.setAttribute("role", "option"); b.setAttribute("aria-selected", o === cur ? "true" : "false"); if (o.disabled) b.setAttribute("aria-disabled", "true");
           b.addEventListener("click", (e) => {
             e.preventDefault(); m.close(); btn.focus();
             if (sel.value !== o.value) { sel.value = o.value; sel.dispatchEvent(new Event("change")); sel.dispatchEvent(new Event("input")); }
@@ -603,13 +690,21 @@
     btn.addEventListener("click", (e) => {
       e.preventDefault();
       const open = list.hidden; closeMenus(m); list.hidden = !open; btn.setAttribute("aria-expanded", String(open)); raise();
-      if (open) { const on = list.querySelector(".on"); if (on) on.focus(); }
+      if (open) {
+        // Keep a naturally sized menu inside the viewport, including near the right edge.
+        list.style.left = "0px";
+        const rect = list.getBoundingClientRect(), margin = 12;
+        const shift = rect.right > window.innerWidth - margin ? window.innerWidth - margin - rect.right : rect.left < margin ? margin - rect.left : 0;
+        if (shift) list.style.left = shift + "px";
+        list.querySelectorAll(".eye-option-thumb").forEach(c => paintThumbnail(c, sel, c.dataset.value));
+        const on = list.querySelector(".on"); if (on) on.focus();
+      }
     });
     wrap.addEventListener("keydown", (e) => {
       if (e.key === "Escape") { m.close(); btn.focus(); }
       if ((e.key === "ArrowDown" || e.key === "ArrowUp") && !list.hidden) {
         e.preventDefault();
-        const items = Array.from(list.children), i = items.indexOf(document.activeElement);
+        const items = Array.from(list.children).filter(item => !item.disabled), i = items.indexOf(document.activeElement);
         const n = items[Math.max(0, Math.min(items.length - 1, i + (e.key === "ArrowDown" ? 1 : -1)))];
         if (n) n.focus();
       }
@@ -632,20 +727,26 @@
     $("type").appendChild(o);
   }
   $("type").value = "2x1";
-  fillPositions();
-  $("type").addEventListener("change", () => { fillPositions(); syncMenus(); pickDefaults(); render(); });
+  fillPositions(); syncBrowOptions();
+  $("type").addEventListener("change", () => { fillPositions(); preserveUnknown=false; $("custom").checked=true; syncBrowOptions(); syncMenus(); render(); });
   ["type", "pos", "anim", "brow", "mouth"].forEach((id) => enhance($(id)));
   function eyePreset(type, pos, brow, lash) { // "Boy eyes" / "Girl eyes"
     $("type").value = type; fillPositions(); $("pos").value = pos;
     $("brow").value = brow; $("lash").checked = lash; $("custom").checked = true;
-    syncMenus(); pickDefaults(); render();
+    preserveUnknown = false; preserveDetectedBrow = false;
+    syncBrowOptions();
+    pickDefaults(); // retain a suitable eyelid colour from the loaded skin
+    $("white").value = "#ffffff";
+    $("pupil").value = lash ? "#7653a6" : "#3b82c4";
+    $("browcol").value = "#3a2616"; $("lashcol").value = "#32242f";
+    syncMenus(); render();
   }
   $("eyeboy").addEventListener("click", () => eyePreset("2x1", "upper", "f3", false));
   $("eyegirl").addEventListener("click", () => eyePreset("2x2", "bottom", "none", true));
   $("mouth").addEventListener("change", () => { const m = $("mouth").value; if (m === "boy") $("mouthcol").value = "#c4826a"; else if (m === "girl") $("mouthcol").value = "#efbbb1"; else if (m === "beard") $("mouthcol").value = "#a9604f"; syncSwatches(); render(); });
-  $("brow").addEventListener("change", render); $("lash").addEventListener("input", render);
-  $("pos").addEventListener("change", () => { pickDefaults(); render(); });
-  $("custom").addEventListener("input", render);
+  $("brow").addEventListener("change", () => { preserveDetectedBrow=false; render(); }); $("lash").addEventListener("input", render);
+  $("pos").addEventListener("change", () => { preserveUnknown=false; $("custom").checked=true; syncBrowOptions(); syncMenus(); render(); });
+  $("custom").addEventListener("input", () => { preserveUnknown=false; render(); });
 
   // the two status lines are real links: just before one is used, its address is set to a fresh
   // blob: address of the picture, so a click, "open in new tab" and "copy link" all work
