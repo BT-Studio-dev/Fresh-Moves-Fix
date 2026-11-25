@@ -1,0 +1,32 @@
+name: Collect Just Expressions diagrams
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/just-expressions-diagrams.yml
+      - tools/download_just_expressions_diagrams.py
+
+permissions:
+  contents: read
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get the referenced wiki revision
+        run: |
+          git clone https://github.com/IthanMendoza/Just-Expressions.wiki.git "$RUNNER_TEMP/just-expressions-wiki"
+          git -C "$RUNNER_TEMP/just-expressions-wiki" checkout --detach f5d34c8feba906e53a0f60aa9833941359bad861
+      - name: Download diagrams and manifest
+        run: python3 tools/download_just_expressions_diagrams.py "$RUNNER_TEMP/just-expressions-wiki" "$RUNNER_TEMP/just-expressions-diagrams"
+      - name: Upload diagrams for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: just-expressions-wiki-diagrams
+          path: ${{ runner.temp }}/just-expressions-diagrams/
+          if-no-files-found: warn
+          retention-days: 7
