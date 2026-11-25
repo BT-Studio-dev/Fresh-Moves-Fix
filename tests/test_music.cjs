@@ -4,7 +4,8 @@ const source = fs.readFileSync('website/music.js','utf8');
 const songs = [
   ['calm','Calm',214,'3:34'], ['minecraft','Minecraft',360,'6:00'],
   ['fresh','Fresh Moves Fix',160,'2:40'], ['night','Night Sky',192,'3:12'],
-  ['end','The End',240,'4:00'], ['left','Player Left',200,'3:20']
+  ['end','The End',240,'4:00'], ['left','Player Left',200,'3:20'],
+  ['horizon','Quiet Horizons',216,'3:36'], ['fading','Fading Lights',228,'3:48']
 ];
 function createPlayer(saved = {}) {
   const handlers = {}, storage = {...saved}, intervals = [], oscillators = [], gainNodes = [];

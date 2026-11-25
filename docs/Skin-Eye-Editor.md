@@ -10,7 +10,9 @@ The Skin Eye Editor helps you add Fresh Moves Fix eye markers to a Minecraft Jav
 
 ## Choose your look
 
-Use the Eyes card for shape, position, eyebrows, mouth and compatible eyelashes. Use the Colours card to change colours. The Face and 3D previews update as you make changes. Eyebrows and eyelashes in these previews are approximations; their in-game appearance may differ.
+Use the Eyes card for shape, position, eyebrows, mouth and compatible eyelashes. Use the Colours card to change colours. The Face and 3D previews update as you make changes. Eyebrows and eyelashes in these previews are approximations; their in-game appearance may differ. The mouth notice tells you when the chosen eye position leaves no room for a mouth or places it outside the row used by this pack's animated-mouth marker.
+
+This editor targets Fresh Moves Fix, not the newer Just Expressions 2.0 skin layout. The [Just Expressions wiki](https://github.com/IthanMendoza/Just-Expressions/wiki) documents additional shapes and a universal mask; those instructions should not be assumed compatible with this pack. The available eyelash control is limited to bottom 2×2 eyes. Other 2.0 features have not been verified against Fresh Moves Fix and are not offered as supported options.
 
 Use the format controls for Steve (wide) or Alex (slim) arms, then download your finished PNG. The background colour of the 3D preview is not saved into the skin.
 

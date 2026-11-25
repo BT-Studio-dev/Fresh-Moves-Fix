@@ -9,7 +9,8 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
 const out = path.join(here, "public");
 const REPO = "https://github.com/BT-Studio-dev/Fresh-Moves-Fix";
-const skinReleases = JSON.parse(fs.readFileSync(path.join(root, "minecraft-skins/upstream-releases.json"), "utf8"));
+// The original mod has its own pinned prerelease; never expose the historical upstream HD Skins jars as ours.
+const skinRelease = JSON.parse(fs.readFileSync(path.join(root, "minecraft-skins/original-release-request.json"), "utf8"));
 
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 const version = read("VERSION").trim();
@@ -150,8 +151,8 @@ ${body}
       <a href="${up}guides/fix-black-eyes/">${ICON.wrench} Fix black eyes</a>
     </div>
     <div><h4>${ICON.wrench} Required mods</h4>
-      <a rel="noopener" href="https://modrinth.com/mod/entity-model-features">${ICON.ext} Entity Model Features</a>
-      <a rel="noopener" href="https://modrinth.com/mod/entitytexturefeatures">${ICON.ext} Entity Texture Features</a>
+      <a class="footer-mod" rel="noopener" href="https://modrinth.com/mod/entity-model-features"><img src="${up}emf-icon.png" alt="" width="36" height="36" loading="lazy"><span>Entity Model Features</span></a>
+      <a class="footer-mod" rel="noopener" href="https://modrinth.com/mod/entitytexturefeatures"><img src="${up}etf-icon.png" alt="" width="36" height="36" loading="lazy"><span>Entity Texture Features</span></a>
     </div>
     <div><h4>${ICON.list} Resources</h4>
       <a rel="noopener" href="${REPO}">${ICON.code} GitHub</a>
@@ -201,7 +202,7 @@ await bundle({ entryPoints: [path.join(here, "account-nav.js")], outfile: path.j
 await bundle({ entryPoints: [path.join(here, "comments.js")], outfile: path.join(out, "comments.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
 fs.copyFileSync(path.join(root, "pack.png"), path.join(out, "pack.png"));
 fs.copyFileSync(path.join(here, "title.png"), path.join(out, "title.png"));
-// Minecraft Skins downloads are temporarily unavailable; keep the JARs out of the public build.
+// Minecraft Skins JARs are linked from the original mod's GitHub prerelease, not the historical bundled upstream JARs.
 // icons for browser start pages, bookmarks and "add to home screen"
 for (const f of ["favicon.ico", "icon-180.png", "icon-192.png", "icon-512.png", "tile-logo.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 const SITE = "https://fresh-moves-fix.vercel.app/";
@@ -216,7 +217,7 @@ fs.writeFileSync(path.join(out, "tableau.json"), JSON.stringify({
 }));
 for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png", "icon-painted.png", "icon-painter-dummy.png", "icon-paint-pixel.svg", "icon-model-pixel.svg", "icon-anim-pixel.svg", "icon-cape-project-pixel.svg", "icon-lock-project-pixel.svg"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
-for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner-profile.png", "owner-skin.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
+for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner-profile.png", "owner-skin.png", "emf-icon.png", "etf-icon.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "refresh-2026.css"), path.join(out, "refresh-2026.css"));
 fs.copyFileSync(path.join(here, "enhancements.js"), path.join(out, "enhancements.js"));
 fs.copyFileSync(path.join(here, "help.js"), path.join(out, "help.js"));
@@ -282,6 +283,73 @@ const eyes = docs.filter((d) => !d.name.startsWith("Fix"));
 const cards = (list) => `<div class="cards">${list.map((d) =>
   `<a class="card go" href="${d.slug}/"><span>${d.name.startsWith("Fix") ? ICON.wrench : ICON.eye} ${esc(d.name)}</span>${ICON.right}</a>`).join("")}</div>`;
 
+// Local copies of upstream 2.0 guides; they are not Fresh Moves Fix instructions.
+const jeGuides = [
+  ["Standard 2×1 eyes", "2x1-Eyes-(Standard-&-Far‐set)"],
+  ["Derp 2×1 eyes", "2x1-Eyes-(Standard-&-Far‐set)#derp-eyes-2x1"],
+  ["Far-set 2×1 eyes", "2x1-Eyes-(Standard-&-Far‐set)#far-set-eyes-2x1"],
+  ["Far-set derp 2×1 eyes", "2x1-Eyes-(Standard-&-Far‐set)"],
+  ["Square 2×2 eyes", "2x2-Eyes-(Square-&-Far‐set-Square)"],
+  ["Far-set square 2×2 eyes", "2x2-Eyes-(Square-&-Far‐set-Square)"],
+  ["Wide 3×1 eyes", "3x1-Eyes-(Wide-&-Flat)"],
+  ["Flat 3×1 eyes", "3x1-Eyes-(Wide-&-Flat)"],
+  ["Toon 2×3 eyes", "2x3-Eyes-(Toon)"],
+  ["Curious 2×2 eyes", "Other-Requested-Eye-Shapes"],
+  ["Rectangle 3×2 eyes", "3x2-Eyes-(Rectangle-&-Big)"],
+  ["Big 3×2 eyes", "3x2-Eyes-(Rectangle-&-Big)"],
+  ["Dots 1×1 eyes", "1x1-Eyes-(Dots)"],
+  ["Short 1×2 eyes", "1x2-Eyes-(Short)"],
+  ["Long 1×3 eyes", "1x3-Eyes-(Long)"],
+  ["Lateral eyes", "Other-Requested-Eye-Shapes"],
+  ["Cyclops eye", "Other-Requested-Eye-Shapes"],
+  ["Single eye", "Other-Requested-Eye-Shapes"],
+  ["Eyebrows", "Eyebrows-(Up-to-3-pixels-long-each)"],
+  ["Second-layer eyebrows", "Eyebrows-(Up-to-3-pixels-long-each)#eyebrows-in-the-2nd-layer"],
+  ["Eyelashes", "Eyelashes-(For-2x1-and-2x2)"],
+  ["Mouths", "Mouths-(Up-to-4-pixels-long)"],
+  ["Villager eyebrow and nose", "Villager-Impersonation-(Eyebrow-and-Nose)"],
+  ["Universal mask", "What-is-The-Universal-Mask"],
+];
+const jeSections = {
+  "Standard 2×1 eyes": "Standard Eyes (2x1)", "Derp 2×1 eyes": "Derp Eyes (2x1)",
+  "Far-set 2×1 eyes": "Far-set Eyes (2x1)", "Far-set derp 2×1 eyes": "Far-set Derp Eyes (2x1) ❇️",
+  "Square 2×2 eyes": "Square Eyes (2x2)", "Far-set square 2×2 eyes": "Far-set Square Eyes (2x2) ❇️",
+  "Wide 3×1 eyes": "Wide Eyes (3x1)", "Flat 3×1 eyes": "Flat Eyes (3x1) ❇️",
+  "Curious 2×2 eyes": "Curious Eyes (2x2) ❇️", "Rectangle 3×2 eyes": "Rectangle Eyes (3x2) ❇️",
+  "Big 3×2 eyes": "Big Eyes (3x2) ❇️", "Lateral eyes": "Lateral Eyes (2x1) ❇️",
+  "Cyclops eye": "Cyclops Eye (2x4) ❇️", "Single eye": "A Single Eye ❇️",
+  "Eyebrows": "Regular Eyebrows", "Second-layer eyebrows": "Eyebrows in the 2nd-Layer",
+};
+const jeSlug = (label) => slug(label.replace(/×/g, "x"));
+for (const [i, [label, source]] of jeGuides.entries()) {
+  const sourcePage = source.split("#")[0];
+  let md = fs.readFileSync(path.join(here, "just-expressions-guides", `${sourcePage}.md`), "utf8");
+  if (jeSections[label]) {
+    const heading = `# ${jeSections[label]}`;
+    const start = md.indexOf(heading + "\n");
+    if (start < 0) throw new Error(`Missing upstream section: ${label}`);
+    const next = md.slice(start + heading.length).search(/\n# /);
+    md = next < 0 ? md.slice(start) : md.slice(start, start + heading.length + next);
+  }
+  const upstream = `https://github.com/IthanMendoza/Just-Expressions/wiki/${encodeURIComponent(sourcePage)}`;
+  write(`guides/just-expressions/${jeSlug(label)}/index.html`, page({
+    title: `${label} - Just Expressions guide`, active: "guides", depth: 3,
+    body: `<div class="wrap"><article>
+<div class="crumb"><a href="../../">${ICON.book} Guides</a></div>
+<h1>${ICON.eye} ${esc(label)}</h1>
+<p class="text-card">Just Expressions 2.0 guide. Its skin markers have not all been verified for Fresh Moves Fix. Text and diagrams are from <a href="${esc(upstream)}" target="_blank" rel="noopener noreferrer">IthanMendoza’s original wiki</a>; diagrams load from GitHub.</p>
+<div class="text-card guide-prose je-guide-prose">${renderDoc(md)}</div>
+<div class="guide-nav">
+  ${jeGuides[i - 1] ? `<a class="card go back" href="../${jeSlug(jeGuides[i - 1][0])}/">${ICON.left}<span>${esc(jeGuides[i - 1][0])}</span></a>` : ""}
+  ${jeGuides[i + 1] ? `<a class="card go" href="../${jeSlug(jeGuides[i + 1][0])}/"><span>${esc(jeGuides[i + 1][0])}</span>${ICON.right}</a>` : ""}
+</div>
+<p class="guide-cta"><a class="btn" href="../../../editor/">${ICON.eye} Open the eye editor</a> <a class="btn ghost" href="../../">${ICON.book} All guides</a></p>
+</article></div>`,
+  }));
+}
+const jeCards = `<div class="cards">${jeGuides.map(([label]) =>
+  `<a class="card go" href="just-expressions/${jeSlug(label)}/"><span>${ICON.eye} ${esc(label)}</span>${ICON.right}</a>`).join("")}</div>`;
+
 write("guides/index.html", page({
   title: "Guides - Fresh Moves Fix",
   active: "guides",
@@ -299,9 +367,12 @@ write("guides/index.html", page({
 </div>
 <h2>${ICON.wrench} Fixes</h2>
 ${cards(fixes)}
-<h2>${ICON.eye} Eye and eyebrow types</h2>
+<h2 id="eye-and-eyebrow-types">${ICON.eye} Eye and eyebrow types</h2>
 ${cards(eyes)}
-<p class="text-card guide-credit">These guides are copied from the original Fresh Moves wiki. Images and videos are hosted on the original GitHub repository.</p>
+<h2 id="just-expressions-guides">${ICON.book} Just Expressions 2.0 guides</h2>
+<p class="text-card">These guides reproduce text and diagrams from IthanMendoza’s Just Expressions wiki. Its 2.0 skin layout differs from the Fresh Moves Fix guides above; its features and markers have not all been verified with this pack.</p>
+${jeCards}
+<p class="text-card guide-credit">The Fresh Moves Fix guides above are copied from the original Fresh Moves wiki. The Just Expressions guide pages credit and link to their original upstream guides.</p>
 </article></div>`,
 }));
 
@@ -399,6 +470,10 @@ write("editor/index.html", page({
   </section>
   <section class="panel ecard">
     <h3 class="ehead"><span class="tool-ic">${ICON.eye}</span><span><b>2. Eyes</b><small>Shape and place of the eyes, eyebrows, eyelashes, mouth</small></span></h3>
+    <div class="eye-guide-links" aria-label="Eye and eyebrow guides">
+      <a class="btn ghost" href="../guides/#eye-and-eyebrow-types">${ICON.book} Eye and eyebrow types</a>
+      <a class="btn ghost" href="../guides/#just-expressions-guides">${ICON.book} Just Expressions 2.0 guides</a>
+    </div>
     <p class="elabel">Quick choice</p>
     <p class="row"><button type="button" class="btn ghost" id="eyeboy">Boy eyes</button> <button type="button" class="btn ghost" id="eyegirl">Girl eyes</button></p>
     <div class="ehint eye-tip">${ICON.info} <div><b>Choose a starting look</b><p>Boy: smaller eyes with eyebrows. Girl: larger eyes with eyelashes. You can adjust the colours in the next card.</p></div></div>
@@ -432,6 +507,7 @@ write("editor/index.html", page({
         <option value="beard">Mouth with beard (like Steve, under the eyes)</option>
         <option value="none">No mouth (plain skin, under the eyes)</option>
       </select></label></p>
+    <p class="ehint" id="mouth-fit-note" role="status" aria-live="polite"></p>
     <label class="pickb wide" id="lashwrap"><input type="checkbox" id="lash"><span><b>Eyelashes</b><small>Only with the eye shape "2 wide, 2 tall" at the position "Bottom".</small></span></label>
     <div class="ehint eye-tip">${ICON.info} <div><b>Eyebrows and eyelashes</b><p>The previews approximate eyebrows and eyelashes. Their in-game appearance has not been tested.</p></div></div>
     <div class="ehint eye-tip">${ICON.info} <div><b>About the mouth</b><p>With pack 3.1-fix6 or newer, the mouth is intended to open when hurt, cheering or waving. In 3.1-fix7 or newer, look forward and double-tap sneak to toggle the talking animation. This is not voice-controlled and has not been tested in-game.</p><p>The mouth is below the eyes; if they are at the bottom there may not be room. The beard uses the eyebrow colour.</p></div></div>
@@ -465,16 +541,15 @@ write("editor/index.html", page({
     </div>
 
   </section>
-  <section class="panel ecard">
-    <h3 class="ehead"><span class="tool-ic">${ICON.down}</span><span><b>4. Save</b><small>Download the finished skin</small></span></h3>
-    <p><button type="button" class="btn" id="save" disabled>${ICON.down} Download skin</button></p>
-    <p class="statline"><a id="status" class="status" href="#" target="_blank" rel="noopener" title="Open the skin picture in a new tab"></a></p>
-  </section>
   </div>
 
   <div class="ed-col workspace-preview">
   <section class="panel ecard">
-    <h3 class="ehead"><span class="tool-ic">${ICON.box}</span><span><b>3D preview</b><small>Drag to turn, scroll to zoom</small></span></h3>
+    <div class="eye-preview-heading">
+      <h3 class="ehead"><span class="tool-ic">${ICON.box}</span><span><b>3D preview</b><small>Drag to turn, scroll to zoom</small></span></h3>
+      <button type="button" class="btn" id="save" disabled>${ICON.down} Download skin</button>
+    </div>
+    <p class="statline"><a id="status" class="status" href="#" target="_blank" rel="noopener" title="Open the skin picture in a new tab"></a></p>
     ${backdropControls}
     <div id="wrap3d">
       <canvas id="view3d" width="420" height="520"></canvas>
@@ -510,18 +585,20 @@ write("editor/index.html", page({
     </div>
     <p class="statline"><a id="msg3d" class="status" href="#" target="_blank" rel="noopener" title="Open a picture of the 3D preview in a new tab"></a></p>
   </section>
-  <section class="panel ecard eye-face-card">
-    <h3 class="ehead"><span class="tool-ic">${ICON.smile}</span><span><b>Face</b><small>How the eyes look on the skin</small></span></h3>
-    <canvas id="face" width="256" height="256"></canvas>
+  <section class="panel ecard eye-skin-details" aria-label="Skin details">
+    <div class="eye-skin-section eye-face-card">
+      <h3 class="ehead"><span class="tool-ic">${ICON.smile}</span><span><b>Face</b><small>How the eyes look on the skin</small></span></h3>
+      <canvas id="face" width="256" height="256"></canvas>
+    </div>
+    <div class="eye-skin-section eye-pixels-card">
+      <h3 class="ehead"><span class="tool-ic">${ICON.grid}</span><span><b>Added pixels</b><small>Top-left corner of the skin file</small></span></h3>
+      <canvas id="top" width="480" height="96"></canvas>
+    </div>
+    <details id="flat" class="ecard eye-skin-section">
+      <summary class="ehead"><span class="tool-ic">${ICON.grid}</span><span><b>Whole skin file</b><small>The flat picture that gets downloaded</small></span><span class="chev">${ICON.down}</span></summary>
+      <canvas id="full" width="384" height="384"></canvas>
+    </details>
   </section>
-  <section class="panel ecard eye-pixels-card">
-    <h3 class="ehead"><span class="tool-ic">${ICON.grid}</span><span><b>Added pixels</b><small>Top-left corner of the skin file</small></span></h3>
-    <canvas id="top" width="480" height="96"></canvas>
-  </section>
-  <details id="flat" class="panel ecard">
-    <summary class="ehead"><span class="tool-ic">${ICON.grid}</span><span><b>Whole skin file</b><small>The flat picture that gets downloaded</small></span><span class="chev">${ICON.down}</span></summary>
-    <canvas id="full" width="384" height="384"></canvas>
-  </details>
   </div>
 </div>
 
@@ -529,7 +606,7 @@ write("editor/index.html", page({
 <h2 id="test">${ICON.info} How to test it in the game</h2>
 <p>A player confirmed that blinking and moving eyes worked in their game. Results may differ with other skins, eye shapes or versions. Use Minecraft Java Edition; the website preview cannot test the pack for you. Keep a copy of your original skin.</p>
 <ol class="steps">
-  <li><strong>Make and save your skin.</strong> In card 2 choose the eye shape and position matching your face. If you want a mouth, pick one from the Mouth list. In card 4, press <b>Download skin</b>.</li>
+  <li><strong>Make and save your skin.</strong> In card 2 choose the eye shape and position matching your face. If you want a mouth, pick one from the Mouth list. In the 3D preview card, press <b>Download skin</b>.</li>
   <li><strong>Use the skin.</strong> In the Minecraft Launcher open Skins, choose New skin and Browse, then select your downloaded PNG. Choose Wide or Slim to match your skin and select Save &amp; Use.</li>
   <li><strong>Install the mods.</strong> Use a mod loader supported by your Minecraft version, plus matching versions of <a href="https://modrinth.com/mod/entity-model-features" rel="noopener">Entity Model Features (EMF)</a> and <a href="https://modrinth.com/mod/entitytexturefeatures" rel="noopener">Entity Texture Features (ETF)</a>. Put the mod JARs in the <code>mods</code> folder. For Fabric, also install a matching <a href="https://modrinth.com/mod/fabric-api" rel="noopener">Fabric API</a> and launch the Fabric profile. Fabric does not show a Mods button unless you add Mod Menu.</li>
   <li><strong>Install one pack.</strong> <a href="../#download">Download Fresh Moves Fix</a>, put the ZIP in <code>resourcepacks</code> without unzipping it, then enable it in Options → Resource Packs. Choose either the normal pack or Eyes Only, not both. Eyes Only does not have body emotes.</li>
@@ -986,6 +1063,8 @@ write("settings/index.html", page({
       <label class="mtile"><input type="radio" name="song" value="night" data-music-song><span><b>Night Sky</b><small>Original peaceful instrumental, 3:12</small></span></label>
       <label class="mtile"><input type="radio" name="song" value="end" data-music-song><span><b>The End</b><small>Original sad instrumental, 4:00</small></span></label>
       <label class="mtile"><input type="radio" name="song" value="left" data-music-song><span><b>Player Left</b><small>Original sad instrumental, 3:20</small></span></label>
+      <label class="mtile"><input type="radio" name="song" value="horizon" data-music-song><span><b>Quiet Horizons</b><small>Original gentle piano and ambient pads, 3:36</small></span></label>
+      <label class="mtile"><input type="radio" name="song" value="fading" data-music-song><span><b>Fading Lights</b><small>Original sad piano instrumental, 3:48</small></span></label>
     </div>
     <p class="elabel">Player</p>
     <div class="mtiles">
@@ -1332,6 +1411,46 @@ write("creator/index.html", page({
   <section class="card creator-links"><h2>Video tutorials</h2><p>External videos for inspiration. They demonstrate other apps and techniques.</p><ul><li><a href="https://www.youtube.com/watch?v=mzI5Ta3tyu8" target="_blank" rel="noopener noreferrer">Bend Minecraft arms and legs — DNStream</a></li><li><a href="https://www.youtube.com/watch?v=or0ZFFpV578" target="_blank" rel="noopener noreferrer">Make Minecraft profile pictures — Klyzo</a></li><li><a href="https://www.youtube.com/watch?v=WiMgrCItWgo" target="_blank" rel="noopener noreferrer">Make Minecraft YouTube banners — DNStream</a></li><li><a href="https://www.youtube.com/watch?v=_Z2VFokwlbI" target="_blank" rel="noopener noreferrer">Add Minecraft highlights — DNStream</a></li></ul></section></div><script src="../creator.js?v=${ver("creator.js")}"></script>`,
 }));
 
+// ---------- guide-assisted Just Expressions editor ----------
+fs.copyFileSync(path.join(here, "just-expressions-editor.js"), path.join(out, "just-expressions-editor.js"));
+write("just-expressions-editor/index.html", page({
+  title: "Just Expressions skin eye editor - Fresh Moves Fix", active: "creations", depth: 1,
+  description: "Paint skin pixels manually while following the Just Expressions 2.0 guides.",
+  body: `<div class="wrap je-editor" id="je-editor" data-default-skin="${skinData("wide/steve.png")}">
+<header class="tool-page-intro"><h1>${ICON.eye} Just Expressions skin eye editor</h1><p>Paint the skin pixels yourself while following the 2.0 guides. Your skin stays in your browser.</p></header>
+<div class="text-card"><strong>Guide-assisted editor:</strong> Presets add markers based on the 2.0 diagrams without redrawing the face. Some features need a Universal Mask; the mask tool can hide selected eyebrows and mouth using a chosen skin colour. Not all shapes are available yet; in-game compatibility is unverified. Keep a copy of your original skin.</div>
+<div class="je-layout"><section class="card je-controls"><h2>Skin and tools</h2>
+<label for="je-file">Upload a 64×64 skin PNG</label><input type="file" id="je-file" accept="image/png,.png">
+<button type="button" class="btn ghost" id="je-default">Use Steve</button>
+<h3>Automatic eye markers</h3><label for="je-eye-shape">Eye shape</label><select id="je-eye-shape"><option value="standard">Standard 2×1</option><option value="derp">Derp 2×1</option><option value="far">Far-set 2×1</option><option value="far-derp">Far-set derp 2×1</option><option value="square">Square 2×2</option><option value="square-far">Far-set square 2×2</option><option value="wide">Wide 3×1</option><option value="flat">Flat 3×1</option><option value="toon">Toon 2×3</option><option value="rectangle">Rectangle 3×2</option><option value="big">Big 3×2</option><option value="curious">Curious 2×2</option><option value="cyclops">Cyclops 2×4</option><option value="lateral">Lateral 2×1</option><option value="single-big">Single eye — big pupil</option><option value="single-small">Single eye — small pupil</option><option value="dots-close">Close-set dots 1×1</option><option value="dots-far">Far-set dots 1×1</option><option value="short-close">Close-set short 1×2</option><option value="short-far">Far-set short 1×2</option><option value="long-close">Close-set long 1×3</option><option value="long-far">Far-set long 1×3</option></select>
+<label for="je-eye-position">Position on the face (standard, square, wide and flat)</label><select id="je-eye-position"><option value="upper">Upper middle</option><option value="lower">Lower middle</option><option value="top">Top</option><option value="bottom">Bottom</option><option value="super">Super top (1-high eyes)</option></select>
+<div id="je-toon-options" hidden><label for="je-toon-position">Toon position</label><select id="je-toon-position"><option value="bottom">Bottom</option><option value="mid">Middle</option><option value="top">Top</option></select></div>
+<div id="je-curious-options" hidden><label for="je-curious-position">Curious / cyclops position</label><select id="je-curious-position"><option value="bottom">Bottom</option><option value="top">Top</option></select></div>
+<div id="je-dot-options" hidden><label for="je-dot-position">Dots / short / long: bottom eye row</label><select id="je-dot-position"><option value="6">Bottom (row 6)</option><option value="5">Row 5</option><option value="4">Row 4</option><option value="3">Row 3</option><option value="2">Row 2</option><option value="1">Top (row 1, dots only)</option></select><p class="je-hint">These eyes require a Universal Mask. Short and long markers store one colour per eye, copied from the bottom pixel; use a single colour per eye.</p></div>
+<p class="je-hint">First make sure your skin already has matching eyes at this position. The preset copies their colours and eyelids; it does not redraw the face. Rectangle and big use the guide’s single layout (face rows 4–5); far-set square uses face rows 3–4. Lateral eyes copy the side-head textures at row 2. Far-set square, cyclops and single-eye markers may affect slim arm textures.</p>
+<button type="button" class="btn ghost" id="je-apply-eye" disabled>Apply eye markers</button>
+<h3>Eyebrows and mouth</h3><label for="je-brow">Eyebrows</label><select id="je-brow"><option value="regular-top">Regular — top</option><option value="regular-upper">Regular — upper middle</option><option value="regular-lower">Regular — lower middle</option><option value="regular-bottom">Regular — bottom</option><option value="regular-super">Regular — super top</option><option value="layer-top">Second layer — top</option><option value="layer-upper">Second layer — upper middle</option><option value="layer-lower">Second layer — lower middle</option><option value="layer-bottom">Second layer — bottom</option></select>
+<label for="je-brow-color">Eyebrow colour</label><input id="je-brow-color" type="color" value="#463124"><button type="button" class="btn ghost" id="je-apply-brow" disabled>Apply eyebrow markers</button>
+<label for="je-mouth">Mouth</label><select id="je-mouth"><option value="top-long">Top — long</option><option value="top-short">Top — short</option><option value="bottom-long">Bottom — long</option><option value="bottom-short">Bottom — short</option></select>
+<label for="je-mouth-color">Mouth colour</label><input id="je-mouth-color" type="color" value="#c4826a"><button type="button" class="btn ghost" id="je-apply-mouth" disabled>Apply mouth markers</button>
+<p class="je-hint">Eyebrows and mouths require a Universal Mask. Optional hiding uses the selected preset positions, not feature detection. Row sampling approximates shading from adjacent pixels and can pick up hair or features; use a solid colour instead if needed. Check the mask and edit it manually, including eyes and eyelashes. The original face is unchanged.</p>
+<label><input id="je-mask-brow" type="checkbox"> Hide selected eyebrows on mask</label>
+<label><input id="je-mask-mouth" type="checkbox"> Hide selected mouth on mask</label>
+<label><input id="je-mask-dots" type="checkbox"> Hide selected dots / short / long eyes on mask</label>
+<label for="je-mask-mode">Mask fill</label><select id="je-mask-mode"><option value="sample">Sample adjacent pixels on each row</option><option value="solid">Use a solid colour</option></select>
+<label for="je-mask-color">Solid colour / transparent-sample fallback</label><input id="je-mask-color" type="color" value="#c4826a">
+<button type="button" class="btn ghost" id="je-copy-mask" disabled>Copy face to Universal Mask</button>
+<label for="je-guide">Guide</label><select id="je-guide">${jeGuides.map(([label]) => `<option value="${jeSlug(label)}">${esc(label)}</option>`).join("")}</select>
+<a class="btn ghost" id="je-guide-link" href="../guides/just-expressions/${jeSlug(jeGuides[0][0])}/" target="_blank" rel="noopener noreferrer">${ICON.book} Open selected guide</a>
+<label for="je-view">Skin area</label><select id="je-view"><option value="full">Whole skin (64×64)</option><option value="face">Face (8×8)</option><option value="top-left">Top-left (8×8)</option><option value="top-right">Top-right (8×8)</option></select>
+<label for="je-color">Paint colour</label><input id="je-color" type="color" value="#ffffff">
+<div class="je-buttons" role="group" aria-label="Drawing tool"><button type="button" class="btn" data-je-tool="brush" aria-pressed="true">Paint</button><button type="button" class="btn ghost" data-je-tool="eraser" aria-pressed="false">Erase</button><button type="button" class="btn ghost" data-je-tool="picker" aria-pressed="false">Pick colour</button></div>
+<div class="je-buttons"><button type="button" class="btn ghost" id="je-undo" disabled>Undo</button><button type="button" class="btn ghost" id="je-reset" disabled>Reset skin</button></div>
+<button type="button" class="btn" id="je-save" disabled>${ICON.down} Download skin</button><p id="je-status" role="status" aria-live="polite">Loading Steve…</p>
+</section><section class="card je-workspace"><h2>Skin pixels</h2><p>Click or drag to paint one pixel at a time. Use Pick colour to sample the skin. The coordinates are PNG pixels, starting at 0.</p><div class="je-canvas-wrap"><canvas id="je-canvas" width="64" height="64" aria-label="Skin pixel editor"></canvas><div class="je-grid" aria-hidden="true"></div></div><p id="je-coords" aria-live="polite">Move over the skin to see coordinates.</p><h3>Face preview</h3><canvas id="je-face" width="8" height="8" aria-label="Flat face preview"></canvas><p class="je-hint">The preview shows the flat face, not an animated in-game model. Guides open in a new tab so your edits stay here.</p></section></div></div>
+<script src="../just-expressions-editor.js?v=${ver("just-expressions-editor.js")}"></script>`,
+}));
+
 // ---------- projects ----------
 write("creations/index.html", page({
   title: "Projects - Fresh Moves Fix", active: "creations", depth: 1,
@@ -1343,11 +1462,12 @@ write("creations/index.html", page({
   <a class="project-card" data-project-card="pack" href="../#download"><img class="project-pack-image" src="../pack.png" alt="" width="112" height="112"><h2>Fresh Moves Fix</h2><p>Player animations and animated eyes for Minecraft Java.</p><span class="project-link-label">View downloads ${ICON.right}</span></a>
   <a class="project-card" data-project-card="paint" href="../paint/"><img src="../icon-paint-pixel.svg" alt="" width="112" height="112"><h2>Skin Painter 3D</h2><p>Paint a skin pixel by pixel in your browser.</p><span class="project-link-label">Open painter ${ICON.right}</span></a>
   <a class="project-card" data-project-card="editor" href="../editor/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Skin eye editor</h2><p>Add animated eye markers to your skin.</p><span class="project-link-label">Open editor ${ICON.right}</span></a>
+  <a class="project-card" href="../just-expressions-editor/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Just Expressions skin eye editor</h2><p>Paint skin pixels manually with the 2.0 guides.</p><span class="project-link-label">Open editor ${ICON.right}</span></a>
   <a class="project-card" data-project-card="pfp" href="../pfp/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Minecraft PFP Maker</h2><p>Create a 3D profile picture from your skin.</p><span class="project-link-label">Open PFP maker ${ICON.right}</span></a>
   <a class="project-card" data-project-card="creator" href="../creator/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Creator Studio</h2><p>Make a channel banner and explore creator tools.</p><span class="project-link-label">Open creator studio ${ICON.right}</span></a>
   <a class="project-card" data-project-card="title" href="../title/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Title</h2><p>Make and download a block-letter title picture.</p><span class="project-link-label">Open title maker ${ICON.right}</span></a>
   <a class="project-card" data-project-card="animation" href="../animation/"><img src="../icon-anim-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Animation</h2><p>Arrange movements and save an animation as a video.</p><span class="project-link-label">Open animation tool ${ICON.right}</span></a>
-  <div class="project-card project-soon"><img src="../icon-lock-project-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Skins</h2><p>A separate Fabric mod. Downloads are temporarily locked.</p><span>Coming soon</span></div>
+  <a class="project-card" href="../#minecraft-skins-download"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Minecraft Skins</h2><p>An experimental, separate client-only Fabric mod for local skins.</p><span>Alpha downloads</span></a>
 </div></div><script src="../project-locks.bundle.js?v=${ver("project-locks.js")}"></script>`,
 }));
 
@@ -1367,12 +1487,14 @@ const versionLinks = groups.map((g) => {
   </a>`;
 }).join("\n");
 
-const skinVersionLinks = skinReleases.map((release) => {
-  const mc = esc(release.minecraft_build);
-  return `<div class="ver locked" aria-label="Minecraft ${mc}, Fabric, locked, coming soon">
+const skinVersionLinks = skinRelease.versions.map((version) => {
+  const mc = esc(version);
+  const filename = `minecraft-skins-fabric-${version}.jar`;
+  const href = `${REPO}/releases/download/${encodeURIComponent(skinRelease.tag)}/${encodeURIComponent(filename)}`;
+  return `<a class="ver" href="${href}" aria-label="Download experimental Minecraft Skins for Minecraft ${mc}, Fabric">
     <span class="tool-head"><img class="ver-ic" src="icon-skin.png" alt="" width="40" height="40" loading="lazy"><span><b>${mc}</b><small>Minecraft build</small></span></span>
-    <span class="tags"><i>Fabric</i><i class="coming-soon">${ICON.lock} Coming soon</i></span>
-  </div>`;
+    <span class="tags"><i>Fabric</i><i class="dl">${ICON.down} Alpha .jar</i></span>
+  </a>`;
 }).join("\n");
 
 // "Page not found" page. Vercel shows 404.html for every address that does not exist,
@@ -1494,7 +1616,8 @@ ${versionLinks}
 <section id="minecraft-skins-download" class="home-section">
   <div class="text-card">
   <h2>${ICON.down} Download Minecraft Skins — Fabric</h2>
-  <p><strong>Coming soon.</strong> Minecraft Skins downloads are temporarily locked. This is a separate mod, not the Fresh Moves Fix resource pack.</p>
+  <p><strong>Experimental alpha:</strong> These original Fabric JARs passed build and metadata checks but have not been tested in Minecraft. Choose the exact game version, and install matching Fabric Loader and Fabric API. This is a separate client-only mod, not the Fresh Moves Fix resource pack. Local skins are visible only to you and do not change your account skin.</p>
+  <p><a href="${REPO}/releases/tag/${encodeURIComponent(skinRelease.tag)}">Release notes and checksums</a> · <a href="${REPO}/blob/${skinRelease.build_commit}/minecraft-skins-fabric/README.md">Usage and commands</a> · Java 17 for 1.20–1.20.4, Java 21 for 1.20.5–1.21.11, Java 25 for 26.x.</p>
   </div>
   <div class="versions">${skinVersionLinks}</div>
 </section>
