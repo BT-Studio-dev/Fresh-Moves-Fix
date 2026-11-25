@@ -1449,3 +1449,12 @@ body footer .cols a .ic { opacity: 1; }
 .eye-mode-control label { display: block; margin-bottom: 8px; }
 .eye-mode-control p { color: var(--muted); margin: 10px 0 0; }
 .eye-mode-control #fmf-unlock { margin-top: 10px; }
+/* Both pack modes live inside the Eyes card. */
+.eye-workspace .eye-mode-control { padding: 0 0 12px; margin: 0 0 14px; border-bottom: 1px solid var(--line); }
+.eye-workspace .je-editor .je-layout { display: flex; flex-direction: column; margin: 0; gap: 18px; }
+.eye-workspace .je-editor .je-controls, .eye-workspace .je-editor .je-workspace { padding: 0; width: 100%; }
+.eye-workspace .je-editor .je-controls h4, .eye-workspace .je-editor .je-workspace h4 { margin: 10px 0 0; }
+.eye-workspace .je-editor .je-controls label:not(.pickb) { display: block; }
+.eye-workspace .je-editor .je-controls .dd, .eye-workspace .je-editor .je-controls .dd-btn { width: 100%; }
+.eye-workspace .je-editor #je-mask-options { display: flex; flex-direction: column; gap: 10px; }
+.eye-workspace .je-editor #je-mask-options[hidden] { display: none; }

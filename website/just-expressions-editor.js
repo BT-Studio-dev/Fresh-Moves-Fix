@@ -43,12 +43,21 @@
     getSkin() { return pixels && new Uint8ClampedArray(pixels); },
     onChange: null
   };
+  $('je-mask-toggle').addEventListener('change', function () { $('je-mask-options').hidden = !this.checked; });
   $('je-guide').addEventListener('change', function () { $('je-guide-link').href = '../guides/just-expressions/' + encodeURIComponent(this.value) + '/'; });
   $('je-view').addEventListener('change', draw);
   $('je-eye-shape').addEventListener('change', function () {
+    $('je-standard-options').hidden = !['standard','derp','far','far-derp','square','wide','flat'].includes(this.value);
     $('je-toon-options').hidden = this.value !== 'toon';
     $('je-curious-options').hidden = this.value !== 'curious' && this.value !== 'cyclops';
     $('je-dot-options').hidden = !/^(dots|short|long)-(close|far)$/.test(this.value);
+    // Only offer positions for which the selected marker layout exists.
+    const pos = $('je-eye-position'), superOption = Array.from(pos.options).find(o => o.value === 'super');
+    superOption.disabled = this.value === 'square';
+    if (superOption.disabled && pos.value === 'super') pos.value = 'top';
+    const dot = $('je-dot-position'), minimum = this.value.startsWith('long-') ? (this.value.endsWith('-far') ? 4 : 3) : this.value.startsWith('short-') ? 2 : 1;
+    for (const option of dot.options) option.disabled = Number(option.value) < minimum;
+    if (Number(dot.value) < minimum) dot.value = String(minimum);
   });
   function remember() { history.push(new Uint8ClampedArray(pixels)); if (history.length > 30) history.shift(); }
   function clearArea(x, y, width, height) { for (let j = y; j < y + height; j++) for (let i = x; i < x + width; i++) pixels.fill(0, at(i, j), at(i, j) + 4); }

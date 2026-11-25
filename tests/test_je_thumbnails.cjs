@@ -1,0 +1,12 @@
+const assert=require('assert'),fs=require('fs'),vm=require('vm');
+const sandbox={window:{},Uint8ClampedArray};vm.runInNewContext(fs.readFileSync('website/je-thumbnails.js','utf8'),sandbox);const draw=sandbox.window.FMFJEThumbnail.pixels;
+const base=new Uint8ClampedArray(256);for(let i=0;i<256;i+=4)base.set([100,110,120,255],i);
+const s={shape:'standard',position:'upper',toon:'bottom',curious:'bottom',dot:'6',white:'#ffffff',pupil:'#123456',brow:'#331100',mouth:'#cc7755',lid:'#998877',oldCells:[]};
+const pixel=(arr,x,y)=>Array.from(arr.slice((y*8+x)*4,(y*8+x)*4+4));
+let a=draw(base,'je-eye-shape','far',s),b=draw(base,'je-eye-shape','standard',s);assert.deepEqual(pixel(a,0,4),[255,255,255,255]);assert.deepEqual(pixel(b,0,4),[100,110,120,255]);assert.deepEqual(pixel(a,1,4),[18,52,86,255]);
+a=draw(base,'je-eye-shape','square',s);assert.deepEqual(pixel(a,2,3),[18,52,86,255]);assert.deepEqual(pixel(a,2,4),[18,52,86,255]);
+a=draw(base,'je-eye-position','bottom',s);assert.deepEqual(pixel(a,2,6),[18,52,86,255]);
+a=draw(base,'je-brow','layer-upper',s);assert.deepEqual(pixel(a,1,3),[51,17,0,255]);assert.deepEqual(pixel(a,0,3),[100,110,120,255]);
+a=draw(base,'je-mouth','bottom-long',s);assert.deepEqual(pixel(a,2,7),[204,119,85,255]);b=draw(base,'je-mouth','top-short',s);assert.deepEqual(pixel(b,2,6),[100,110,120,255]);assert.deepEqual(pixel(b,3,6),[204,119,85,255]);
+a=draw(base,'je-eye-shape','long-far',s);for(const y of [4,5,6])assert.deepEqual(pixel(a,1,y),[18,52,86,255]);
+assert.deepEqual(pixel(base,1,4),[100,110,120,255],'thumbnail must not modify source');console.log('2.0 thumbnail shapes, positions, eyebrows and mouths are illustrative and non-destructive');
