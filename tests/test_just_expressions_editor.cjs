@@ -29,6 +29,32 @@ assert.equal($('je-eye-shape').value,'keep');assert.equal($('je-brow').value,'ke
 for(const id of ['je-apply-eye','je-apply-brow','je-apply-mouth'])assert.equal($(id),null);
 assert(!$('je-pixel-tools').open);assert.match($('je-pixel-tools').querySelector('summary').textContent,/Advanced \/ Manual pixel tools/);
 const initial=Array.from(save());change('je-brow-color','#123456','input');change('je-mouth-color','#aabbcc','input');assert.deepEqual(Array.from(save()),initial,'colour with do-not-change never writes');
+// Every mouth and brow preset paints the face, writes its marker, and re-enables a hidden mask in one undo step.
+for (const [preset,row,cols,markerX,markerY] of [
+ ['top-long',6,[2,3,4,5],16,50], ['top-short',6,[3,4],17,50],
+ ['bottom-long',7,[2,3,4,5],16,51], ['bottom-short',7,[3,4],17,51]
+]) {
+ resetDefault();change('je-mask-mode','solid');change('je-mask-color','#102030','input');change('je-mouth-color','#cc4422','input');$('je-mask-toggle').click();assert(!$('je-mask-toggle').checked);
+ const before=Array.from(save());change('je-mouth',preset);assert($('je-mask-toggle').checked,preset+' automatically enables hiding');
+ for (const x of cols) {assert.deepEqual(px(save(),8+x,8+row),[204,68,34,255],preset+' visible face');assert.deepEqual(px(save(),56+x,row),[16,32,48,255],preset+' masked overlap');}
+ for (let x=markerX;x<markerX+cols.length;x++) assert.deepEqual(px(save(),x,markerY),[204,68,34,255],preset+' marker');
+ undo();assert.deepEqual(Array.from(save()),before,preset+' undo restores face, mask and markers');assert(!$('je-mask-toggle').checked);assert.equal($('je-mouth').value,'keep');
+}
+for (const [preset,row,cols,markerX,markerY,markerWidth,layer] of [
+ ['regular-super',1,[0,1,2,5,6,7],14,48,6,false],['regular-top',2,[0,1,2,5,6,7],28,48,6,false],
+ ['regular-upper',3,[0,1,2,5,6,7],28,49,6,false],['regular-lower',4,[0,1,2,5,6,7],28,50,6,false],['regular-bottom',5,[0,1,2,5,6,7],28,51,6,false],
+ ['layer-top',2,[1,2,5,6],34,48,2,true],['layer-upper',3,[1,2,5,6],34,49,2,true],
+ ['layer-lower',4,[1,2,5,6],34,50,2,true],['layer-bottom',5,[1,2,5,6],34,51,2,true]
+]) {
+ resetDefault();change('je-mask-mode','solid');change('je-mask-color','#102030','input');change('je-brow-color','#325476','input');$('je-mask-toggle').click();const before=Array.from(save());change('je-brow',preset);assert($('je-mask-toggle').checked,preset+' automatically enables hiding');
+ for (const x of cols) {assert.deepEqual(px(save(),(layer?40:8)+x,8+row),[50,84,118,255],preset+' visible feature');assert.deepEqual(px(save(),56+x,row),[16,32,48,255],preset+' masked overlap');}
+ for (let x=markerX;x<markerX+markerWidth;x++) assert.deepEqual(px(save(),x,markerY),[50,84,118,255],preset+' marker');
+ undo();assert.deepEqual(Array.from(save()),before,preset+' undo restores face, mask and markers');assert(!$('je-mask-toggle').checked);assert.equal($('je-brow').value,'keep');
+}
+// Selecting a second feature re-hides both after the user temporarily shows the face on the mask.
+resetDefault();change('je-mask-mode','solid');change('je-mask-color','#102030','input');change('je-mouth-color','#cc4422','input');change('je-brow-color','#325476','input');change('je-mouth','top-long');$('je-mask-toggle').click();assert(!$('je-mask-toggle').checked);const shown=Array.from(save());change('je-brow','regular-top');assert($('je-mask-toggle').checked);assert.deepEqual(px(save(),58,6),[16,32,48,255],'existing mouth is hidden again');assert.deepEqual(px(save(),56,2),[16,32,48,255],'new eyebrow is hidden');undo();assert.deepEqual(Array.from(save()),shown);assert(!$('je-mask-toggle').checked,'undo restores the explicit show setting');
+// Returning to keep and changing a colour alone never enables a mask or changes a skin.
+resetDefault();$('je-mask-toggle').click();let keepSkin=Array.from(save());change('je-mouth-color','#aabbcc','input');change('je-brow-color','#123456','input');assert.deepEqual(Array.from(save()),keepSkin);assert(!$('je-mask-toggle').checked);
 // Every eye preset runs automatically; the previous generated target is restored on a position change.
 for(const [shape,x,y] of [['standard',4,2],['derp',4,2],['far',0,2],['far-derp',0,2],['square',28,5],['square-far',48,48],['wide',32,2],['flat',32,2],['toon',36,5],['rectangle',36,32],['big',36,32],['curious',16,34],['cyclops',52,34],['lateral',40,34],['single-big',44,48],['single-small',45,49],['dots-close',61,47],['dots-far',60,47],['short-close',57,47],['short-far',56,47],['long-close',61,41],['long-far',60,41]]) {
  resetDefault();$('je-eye-position').value='upper';$('je-toon-position').value='bottom';$('je-curious-position').value='bottom';$('je-dot-position').value='6';const before=Array.from(save());change('je-eye-shape',shape);assert.equal(px(save(),x,y)[3],255,shape+' marker');assert(!$('je-undo').disabled,shape+' undo');undo();assert.deepEqual(Array.from(save()),before,shape+' undo restores full PNG');assert.equal($('je-eye-shape').value,'keep');

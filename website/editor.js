@@ -755,7 +755,8 @@
           b.setAttribute("role", "option"); b.setAttribute("aria-selected", o === cur ? "true" : "false"); if (o.disabled) b.setAttribute("aria-disabled", "true");
           b.addEventListener("click", (e) => {
             e.preventDefault(); m.close(); btn.focus();
-            if (sel.value !== o.value) { sel.value = o.value; sel.dispatchEvent(new Event("change")); sel.dispatchEvent(new Event("input")); }
+            const reenableMask = ["je-brow", "je-mouth"].includes(sel.id) && o.value !== "keep" && !$("je-mask-toggle").checked;
+            if (sel.value !== o.value || reenableMask) { sel.value = o.value; sel.dispatchEvent(new Event("change")); sel.dispatchEvent(new Event("input")); }
             syncMenus();
           });
           list.appendChild(b);
