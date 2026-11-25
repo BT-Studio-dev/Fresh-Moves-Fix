@@ -59,4 +59,14 @@ function setup(query = '', withViewer = false) {
  d.getElementById('je-undo').click();assert.equal(mouth.value,'top-short');assert.match(menu.querySelector('.dd-btn').textContent,/Top — short/,'undo updates the visible menu');
  dom.window.close();
 }
+{
+ const {dom,w,d,fixture,finish,getExport,frames}=setup('?mode=just-expressions',true);finish();const at=(x,y)=>(y*64+x)*4;
+ const mouth=d.getElementById('je-mouth'), menu=mouth.nextElementSibling;
+ const pick=label=>{menu.querySelector('.dd-btn').click();[...menu.querySelectorAll('.dd-opt')].find(b=>b.textContent===label).click();};
+ d.getElementById('je-mask-toggle').click();pick('Top — long');let skin=w.JustExpressionsEditor.getSkin();assert(d.getElementById('je-mask-toggle').checked);
+ assert.deepEqual(Array.from(skin.slice(at(10,14),at(10,14)+4)),[196,130,106,255],'dropdown paints face immediately');assert.deepEqual(Array.from(skin.slice(at(16,50),at(16,50)+4)),[196,130,106,255],'dropdown writes mouth marker');
+ assert.notDeepEqual(Array.from(skin.slice(at(58,6),at(58,6)+4)),[196,130,106,255],'automatic mask hides the mouth');
+ assert.deepEqual(Array.from(frames[frames.length-1].slice(at(10,14),at(10,14)+4)),[196,130,106,255],'3D preview updates');d.getElementById('save').click();assert.deepEqual(Array.from(getExport()),Array.from(skin),'export includes face, marker and mask');
+ d.getElementById('je-mask-toggle').click();assert(!d.getElementById('je-mask-toggle').checked);const shown=Array.from(w.JustExpressionsEditor.getSkin());pick('Top — long');assert(d.getElementById('je-mask-toggle').checked,'choosing the same preset re-enables hiding');d.getElementById('je-undo').click();assert(!d.getElementById('je-mask-toggle').checked);assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),shown,'undo restores prior show state');dom.window.close();
+}
 console.log('Unified editor mode transfer, download, undo, overwrite safety, validation and async races passed');

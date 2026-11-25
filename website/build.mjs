@@ -455,7 +455,7 @@ const jeEditorBody = `<div class="je-editor" id="je-editor" hidden>
 <label for="je-mouth">Mouth</label><select id="je-mouth"><option value="keep">Do not change</option><option value="top-long">Top — long</option><option value="top-short">Top — short</option><option value="bottom-long">Bottom — long</option><option value="bottom-short">Bottom — short</option></select>
 <div class="je-color-action"><div class="je-color-choice"><label for="je-mouth-color">Colour</label><input id="je-mouth-color" type="color" value="#c4826a" aria-label="Mouth colour"></div></div>
 <p class="je-hint je-brief">Eyebrows and mouths require a Universal Mask.</p>
-<label class="pickb wide"><input type="checkbox" id="je-mask-toggle" checked><span><b>Hide selected features on mask</b><small>Mask updates automatically. Review it; Undo restores replaced pixels.</small></span></label>
+<label class="pickb wide"><input type="checkbox" id="je-mask-toggle" checked><span><b>Hide selected features on mask</b><small>Selecting a brow or mouth enables hiding. Review the mask; Undo restores replaced pixels.</small></span></label>
 <div class="je-buttons"><button type="button" class="btn ghost" id="je-undo" disabled>Undo</button><button type="button" class="btn ghost" id="je-reset" disabled>Reset 2.0 session</button></div>
 <p id="je-status" role="status" aria-live="polite">Select a skin above to begin.</p>
 <details class="je-details" id="je-help"><summary>How presets and masks work</summary><div class="je-details-content">

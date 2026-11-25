@@ -367,7 +367,12 @@
   });
   for (const id of ['je-eye-position','je-toon-position','je-curious-position','je-dot-position']) $(id).addEventListener('change', function () { if ($('je-eye-shape').value !== 'keep') transact('eye', applyEye, maskNeeded() ? 'auto' : false); else committed = controls(); });
   for (const [id, group, apply] of [['je-brow','brow',applyBrow], ['je-mouth','mouth',applyMouth]]) $(id).addEventListener('change', function () {
-    if (this.value !== 'keep') transact(group, apply, 'auto');
+    if (this.value !== 'keep') transact(group, () => {
+      if (!apply()) return false;
+      // A fresh preset must always produce a mask that hides the selected features.
+      $('je-mask-toggle').checked = true;
+      return true;
+    }, 'auto');
     else transact(group, () => { active[group] = null; return true; }, 'auto');
   });
   for (const [id, group, select, apply] of [['je-brow-color','brow','je-brow',applyBrow], ['je-mouth-color','mouth','je-mouth',applyMouth], ['je-eye-white','eye','je-eye-shape',applyEye], ['je-eye-pupil','eye','je-eye-shape',applyEye]]) {
