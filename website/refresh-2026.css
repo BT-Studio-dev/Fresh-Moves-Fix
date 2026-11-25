@@ -1443,3 +1443,9 @@ body footer .cols a .ic { opacity: 1; }
   .ed .dd-btn:focus-visible, .ed .dd-opt:focus-visible { outline-color: var(--eye-soft-accent); }
 }
 .ed .dd-opt:disabled { opacity: .48; cursor: not-allowed; }
+/* Only the active editor's controls should take space, even where panels use flex. */
+.eye-workspace [hidden], .je-editor[hidden] { display: none !important; }
+.eye-mode-control { margin: 0 0 16px; padding: 16px; }
+.eye-mode-control label { display: block; margin-bottom: 8px; }
+.eye-mode-control p { color: var(--muted); margin: 10px 0 0; }
+.eye-mode-control #fmf-unlock { margin-top: 10px; }

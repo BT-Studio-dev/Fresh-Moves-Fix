@@ -8,7 +8,7 @@
   const source = document.createElement('canvas'); source.width = source.height = 64;
   const src = source.getContext('2d', { willReadFrequently: true });
   const views = { full: [0, 0, 64], face: [8, 8, 8], 'top-left': [0, 0, 8], 'top-right': [56, 0, 8] };
-  let pixels = null, original = null, history = [], tool = 'brush', drawing = false, last = null, loadToken = 0;
+  let pixels = null, original = null, history = [], tool = 'brush', drawing = false, last = null;
   const status = (text) => { $('je-status').textContent = text; };
   const at = (x, y) => (y * 64 + x) * 4;
   function draw() {
@@ -28,32 +28,21 @@
     faceCtx.drawImage(source, 40, 8, 8, 8, 0, 0, 8, 8);
     $('je-undo').disabled = history.length === 0;
     $('je-reset').disabled = !original || !pixels.some((value, index) => value !== original[index]);
+    if (window.JustExpressionsEditor && window.JustExpressionsEditor.onChange) window.JustExpressionsEditor.onChange(new Uint8ClampedArray(pixels));
   }
-  function load(url, name) {
-    const token = ++loadToken, image = new Image();
-    image.onload = function () {
-      if (token !== loadToken || !root.isConnected) return;
-      if (image.width !== 64 || image.height !== 64) { status('Skin must be a 64×64 PNG. Your current skin was not changed.'); return; }
-      try {
-        src.clearRect(0, 0, 64, 64); src.drawImage(image, 0, 0);
-        pixels = new Uint8ClampedArray(src.getImageData(0, 0, 64, 64).data);
-        original = new Uint8ClampedArray(pixels); history = [];
-        ['je-save', 'je-apply-eye', 'je-apply-brow', 'je-apply-mouth', 'je-copy-mask'].forEach(id => { $(id).disabled = false; });
-        draw(); status(name + ' loaded. Select a preset or follow a guide to paint pixels.');
-      } catch (_) { status('Could not read this image. Your current skin was not changed.'); }
-    };
-    image.onerror = function () { if (token === loadToken && root.isConnected) status('Could not read this PNG. Your current skin was not changed.'); };
-    image.src = url;
-  }
-  $('je-file').addEventListener('change', function () {
-    const file = this.files && this.files[0]; if (!file) return;
-    if ((file.type && file.type !== 'image/png') || !/\.png$/i.test(file.name) || file.size > 10 * 1024 * 1024) { status('Choose a PNG file up to 10 MB.'); this.value = ''; return; }
-    const token = ++loadToken, reader = new FileReader();
-    reader.onload = function () { if (token === loadToken && root.isConnected) load(reader.result, file.name); };
-    reader.onerror = function () { if (token === loadToken) status('Could not read this file.'); };
-    reader.readAsDataURL(file); this.value = '';
-  });
-  $('je-default').addEventListener('click', () => load(root.dataset.defaultSkin, 'Steve'));
+  // The unified editor owns loading and exporting. Keep history when returning to an
+  // unchanged skin; a different skin begins a new, clearly bounded 2.0 session.
+  window.JustExpressionsEditor = {
+    setSkin(data, name, forceNew = false) {
+      const incoming = new Uint8ClampedArray(data);
+      const same = pixels && pixels.length === incoming.length && pixels.every((v, i) => v === incoming[i]);
+      if (forceNew || !same) { pixels = incoming; original = new Uint8ClampedArray(incoming); history = []; }
+      ['je-apply-eye', 'je-apply-brow', 'je-apply-mouth', 'je-copy-mask'].forEach(id => { $(id).disabled = false; });
+      draw(); status((name || 'Skin') + ' ready. Select a preset or follow a guide to paint pixels.');
+    },
+    getSkin() { return pixels && new Uint8ClampedArray(pixels); },
+    onChange: null
+  };
   $('je-guide').addEventListener('change', function () { $('je-guide-link').href = '../guides/just-expressions/' + encodeURIComponent(this.value) + '/'; });
   $('je-view').addEventListener('change', draw);
   $('je-eye-shape').addEventListener('change', function () {
@@ -272,6 +261,4 @@
   canvas.addEventListener('pointerup', stop); canvas.addEventListener('pointercancel', stop); canvas.addEventListener('lostpointercapture', stop);
   $('je-undo').addEventListener('click', function () { if (!history.length) return; pixels = history.pop(); draw(); status('Undid the last stroke.'); });
   $('je-reset').addEventListener('click', function () { if (!original) return; history.push(new Uint8ClampedArray(pixels)); if (history.length > 30) history.shift(); pixels = new Uint8ClampedArray(original); draw(); status('Skin reset to the loaded image.'); });
-  $('je-save').addEventListener('click', function () { if (!pixels) return; const image = src.createImageData(64, 64); image.data.set(pixels); src.putImageData(image, 0, 0); const a = document.createElement('a'); a.download = 'just-expressions-skin.png'; a.href = source.toDataURL('image/png'); a.click(); status('Downloaded just-expressions-skin.png.'); });
-  load(root.dataset.defaultSkin, 'Steve');
 })();

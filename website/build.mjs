@@ -437,6 +437,39 @@ await bundle({ entryPoints: [path.join(here, "cape-preview.js")], outfile: path.
 fs.copyFileSync(path.join(here, "node_modules/jszip/dist/jszip.min.js"), path.join(out, "jszip.min.js"));
 // 3D preview library (skinview3d, MIT licence), served from this site
 fs.copyFileSync(path.join(here, "node_modules/skinview3d/bundles/skinview3d.bundle.js"), path.join(out, "skinview3d.bundle.js"));
+// 2.0 tools live in the same editor and share its skin, preview, and download.
+fs.copyFileSync(path.join(here, "just-expressions-editor.js"), path.join(out, "just-expressions-editor.js"));
+const jeEditorBody = `<div class="je-editor" id="je-editor" hidden>
+<h2>${ICON.eye} Just Expressions 2.0 tools</h2>
+<p class="je-hint">Some features require a Universal Mask. Not all shapes are available, and 2.0 in-game compatibility is unverified. Keep a backup of your original skin.</p>
+<div class="je-layout"><section class="card je-controls"><h2>2.0 presets and mask</h2>
+<h3>Automatic eye markers</h3><label for="je-eye-shape">Eye shape</label><select id="je-eye-shape"><option value="standard">Standard 2×1</option><option value="derp">Derp 2×1</option><option value="far">Far-set 2×1</option><option value="far-derp">Far-set derp 2×1</option><option value="square">Square 2×2</option><option value="square-far">Far-set square 2×2</option><option value="wide">Wide 3×1</option><option value="flat">Flat 3×1</option><option value="toon">Toon 2×3</option><option value="rectangle">Rectangle 3×2</option><option value="big">Big 3×2</option><option value="curious">Curious 2×2</option><option value="cyclops">Cyclops 2×4</option><option value="lateral">Lateral 2×1</option><option value="single-big">Single eye — big pupil</option><option value="single-small">Single eye — small pupil</option><option value="dots-close">Close-set dots 1×1</option><option value="dots-far">Far-set dots 1×1</option><option value="short-close">Close-set short 1×2</option><option value="short-far">Far-set short 1×2</option><option value="long-close">Close-set long 1×3</option><option value="long-far">Far-set long 1×3</option></select>
+<label for="je-eye-position">Position on the face (standard, square, wide and flat)</label><select id="je-eye-position"><option value="upper">Upper middle</option><option value="lower">Lower middle</option><option value="top">Top</option><option value="bottom">Bottom</option><option value="super">Super top (1-high eyes)</option></select>
+<div id="je-toon-options" hidden><label for="je-toon-position">Toon position</label><select id="je-toon-position"><option value="bottom">Bottom</option><option value="mid">Middle</option><option value="top">Top</option></select></div>
+<div id="je-curious-options" hidden><label for="je-curious-position">Curious / cyclops position</label><select id="je-curious-position"><option value="bottom">Bottom</option><option value="top">Top</option></select></div>
+<div id="je-dot-options" hidden><label for="je-dot-position">Dots / short / long: bottom eye row</label><select id="je-dot-position"><option value="6">Bottom (row 6)</option><option value="5">Row 5</option><option value="4">Row 4</option><option value="3">Row 3</option><option value="2">Row 2</option><option value="1">Top (row 1, dots only)</option></select><p class="je-hint">These eyes require a Universal Mask. Short and long markers store one colour per eye, copied from the bottom pixel; use a single colour per eye.</p></div>
+<p class="je-hint">First make sure your skin already has matching eyes at this position. The preset copies their colours and eyelids; it does not redraw the face. Rectangle and big use the guide’s single layout (face rows 4–5); far-set square uses face rows 3–4. Lateral eyes copy the side-head textures at row 2. Far-set square, cyclops and single-eye markers may affect slim arm textures.</p>
+<button type="button" class="btn ghost" id="je-apply-eye" disabled>Apply eye markers</button>
+<h3>Eyebrows and mouth</h3><label for="je-brow">Eyebrows</label><select id="je-brow"><option value="regular-top">Regular — top</option><option value="regular-upper">Regular — upper middle</option><option value="regular-lower">Regular — lower middle</option><option value="regular-bottom">Regular — bottom</option><option value="regular-super">Regular — super top</option><option value="layer-top">Second layer — top</option><option value="layer-upper">Second layer — upper middle</option><option value="layer-lower">Second layer — lower middle</option><option value="layer-bottom">Second layer — bottom</option></select>
+<label for="je-brow-color">Eyebrow colour</label><input id="je-brow-color" type="color" value="#463124"><button type="button" class="btn ghost" id="je-apply-brow" disabled>Apply eyebrow markers</button>
+<label for="je-mouth">Mouth</label><select id="je-mouth"><option value="top-long">Top — long</option><option value="top-short">Top — short</option><option value="bottom-long">Bottom — long</option><option value="bottom-short">Bottom — short</option></select>
+<label for="je-mouth-color">Mouth colour</label><input id="je-mouth-color" type="color" value="#c4826a"><button type="button" class="btn ghost" id="je-apply-mouth" disabled>Apply mouth markers</button>
+<p class="je-hint">Eyebrows and mouths require a Universal Mask. Optional hiding uses the selected preset positions, not feature detection. Row sampling approximates shading from adjacent pixels and can pick up hair or features; use a solid colour instead if needed. Check the mask and edit it manually, including eyes and eyelashes. The original face is unchanged.</p>
+<label><input id="je-mask-brow" type="checkbox"> Hide selected eyebrows on mask</label>
+<label><input id="je-mask-mouth" type="checkbox"> Hide selected mouth on mask</label>
+<label><input id="je-mask-dots" type="checkbox"> Hide selected dots / short / long eyes on mask</label>
+<label for="je-mask-mode">Mask fill</label><select id="je-mask-mode"><option value="sample">Sample adjacent pixels on each row</option><option value="solid">Use a solid colour</option></select>
+<label for="je-mask-color">Solid colour / transparent-sample fallback</label><input id="je-mask-color" type="color" value="#c4826a">
+<button type="button" class="btn ghost" id="je-copy-mask" disabled>Copy face to Universal Mask</button>
+<label for="je-guide">Guide</label><select id="je-guide">${jeGuides.map(([label]) => `<option value="${jeSlug(label)}">${esc(label)}</option>`).join("")}</select>
+<a class="btn ghost" id="je-guide-link" href="../guides/just-expressions/${jeSlug(jeGuides[0][0])}/" target="_blank" rel="noopener noreferrer">${ICON.book} Open selected guide</a>
+<label for="je-view">Skin area</label><select id="je-view"><option value="full">Whole skin (64×64)</option><option value="face">Face (8×8)</option><option value="top-left">Top-left (8×8)</option><option value="top-right">Top-right (8×8)</option></select>
+<label for="je-color">Paint colour</label><input id="je-color" type="color" value="#ffffff">
+<div class="je-buttons" role="group" aria-label="Drawing tool"><button type="button" class="btn" data-je-tool="brush" aria-pressed="true">Paint</button><button type="button" class="btn ghost" data-je-tool="eraser" aria-pressed="false">Erase</button><button type="button" class="btn ghost" data-je-tool="picker" aria-pressed="false">Pick colour</button></div>
+<div class="je-buttons"><button type="button" class="btn ghost" id="je-undo" disabled>Undo</button><button type="button" class="btn ghost" id="je-reset" disabled>Reset 2.0 session</button></div>
+<p id="je-status" role="status" aria-live="polite">Select a skin above to begin.</p>
+</section><section class="card je-workspace"><h2>Skin pixels</h2><p>Click or drag to paint one pixel at a time. Use Pick colour to sample the skin. The coordinates are PNG pixels, starting at 0.</p><div class="je-canvas-wrap"><canvas id="je-canvas" width="64" height="64" aria-label="Skin pixel editor"></canvas><div class="je-grid" aria-hidden="true"></div></div><p id="je-coords" aria-live="polite">Move over the skin to see coordinates.</p><h3>Face preview</h3><canvas id="je-face" width="8" height="8" aria-label="Flat face preview"></canvas><p class="je-hint">The preview shows the flat face, not an animated in-game model. Guides open in a new tab so your edits stay here.</p></section></div></div>`;
+
 write("editor/index.html", page({
   title: "Skin eye editor - Fresh Moves Fix",
   active: "editor",
@@ -444,8 +477,9 @@ write("editor/index.html", page({
   depth: 1,
   body: `<div class="wrap editor-workspace-wrap"><article class="editor eye-workspace">
 <h1>${ICON.eye} Skin eye editor</h1>
+<div class="panel eye-mode-control"><label for="eye-editor-mode"><b>Resource pack / editor mode</b></label><select id="eye-editor-mode"><option value="fresh-moves">Fresh Moves 1.x</option><option value="just-expressions">Just Expressions 2.0</option></select><p id="eye-mode-note" role="status">Each mode uses a different marker layout. Switching keeps your skin pixels; changing presets can overwrite overlapping markers.</p><div id="fmf-unlock-notice" hidden><p>1.x editing is paused to protect your 2.0 pixels. Enabling it can replace overlapping markers and face pixels; download a backup first.</p><button type="button" class="btn" id="fmf-unlock">Enable 1.x editing</button></div></div>
 
-<div class="ed workspace-layout">
+<div class="ed workspace-layout" id="eye-main-layout">
   <div class="ed-col">
   <section class="panel ecard">
     <h3 class="ehead"><canvas id="skinicon" class="tool-img" width="8" height="8" style="background-image:url(../icon-skin.png)" aria-hidden="true"></canvas><span><b>1. Skin</b><small>Load your skin or start from Steve, Alex or a dummy</small></span></h3>
@@ -460,15 +494,15 @@ write("editor/index.html", page({
       <button type="button" class="pickb" data-name="Alex" data-type="2x1" data-pos="upper" data-skin="${skinData("slim/alex.png")}"><img src="../icon-alex.png" alt="" width="36" height="36"><span><b>Alex</b><small>Default skin</small></span></button>
       <button type="button" class="pickb" data-name="Dummy (custom skin)" data-skin="${"data:image/png;base64," + fs.readFileSync(path.join(here, "painter-dummy.png")).toString("base64")}"><img src="../icon-painter-dummy.png" alt="" width="36" height="36"><span><b>Dummy</b><small>Custom skin</small></span></button>
     </div>
-    <p class="elabel">Format</p>
+    <div id="fmf-format-controls"><p class="elabel">Format</p>
     <div class="pick">
       <label class="pickb"><input type="radio" name="fmt" id="fmtwide" value="default" checked><span><b>Steve</b><small>Wide arms</small></span></label>
       <label class="pickb"><input type="radio" name="fmt" id="fmtslim" value="slim"><span><b>Alex</b><small>Slim arms</small></span></label>
     </div>
-    <p class="ehint">${ICON.info} The format is guessed from the skin when you load it. If you pick the other one, the arms in the saved file are changed to fit it (Steve = 4 pixels wide, Alex = 3).</p>
+    <p class="ehint">${ICON.info} The format is guessed from the skin when you load it. If you pick the other one, the arms in the saved file are changed to fit it (Steve = 4 pixels wide, Alex = 3).</p></div>
 
   </section>
-  <section class="panel ecard">
+  <section class="panel ecard" id="fmf-eye-controls">
     <h3 class="ehead"><span class="tool-ic">${ICON.eye}</span><span><b>2. Eyes</b><small>Shape and place of the eyes, eyebrows, eyelashes, mouth</small></span></h3>
     <div class="eye-guide-links" aria-label="Eye and eyebrow guides">
       <a class="btn ghost" href="../guides/#eye-and-eyebrow-types">${ICON.book} Eye and eyebrow types</a>
@@ -514,7 +548,7 @@ write("editor/index.html", page({
 
   </section>
   </div>
-  <div class="ed-col workspace-side">
+  <div class="ed-col workspace-side" id="fmf-colour-controls">
   <section class="panel ecard">
     <h3 class="ehead"><span class="tool-ic">${ICON.brush}</span><span><b>3. Colours</b><small>Eyelid, eyes, eyebrows, eyelashes and mouth</small></span></h3>
     <p class="row"><label>Eyelid <input type="hidden" id="lid" value="#9b6349"><button type="button" class="sw" data-for="lid" aria-label="Choose colour"></button></label></p>
@@ -601,8 +635,9 @@ write("editor/index.html", page({
   </section>
   </div>
 </div>
+${jeEditorBody}
 
-<section class="text-card">
+<section class="text-card" id="fmf-testing">
 <h2 id="test">${ICON.info} How to test it in the game</h2>
 <p>A player confirmed that blinking and moving eyes worked in their game. Results may differ with other skins, eye shapes or versions. Use Minecraft Java Edition; the website preview cannot test the pack for you. Keep a copy of your original skin.</p>
 <ol class="steps">
@@ -622,7 +657,7 @@ write("editor/index.html", page({
 </ul>
 </section>
 
-<section class="editor-info-card">
+<section class="editor-info-card" id="fmf-info">
 <h2>${ICON.info} How it works</h2>
 <p>Choose the eye shape and position that match your skin. The editor adds marker pixels to the skin file; the pack reads those pixels to animate the eyes. The green outline in <b>Added pixels</b> shows the eye marker area. Other marker pixels can be elsewhere in the skin.</p>
 <ul>
@@ -639,7 +674,7 @@ write("editor/index.html", page({
 </article></div>
 <script src="../skinview3d.bundle.js"></script>
 <script src="../player.js?v=${ver("player.js")}"></script>
-<script src="../eye-detect.js?v=${ver("eye-detect.js")}"></script><script src="../editor.js?v=${ver("editor.js")}"></script>
+<script src="../eye-detect.js?v=${ver("eye-detect.js")}"></script><script src="../just-expressions-editor.js?v=${ver("just-expressions-editor.js")}"></script><script src="../editor.js?v=${ver("editor.js")}"></script>
 <script src="../ui.js?v=${ver("ui.js")}"></script>
 <script src="../backdrop.js?v=${ver("backdrop.js")}"></script>`,
 }));
@@ -1411,44 +1446,10 @@ write("creator/index.html", page({
   <section class="card creator-links"><h2>Video tutorials</h2><p>External videos for inspiration. They demonstrate other apps and techniques.</p><ul><li><a href="https://www.youtube.com/watch?v=mzI5Ta3tyu8" target="_blank" rel="noopener noreferrer">Bend Minecraft arms and legs — DNStream</a></li><li><a href="https://www.youtube.com/watch?v=or0ZFFpV578" target="_blank" rel="noopener noreferrer">Make Minecraft profile pictures — Klyzo</a></li><li><a href="https://www.youtube.com/watch?v=WiMgrCItWgo" target="_blank" rel="noopener noreferrer">Make Minecraft YouTube banners — DNStream</a></li><li><a href="https://www.youtube.com/watch?v=_Z2VFokwlbI" target="_blank" rel="noopener noreferrer">Add Minecraft highlights — DNStream</a></li></ul></section></div><script src="../creator.js?v=${ver("creator.js")}"></script>`,
 }));
 
-// ---------- guide-assisted Just Expressions editor ----------
-fs.copyFileSync(path.join(here, "just-expressions-editor.js"), path.join(out, "just-expressions-editor.js"));
+// Old links continue into the unified editor, with the 2.0 mode selected.
 write("just-expressions-editor/index.html", page({
-  title: "Just Expressions skin eye editor - Fresh Moves Fix", active: "creations", depth: 1,
-  description: "Paint skin pixels manually while following the Just Expressions 2.0 guides.",
-  body: `<div class="wrap je-editor" id="je-editor" data-default-skin="${skinData("wide/steve.png")}">
-<header class="tool-page-intro"><h1>${ICON.eye} Just Expressions skin eye editor</h1><p>Paint the skin pixels yourself while following the 2.0 guides. Your skin stays in your browser.</p></header>
-<div class="text-card"><strong>Guide-assisted editor:</strong> Presets add markers based on the 2.0 diagrams without redrawing the face. Some features need a Universal Mask; the mask tool can hide selected eyebrows and mouth using a chosen skin colour. Not all shapes are available yet; in-game compatibility is unverified. Keep a copy of your original skin.</div>
-<div class="je-layout"><section class="card je-controls"><h2>Skin and tools</h2>
-<label for="je-file">Upload a 64×64 skin PNG</label><input type="file" id="je-file" accept="image/png,.png">
-<button type="button" class="btn ghost" id="je-default">Use Steve</button>
-<h3>Automatic eye markers</h3><label for="je-eye-shape">Eye shape</label><select id="je-eye-shape"><option value="standard">Standard 2×1</option><option value="derp">Derp 2×1</option><option value="far">Far-set 2×1</option><option value="far-derp">Far-set derp 2×1</option><option value="square">Square 2×2</option><option value="square-far">Far-set square 2×2</option><option value="wide">Wide 3×1</option><option value="flat">Flat 3×1</option><option value="toon">Toon 2×3</option><option value="rectangle">Rectangle 3×2</option><option value="big">Big 3×2</option><option value="curious">Curious 2×2</option><option value="cyclops">Cyclops 2×4</option><option value="lateral">Lateral 2×1</option><option value="single-big">Single eye — big pupil</option><option value="single-small">Single eye — small pupil</option><option value="dots-close">Close-set dots 1×1</option><option value="dots-far">Far-set dots 1×1</option><option value="short-close">Close-set short 1×2</option><option value="short-far">Far-set short 1×2</option><option value="long-close">Close-set long 1×3</option><option value="long-far">Far-set long 1×3</option></select>
-<label for="je-eye-position">Position on the face (standard, square, wide and flat)</label><select id="je-eye-position"><option value="upper">Upper middle</option><option value="lower">Lower middle</option><option value="top">Top</option><option value="bottom">Bottom</option><option value="super">Super top (1-high eyes)</option></select>
-<div id="je-toon-options" hidden><label for="je-toon-position">Toon position</label><select id="je-toon-position"><option value="bottom">Bottom</option><option value="mid">Middle</option><option value="top">Top</option></select></div>
-<div id="je-curious-options" hidden><label for="je-curious-position">Curious / cyclops position</label><select id="je-curious-position"><option value="bottom">Bottom</option><option value="top">Top</option></select></div>
-<div id="je-dot-options" hidden><label for="je-dot-position">Dots / short / long: bottom eye row</label><select id="je-dot-position"><option value="6">Bottom (row 6)</option><option value="5">Row 5</option><option value="4">Row 4</option><option value="3">Row 3</option><option value="2">Row 2</option><option value="1">Top (row 1, dots only)</option></select><p class="je-hint">These eyes require a Universal Mask. Short and long markers store one colour per eye, copied from the bottom pixel; use a single colour per eye.</p></div>
-<p class="je-hint">First make sure your skin already has matching eyes at this position. The preset copies their colours and eyelids; it does not redraw the face. Rectangle and big use the guide’s single layout (face rows 4–5); far-set square uses face rows 3–4. Lateral eyes copy the side-head textures at row 2. Far-set square, cyclops and single-eye markers may affect slim arm textures.</p>
-<button type="button" class="btn ghost" id="je-apply-eye" disabled>Apply eye markers</button>
-<h3>Eyebrows and mouth</h3><label for="je-brow">Eyebrows</label><select id="je-brow"><option value="regular-top">Regular — top</option><option value="regular-upper">Regular — upper middle</option><option value="regular-lower">Regular — lower middle</option><option value="regular-bottom">Regular — bottom</option><option value="regular-super">Regular — super top</option><option value="layer-top">Second layer — top</option><option value="layer-upper">Second layer — upper middle</option><option value="layer-lower">Second layer — lower middle</option><option value="layer-bottom">Second layer — bottom</option></select>
-<label for="je-brow-color">Eyebrow colour</label><input id="je-brow-color" type="color" value="#463124"><button type="button" class="btn ghost" id="je-apply-brow" disabled>Apply eyebrow markers</button>
-<label for="je-mouth">Mouth</label><select id="je-mouth"><option value="top-long">Top — long</option><option value="top-short">Top — short</option><option value="bottom-long">Bottom — long</option><option value="bottom-short">Bottom — short</option></select>
-<label for="je-mouth-color">Mouth colour</label><input id="je-mouth-color" type="color" value="#c4826a"><button type="button" class="btn ghost" id="je-apply-mouth" disabled>Apply mouth markers</button>
-<p class="je-hint">Eyebrows and mouths require a Universal Mask. Optional hiding uses the selected preset positions, not feature detection. Row sampling approximates shading from adjacent pixels and can pick up hair or features; use a solid colour instead if needed. Check the mask and edit it manually, including eyes and eyelashes. The original face is unchanged.</p>
-<label><input id="je-mask-brow" type="checkbox"> Hide selected eyebrows on mask</label>
-<label><input id="je-mask-mouth" type="checkbox"> Hide selected mouth on mask</label>
-<label><input id="je-mask-dots" type="checkbox"> Hide selected dots / short / long eyes on mask</label>
-<label for="je-mask-mode">Mask fill</label><select id="je-mask-mode"><option value="sample">Sample adjacent pixels on each row</option><option value="solid">Use a solid colour</option></select>
-<label for="je-mask-color">Solid colour / transparent-sample fallback</label><input id="je-mask-color" type="color" value="#c4826a">
-<button type="button" class="btn ghost" id="je-copy-mask" disabled>Copy face to Universal Mask</button>
-<label for="je-guide">Guide</label><select id="je-guide">${jeGuides.map(([label]) => `<option value="${jeSlug(label)}">${esc(label)}</option>`).join("")}</select>
-<a class="btn ghost" id="je-guide-link" href="../guides/just-expressions/${jeSlug(jeGuides[0][0])}/" target="_blank" rel="noopener noreferrer">${ICON.book} Open selected guide</a>
-<label for="je-view">Skin area</label><select id="je-view"><option value="full">Whole skin (64×64)</option><option value="face">Face (8×8)</option><option value="top-left">Top-left (8×8)</option><option value="top-right">Top-right (8×8)</option></select>
-<label for="je-color">Paint colour</label><input id="je-color" type="color" value="#ffffff">
-<div class="je-buttons" role="group" aria-label="Drawing tool"><button type="button" class="btn" data-je-tool="brush" aria-pressed="true">Paint</button><button type="button" class="btn ghost" data-je-tool="eraser" aria-pressed="false">Erase</button><button type="button" class="btn ghost" data-je-tool="picker" aria-pressed="false">Pick colour</button></div>
-<div class="je-buttons"><button type="button" class="btn ghost" id="je-undo" disabled>Undo</button><button type="button" class="btn ghost" id="je-reset" disabled>Reset skin</button></div>
-<button type="button" class="btn" id="je-save" disabled>${ICON.down} Download skin</button><p id="je-status" role="status" aria-live="polite">Loading Steve…</p>
-</section><section class="card je-workspace"><h2>Skin pixels</h2><p>Click or drag to paint one pixel at a time. Use Pick colour to sample the skin. The coordinates are PNG pixels, starting at 0.</p><div class="je-canvas-wrap"><canvas id="je-canvas" width="64" height="64" aria-label="Skin pixel editor"></canvas><div class="je-grid" aria-hidden="true"></div></div><p id="je-coords" aria-live="polite">Move over the skin to see coordinates.</p><h3>Face preview</h3><canvas id="je-face" width="8" height="8" aria-label="Flat face preview"></canvas><p class="je-hint">The preview shows the flat face, not an animated in-game model. Guides open in a new tab so your edits stay here.</p></section></div></div>
-<script src="../just-expressions-editor.js?v=${ver("just-expressions-editor.js")}"></script>`,
+  title: "Just Expressions skin eye editor - Fresh Moves Fix", active: "editor", depth: 1,
+  body: `<div class="wrap"><p>The Just Expressions tools have moved into the Skin eye editor.</p><p><a class="btn" href="../editor/?mode=just-expressions">Open the unified editor</a></p></div><script>location.replace('../editor/?mode=just-expressions' + location.hash);</script>`,
 }));
 
 // ---------- projects ----------
@@ -1462,7 +1463,6 @@ write("creations/index.html", page({
   <a class="project-card" data-project-card="pack" href="../#download"><img class="project-pack-image" src="../pack.png" alt="" width="112" height="112"><h2>Fresh Moves Fix</h2><p>Player animations and animated eyes for Minecraft Java.</p><span class="project-link-label">View downloads ${ICON.right}</span></a>
   <a class="project-card" data-project-card="paint" href="../paint/"><img src="../icon-paint-pixel.svg" alt="" width="112" height="112"><h2>Skin Painter 3D</h2><p>Paint a skin pixel by pixel in your browser.</p><span class="project-link-label">Open painter ${ICON.right}</span></a>
   <a class="project-card" data-project-card="editor" href="../editor/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Skin eye editor</h2><p>Add animated eye markers to your skin.</p><span class="project-link-label">Open editor ${ICON.right}</span></a>
-  <a class="project-card" href="../just-expressions-editor/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Just Expressions skin eye editor</h2><p>Paint skin pixels manually with the 2.0 guides.</p><span class="project-link-label">Open editor ${ICON.right}</span></a>
   <a class="project-card" data-project-card="pfp" href="../pfp/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Minecraft PFP Maker</h2><p>Create a 3D profile picture from your skin.</p><span class="project-link-label">Open PFP maker ${ICON.right}</span></a>
   <a class="project-card" data-project-card="creator" href="../creator/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Creator Studio</h2><p>Make a channel banner and explore creator tools.</p><span class="project-link-label">Open creator studio ${ICON.right}</span></a>
   <a class="project-card" data-project-card="title" href="../title/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Title</h2><p>Make and download a block-letter title picture.</p><span class="project-link-label">Open title maker ${ICON.right}</span></a>
