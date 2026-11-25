@@ -10,7 +10,7 @@ function setup(query = '', withViewer = false) {
  w.Image=class {constructor(){this.width=64;this.height=64;this.data=fixture;}set src(v){imageQueue.push(this)}};
  w.FileReader=class {readAsDataURL(f){this.result=f.data;f.reader=this}};
  w.FMFPlayer={EMOTES:{},MOVES:{},moveOf(){},LOOP:{},buildGltf(){},SoftViewer:withViewer ? class{constructor(){this.soft=true;}loadSkin(canvas){frames.push(new Uint8ClampedArray(canvas.getContext('2d').state.data));}dispose(){}} : class{constructor(){throw Error('no preview')}}};
- w.confirm=()=>true;w.eval(fs.readFileSync('website/je-thumbnails.js','utf8'));w.eval(fs.readFileSync('website/just-expressions-editor.js','utf8'));w.eval(fs.readFileSync('website/editor.js','utf8'));
+ w.confirm=()=>true;w.eval(fs.readFileSync('website/eye-detect.js','utf8'));w.eval(fs.readFileSync('website/je-thumbnails.js','utf8'));w.eval(fs.readFileSync('website/just-expressions-editor.js','utf8'));w.eval(fs.readFileSync('website/editor.js','utf8'));
  const finish=()=>{let img=imageQueue.shift();assert(img);img.onload()};
  const switchTo=(mode)=>{let e=d.getElementById('eye-editor-mode');e.value=mode;e.dispatchEvent(new w.Event('change'))};
  const upload=(file)=>{let input=d.getElementById('file');Object.defineProperty(input,'files',{value:[file],configurable:true});input.dispatchEvent(new w.Event('change'))};
@@ -68,5 +68,20 @@ function setup(query = '', withViewer = false) {
  assert.notDeepEqual(Array.from(skin.slice(at(58,6),at(58,6)+4)),[196,130,106,255],'automatic mask hides the mouth');
  assert.deepEqual(Array.from(frames[frames.length-1].slice(at(10,14),at(10,14)+4)),[196,130,106,255],'3D preview updates');d.getElementById('save').click();assert.deepEqual(Array.from(getExport()),Array.from(skin),'export includes face, marker and mask');
  d.getElementById('je-mask-toggle').click();assert(!d.getElementById('je-mask-toggle').checked);const shown=Array.from(w.JustExpressionsEditor.getSkin());pick('Top — long');assert(d.getElementById('je-mask-toggle').checked,'choosing the same preset re-enables hiding');d.getElementById('je-undo').click();assert(!d.getElementById('je-mask-toggle').checked);assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),shown,'undo restores prior show state');dom.window.close();
+}
+{
+ const {dom,w,d,fixture,finish,frames,getExport}=setup('?mode=just-expressions',true);finish();const at=(x,y)=>(y*64+x)*4;
+ const skin=new Uint8ClampedArray(fixture);for(let y=8;y<16;y++)for(let x=0;x<24;x++)skin.set([150,100,75,255],at(x,y));
+ for(const [x,c] of [[1,[245,245,245,255]],[2,[60,55,140,255]],[5,[60,55,140,255]],[6,[245,245,245,255]]])skin.set(c,at(8+x,13));
+ w.JustExpressionsEditor.setSkin(skin,'Eyes',true);
+ const shape=d.getElementById('je-eye-shape'),menu=shape.nextElementSibling;
+ const pick=value=>{menu.querySelector('.dd-btn').click();const opt=[...menu.querySelectorAll('.dd-opt')].find(b=>b.querySelector('canvas').dataset.value===value);const candidate=Array.from(opt.querySelector('canvas').getContext('2d').state.data);opt.click();return candidate;};
+ for(const value of Array.from(shape.options).map(o=>o.value).filter(v=>v!=='keep')) {
+  const candidate=pick(value),selected=w.JustExpressionsEditor.getSkin();assert.equal(shape.value,value);
+  for(let y=0;y<8;y++)for(let x=0;x<8;x++)assert.deepEqual(candidate.slice((y*8+x)*4,(y*8+x)*4+4),Array.from(selected.slice(at(8+x,8+y),at(8+x,8+y)+4)),value+' thumbnail matches painted face');
+  assert.deepEqual(Array.from(frames[frames.length-1]),Array.from(selected),value+' 3D preview updates');d.getElementById('save').click();assert.deepEqual(Array.from(getExport()),Array.from(selected),value+' exported');
+ }
+ pick('dots-close');d.getElementById('je-mask-toggle').click();assert(!d.getElementById('je-mask-toggle').checked);const hiddenOff=Array.from(w.JustExpressionsEditor.getSkin());pick('dots-close');assert(d.getElementById('je-mask-toggle').checked,'reselecting dots enables hiding');d.getElementById('je-undo').click();assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),hiddenOff);
+ pick('keep');assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),Array.from(skin),'keep restores uploaded eyes');dom.window.close();
 }
 console.log('Unified editor mode transfer, download, undo, overwrite safety, validation and async races passed');
