@@ -695,7 +695,10 @@
       if (!window.FMFJEThumbnail || !g.createImageData || !g.putImageData) return;
       const image = g.createImageData(8, 8);
       if (current) {
-        const face = faceComposite(current);
+        const isEyeOption = ["je-eye-shape", "je-eye-position", "je-toon-position", "je-curious-position", "je-dot-position"].includes(sel.id);
+        const replace = sel.id === "je-eye-shape" ? value !== "keep" : $("je-eye-shape").value !== "keep";
+        const base = isEyeOption && window.JustExpressionsEditor ? window.JustExpressionsEditor.eyeThumbnailBase(replace) : null;
+        const face = faceComposite(base ? new ImageData(base, 64, 64) : current);
         for (let y=0;y<8;y++) for (let x=0;x<8;x++) {
           const from=idx(8+x,8+y), to=(y*8+x)*4;
           for (let k=0;k<4;k++) image.data[to+k]=face.data[from+k];
@@ -705,7 +708,7 @@
       const state = { shape: $("je-eye-shape").value, position: $("je-eye-position").value,
         toon: $("je-toon-position").value, curious: $("je-curious-position").value, dot: $("je-dot-position").value,
         white: $("je-eye-white").value, pupil: $("je-eye-pupil").value, lid: (detected && detected.lid) || $("lid").value,
-        brow: $("je-brow-color").value, mouth: $("je-mouth-color").value, oldCells: (detected && detected.cells) || [] };
+        brow: $("je-brow-color").value, mouth: $("je-mouth-color").value, oldCells: [] };
       image.data.set(window.FMFJEThumbnail.pixels(image.data, sel.id, value, state));
       g.putImageData(image,0,0); return;
     }
@@ -755,7 +758,9 @@
           b.setAttribute("role", "option"); b.setAttribute("aria-selected", o === cur ? "true" : "false"); if (o.disabled) b.setAttribute("aria-disabled", "true");
           b.addEventListener("click", (e) => {
             e.preventDefault(); m.close(); btn.focus();
-            const reenableMask = ["je-brow", "je-mouth"].includes(sel.id) && o.value !== "keep" && !$("je-mask-toggle").checked;
+            const needsEyeMask = sel.id === "je-eye-shape" && /^(dots|short|long)-(close|far)$/.test(o.value);
+            const reenableMask = (["je-brow", "je-mouth"].includes(sel.id) && o.value !== "keep" && !$("je-mask-toggle").checked) ||
+              (needsEyeMask && (!$("je-mask-toggle").checked || !$("je-mask-dots").checked));
             if (sel.value !== o.value || reenableMask) { sel.value = o.value; sel.dispatchEvent(new Event("change")); sel.dispatchEvent(new Event("input")); }
             syncMenus();
           });

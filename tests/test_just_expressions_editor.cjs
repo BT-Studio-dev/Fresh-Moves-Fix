@@ -14,6 +14,7 @@ w.HTMLCanvasElement.prototype.toDataURL = function(){saved=new Uint8ClampedArray
 w.HTMLAnchorElement.prototype.click=function(){download=this.download;};
 let badSize=false;w.Image=class {constructor(){this.width=badSize?32:64;this.height=64;}set src(value){this.onload();}};
 w.FileReader=class {readAsDataURL(){this.result='data:image/png;base64,AA==';this.onload();}};
+w.eval(fs.readFileSync('website/eye-detect.js', 'utf8'));
 w.eval(fs.readFileSync('website/je-thumbnails.js', 'utf8'));
 w.eval(fs.readFileSync('website/just-expressions-editor.js', 'utf8'));
 const canvas=d.getElementById('je-canvas');canvas.getBoundingClientRect=()=>({left:0,top:0,right:640,bottom:640,width:640,height:640});
@@ -62,6 +63,64 @@ for(const [shape,x,y] of [['standard',4,2],['derp',4,2],['far',0,2],['far-derp',
 for (const [place,x,y] of [['top',28,2],['upper',28,5],['lower',24,2],['bottom',24,5]]){resetDefault();$('je-eye-position').value=place;change('je-eye-shape','square');assert.equal(px(save(),x,y)[3],255,`square ${place}`);}
 for (const [shape,min] of [['dots-close',1],['dots-far',1],['short-close',2],['short-far',2],['long-close',3],['long-far',4]]) for(let row=min;row<=6;row++) {resetDefault();$('je-dot-position').value=String(row);change('je-eye-shape',shape);const [kind,spacing]=shape.split('-'),base=kind==='short'?56:60,x=spacing==='far'?base:base+1,y=(kind==='long'?35:41)+row;assert.equal(px(save(),x,y)[3],255,`${shape} row ${row}`);}
 resetDefault();change('je-eye-shape','standard');let upper=Array.from(save());change('je-eye-position','bottom');assert.equal(px(save(),4,2)[3],0,'previous generated eye markers are removed');assert.equal(px(save(),4,6)[3],255);undo();assert.deepEqual(Array.from(save()),upper);assert.equal($('je-eye-position').value,'upper','undo restores dropdown');
+// Realistic uploaded eyes are replaced, not left underneath the new shape.
+function ordinaryEyesSkin() {
+ resetDefault(); const data=save();
+ for(let y=0;y<8;y++)for(let x=0;x<8;x++) data.set([150,100,75,255],((8+y)*64+8+x)*4);
+ for(const [x,c] of [[1,[245,245,245,255]],[2,[60,55,140,255]],[5,[60,55,140,255]],[6,[245,245,245,255]]]) data.set(c,((8+5)*64+8+x)*4);
+ return data;
+}
+const shapes=Array.from($('je-eye-shape').options).map(o=>o.value).filter(v=>v!=='keep');
+for(const shape of shapes) {
+ const original=ordinaryEyesSkin();w.JustExpressionsEditor.setSkin(original,'Ordinary eyes',true);
+ const before=Array.from(save());change('je-eye-shape',shape);
+ assert.equal($('je-eye-shape').value,shape,shape+' successfully selected');
+ const state={shape,position:$('je-eye-position').value,toon:$('je-toon-position').value,curious:$('je-curious-position').value,dot:$('je-dot-position').value,white:'#112233',pupil:'#445566',oldCells:[]};
+ const layout=w.FMFJEThumbnail.pixels(new Uint8ClampedArray(256),'je-eye-shape',shape,state);
+ for(let y=0;y<8;y++)for(let x=0;x<8;x++) {
+  const i=(y*8+x)*4;
+  if(layout[i+3]) assert.deepEqual(px(save(),8+x,8+y),layout[i]===17?[255,255,255,255]:[56,56,56,255],shape+' face '+x+','+y);
+  else if(y===5 && [1,2,5,6].includes(x)) assert.deepEqual(px(save(),8+x,8+y),[150,100,75,255],shape+' removes old eyes');
+ }
+ if (/^(dots|short|long)-/.test(shape)) {assert($('je-mask-toggle').checked);assert($('je-mask-dots').checked);}
+ const selected=Array.from(save());change('je-eye-shape','keep');assert.deepEqual(Array.from(save()),before,shape+' keep restores eyes, markers and mask');
+ undo();assert.deepEqual(Array.from(save()),selected,shape+' undo keep');undo();assert.deepEqual(Array.from(save()),before,shape+' undo selection');
+}
+// Steve-like dark hair must not be used as the fill for removed eye pixels.
+{
+ const original=ordinaryEyesSkin();for(const [x,y] of [[0,2],[7,2],[3,1],[4,1]])original.set([43,30,13,255],((8+y)*64+8+x)*4);
+ w.JustExpressionsEditor.setSkin(original,'Hairline',true);change('je-eye-shape','wide');
+ assert.deepEqual(px(save(),9,13),[150,100,75,255],'same-row face colour, not dark hair, fills old eyes');
+ change('je-eye-shape','keep');assert.deepEqual(Array.from(save()),Array.from(original));
+}
+// Exercise all available position choices with visible geometry and transactional restoration.
+for(const [shape,control,positions] of [
+ ...['standard','derp','far','far-derp','wide','flat'].map(s=>[s,'je-eye-position',['super','top','upper','lower','bottom']]),
+ ['square','je-eye-position',['top','upper','lower','bottom']], ['toon','je-toon-position',['top','mid','bottom']],
+ ...['curious','cyclops'].map(s=>[s,'je-curious-position',['top','bottom']]),
+ ...[['dots-close',1],['dots-far',1],['short-close',2],['short-far',2],['long-close',3],['long-far',4]].map(([s,min])=>[s,'je-dot-position',Array.from({length:7-min},(_,i)=>String(i+min))])
+]) for(const position of positions) {
+ const original=ordinaryEyesSkin();w.JustExpressionsEditor.setSkin(original,'Positions',true);
+ $(control).value=position;change('je-eye-shape',shape);assert.equal($(control).value,position,shape+' accepts '+position);
+ const state={shape,position:$('je-eye-position').value,toon:$('je-toon-position').value,curious:$('je-curious-position').value,dot:$('je-dot-position').value,white:'#112233',pupil:'#445566',oldCells:[]};
+ const layout=w.FMFJEThumbnail.pixels(new Uint8ClampedArray(256),'je-eye-shape',shape,state);
+ for(let i=0;i<64;i++)if(layout[i*4+3])assert.deepEqual(px(save(),8+i%8,8+Math.floor(i/8)),layout[i*4]===17?[255,255,255,255]:[56,56,56,255],`${shape} ${position} face`);
+ change('je-eye-shape','keep');assert.deepEqual(Array.from(save()),Array.from(original),`${shape} ${position} restores original`);
+}
+// Moving an eye removes the previous preset, restores the old mask when no longer needed,
+// and keeps changes made manually to old-eye pixels.
+{
+ const original=ordinaryEyesSkin();w.JustExpressionsEditor.setSkin(original,'Ordinary eyes',true);
+ change('je-eye-shape','wide');const wide=Array.from(save());change('je-eye-position','bottom');
+ assert.deepEqual(px(save(),8,11),[150,100,75,255],'previous wide eye position restored');
+ undo();assert.deepEqual(Array.from(save()),wide,'position undo');
+ change('je-eye-shape','dots-close');assert($('je-mask-dots').checked);assert.notDeepEqual(px(save(),56,0),px(original,56,0));
+ change('je-eye-shape','standard');assert.deepEqual(px(save(),56,0),px(original,56,0),'leaving dots restores unused mask');
+ change('je-eye-shape','keep');assert.deepEqual(Array.from(save()),Array.from(original));
+ w.JustExpressionsEditor.setSkin(original,'Ordinary eyes',true);$('je-view').value='full';$('je-view').dispatchEvent(new w.Event('change'));$('je-color').value='#aabbcc';pointer('pointerdown',95,135);pointer('pointerup',95,135);
+ change('je-eye-shape','wide');assert.deepEqual(px(save(),9,13),[170,187,204,255],'manual edit at old eye is not replaced by detection');
+ change('je-eye-shape','keep');assert.deepEqual(px(save(),9,13),[170,187,204,255],'keep preserves manual edit');
+}
 // Overlap replacement does not prompt; unknown non-target pixels survive, and undo restores the entire skin.
 resetDefault();let data=save();data.set([90,80,70,255],(2*64+4)*4);data.set([3,4,5,255],(0*64+4)*4);w.JustExpressionsEditor.setSkin(data,'Existing',true);const occupied=Array.from(save());change('je-eye-shape','standard');assert.notDeepEqual(px(save(),4,2),[90,80,70,255]);assert.deepEqual(px(save(),4,0),[3,4,5,255]);assert.match($('je-status').textContent,/Other marker-area pixels were preserved/);undo();assert.deepEqual(Array.from(save()),occupied);
 // Transparent source pixels reject a selection without changing the previous state.
