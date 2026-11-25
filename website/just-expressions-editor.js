@@ -30,7 +30,7 @@
     $('je-reset').disabled = !original || !pixels.some((value, index) => value !== original[index]);
     if (window.JustExpressionsEditor && window.JustExpressionsEditor.onChange) window.JustExpressionsEditor.onChange(new Uint8ClampedArray(pixels));
   }
-  const controlIds = ['je-eye-shape','je-eye-position','je-toon-position','je-curious-position','je-dot-position','je-brow','je-mouth','je-brow-color','je-mouth-color','je-mask-toggle','je-mask-dots','je-mask-mode','je-mask-color'];
+  const controlIds = ['je-eye-shape','je-eye-position','je-toon-position','je-curious-position','je-dot-position','je-brow','je-mouth','je-brow-color','je-mouth-color','je-eye-white','je-eye-pupil','je-mask-toggle','je-mask-dots','je-mask-mode','je-mask-color'];
   let active = { brow: null, mouth: null }, ownership = new Uint8Array(4096), patches = { eye: [], brow: [], mouth: [] };
   let committed = controls(), otherMarkers = false;
   function controls() { const result = {}; for (const id of controlIds) { const e = $(id); result[id] = e.type === 'checkbox' ? e.checked : e.value; } return result; }
@@ -96,6 +96,30 @@
       draw(); status((name || 'Skin') + ' ready. Choose a preset or open the manual tools.');
     },
     getSkin() { return pixels && new Uint8ClampedArray(pixels); },
+    getOriginal() { return original && new Uint8ClampedArray(original); },
+    hasEye() { return !!pixels && $('je-eye-shape').value !== 'keep' && patches.eye.length > 0; },
+    eyeFrame(data, state) {
+      const out = new Uint8ClampedArray(data), cells = featureCells('je-eye-shape', $('je-eye-shape').value);
+      if (!cells.length) return out;
+      const eyeSet = new Set(cells.map(c => c.y * 8 + c.x));
+      if (state === 'shut') for (const cell of cells) {
+        const candidates = [];
+        for (let row=0; row<8; row++) for (let col=0; col<8; col++) {
+          const i=at(8+col,8+row);
+          if (!eyeSet.has(row*8+col) && data[i+3] === 255) candidates.push({i, distance: Math.abs(row-cell.y)*2+Math.abs(col-cell.x)});
+        }
+        candidates.sort((a,b)=>a.distance-b.distance);
+        if (candidates.length) out.set(data.subarray(candidates[0].i,candidates[0].i+4),at(8+cell.x,8+cell.y));
+      } else {
+        for (let row=0;row<8;row++) for (let side=0;side<2;side++) {
+          const group=cells.filter(c=>c.y===row && (c.x>=4?1:0)===side).sort((a,b)=>a.x-b.x);
+          if (group.length<2 || !group.some(c=>c.role==='white') || !group.some(c=>c.role==='pupil')) continue;
+          const pupil=state==='left'?group[0].x:group[group.length-1].x;
+          for (const c of group) out.set(colour(c.x===pupil ? $('je-eye-pupil').value : $('je-eye-white').value), at(8+c.x,8+c.y));
+        }
+      }
+      return out;
+    },
     onChange: null
   };
   $('je-guide').addEventListener('change', function () { $('je-guide-link').href = '../guides/just-expressions/' + encodeURIComponent(this.value) + '/'; });
@@ -105,11 +129,30 @@
     return zones.some(([zx,zy,zw,zh]) => { for (let j=zy;j<zy+zh;j++) for (let i=zx;i<zx+zw;i++) if (!(i>=x && i<x+width && j>=y && j<y+height) && pixels[at(i,j)+3]) return true; return false; });
   }
   function colour(hex) { return [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)).concat(255); }
+  function featureCells(id, value) {
+    if (!window.FMFJEThumbnail || value === 'keep') return [];
+    // Distinct sentinel colours preserve the geometry even when chosen colours match.
+    const state = { shape: $('je-eye-shape').value, position: $('je-eye-position').value,
+      toon: $('je-toon-position').value, curious: $('je-curious-position').value, dot: $('je-dot-position').value,
+      white: '#112233', pupil: '#445566', brow: '#778899', mouth: '#aabbcc', oldCells: [] };
+    const layout = window.FMFJEThumbnail.pixels(new Uint8ClampedArray(256), id, value, state), cells=[];
+    for (let i=0;i<64;i++) if (layout[i*4+3]) cells.push({x:i%8, y:Math.floor(i/8), role:layout[i*4]===17?'white':layout[i*4]===68?'pupil':'feature'});
+    return cells;
+  }
+  function paintFeature(id, value, color, layer) {
+    for (const cell of featureCells(id, value)) {
+      const face=at(8+cell.x,8+cell.y), hat=at(40+cell.x,8+cell.y);
+      const chosen = id === 'je-eye-shape' ? (cell.role === 'white' ? $('je-eye-white').value : $('je-eye-pupil').value) : color;
+      if (layer) pixels.set(colour(chosen),hat);
+      else { pixels.set(colour(chosen),face); if (pixels[hat+3]) pixels.fill(0,hat,hat+4); }
+    }
+  }
   // Coordinates are transcribed from the Just Expressions 2.0 guide diagrams.
-  // The existing face is never repainted or used as metadata storage.
+  // Selected facial features are painted first; marker sources are sampled afterward.
   function applyEye() {
     if (!pixels) return;
     const position = $('je-eye-position').value, shape = $('je-eye-shape').value;
+    paintFeature('je-eye-shape', shape, null, false);
     const standard = { super: [2, 24, 0], top: [3, 4, 0], upper: [4, 4, 2], lower: [5, 4, 4], bottom: [6, 4, 6] };
     const square = { top: [2, 28, 2], upper: [3, 28, 5], lower: [4, 24, 2], bottom: [5, 24, 5] };
     if (shape === 'toon' || shape === 'rectangle' || shape === 'big' || shape === 'square-far' || shape === 'curious' || shape === 'cyclops' || shape === 'lateral' || shape === 'single-big' || shape === 'single-small' || /^(dots|short|long)-(close|far)$/.test(shape)) {
@@ -211,6 +254,7 @@
     const options = { 'regular-top': [28, 48, 6], 'regular-upper': [28, 49, 6], 'regular-lower': [28, 50, 6], 'regular-bottom': [28, 51, 6], 'regular-super': [14, 48, 6], 'layer-top': [34, 48, 2], 'layer-upper': [34, 49, 2], 'layer-lower': [34, 50, 2], 'layer-bottom': [34, 51, 2] };
     const selected = options[$('je-brow').value]; if (!selected) return false;
     const [x, y, width] = selected;
+    paintFeature('je-brow', $('je-brow').value, $('je-brow-color').value, $('je-brow').value.startsWith('layer-'));
     otherMarkers = otherPixels([[28,48,8,4],[14,48,6,1]], x, y, width, 1);
     for (let i=0;i<width;i++) pixels.set(colour($('je-brow-color').value), at(x+i,y));
     active.brow = $('je-brow').value; return true;
@@ -219,6 +263,7 @@
     const options = { 'top-long': [50, 16, 4], 'top-short': [50, 17, 2], 'bottom-long': [51, 16, 4], 'bottom-short': [51, 17, 2] };
     const selected = options[$('je-mouth').value]; if (!selected) return false;
     const [y, x, width] = selected;
+    paintFeature('je-mouth', $('je-mouth').value, $('je-mouth-color').value, false);
     otherMarkers = otherPixels([[16,50,4,2]], 16, y, 4, 1);
     clearArea(16, y, 4, 1); for (let i=0;i<width;i++) pixels.set(colour($('je-mouth-color').value), at(x+i,y));
     active.mouth = $('je-mouth').value; return true;
@@ -289,12 +334,12 @@
   canvas.addEventListener('pointerup', stop); canvas.addEventListener('pointercancel', stop); canvas.addEventListener('lostpointercapture', stop);
   $('je-undo').addEventListener('click', function () { if (!history.length) return; restore(history.pop()); draw(); status('Undid the last edit.'); });
   $('je-reset').addEventListener('click', function () { if (!original || !pixels) return; remember(); pixels = new Uint8ClampedArray(original); ownership = new Uint8Array(4096); patches = { eye: [], brow: [], mouth: [] }; active = { brow: null, mouth: null }; $('je-eye-shape').value = $('je-brow').value = $('je-mouth').value = 'keep'; syncOptions(); committed = controls(); document.dispatchEvent(new Event('je-controls-sync')); draw(); status('Skin reset to the loaded image.'); });
-  $('je-eye-shape').addEventListener('change', function () { syncOptions(); if (this.value !== 'keep') transact('eye', applyEye, $('je-mask-dots').checked); else committed = controls(); });
-  for (const id of ['je-eye-position','je-toon-position','je-curious-position','je-dot-position']) $(id).addEventListener('change', function () { if ($('je-eye-shape').value !== 'keep') transact('eye', applyEye, $('je-mask-dots').checked); else committed = controls(); });
+  $('je-eye-shape').addEventListener('change', function () { syncOptions(); if (this.value !== 'keep') transact('eye', applyEye, $('je-mask-dots').checked || !!active.brow || !!active.mouth); else committed = controls(); });
+  for (const id of ['je-eye-position','je-toon-position','je-curious-position','je-dot-position']) $(id).addEventListener('change', function () { if ($('je-eye-shape').value !== 'keep') transact('eye', applyEye, $('je-mask-dots').checked || !!active.brow || !!active.mouth); else committed = controls(); });
   $('je-brow').addEventListener('change', function () { if (this.value !== 'keep') transact('brow', applyBrow, true); else committed = controls(); });
   $('je-mouth').addEventListener('change', function () { if (this.value !== 'keep') transact('mouth', applyMouth, true); else committed = controls(); });
-  for (const [id, group, select, apply] of [['je-brow-color','brow','je-brow',applyBrow], ['je-mouth-color','mouth','je-mouth',applyMouth]]) {
-    const update = () => { if ($(id).value === committed[id]) return; if ($(select).value !== 'keep') transact(group, apply, true); else committed = controls(); };
+  for (const [id, group, select, apply] of [['je-brow-color','brow','je-brow',applyBrow], ['je-mouth-color','mouth','je-mouth',applyMouth], ['je-eye-white','eye','je-eye-shape',applyEye], ['je-eye-pupil','eye','je-eye-shape',applyEye]]) {
+    const update = () => { if ($(id).value === committed[id]) return; if ($(select).value !== 'keep') transact(group, apply, group !== 'eye' || $('je-mask-dots').checked || !!active.brow || !!active.mouth); else committed = controls(); };
     $(id).addEventListener('input', update); $(id).addEventListener('change', update);
   }
   for (const id of ['je-mask-toggle','je-mask-dots','je-mask-mode','je-mask-color']) {
