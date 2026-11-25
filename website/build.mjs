@@ -343,6 +343,7 @@ write("keybinds/index.html", page({ title: "Keybinds - Fresh Moves Fix", active:
 // the two default skins are embedded in the page, so the editor needs no extra requests
 const skinData = (p) => "data:image/png;base64," + fs.readFileSync(path.join(root, "assets/minecraft/textures/entity/player", p)).toString("base64");
 fs.copyFileSync(path.join(here, "editor.js"), path.join(out, "editor.js"));
+fs.copyFileSync(path.join(here, "eye-detect.js"), path.join(out, "eye-detect.js"));
 fs.copyFileSync(path.join(here, "paint.js"), path.join(out, "paint.js"));
 fs.copyFileSync(path.join(here, "render.js"), path.join(out, "render.js"));
 fs.copyFileSync(path.join(here, "pfp.js"), path.join(out, "pfp.js"));
@@ -420,6 +421,7 @@ write("editor/index.html", page({
         <option value="h5">On the hat layer, bottom (above the eyes)</option>
         <option value="villager">Villager (one long eyebrow, above the eyes)</option>
       </select></label></p>
+    <p class="ehint" id="brow-fit-note" role="status" aria-live="polite"></p>
     </div>
     <p><label>Mouth
       <select id="mouth">
@@ -431,7 +433,7 @@ write("editor/index.html", page({
         <option value="none">No mouth (plain skin, under the eyes)</option>
       </select></label></p>
     <label class="pickb wide" id="lashwrap"><input type="checkbox" id="lash"><span><b>Eyelashes</b><small>Only with the eye shape "2 wide, 2 tall" at the position "Bottom".</small></span></label>
-    <div class="ehint eye-tip">${ICON.info} <div><b>Eyebrows and eyelashes</b><p>Hat-layer eyebrows and eyelashes appear in-game, not in this preview. They have not been tested in-game.</p></div></div>
+    <div class="ehint eye-tip">${ICON.info} <div><b>Eyebrows and eyelashes</b><p>The previews approximate eyebrows and eyelashes. Their in-game appearance has not been tested.</p></div></div>
     <div class="ehint eye-tip">${ICON.info} <div><b>About the mouth</b><p>With pack 3.1-fix6 or newer, the mouth is intended to open when hurt, cheering or waving. In 3.1-fix7 or newer, look forward and double-tap sneak to toggle the talking animation. This is not voice-controlled and has not been tested in-game.</p><p>The mouth is below the eyes; if they are at the bottom there may not be room. The beard uses the eyebrow colour.</p></div></div>
 
   </section>
@@ -492,13 +494,14 @@ write("editor/index.html", page({
           <option value="tpose">T-pose</option>
         </select></label>
         <button type="button" class="btn ghost" id="play3d" aria-pressed="false" title="Stop or start the movement">Pause</button>
-        <label title="The eyes blink and look left and right, like the pack does in the game"><input type="checkbox" id="eyes3d" checked> Eyes blink and move</label>
+        <label title="Simulate blinking and eye movement in the website preview"><input type="checkbox" id="eyes3d"> Simulate blinking and eye movement</label>
         <label><input type="checkbox" id="spin"> Spin</label>
         <label title="Shows or hides the second skin layer (hat, jacket, sleeves)"><input type="checkbox" id="outer3d" checked> Show the outer layer</label>
         <label title="Shows the second skin layer (hat, jacket, sleeves) as little 3D blocks, like the 3D Skin Layers mod"><input type="checkbox" id="layers3d"> 3D skin layers</label>
-        <label>Zoom <input type="range" id="zoom" min="0.6" max="2.4" step="0.05" value="0.9"></label>
+        <label>Zoom <input type="range" id="zoom" min="0.6" max="2.4" step="0.05" value="0.75"></label>
+        <button type="button" class="btn ghost" id="fit3d">Fit full body</button>
       </p>
-      <p class="ehint">${ICON.info} Drag to turn the model, scroll to zoom. The preview shows the skin only; the blinking happens in-game.</p>
+      <p class="ehint">${ICON.info} Drag to turn the model, scroll to zoom. The optional eye movement is a simplified website simulation, not the resource pack’s actual animation. Test the downloaded skin in-game.</p>
     </div>
     <div class="why3d" id="why3d" hidden>
       <p>${ICON.info} <span id="why3dtext"></span></p>
@@ -559,7 +562,7 @@ write("editor/index.html", page({
 </article></div>
 <script src="../skinview3d.bundle.js"></script>
 <script src="../player.js?v=${ver("player.js")}"></script>
-<script src="../editor.js?v=${ver("editor.js")}"></script>
+<script src="../eye-detect.js?v=${ver("eye-detect.js")}"></script><script src="../editor.js?v=${ver("editor.js")}"></script>
 <script src="../ui.js?v=${ver("ui.js")}"></script>
 <script src="../backdrop.js?v=${ver("backdrop.js")}"></script>`,
 }));
@@ -1433,6 +1436,7 @@ write("index.html", page({
     <a class="card feat" href="#download"><h3>${ICON.run} Player animations</h3><p>Reworked walking, sprinting, sneaking, swimming, crawling and sleeping, in the style of Fresh Animations.</p><span class="more">Download ${ICON.right}</span></a>
     <a class="card feat" href="guides/"><h3>${ICON.eye} Animated eyes</h3><p>Eyes blink and look around when your skin has the marker pixels described in the guides.</p><span class="more">Eye guides ${ICON.right}</span></a>
     <a class="card feat" rel="noopener" href="${REPO}#changes-from-the-original-pack"><h3>${ICON.wrench} Changes in this fork</h3><p>Eyes stay closed while sleeping and after death, and the second skin layer no longer moves twice on 1.21.2+.</p><span class="more">Changes ${ICON.ext}</span></a>
+    <a class="card feat" href="guides/skin-eye-editor/"><h3>${ICON.book} Skin Eye Editor guide</h3><p>Learn how to detect eyes, adjust the face and preview your skin.</p><span class="more">Read guide ${ICON.right}</span></a>
     <a class="card feat" href="editor/"><h3>${ICON.hand} Seven emotes</h3><p>Stand still, look straight up and tap sneak. Each tap is the next emote: wave, cheer, clap, dab, dance, jumping jacks, T-pose. Look away or walk to stop. All but the wave are new in 3.1-fix5 and not tested in the game.</p><span class="more">3D preview ${ICON.right}</span></a>
     <a class="card feat" href="editor/"><h3>${ICON.hand} Sit emote</h3><p>Stand still, sneak and look straight down, and you sit on the ground. New in 3.1-fix5, not tested in the game.</p><span class="more">3D preview ${ICON.right}</span></a>
   </div>
