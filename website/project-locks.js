@@ -3,7 +3,7 @@ const client=createClient('https://xecdvxknbdwetdlhaazl.supabase.co','sb_publish
 window.FMFAuthClient=client;
 const cards=Array.from(document.querySelectorAll('[data-project-card]'));
 const panel=document.getElementById('project-lock-admin'), controls=document.getElementById('project-lock-controls'), status=document.getElementById('project-lock-status');
-const projects=[['pack','Fresh Moves Fix'],['paint','Skin Painter 3D'],['editor','Skin eye editor'],['pfp','Minecraft PFP Maker'],['creator','Minecraft Creator Studio'],['title','Minecraft Title'],['animation','Minecraft Animation']];
+const projects=[['pack','Fresh Moves Fix'],['minecraft-skins','Minecraft Skins'],['paint','Skin Painter 3D'],['editor','Skin eye editor'],['pfp','Minecraft PFP Maker'],['creator','Minecraft Creator Studio'],['title','Minecraft Title'],['animation','Minecraft Animation']];
 let locks=new Map(), owner=false, authVersion=0, loaded=false;
 cards.forEach(card=>{card.dataset.link=card.getAttribute('href');card.dataset.originalLabel=card.querySelector('.project-link-label').innerHTML;});
 function render(){

@@ -183,7 +183,7 @@ function write(rel, html) {
     const comments = `<div class="wrap comments-wrap"><section class="card comments-card" id="tool-comments" data-page="${pageId}" aria-labelledby="comments-title"><h2 id="comments-title">Comments</h2><p>Share your thoughts about this tool. Comments are public.</p><p data-comments-login>Want to join in? <a href="../account/">Sign in to comment</a>.</p><form hidden><label for="comment-body">Your comment</label><textarea id="comment-body" maxlength="1000" rows="3" required placeholder="Write a comment…"></textarea><div class="comment-image-field"><label for="comment-image">Add an image (optional)</label><input id="comment-image" type="file" accept="image/png,image/jpeg,image/webp"><small>PNG, JPEG or WebP, up to 2 MB. Images are resized before posting.</small><img data-comment-preview alt="Selected image preview" hidden></div><div class="comments-actions"><small>Up to 1,000 characters</small><button class="btn" type="submit">Post comment</button></div></form><p data-comments-status role="status" aria-live="polite"></p><div data-comments-list></div></section></div><script src="../comments.bundle.js?v=${ver("comments.js")}"></script>`;
     html = html.replace("<footer>", comments + "<footer>");
   }
-  if (new Set(["paint", "editor", "pfp", "creator", "title", "animation"]).has(pageId)) {
+  if (new Set(["paint", "editor", "pfp", "creator", "title", "animation", "minecraft-skins"]).has(pageId)) {
     html = html.replace("</head>", `<script>document.documentElement.classList.add("project-guard-active");</script></head>`);
     const guard = `<div id="project-lock-screen" data-project-guard="${pageId}" role="status"><div class="project-lock-dialog"><h1>Checking project availability</h1><p>Please wait…</p><button type="button" class="btn" hidden>Try again</button><a class="btn ghost project-lock-back" href="../creations/">${ICON.left} Back to Projects</a></div></div><script src="../project-guard.js?v=${ver("project-guard.js")}"></script>`;
     html = html.replace('<header class="top">', guard + '<header class="top">');
@@ -1475,7 +1475,7 @@ write("creations/index.html", page({
   <a class="project-card" data-project-card="creator" href="../creator/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Creator Studio</h2><p>Make a channel banner and explore creator tools.</p><span class="project-link-label">Open creator studio ${ICON.right}</span></a>
   <a class="project-card" data-project-card="title" href="../title/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Title</h2><p>Make and download a block-letter title picture.</p><span class="project-link-label">Open title maker ${ICON.right}</span></a>
   <a class="project-card" data-project-card="animation" href="../animation/"><img src="../icon-anim-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Animation</h2><p>Arrange movements and save an animation as a video.</p><span class="project-link-label">Open animation tool ${ICON.right}</span></a>
-  <a class="project-card" href="../#minecraft-skins-download"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Minecraft Skins</h2><p>An experimental, separate client-only Fabric mod for local skins.</p><span>Alpha downloads</span></a>
+  <a class="project-card" data-project-card="minecraft-skins" href="../minecraft-skins/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Minecraft Skins</h2><p>An experimental, separate client-only Fabric mod for local skins.</p><span class="project-link-label">Alpha downloads ${ICON.right}</span></a>
 </div></div><script src="../project-locks.bundle.js?v=${ver("project-locks.js")}"></script>`,
 }));
 
@@ -1500,10 +1500,27 @@ const skinVersionLinks = skinRelease.versions.map((version) => {
   const filename = `minecraft-skins-fabric-${version}.jar`;
   const href = `${REPO}/releases/download/${encodeURIComponent(skinRelease.tag)}/${encodeURIComponent(filename)}`;
   return `<a class="ver" href="${href}" aria-label="Download experimental Minecraft Skins for Minecraft ${mc}, Fabric">
-    <span class="tool-head"><img class="ver-ic" src="icon-skin.png" alt="" width="40" height="40" loading="lazy"><span><b>${mc}</b><small>Minecraft build</small></span></span>
+    <span class="tool-head"><img class="ver-ic" src="../icon-skin.png" alt="" width="40" height="40" loading="lazy"><span><b>${mc}</b><small>Minecraft build</small></span></span>
     <span class="tags"><i>Fabric</i><i class="dl">${ICON.down} Alpha .jar</i></span>
   </a>`;
 }).join("\n");
+
+// Minecraft Skins downloads are guarded separately so locking them never hides the homepage.
+write("minecraft-skins/index.html", page({
+  title: "Minecraft Skins downloads - Fresh Moves Fix", active: "creations", depth: 1,
+  description: "Experimental Minecraft Skins client-only Fabric mod downloads.",
+  body: `<main class="wrap home-page">
+<section id="minecraft-skins-download" class="home-section">
+  <div class="text-card">
+  <h2>${ICON.down} Download Minecraft Skins — Fabric</h2>
+  <p><strong>Experimental alpha:</strong> These original Fabric JARs passed build and metadata checks but have not been tested in Minecraft. Choose the exact game version, and install matching Fabric Loader and Fabric API. This is a separate client-only mod, not the Fresh Moves Fix resource pack. Local skins are visible only to you and do not change your account skin.</p>
+  <p><a href="${REPO}/releases/tag/${encodeURIComponent(skinRelease.tag)}">Release notes and checksums</a> · <a href="${REPO}/blob/${skinRelease.build_commit}/minecraft-skins-fabric/README.md">Usage and commands</a> · Java 17 for 1.20–1.20.4, Java 21 for 1.20.5–1.21.11, Java 25 for 26.x.</p>
+  </div>
+  <div class="versions">${skinVersionLinks}</div>
+</section>
+
+</main>`,
+}));
 
 // "Page not found" page. Vercel shows 404.html for every address that does not exist,
 // at any depth, so all its links are made to start from the top of the site (<base href="/">).
@@ -1623,11 +1640,10 @@ ${versionLinks}
 
 <section id="minecraft-skins-download" class="home-section">
   <div class="text-card">
-  <h2>${ICON.down} Download Minecraft Skins — Fabric</h2>
-  <p><strong>Experimental alpha:</strong> These original Fabric JARs passed build and metadata checks but have not been tested in Minecraft. Choose the exact game version, and install matching Fabric Loader and Fabric API. This is a separate client-only mod, not the Fresh Moves Fix resource pack. Local skins are visible only to you and do not change your account skin.</p>
-  <p><a href="${REPO}/releases/tag/${encodeURIComponent(skinRelease.tag)}">Release notes and checksums</a> · <a href="${REPO}/blob/${skinRelease.build_commit}/minecraft-skins-fabric/README.md">Usage and commands</a> · Java 17 for 1.20–1.20.4, Java 21 for 1.20.5–1.21.11, Java 25 for 26.x.</p>
+    <h2>${ICON.down} Download Minecraft Skins — Fabric</h2>
+    <p>Experimental, separate client-only Fabric mod for local skins. Local skins are visible only to you and do not change your account skin.</p>
+    <a class="btn" href="minecraft-skins/">${ICON.down} View Minecraft Skins downloads</a>
   </div>
-  <div class="versions">${skinVersionLinks}</div>
 </section>
 
 <section>
