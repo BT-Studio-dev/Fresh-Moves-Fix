@@ -29,6 +29,9 @@ function setup(reduced, reject = false, savedMotion = false, observe = false) {
   const banner = normal.d.querySelector('.fresh-video-banner');
   assert(banner.querySelector('.fresh-banner-ingot .fresh-ingot-shine'));
   assert(banner.querySelector('.fresh-banner-art[aria-hidden="true"] video.fresh-banner-head'), 'decorative head video is next to the ingot');
+  const expression = banner.querySelector('.fresh-banner-head-frame .fresh-banner-expression');
+  assert(expression && expression.getAttribute('aria-hidden') === 'true');
+  assert(expression.querySelector('.fresh-brow-left') && expression.querySelector('.fresh-brow-right') && expression.querySelector('.fresh-mouth'), 'the head has visible eyebrows and a mouth even while paused');
   assert.match(normal.head.getAttribute('src'), /^fresh-banner-head\.mp4\?v=/);
   assert.match(normal.head.getAttribute('poster'), /^fresh-banner-head-poster\.png\?v=/);
   assert(normal.head.hasAttribute('muted') && normal.head.hasAttribute('loop') && normal.head.hasAttribute('playsinline') && normal.head.hasAttribute('data-music-ignore'));
@@ -76,6 +79,9 @@ function setup(reduced, reject = false, savedMotion = false, observe = false) {
   fallbackBanner.getBoundingClientRect = () => ({top:10,bottom:100,left:10,right:200}); fallback.w.dispatchEvent(new fallback.w.Event('scroll')); assert.equal(fallback.plays,2); fallback.dom.window.close();
   const css = fs.readFileSync('website/refresh-2027.css', 'utf8');
   assert.match(css, /@keyframes fresh-ingot-float/); assert.match(css, /\.fresh-banner-ingot[^}]*animation-play-state:\s*paused/); assert.match(css, /\.banner-motion-playing \.fresh-banner-ingot/);
+  assert.match(css, /@keyframes fresh-brow-raise/); assert.match(css, /@keyframes fresh-mouth-move/);
+  assert.match(css, /\.fresh-brow\s*\{[^}]*animation-play-state:\s*paused/); assert.match(css, /\.fresh-mouth\s*\{[^}]*animation-play-state:\s*paused/);
+  assert.match(css, /\.banner-motion-playing \.fresh-brow/); assert.match(css, /\.banner-motion-playing \.fresh-mouth/);
   assert.match(css, /#fresh-banner-video\s*\{/); assert.match(css, /\.fresh-video-banner-content[^}]*flex-wrap:\s*wrap/);
   assert(fs.readFileSync('website/public/fresh-banner-head-poster.png').equals(fs.readFileSync('website/fresh-banner-head-poster.png')), 'static poster is copied into the site');
   for (const name of ['fresh-moves-banner.mp4', 'fresh-banner-head.mp4']) {

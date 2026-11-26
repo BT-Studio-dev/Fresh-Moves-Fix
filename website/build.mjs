@@ -1692,7 +1692,14 @@ write("index.html", page({
   <div class="fresh-video-banner-content">
     <div class="fresh-banner-art" aria-hidden="true">
       <svg class="fresh-banner-ingot" viewBox="0 0 64 48" shape-rendering="crispEdges"><path fill="#252c32" d="M13 5h42v5h5v7l-7 24H5v-7L13 10z"/><path fill="#687982" d="M13 30h43l-3 9H7z"/><path fill="#9caeb5" d="M14 9h39l5 7-5 14H9l3-14z"/><path fill="#e1edef" d="M16 11h35l3 5-4 3H15l-3-3z"/><path fill="#bed0d4" d="M12 19h39l-3 8H10z"/><path class="fresh-ingot-shine" fill="#f5ffff" d="M17 12h24v3H16z"/></svg>
-      <video id="fresh-banner-head" class="fresh-banner-head" data-src="fresh-banner-head.mp4?v=${ver("fresh-banner-head.mp4")}" poster="fresh-banner-head-poster.png?v=${ver("fresh-banner-head-poster.png")}" muted loop playsinline preload="none" data-music-ignore></video>
+      <div class="fresh-banner-head-frame">
+        <video id="fresh-banner-head" class="fresh-banner-head" data-src="fresh-banner-head.mp4?v=${ver("fresh-banner-head.mp4")}" poster="fresh-banner-head-poster.png?v=${ver("fresh-banner-head-poster.png")}" muted loop playsinline preload="none" data-music-ignore></video>
+        <svg class="fresh-banner-expression" viewBox="0 0 384 384" shape-rendering="crispEdges" focusable="false" aria-hidden="true">
+          <path class="fresh-brow fresh-brow-left" fill="#32180c" d="M77 140h49v-4h20v14H77z"/>
+          <path class="fresh-brow fresh-brow-right" fill="#32180c" d="M215 136h20v4h51v10h-71z"/>
+          <path class="fresh-mouth" fill="#32140f" d="M154 265h44v6h-5v8h-34v-8h-5z"/>
+        </svg>
+      </div>
     </div>
     <div class="fresh-banner-copy"><span class="fresh-banner-kicker">A LITTLE MORE LIFE</span><h2>Fresh Moves <span>Fix</span></h2><p>Made for Minecraft. Built for expression.</p></div>
   </div>
