@@ -45,7 +45,7 @@ assert.match(experimental.textContent, /port is unfinished/);
 assert.match(experimental.textContent, /26\.1, 26\.1\.1 and 26\.1\.2/);
 assert.match(experimental.textContent, /26\.2 and 26\.3/);
 assert.match(experimental.textContent, /no project-built JAR is available for either/);
-for (const id of ['15151434010', '15151852156', '15151697873']) assert(experimental.querySelector(`a[href="https://github.com/BT-Studio-dev/Fresh-Moves-Fix/actions/runs/45891971875/artifacts/${id}"]`));
+assert(experimental.querySelector('a[href="https://github.com/BT-Studio-dev/Fresh-Moves-Fix/actions/runs/45891971875"]'));
 assert.match(experimental.textContent, /expire after 7 days/);
 assert(experimental.querySelector('a[href="https://github.com/BT-Studio-dev/Fresh-Moves-Fix/actions/runs/45853964289"]'));
 console.log(`2027 design shell and ${cards} card links across ${pages.length} pages passed; experimental status is clearly labeled`);

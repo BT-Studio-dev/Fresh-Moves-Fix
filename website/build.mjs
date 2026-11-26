@@ -706,13 +706,11 @@ write("editor/index.html", page({
 <section class="text-card glow-downloads" id="glowing-eyes-downloads" aria-labelledby="glow-download-title">
   <h2 id="glow-download-title">Download Glowing Eyes</h2>
   <p><strong>Skin Eye Editor integration build ${esc(glowRelease.integrationBuild)}.</strong> The separate upstream mod is <strong>Glowing Eyes ${esc(glowRelease.modVersion)}</strong> for <strong>Minecraft Java ${esc(glowRelease.minecraftVersion)}</strong>. These files are hosted by Modrinth, not built or hosted by Fresh Moves Fix.</p>
-  <p>Browse official versions and platforms from Modrinth. Project game versions without an official Glowing Eyes release are labeled. Your browser requests the release list from Modrinth; your skin and presets are not sent.</p>
+  <p>Filter official Modrinth releases and separately labeled experimental Fabric builds by Minecraft version and platform. Your browser requests official releases from Modrinth; your skin and presets are not sent.</p>
   <aside class="glow-experimental" aria-labelledby="glow-experimental-title">
     <h3 id="glow-experimental-title">Unofficial experimental builds</h3>
-    <p><strong>Fabric · Minecraft 1.20.5 and 1.20.6:</strong> Fresh Moves Fix builds have passed compilation and basic metadata checks, but have not been tested in Minecraft. Back up your files before trying them.</p>
-    <p><a href="${REPO}/actions/runs/45853964289" rel="noopener noreferrer">View successful build and temporary artifacts on GitHub ${ICON.ext}</a> (GitHub sign-in may be required; artifacts expire after 7 days).</p>
-    <p><strong>Fabric · Minecraft 26.1, 26.1.1 and 26.1.2:</strong> unofficial builds compiled and passed basic metadata checks, but have <strong>not been tested in Minecraft</strong>. Back up your files; they are not official releases.</p>
-    <p>Temporary GitHub Actions artifacts (sign-in may be required; artifacts expire after 7 days): <a href="${REPO}/actions/runs/45891971875/artifacts/15151434010" rel="noopener noreferrer">26.1 ${ICON.ext}</a> · <a href="${REPO}/actions/runs/45891971875/artifacts/15151852156" rel="noopener noreferrer">26.1.1 ${ICON.ext}</a> · <a href="${REPO}/actions/runs/45891971875/artifacts/15151697873" rel="noopener noreferrer">26.1.2 ${ICON.ext}</a>. Download the ZIP and extract its JAR. <a href="${REPO}/actions/runs/45891971875" rel="noopener noreferrer">View build run ${ICON.ext}</a>.</p>
+    <p><strong>Fabric · Minecraft 1.20.5 and 1.20.6; 26.1, 26.1.1 and 26.1.2:</strong> these unofficial builds passed compilation and basic metadata checks, but have not been tested in Minecraft. Back up your files before trying them. Filter below to find each build.</p>
+    <p>GitHub Actions artifacts expire after 7 days and may require sign-in. Open the artifact ZIP and extract its JAR. <a href="${REPO}/actions/runs/45853964289" rel="noopener noreferrer">1.20.x build run ${ICON.ext}</a> · <a href="${REPO}/actions/runs/45891971875" rel="noopener noreferrer">26.1.x build run ${ICON.ext}</a>.</p>
     <p><strong>Minecraft 26.2 and 26.3:</strong> the port is unfinished and does not currently compile; no project-built JAR is available for either. <a href="${REPO}/pull/77" rel="noopener noreferrer">See development status ${ICON.ext}</a>.</p>
   </aside>
   <div class="glow-version-filters" id="glow-version-filters" data-project-game-versions="${esc(JSON.stringify(versions.map(v => v.mc)))}" hidden>
@@ -722,9 +720,9 @@ write("editor/index.html", page({
   </div>
   <p id="glow-versions-status" role="status" aria-live="polite">Loading the Modrinth version list…</p>
   <button type="button" class="btn ghost" id="glow-versions-retry" hidden>Retry version list</button>
-  <div id="glow-version-list" class="glow-version-list"></div>
+  <div id="glow-version-list" class="glow-version-list" tabindex="0" role="region" aria-label="Matching Glowing Eyes builds"></div>
   <div id="glow-version-fallback"><p>Official 1.21.11 downloads (available even if the version list cannot load):</p><div class="glow-download-links">
-    ${glowRelease.artifacts.map(a => `<div class="glow-download-option"><a class="btn" href="${esc(a.url)}" rel="noopener noreferrer">${ICON.down} ${esc(a.loader)} JAR</a><small>${esc(a.filename)}</small><a href="${esc(a.versionPage)}" rel="noopener noreferrer">Official version page ${ICON.ext}</a></div>`).join("")}
+    ${glowRelease.artifacts.map(a => `<div class="glow-download-option" data-glow-fallback-loaders="${a.loader === "Fabric / Quilt" ? "fabric quilt" : "neoforge"}"><a class="btn" href="${esc(a.url)}" rel="noopener noreferrer">${ICON.down} ${esc(a.loader)} JAR</a><small>${esc(a.filename)}</small><a href="${esc(a.versionPage)}" rel="noopener noreferrer">Official version page ${ICON.ext}</a></div>`).join("")}
   </div></div>
   <p>Choose the JAR matching your loader and Minecraft version. For Minecraft 1.21.11, Fabric / Quilt needs <a href="https://modrinth.com/mod/fabric-api" rel="noopener noreferrer">Fabric API</a> and Java 21 or newer. Requirements and preset formats for older releases can differ; check the official version page. Put the JAR in your Minecraft <code>mods</code> folder. These are separate third-party mods and have not been tested in-game by this project.</p>
   <p>These links do not install the mod or change your skin or presets. For multiplayer, follow the upstream requirements. <a href="${esc(glowRelease.project)}" rel="noopener noreferrer">Modrinth project</a> · <a href="${esc(glowRelease.source)}" rel="noopener noreferrer">Source used for format research</a></p>

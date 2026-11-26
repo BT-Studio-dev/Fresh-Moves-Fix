@@ -62,7 +62,15 @@ a.card:focus-visible, a.tool:focus-visible, a.project-card:focus-visible, .versi
 .glow-experimental h3 { margin: 0 0 8px; font-size: 1rem; }
 .glow-experimental p { margin: 8px 0; }
 .glow-experimental a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.glow-version-experimental { border-color: var(--note-line); background: var(--note-bg); color: var(--note-text); }
+.glow-version-experimental .glow-version-meta, .glow-version-experimental small { color: inherit; }
+.glow-version-list:focus-visible { outline: 3px solid var(--fmf-focus); outline-offset: 3px; }
 [data-theme="minecraft"] .glow-experimental { border-radius: 3px; }
+/* The 3D library sets inline canvas dimensions; keep its aspect ratio inside
+   the workspace on small screens. File labels must shrink within mod cards. */
+.eye-workspace #view3d { max-width: 100%; height: auto !important; }
+.mod-card-body label { max-width: 100%; }
+.mod-card-body input[type="file"] { width: 100%; min-width: 0; box-sizing: border-box; }
 
 @media (max-width: 560px) {
   .home-hero { border-radius: 14px; }
