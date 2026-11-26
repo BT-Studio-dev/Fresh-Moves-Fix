@@ -47,7 +47,7 @@ function createPlayer(saved = {}) {
   function seek(v){seekControl.value=String(v);fire('input',seekControl);}
   function gesture(){fire('pointerdown',{});}
   function tick(ms){intervals.filter(i=>i.ms===ms && i.active).forEach(i=>i.f())}
-  return {storage,oscillators,gainNodes,volumes,outputs,name,time,check,choose,volume,play,navigate,seek,gesture,tick,get context(){return context}};
+  return {storage,oscillators,gainNodes,volumes,outputs,name,time,check,choose,volume,play,navigate,seek,gesture,tick,fire,get context(){return context}};
 }
 for (const [id, name, seconds, duration] of songs) {
   const p=createPlayer({ 'fmf-volume':'50' });
@@ -91,3 +91,11 @@ for (const [id, name, seconds, duration] of songs) {
 }
 const restored=createPlayer({'fmf-song':'left','fmf-volume':'0'}); restored.choose('left'); restored.play(true); assert.equal(restored.gainNodes[0].gain.target,0,'saved zero volume is restored');
 console.log('PASS saved zero volume');
+const videoMusic = createPlayer(); videoMusic.play(true);
+const decorative = { tagName:'VIDEO', hasAttribute(name){ return name === 'data-music-ignore'; } };
+const normalVideo = { tagName:'VIDEO', hasAttribute(){ return false; } };
+videoMusic.fire('play', decorative); assert.equal(videoMusic.context.state, 'running', 'decorative muted banner must not pause music');
+videoMusic.fire('play', normalVideo); assert.equal(videoMusic.context.state, 'suspended', 'normal video still pauses music');
+videoMusic.fire('pause', decorative); assert.equal(videoMusic.context.state, 'suspended', 'decorative video must not release a normal video hold');
+videoMusic.fire('pause', normalVideo); assert.equal(videoMusic.context.state, 'running');
+console.log('Decorative video leaves music playing; regular video hold remains intact');

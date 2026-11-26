@@ -307,10 +307,10 @@
     var held = false;
     function release() { if (held) { held = false; if (on && ctx) ctx.resume(); } }
     document.addEventListener("play", function (e) {
-      if (e.target.tagName === "VIDEO" && on && ctx && ctx.state === "running") { held = true; ctx.suspend(); }
+      if (e.target.tagName === "VIDEO" && !e.target.hasAttribute("data-music-ignore") && on && ctx && ctx.state === "running") { held = true; ctx.suspend(); }
     }, true);
-    document.addEventListener("pause", function (e) { if (e.target.tagName === "VIDEO") release(); }, true);
-    document.addEventListener("ended", function (e) { if (e.target.tagName === "VIDEO") release(); }, true);
+    document.addEventListener("pause", function (e) { if (e.target.tagName === "VIDEO" && !e.target.hasAttribute("data-music-ignore")) release(); }, true);
+    document.addEventListener("ended", function (e) { if (e.target.tagName === "VIDEO" && !e.target.hasAttribute("data-music-ignore")) release(); }, true);
     document.addEventListener("fmf-nav", release);
     document.addEventListener("fmf-nav", paint);
     if (!AC) document.querySelectorAll("[data-music-toggle]").forEach(function (b) { b.hidden = true; });
