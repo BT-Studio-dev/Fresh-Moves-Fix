@@ -11,6 +11,7 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 // Generate version-specific source from the shared port; do not mutate the
 // checked-in sources or the independent 1.20.x backport.
 def newerApi = project.minecraft_version in ['26.2', '26.3']
+def is263 = project.minecraft_version == '26.3'
 def versionJava = layout.buildDirectory.dir('generated/versioned-java')
 tasks.register('generateVersionJava', Sync) {
     from('src/main/java')
@@ -34,7 +35,7 @@ tasks.register('generateVersionJava', Sync) {
                 ['RenderSystem.getDevice().getRenderer()', 'RenderSystem.getDevice().getDeviceInfo().name()'],
                 ['.withVertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS)', '.withVertexBinding(0, DefaultVertexFormat.POSITION_TEX_COLOR).withPrimitiveTopology(com.mojang.blaze3d.PrimitiveTopology.QUADS)']
             ].each { pair -> line = line.replace(pair[0], pair[1]) }
-            if (project.minecraft_version == '26.3') {
+            if (is263) {
                 [
                     ['com.mojang.blaze3d.pipeline.', 'com.mojang.renderpearl.api.pipeline.'],
                     ['com.mojang.blaze3d.buffers.', 'com.mojang.renderpearl.api.buffers.'],
