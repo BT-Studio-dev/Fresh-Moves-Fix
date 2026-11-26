@@ -24,6 +24,8 @@ function setup(reduced, reject = false, savedMotion = false) {
   const banner = normal.d.querySelector('.fresh-video-banner');
   assert(banner.querySelector('.fresh-banner-ingot .fresh-ingot-shine'));
   assert(banner.querySelector('.fresh-banner-art[aria-hidden="true"] .fresh-banner-head .fresh-banner-eyes'), 'decorative blinking head is next to the ingot');
+  assert.match(banner.querySelector('.fresh-banner-head image').getAttribute('href'), /^fresh-banner-character\.png\?v=/, 'banner uses the supplied character image');
+  assert.equal(banner.querySelectorAll('.fresh-banner-eyes path').length, 2, 'closed-eye overlays are present');
   assert(banner.classList.contains('banner-motion-playing'), 'ingot and head animation start with the banner');
   normal.button.click(); assert.equal(normal.pauses, 1); assert.equal(normal.button.textContent, 'Play animation'); assert(!banner.classList.contains('banner-motion-playing'));
   normal.button.click(); assert.equal(normal.plays, 2); assert(banner.classList.contains('banner-motion-playing'));
@@ -53,6 +55,7 @@ function setup(reduced, reject = false, savedMotion = false) {
   const css = fs.readFileSync('website/refresh-2027.css', 'utf8');
   assert.match(css, /@keyframes fresh-ingot-float/); assert.match(css, /\.fresh-banner-ingot[^}]*animation-play-state:\s*paused/); assert.match(css, /\.banner-motion-playing \.fresh-banner-ingot/);
   assert.match(css, /@keyframes fresh-head-blink/); assert.match(css, /\.fresh-banner-eyes[^}]*animation-play-state:\s*paused/); assert.match(css, /\.banner-motion-playing \.fresh-banner-eyes/); assert.match(css, /\.fresh-video-banner-content[^}]*flex-wrap:\s*wrap/);
+  assert(fs.readFileSync('website/public/fresh-banner-character.png').equals(fs.readFileSync('website/fresh-banner-character.png')), 'character image is copied into the site');
   const mp4 = fs.readFileSync('website/public/fresh-moves-banner.mp4'); assert.equal(mp4.toString('ascii', 4, 8), 'ftyp');
   console.log('Silent banner, text, icon, playback, reduced motion, errors and navigation passed (mocked media)');
 })().catch(error => { console.error(error); process.exitCode = 1; });

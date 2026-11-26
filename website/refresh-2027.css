@@ -95,13 +95,13 @@ a.card:focus-visible, a.tool:focus-visible, a.project-card:focus-visible, .versi
 .fresh-banner-art { display: flex; align-items: center; gap: clamp(7px, 1.5vw, 14px); flex: none; }
 .fresh-banner-copy { flex: 1 1 165px; min-width: 0; }
 .fresh-banner-ingot { width: clamp(58px, 9vw, 100px); flex: none; filter: drop-shadow(0 8px 0 rgba(0,0,0,.3)); animation: fresh-ingot-float 4s steps(20, end) infinite; animation-play-state: paused; }
-.fresh-banner-head { width: clamp(48px, 7.5vw, 82px); flex: none; filter: drop-shadow(0 6px 0 rgba(0,0,0,.3)); }
+.fresh-banner-head { width: clamp(56px, 8.5vw, 96px); flex: none; border-radius: 50%; overflow: hidden; filter: drop-shadow(0 6px 0 rgba(0,0,0,.3)); }
 .fresh-ingot-shine { animation: fresh-ingot-shine 4s ease-in-out infinite; animation-play-state: paused; }
-.fresh-banner-eyes { transform-box: fill-box; transform-origin: center; animation: fresh-head-blink 5s steps(1, end) infinite; animation-play-state: paused; }
+.fresh-banner-eyes { opacity: 0; animation: fresh-head-blink 5s steps(1, end) infinite; animation-play-state: paused; }
 .banner-motion-playing .fresh-banner-ingot, .banner-motion-playing .fresh-ingot-shine, .banner-motion-playing .fresh-banner-eyes { animation-play-state: running; }
 @keyframes fresh-ingot-float { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-7px) rotate(2deg); } }
 @keyframes fresh-ingot-shine { 0%, 100% { opacity: .65; } 50% { opacity: 1; } }
-@keyframes fresh-head-blink { 0%, 49%, 53%, 100% { transform: scaleY(1); } 50%, 52% { transform: scaleY(.08); } }
+@keyframes fresh-head-blink { 0%, 49%, 53%, 100% { opacity: 0; } 50%, 52% { opacity: 1; } }
 .fresh-banner-kicker { color: #7ee9ad; font-size: .72rem; font-weight: 800; letter-spacing: .18em; }
 .fresh-video-banner h2 { margin: 6px 0; color: #fff; font-size: clamp(28px, 4vw, 48px); font-weight: 900; letter-spacing: -.04em; line-height: 1.05; }
 .fresh-video-banner h2 span { color: #7ee9ad; }
