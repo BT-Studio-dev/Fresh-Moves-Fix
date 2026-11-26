@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { JSDOM } = require('../website/node_modules/jsdom');
 const root = 'website/public';
-function files(dir) { return fs.readdirSync(dir, { withFileTypes:true }).flatMap(e => e.isDirectory() ? files(path.join(dir,e.name)) : e.name.endsWith('.html') ? [path.join(dir,e.name)] : []); }
+function files(dir) { return fs.readdirSync(dir, { withFileTypes:true }).flatMap(e => e.isDirectory() ? files(path.join(dir,e.name)) : (e.name === 'index.html' || e.name === '404.html') ? [path.join(dir,e.name)] : []); }
 const routes = ['/', '/guides/', '/creations/', '/settings/', '/account/'];
 const pages = files(root);
 for (const file of pages) {

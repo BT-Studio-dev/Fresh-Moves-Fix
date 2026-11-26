@@ -1,0 +1,12 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const filename = 'google5091c15ca9dc0202.html';
+const original = fs.readFileSync('website/' + filename);
+const built = fs.readFileSync('website/public/' + filename);
+assert(original.equals(built), 'Google verification file must be copied byte-for-byte');
+assert.equal(original.toString('utf8').trim(), 'google-site-verification: ' + filename);
+assert(!fs.readFileSync('website/public/sitemap.xml', 'utf8').includes(filename), 'verification token is not a sitemap page');
+const config = JSON.parse(fs.readFileSync('website/vercel.json', 'utf8'));
+assert.equal(config.cleanUrls, false, 'Vercel must not redirect the required .html verification URL');
+assert.equal(config.trailingSlash, true, 'directory URLs keep their existing trailing slash behavior');
+console.log('Google verification file copied unchanged; Vercel clean URL redirect disabled');

@@ -216,6 +216,9 @@ function write(rel, html) {
 
 fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
+// Google Search Console requires this owner's supplied file at the site root,
+// byte for byte. Keep it deployed after verification succeeds.
+fs.copyFileSync(path.join(here, "google5091c15ca9dc0202.html"), path.join(out, "google5091c15ca9dc0202.html"));
 // Ship only verified, explicitly listed experimental JARs. A missing or altered
 // file must fail the build instead of producing a broken download link.
 const glowDownloads = path.join(here, "downloads/glowing-eyes");

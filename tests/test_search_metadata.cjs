@@ -23,6 +23,9 @@ const locs = [...sitemap.getElementsByTagName('loc')].map(el => el.textContent);
 assert.equal(locs.length, new Set(locs).size, 'sitemap URLs are unique');
 const expected = [];
 for (const rel of htmlFiles()) {
+  // Search Console's verification file is a plain-text token with an .html
+  // extension, not an indexable site page or part of the sitemap.
+  if (rel === 'google5091c15ca9dc0202.html') continue;
   const doc = new JSDOM(fs.readFileSync(path.join(root, rel), 'utf8')).window.document;
   const canonical = doc.querySelector('link[rel="canonical"]');
   const noindex = doc.querySelector('meta[name="robots"]');
