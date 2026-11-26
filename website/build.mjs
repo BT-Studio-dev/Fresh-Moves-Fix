@@ -11,6 +11,8 @@ const out = path.join(here, "public");
 const REPO = "https://github.com/BT-Studio-dev/Fresh-Moves-Fix";
 // The original mod has its own pinned prerelease; never expose the historical upstream HD Skins jars as ours.
 const skinRelease = JSON.parse(fs.readFileSync(path.join(root, "minecraft-skins/original-release-request.json"), "utf8"));
+// Official upstream download metadata; no third-party binaries are bundled with this website.
+const glowRelease = JSON.parse(fs.readFileSync(path.join(here, "glowing-eyes-release.json"), "utf8"));
 
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 const version = read("VERSION").trim();
@@ -660,6 +662,7 @@ write("editor/index.html", page({
 
 <section class="text-card mod-eye-tools ed" aria-labelledby="mod-tools-title">
 <h2 id="mod-tools-title">Reactions &amp; Glowing Eyes</h2>
+<p><a href="#glowing-eyes-downloads">Download the Glowing Eyes mod</a></p>
 <p>Use these tools alongside either skin editor mode. These mods use settings separate from your skin PNG; the tools do not add marker pixels or simulate the mods. Fresh Moves and Just Expressions can use overlapping skin pixels, so keep backups when switching. In-game rendering together is not verified.</p>
 <p><b>Version check:</b> Glowing Eyes 2.1.3 is listed for Minecraft 1.21.11, not 26.3. Use matching mod and loader versions; a Reactions 26.3 build does not make Glowing Eyes available for 26.3.</p>
 <div class="mod-card-list">
@@ -686,6 +689,18 @@ write("editor/index.html", page({
 <p><b>Install safely:</b> back up your Minecraft directory’s existing <code>presets.json</code> first. Import it above to append your preset; otherwise the download contains only the new one. Close Minecraft before replacing the file, then start Minecraft, open <code>/eyes</code> or press H, and apply the preset. The mod must be installed; other players need it, and multiplayer sync requires server support. Glowing Eyes 2.1.3 is published for Minecraft 1.21.11, Fabric/Quilt (Fabric API required) and NeoForge. <a href="https://modrinth.com/mod/glowing-eyes" rel="noopener">Glowing Eyes on Modrinth</a></p>
 </div></details>
 </div></section>
+
+
+<section class="text-card glow-downloads" id="glowing-eyes-downloads" aria-labelledby="glow-download-title">
+  <h2 id="glow-download-title">Download Glowing Eyes</h2>
+  <p><strong>Skin Eye Editor integration build ${esc(glowRelease.integrationBuild)}.</strong> The separate upstream mod is <strong>Glowing Eyes ${esc(glowRelease.modVersion)}</strong> for <strong>Minecraft Java ${esc(glowRelease.minecraftVersion)}</strong>. These files are hosted by Modrinth, not built or hosted by Fresh Moves Fix.</p>
+  <div class="glow-download-links">
+    ${glowRelease.artifacts.map(a => `<div class="glow-download-option"><a class="btn" href="${esc(a.url)}" rel="noopener noreferrer">${ICON.down} ${esc(a.loader)} JAR</a><small>${esc(a.filename)}</small><a href="${esc(a.versionPage)}" rel="noopener noreferrer">Official version page ${ICON.ext}</a></div>`).join("")}
+  </div>
+  <p>Choose the JAR matching your loader and Minecraft version. Fabric / Quilt also needs <a href="https://modrinth.com/mod/fabric-api" rel="noopener noreferrer">Fabric API</a>; NeoForge requires NeoForge. Use Java 21 or newer. Put the JAR in your Minecraft <code>mods</code> folder. This is not a resource pack or a skin PNG, and has not been tested in-game by this project.</p>
+  <p>These links do not install the mod or change your skin or presets. For multiplayer, follow the upstream requirements. <a href="${esc(glowRelease.project)}" rel="noopener noreferrer">Modrinth project</a> · <a href="${esc(glowRelease.source)}" rel="noopener noreferrer">Source used for format research</a></p>
+  <details><summary>SHA-512 checksums from Modrinth</summary><p>Published by Modrinth; the files were not downloaded or independently verified in this build environment.</p>${glowRelease.artifacts.map(a => `<p><b>${esc(a.loader)}</b><br><code>${esc(a.sha512)}</code></p>`).join("")}</details>
+</section>
 
 <section class="text-card" id="fmf-testing">
 <h2 id="test">${ICON.info} How to test it in the game</h2>

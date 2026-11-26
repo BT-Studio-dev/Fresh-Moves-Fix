@@ -1523,3 +1523,10 @@ body footer .cols a .ic { opacity: 1; }
 .mod-card-body input[type="file"] { display: block; margin: 8px 0; font: inherit; color: var(--muted); }
 .mod-card-body input[type="file"]::file-selector-button { padding: 9px 12px; margin-right: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); font: inherit; cursor: pointer; }
 @media (max-width: 360px) { .mod-controls { grid-template-columns: minmax(0, 1fr); } }
+
+.glow-download-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.glow-download-option { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; min-width: 0; padding: 14px; border: 1px solid var(--line); border-radius: 10px; }
+.glow-download-option small { color: var(--muted); overflow-wrap: anywhere; }
+.glow-downloads details code { overflow-wrap: anywhere; word-break: break-all; }
+.glow-downloads summary { cursor: pointer; }
+@media (max-width: 650px) { .glow-download-links { grid-template-columns: minmax(0, 1fr); } }
