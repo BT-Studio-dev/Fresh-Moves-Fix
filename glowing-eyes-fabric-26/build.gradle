@@ -55,6 +55,8 @@ tasks.register('generateVersionJava', Sync) {
                     ['com.mojang.blaze3d.PrimitiveTopology', 'com.mojang.renderpearl.api.pipeline.PrimitiveTopology'],
                     ['@Mixin(GpuTexture.class)', '@Mixin(com.mojang.renderpearl.backend.common.BaseGpuTexture.class)'],
                     ['InputConstants.Type.KEYSYM', 'InputConstants.Type.KEYBOARD'],
+                    ['null // Tooltip style; 26.3 also requires a spacing flag.', 'null, false // Tooltip style and extra spacing'],
+                    ['-1, null, state.outlineColor, null', '-1, null, state.outlineColor'],
                     ['import com.mojang.blaze3d.platform.GLX;', ''],
                     ['GLX._getCpuInfo()', 'System.getProperty("os.arch")'],
                     ['import org.lwjgl.glfw.GLFW;', 'import org.lwjgl.sdl.SDLKeycode;\nimport org.lwjgl.sdl.SDLScancode;'],

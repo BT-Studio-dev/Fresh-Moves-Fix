@@ -204,7 +204,7 @@ public class SkinPartSelectorScreen extends Screen {
                         tooltipList,
                         (int) cursorX, (int) cursorY,
                         DefaultTooltipPositioner.INSTANCE,
-                        null
+                        null // Tooltip style; 26.3 also requires a spacing flag.
                 );
             }
         }
