@@ -7,9 +7,13 @@ skin editor. Do not use on worlds or servers without backups.
 
 The GitHub Actions workflow `Build experimental Glowing Eyes 26.3` attempts to
 build from this directory with Java 25 and uploads an experimental JAR only if
-compilation and basic metadata checks pass. A successful build does **not** prove
-that mixins, rendering, preset migration, or multiplayer work. No Modrinth
-publication or GitHub release is performed by this workflow.
+compilation and basic metadata checks pass. **The port does not currently
+compile and no 26.3 JAR has been produced.** Upstream's 1.21.11 GUI and render
+code references APIs removed or changed in 26.3, including `GuiGraphics`,
+render pipelines, and Fabric's feature-renderer callback. These need a proper
+26.3 rewrite, followed by client, dedicated-server, preset and multiplayer tests.
+A successful build alone would **not** prove mixins or rendering work. No
+Modrinth publication or GitHub release is performed by this workflow.
 
 Local prerequisites: Java 25 and Gradle 9.8.2. Run `gradle build --no-daemon`
 in this directory. Requires network access to Fabric, Mojang, Maven Central and

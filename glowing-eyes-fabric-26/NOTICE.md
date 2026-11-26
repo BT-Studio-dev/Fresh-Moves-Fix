@@ -8,6 +8,7 @@ modified source; it is not an official upstream release.
 
 Changes: merged upstream common and Fabric sources into a Fabric-only build,
 updated the build target/dependencies and metadata to Minecraft 26.3 / Java 25,
-and disabled upstream Flashback, ReplayMod, and Wildfire Gender compat code,
+adapted the Fabric client command and key registration API, and disabled
+upstream Flashback, ReplayMod, and Wildfire Gender compat code,
 which still targets older Minecraft APIs. Further API and runtime porting is
 required. Nothing here asserts that the resulting mod compiles or works in game.

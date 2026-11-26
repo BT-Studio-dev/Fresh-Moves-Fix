@@ -8,24 +8,23 @@ import me.andreasmelone.glowingeyes.client.mod.ClientModContext;
 import me.andreasmelone.glowingeyes.common.component.eyes.GlowingEyesComponent;
 import me.andreasmelone.glowingeyes.common.util.Util;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.world.entity.player.Player;
-import org.lwjgl.glfw.GLFW;
 
 public class GlowingEyesKeybindings {
     private static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(Util.id(GlowingEyes.MOD_ID, "keys"));
 
-    public static final KeyMapping TOGGLE_MAPPING = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+    public static final KeyMapping TOGGLE_MAPPING = KeyMappingHelper.registerKeyMapping(new KeyMapping(
             "key.glowingeyes.toggle",
-            InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_G,
+            InputConstants.Type.KEYBOARD,
+            InputConstants.KEY_G,
             CATEGORY
     ));
-    public static final KeyMapping EYES_EDITOR_MAPPING = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+    public static final KeyMapping EYES_EDITOR_MAPPING = KeyMappingHelper.registerKeyMapping(new KeyMapping(
             "key.glowingeyes.editor.open",
-            InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_H,
+            InputConstants.Type.KEYBOARD,
+            InputConstants.KEY_H,
             CATEGORY
     ));
 

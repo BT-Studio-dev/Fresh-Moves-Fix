@@ -14,7 +14,7 @@ import me.andreasmelone.glowingeyes.fabric.client.component.eyes.ClientGlowingEy
 import me.andreasmelone.glowingeyes.fabric.client.packet.ClientPacketRegistrar;
 import me.andreasmelone.glowingeyes.fabric.client.render.RenderManager;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -52,6 +52,6 @@ public class GlowingEyesClient implements ClientModInitializer, ClientModContext
     }
 
     private static LiteralArgumentBuilder<FabricClientCommandSource> createArgumentBuilder(String name) {
-        return ClientCommandManager.literal(name);
+        return ClientCommands.literal(name);
     }
 }
