@@ -5,14 +5,16 @@ const html = fs.readFileSync('website/public/index.html', 'utf8');
 const code = fs.readFileSync('website/video-banner.js', 'utf8');
 function setup(reduced, reject = false, savedMotion = false) {
   const dom = new JSDOM(html, { url: 'https://example.test/', runScripts: 'outside-only' });
-  const w = dom.window, d = w.document, video = d.getElementById('fresh-banner-video'), button = d.getElementById('fresh-banner-motion');
+  const w = dom.window, d = w.document, video = d.getElementById('fresh-banner-video'), head = d.getElementById('fresh-banner-head'), button = d.getElementById('fresh-banner-motion');
   if (savedMotion) w.localStorage.setItem('fmf-extra-motion', '1');
-  let listener, removed = false, plays = 0, pauses = 0;
+  let listener, removed = false, plays = 0, pauses = 0, headPlays = 0, headPauses = 0;
   w.matchMedia = () => ({ matches: reduced, addEventListener(event, fn) { listener = fn; }, removeEventListener() { removed = true; } });
-  video.play = () => { plays++; return reject ? Promise.reject(new Error('blocked')) : Promise.resolve(); };
+  video.play = () => { plays++; return reject === true ? Promise.reject(new Error('blocked')) : Promise.resolve(); };
   video.pause = () => { pauses++; };
+  head.play = () => { headPlays++; return reject === 'head' ? Promise.reject(new Error('blocked head')) : Promise.resolve(); };
+  head.pause = () => { headPauses++; };
   w.eval(code);
-  return {dom, w, d, video, button, get plays(){return plays}, get pauses(){return pauses}, get removed(){return removed}, reduce(){listener({matches:true})}};
+  return {dom, w, d, video, head, button, get plays(){return plays}, get pauses(){return pauses}, get headPlays(){return headPlays}, get headPauses(){return headPauses}, get removed(){return removed}, reduce(){listener({matches:true})}};
 }
 (async function () {
   const normal = setup(false);
@@ -23,27 +25,31 @@ function setup(reduced, reject = false, savedMotion = false) {
   assert.match(normal.d.querySelector('.fresh-video-banner h2').textContent, /Fresh Moves Fix/);
   const banner = normal.d.querySelector('.fresh-video-banner');
   assert(banner.querySelector('.fresh-banner-ingot .fresh-ingot-shine'));
-  assert(banner.querySelector('.fresh-banner-art[aria-hidden="true"] .fresh-banner-head .fresh-banner-eyes'), 'decorative blinking head is next to the ingot');
-  assert.match(banner.querySelector('.fresh-banner-head image').getAttribute('href'), /^fresh-banner-character\.png\?v=/, 'banner uses the supplied character image');
-  assert.equal(banner.querySelectorAll('.fresh-banner-eyes path').length, 2, 'closed-eye overlays are present');
+  assert(banner.querySelector('.fresh-banner-art[aria-hidden="true"] video.fresh-banner-head'), 'decorative head video is next to the ingot');
+  assert.match(normal.head.getAttribute('src'), /^fresh-banner-head\.mp4\?v=/);
+  assert.match(normal.head.getAttribute('poster'), /^fresh-banner-head-poster\.png\?v=/);
+  assert(normal.head.hasAttribute('muted') && normal.head.hasAttribute('loop') && normal.head.hasAttribute('playsinline') && normal.head.hasAttribute('data-music-ignore'));
+  assert.equal(normal.headPlays, 1);
   assert(banner.classList.contains('banner-motion-playing'), 'ingot and head animation start with the banner');
-  normal.button.click(); assert.equal(normal.pauses, 1); assert.equal(normal.button.textContent, 'Play animation'); assert(!banner.classList.contains('banner-motion-playing'));
-  normal.button.click(); assert.equal(normal.plays, 2); assert(banner.classList.contains('banner-motion-playing'));
+  normal.button.click(); assert.equal(normal.pauses, 1); assert.equal(normal.headPauses, 1); assert.equal(normal.button.textContent, 'Play animation'); assert(!banner.classList.contains('banner-motion-playing'));
+  normal.button.click(); assert.equal(normal.plays, 2); assert.equal(normal.headPlays, 2); assert(banner.classList.contains('banner-motion-playing'));
   normal.reduce(); assert.equal(normal.button.textContent, 'Play animation'); assert(!banner.classList.contains('banner-motion-playing'));
   normal.video.dispatchEvent(new normal.w.Event('error')); assert(normal.button.disabled); assert.equal(normal.button.textContent, 'Animation unavailable'); assert(!banner.classList.contains('banner-motion-playing'));
   normal.video.remove(); normal.d.dispatchEvent(new normal.w.Event('fmf-nav')); assert(normal.removed); normal.dom.window.close();
-  const reduced = setup(true); assert.equal(reduced.plays, 0); assert(!reduced.video.hasAttribute('src'), 'reduced motion does not fetch video');
+  const reduced = setup(true); assert.equal(reduced.plays, 0); assert.equal(reduced.headPlays, 0); assert(!reduced.video.hasAttribute('src') && !reduced.head.hasAttribute('src'), 'reduced motion does not fetch video');
   assert.equal(reduced.button.textContent, 'Play animation'); assert(!reduced.d.querySelector('.fresh-video-banner').classList.contains('banner-motion-playing'));
-  reduced.button.click(); assert.equal(reduced.plays, 1); assert(reduced.d.querySelector('.fresh-video-banner').classList.contains('banner-motion-playing')); reduced.dom.window.close();
-  const blocked = setup(false, true); await Promise.resolve(); assert.equal(blocked.button.textContent, 'Play animation'); assert(!blocked.button.disabled); assert(!blocked.d.querySelector('.fresh-video-banner').classList.contains('banner-motion-playing')); blocked.dom.window.close();
+  reduced.button.click(); assert.equal(reduced.plays, 1); assert.equal(reduced.headPlays, 1); assert(reduced.d.querySelector('.fresh-video-banner').classList.contains('banner-motion-playing')); reduced.dom.window.close();
+  const blocked = setup(false, true); await new Promise(resolve => setTimeout(resolve, 0)); assert.equal(blocked.button.textContent, 'Play animation'); assert(!blocked.button.disabled); assert.equal(blocked.headPauses, 1); assert(!blocked.d.querySelector('.fresh-video-banner').classList.contains('banner-motion-playing')); blocked.dom.window.close();
+  const headBlocked = setup(false, 'head'); await new Promise(resolve => setTimeout(resolve, 0)); assert.equal(headBlocked.button.textContent, 'Play animation'); assert.equal(headBlocked.pauses, 1); headBlocked.dom.window.close();
+  const headError = setup(false); headError.head.dispatchEvent(new headError.w.Event('error')); assert(headError.button.disabled); assert.equal(headError.pauses, 1); assert.equal(headError.headPauses, 1); headError.dom.window.close();
   const saved = setup(false, false, true);
-  assert.equal(saved.plays, 0); assert(!saved.video.hasAttribute('src')); assert(saved.button.disabled);
+  assert.equal(saved.plays, 0); assert.equal(saved.headPlays, 0); assert(!saved.video.hasAttribute('src') && !saved.head.hasAttribute('src')); assert(saved.button.disabled);
   assert.equal(saved.button.textContent, 'Motion reduced in quick settings');
   saved.d.dispatchEvent(new saved.w.CustomEvent('fmf-motion-change', { detail: { reduced: false } }));
   assert(!saved.button.disabled); assert.equal(saved.button.textContent, 'Play animation');
   saved.button.click(); assert.equal(saved.plays, 1);
   saved.d.dispatchEvent(new saved.w.CustomEvent('fmf-motion-change', { detail: { reduced: true } }));
-  assert.equal(saved.pauses, 1); assert(saved.button.disabled); assert(!saved.d.querySelector('.fresh-video-banner').classList.contains('banner-motion-playing'));
+  assert.equal(saved.pauses, 1); assert.equal(saved.headPauses, 1); assert(saved.button.disabled); assert(!saved.d.querySelector('.fresh-video-banner').classList.contains('banner-motion-playing'));
   saved.dom.window.close();
   const integrated = setup(false); integrated.w.requestAnimationFrame = fn => fn(); integrated.w.scrollTo = () => {};
   integrated.w.eval(fs.readFileSync('website/enhancements.js', 'utf8'));
@@ -54,8 +60,10 @@ function setup(reduced, reject = false, savedMotion = false) {
   assert(!integrated.button.disabled); assert.equal(integrated.button.textContent, 'Play animation'); integrated.dom.window.close();
   const css = fs.readFileSync('website/refresh-2027.css', 'utf8');
   assert.match(css, /@keyframes fresh-ingot-float/); assert.match(css, /\.fresh-banner-ingot[^}]*animation-play-state:\s*paused/); assert.match(css, /\.banner-motion-playing \.fresh-banner-ingot/);
-  assert.match(css, /@keyframes fresh-head-blink/); assert.match(css, /\.fresh-banner-eyes[^}]*animation-play-state:\s*paused/); assert.match(css, /\.banner-motion-playing \.fresh-banner-eyes/); assert.match(css, /\.fresh-video-banner-content[^}]*flex-wrap:\s*wrap/);
-  assert(fs.readFileSync('website/public/fresh-banner-character.png').equals(fs.readFileSync('website/fresh-banner-character.png')), 'character image is copied into the site');
-  const mp4 = fs.readFileSync('website/public/fresh-moves-banner.mp4'); assert.equal(mp4.toString('ascii', 4, 8), 'ftyp');
+  assert.match(css, /#fresh-banner-video\s*\{/); assert.match(css, /\.fresh-video-banner-content[^}]*flex-wrap:\s*wrap/);
+  assert(fs.readFileSync('website/public/fresh-banner-head-poster.png').equals(fs.readFileSync('website/fresh-banner-head-poster.png')), 'static poster is copied into the site');
+  for (const name of ['fresh-moves-banner.mp4', 'fresh-banner-head.mp4']) {
+    const mp4 = fs.readFileSync('website/public/' + name); assert.equal(mp4.toString('ascii', 4, 8), 'ftyp');
+  }
   console.log('Silent banner, text, icon, playback, reduced motion, errors and navigation passed (mocked media)');
 })().catch(error => { console.error(error); process.exitCode = 1; });

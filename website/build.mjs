@@ -221,7 +221,7 @@ fs.writeFileSync(path.join(out, "tableau.json"), JSON.stringify({
 }));
 for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png", "icon-painted.png", "icon-painter-dummy.png", "icon-paint-pixel.svg", "icon-model-pixel.svg", "icon-anim-pixel.svg", "icon-cape-project-pixel.svg", "icon-lock-project-pixel.svg"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
-for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner-profile.png", "owner-skin.png", "lie-kg-skin.png", "lie-kg-profile.png", "fresh-banner-character.png", "emf-icon.png", "etf-icon.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
+for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner-profile.png", "owner-skin.png", "lie-kg-skin.png", "lie-kg-profile.png", "fresh-banner-character.png", "fresh-banner-head-poster.png", "fresh-banner-head.mp4", "emf-icon.png", "etf-icon.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "refresh-2026.css"), path.join(out, "refresh-2026.css"));
 fs.copyFileSync(path.join(here, "refresh-2027.css"), path.join(out, "refresh-2027.css"));
 fs.copyFileSync(path.join(here, "fresh-moves-banner.mp4"), path.join(out, "fresh-moves-banner.mp4"));
@@ -1648,7 +1648,7 @@ write("index.html", page({
   <div class="fresh-video-banner-content">
     <div class="fresh-banner-art" aria-hidden="true">
       <svg class="fresh-banner-ingot" viewBox="0 0 64 48" shape-rendering="crispEdges"><path fill="#252c32" d="M13 5h42v5h5v7l-7 24H5v-7L13 10z"/><path fill="#687982" d="M13 30h43l-3 9H7z"/><path fill="#9caeb5" d="M14 9h39l5 7-5 14H9l3-14z"/><path fill="#e1edef" d="M16 11h35l3 5-4 3H15l-3-3z"/><path fill="#bed0d4" d="M12 19h39l-3 8H10z"/><path class="fresh-ingot-shine" fill="#f5ffff" d="M17 12h24v3H16z"/></svg>
-      <svg class="fresh-banner-head" viewBox="0 0 512 512"><image href="fresh-banner-character.png?v=${ver("fresh-banner-character.png")}" width="512" height="512"/><g class="fresh-banner-eyes" shape-rendering="crispEdges"><path fill="#aa764e" d="M164 180h54l-1 40h-54zm102 0h55l-1 40h-55z"/><path fill="#71472f" d="M166 211h49v3h-49zm102 0h49v3h-49z"/></g></svg>
+      <video id="fresh-banner-head" class="fresh-banner-head" data-src="fresh-banner-head.mp4?v=${ver("fresh-banner-head.mp4")}" poster="fresh-banner-head-poster.png?v=${ver("fresh-banner-head-poster.png")}" muted loop playsinline preload="none" data-music-ignore></video>
     </div>
     <div class="fresh-banner-copy"><span class="fresh-banner-kicker">A LITTLE MORE LIFE</span><h2>Fresh Moves <span>Fix</span></h2><p>Made for Minecraft. Built for expression.</p></div>
   </div>
