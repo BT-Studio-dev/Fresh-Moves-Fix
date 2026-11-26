@@ -1,10 +1,21 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const { marked } = require('../website/node_modules/marked');
+const { JSDOM } = require('../website/node_modules/jsdom');
 const readme = fs.readFileSync('README.md', 'utf8');
+const rendered = new JSDOM(marked.parse(readme)).window.document;
 const images = [...readme.matchAll(/!\[([^\]]*)\]\(([^)]+)\)/g)];
 const pageFiles = fs.readdirSync('.github/page').filter(x => x.endsWith('.png')).sort();
-assert.equal(pageFiles.length, 12, 'the README image set should contain 12 separate PNGs');
+assert.equal(pageFiles.length, 14, 'the README image set should contain 14 separate PNGs');
+for (const [file, label, url] of [
+  ['required-emf.png', 'Entity Model Features (EMF)', 'https://modrinth.com/mod/entity-model-features'],
+  ['required-etf.png', 'Entity Texture Features (ETF)', 'https://modrinth.com/mod/entitytexturefeatures'],
+]) {
+  assert(readme.includes(`](.github/page/${file})](${url})`), `${file} should link to its own official mod page`);
+  assert.equal(rendered.querySelector(`img[src=".github/page/${file}"]`)?.closest('a')?.href, url, `${file} must render as a clickable link`);
+  assert(readme.includes(`[${label}](${url})`), `${file} also needs a text link`);
+}
 for (const [, alt, target] of images) {
   assert(alt.trim(), `${target} needs meaningful alt text`);
   assert(fs.existsSync(target), `${target} is missing`);

@@ -128,6 +128,19 @@ def tile(filename, title, description, symbol):
     save(im, filename)
 
 
+def required_mod(filename, acronym, title, icon):
+    im = background((760, 260)); d = ImageDraw.Draw(im)
+    d.rounded_rectangle((23, 23, 225, 225), radius=16, fill='#122a20', outline=LINE, width=2)
+    logo = Image.open(ROOT / icon).convert('RGBA')
+    logo = ImageOps.contain(logo, (185, 185), method=Image.Resampling.LANCZOS)
+    im.paste(logo, (31 + (185 - logo.width) // 2, 31 + (185 - logo.height) // 2), logo)
+    label(d, (253, 35), 'REQUIRED MOD  /  ' + acronym, 19, GREEN, True)
+    label(d, (249, 78), title, 31, INK, True)
+    label(d, (253, 137), 'Choose your game and loader', 21, MUTED)
+    label(d, (253, 190), 'VIEW ON MODRINTH  →', 19, GREEN, True)
+    save(im, filename)
+
+
 banner()
 heading('head-features.png', '01  /  EXPLORE', 'Made for more expression', 'A closer look at the pack and its browser tools.')
 heading('head-install.png', '02  /  GET STARTED', 'Set up in three steps', 'A matching Minecraft version and mod loader matter.')
@@ -140,4 +153,6 @@ install()
 tile('tile-github.png', 'GitHub releases', 'Choose a pack ZIP', '↓')
 tile('tile-editor.png', 'Skin Eye Editor', 'Make expressive eyes', '✦')
 tile('tile-guides.png', 'Guides & help', 'Learn the skin layout', '?')
-print(f'Created 12 README images in {OUT.relative_to(ROOT)}')
+required_mod('required-emf.png', 'EMF', 'Entity Model Features', 'website/emf-icon.png')
+required_mod('required-etf.png', 'ETF', 'Entity Texture Features', 'website/etf-icon.png')
+print(f'Created 14 README images in {OUT.relative_to(ROOT)}')

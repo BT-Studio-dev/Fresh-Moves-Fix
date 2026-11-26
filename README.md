@@ -16,9 +16,11 @@ A Minecraft Java resource pack fork with player animations, animated eyes and br
 
 ## Requirements
 
-![EMF and ETF are required](docs/images/requirements.png)
+| Entity Model Features | Entity Texture Features |
+| :---: | :---: |
+| [![Open Entity Model Features on Modrinth](.github/page/required-emf.png)](https://modrinth.com/mod/entity-model-features) | [![Open Entity Texture Features on Modrinth](.github/page/required-etf.png)](https://modrinth.com/mod/entitytexturefeatures) |
 
-You need the **LATEST** versions of [Entity Model Features](https://modrinth.com/mod/entity-model-features) (+v2.0.2) and [Entity Texture Features](https://modrinth.com/mod/entitytexturefeatures) (+v6.0.1) to use this pack.
+You need compatible versions of [Entity Model Features (EMF)](https://modrinth.com/mod/entity-model-features) (v2.0.2 or newer) and [Entity Texture Features (ETF)](https://modrinth.com/mod/entitytexturefeatures) (v6.0.1 or newer) to use this pack. Choose releases that match your Minecraft version and mod loader.
 These are client-side mods that are available for Fabric, Forge and NeoForge.
 
 On Minecraft 1.21.9 and newer use EMF 3.0.12 or newer, otherwise armour does not follow the animations.
