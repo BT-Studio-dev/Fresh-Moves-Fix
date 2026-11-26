@@ -1,0 +1,7 @@
+accessWidener v2    named
+accessible  class   net/minecraft/client/Minecraft$GameLoadCookie
+
+accessible  method  net/minecraft/client/renderer/RenderPipelines   register    (Lcom/mojang/blaze3d/pipeline/RenderPipeline;)Lcom/mojang/blaze3d/pipeline/RenderPipeline;
+
+accessible  field   net/minecraft/client/renderer/RenderPipelines   GUI_TEXTURED_SNIPPET  Lcom/mojang/blaze3d/pipeline/RenderPipeline$Snippet;
+mutable field   com/mojang/blaze3d/textures/GpuTexture usage I

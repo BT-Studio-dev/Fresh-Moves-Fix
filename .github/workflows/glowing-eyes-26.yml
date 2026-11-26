@@ -1,0 +1,50 @@
+name: Build experimental Glowing Eyes 26.3
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'glowing-eyes-fabric-26/**'
+      - '.github/workflows/glowing-eyes-26.yml'
+  push:
+    paths:
+      - 'glowing-eyes-fabric-26/**'
+      - '.github/workflows/glowing-eyes-26.yml'
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.8.2'
+      - name: Build experimental Fabric port
+        working-directory: glowing-eyes-fabric-26
+        run: gradle build --no-daemon
+      - name: Check artifact metadata
+        run: |
+          python3 - <<'PY'
+          import json, zipfile
+          path = 'glowing-eyes-fabric-26/build/libs/glowing-eyes-fmf-fabric-26.3-experimental.jar'
+          with zipfile.ZipFile(path) as jar:
+              assert jar.testzip() is None
+              meta = json.loads(jar.read('fabric.mod.json'))
+              assert meta['id'] == 'glowingeyes'
+              assert meta['depends']['minecraft'] == '=26.3'
+              assert meta['depends']['java'] == '>=25'
+              assert 'experimental' in meta['name'].lower()
+              assert 'NOTICE.md' in jar.namelist()
+              assert any(x.endswith('GlowingEyesClient.class') for x in jar.namelist())
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: glowing-eyes-fmf-fabric-26.3-experimental
+          path: glowing-eyes-fabric-26/build/libs/glowing-eyes-fmf-fabric-26.3-experimental.jar
+          if-no-files-found: error
+          retention-days: 7
