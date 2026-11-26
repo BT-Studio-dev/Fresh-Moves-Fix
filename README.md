@@ -1,6 +1,10 @@
 # Fresh-Moves-Fix
 
-![Fresh Moves Fix](docs/images/banner.png)
+![Fresh Moves Fix: player animations and animated eyes, shown in a website-made preview](docs/images/banner.png)
+
+A Minecraft Java resource pack fork with player animations, animated eyes and browser-based skin tools.
+
+[Download releases](https://github.com/BT-Studio-dev/Fresh-Moves-Fix/releases) · [Open the website](https://fresh-moves-fix.vercel.app/) · [Skin Eye Editor](https://fresh-moves-fix.vercel.app/editor/) · [Guides](docs/Home.md)
 
 ## Requirements
 
@@ -17,6 +21,28 @@ On Minecraft 26.1, 26.1.1 and 26.1.2 use EMF 3.3.2 or newer (older versions do n
 
 - [All guides (wiki home)](docs/Home.md)
 - [All releases and Minecraft versions](docs/Versions.md)
+
+## Preview
+
+These illustrations were made with the website tools; they are not in-game screenshots. Features and compatibility can vary by Minecraft version and skin.
+
+### Animated eyes
+
+![Illustration of open, looking left, looking right and blinking eyes](docs/images/gallery-2-eyes.png)
+
+Use the [Skin Eye Editor](https://fresh-moves-fix.vercel.app/editor/) and [eye guides](docs/Home.md) to prepare your skin.
+
+### Player animations
+
+![Illustrated examples of player movements and animations](docs/images/gallery-3-animations.png)
+
+The graphic shows examples of the pack's intended animations; see the testing notes below before installing.
+
+### Animation maker
+
+![Examples of poses in the browser-based Minecraft Animation maker](docs/images/gallery-5-animation-maker.png)
+
+Try the separate [Minecraft Animation maker](https://fresh-moves-fix.vercel.app/animation/) in your browser.
 
 ## Changes from the original pack
 
