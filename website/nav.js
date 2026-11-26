@@ -34,6 +34,13 @@
       var target = new URL(url, location.href);
       if (push) history.pushState({ fmf: 1 }, "", target.href); // before inserting, so relative links resolve
       document.title = doc.title;
+      // Keep page-specific search and sharing metadata consistent after a
+      // client-side navigation, including when the destination has no canonical.
+      ['meta[name="description"]', 'meta[name="robots"]', 'meta[property="og:title"]', 'meta[property="og:url"]', 'link[rel="canonical"]'].forEach(function (selector) {
+        document.head.querySelectorAll(selector).forEach(function (old) { old.remove(); });
+        var next = doc.head.querySelector(selector);
+        if (next) document.head.appendChild(next.cloneNode(true));
+      });
       var scripts = [];
       doc.body.querySelectorAll("script").forEach(function (s) {
         // resolve the script address against the new page

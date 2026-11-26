@@ -186,8 +186,20 @@ ${body}
 }
 
 const commentPages = new Set(["editor", "title", "paint", "model", "animation", "cape", "render", "pfp", "highlights", "banner-studio", "pfp-studio", "pose", "creator"]);
+// Only public content pages belong in the sitemap; account and utility pages
+// should not be search results. This is not an access-control mechanism.
+const noIndexPages = new Set(["404.html", "account/index.html", "messages/index.html", "profiles/index.html", "settings/index.html"]);
+const sitemapUrls = [];
 function write(rel, html) {
   const pageId = rel.endsWith("/index.html") ? rel.slice(0, -"/index.html".length) : "";
+  if (noIndexPages.has(rel)) {
+    html = html.replace("</head>", '<meta name="robots" content="noindex, follow">\n</head>');
+  } else {
+    const route = rel === "index.html" ? "" : rel.replace(/index\.html$/, "");
+    const canonical = new URL(route, SITE).href;
+    sitemapUrls.push(canonical);
+    html = html.replace("</head>", `<link rel="canonical" href="${esc(canonical)}">\n<meta property="og:url" content="${esc(canonical)}">\n</head>`);
+  }
   if (commentPages.has(pageId)) {
     const comments = `<div class="wrap comments-wrap"><section class="card comments-card" id="tool-comments" data-page="${pageId}" aria-labelledby="comments-title"><h2 id="comments-title">Comments</h2><p>Share your thoughts about this tool. Comments are public.</p><p data-comments-login>Want to join in? <a href="../account/">Sign in to comment</a>.</p><form hidden><label for="comment-body">Your comment</label><textarea id="comment-body" maxlength="1000" rows="3" required placeholder="Write a comment…"></textarea><div class="comment-image-field"><label for="comment-image">Add an image (optional)</label><input id="comment-image" type="file" accept="image/png,image/jpeg,image/webp"><small>PNG, JPEG or WebP, up to 2 MB. Images are resized before posting.</small><img data-comment-preview alt="Selected image preview" hidden></div><div class="comments-actions"><small>Up to 1,000 characters</small><button class="btn" type="submit">Post comment</button></div></form><p data-comments-status role="status" aria-live="polite"></p><div data-comments-list></div></section></div><script src="../comments.bundle.js?v=${ver("comments.js")}"></script>`;
     html = html.replace("<footer>", comments + "<footer>");
@@ -1819,5 +1831,9 @@ ${versionLinks}
 <script src="owner-profiles.bundle.js?v=${ver("owner-profiles.js")}"></script>
 <script src="video-banner.js?v=${ver("video-banner.js")}"></script>`,
 }));
+
+// Build from the pages actually written, so guide additions stay in sync.
+fs.writeFileSync(path.join(out, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${SITE}sitemap.xml\n`);
+fs.writeFileSync(path.join(out, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapUrls.sort().map(url => `  <url><loc>${esc(url)}</loc></url>`).join("\n")}\n</urlset>\n`);
 
 console.log(`Built website: ${docs.length} guides, ${versions.length} Minecraft versions, release v${version}`);
