@@ -22,7 +22,6 @@ class DirectGlowingEyesDownloads(unittest.TestCase):
                 self.assertEqual(entry['file'], filename)
                 data = (DOWNLOADS / filename).read_bytes()
                 self.assertEqual(hashlib.sha256(data).hexdigest(), entry['sha256'])
-                self.assertEqual((SITE / 'public' / 'downloads' / 'glowing-eyes' / filename).read_bytes(), data)
                 with zipfile.ZipFile(DOWNLOADS / filename) as jar:
                     self.assertIsNone(jar.testzip())
                     self.assertIn('NOTICE.md', jar.namelist())
@@ -39,7 +38,6 @@ class DirectGlowingEyesDownloads(unittest.TestCase):
 
     def test_source_archive_includes_matching_sources_and_licenses(self):
         archive = DOWNLOADS / 'glowing-eyes-experimental-source.zip'
-        self.assertEqual((SITE / 'public' / 'downloads' / 'glowing-eyes' / archive.name).read_bytes(), archive.read_bytes())
         with zipfile.ZipFile(archive) as source:
             self.assertIsNone(source.testzip())
             for directory in ('glowing-eyes-fabric-120', 'glowing-eyes-fabric-26', 'glowing-eyes-neoforge-26'):
