@@ -2,12 +2,16 @@
 (function () {
   const video = document.getElementById('fresh-banner-video');
   const button = document.getElementById('fresh-banner-motion');
-  if (!video || !button) return;
+  const banner = video && video.closest('.fresh-video-banner');
+  if (!video || !button || !banner) return;
   const preference = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
   let wanted = false;
   let failed = false;
   let attempt = 0;
-  function update() { button.textContent = failed ? 'Animation unavailable' : (wanted ? 'Pause animation' : 'Play animation'); }
+  function update() {
+    button.textContent = failed ? 'Animation unavailable' : (wanted ? 'Pause animation' : 'Play animation');
+    banner.classList.toggle('banner-motion-playing', wanted && !failed);
+  }
   function pause() { attempt++; wanted = false; video.pause(); update(); }
   function play() {
     if (failed) return;

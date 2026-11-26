@@ -1646,7 +1646,7 @@ write("index.html", page({
 <section class="fresh-video-banner" aria-label="Fresh Moves Fix animated banner">
   <video id="fresh-banner-video" data-src="fresh-moves-banner.mp4?v=${ver("fresh-moves-banner.mp4")}" muted loop playsinline preload="none" aria-hidden="true" data-music-ignore></video>
   <div class="fresh-video-banner-content">
-    <svg class="fresh-banner-ingot" viewBox="0 0 64 48" aria-hidden="true" shape-rendering="crispEdges"><path fill="#252c32" d="M13 5h42v5h5v7l-7 24H5v-7L13 10z"/><path fill="#687982" d="M13 30h43l-3 9H7z"/><path fill="#9caeb5" d="M14 9h39l5 7-5 14H9l3-14z"/><path fill="#e1edef" d="M16 11h35l3 5-4 3H15l-3-3z"/><path fill="#bed0d4" d="M12 19h39l-3 8H10z"/><path fill="#f5ffff" d="M17 12h24v3H16z"/></svg>
+    <svg class="fresh-banner-ingot" viewBox="0 0 64 48" aria-hidden="true" shape-rendering="crispEdges"><path fill="#252c32" d="M13 5h42v5h5v7l-7 24H5v-7L13 10z"/><path fill="#687982" d="M13 30h43l-3 9H7z"/><path fill="#9caeb5" d="M14 9h39l5 7-5 14H9l3-14z"/><path fill="#e1edef" d="M16 11h35l3 5-4 3H15l-3-3z"/><path fill="#bed0d4" d="M12 19h39l-3 8H10z"/><path class="fresh-ingot-shine" fill="#f5ffff" d="M17 12h24v3H16z"/></svg>
     <div><span class="fresh-banner-kicker">A LITTLE MORE LIFE</span><h2>Fresh Moves <span>Fix</span></h2><p>Made for Minecraft. Built for expression.</p></div>
   </div>
   <button class="fresh-banner-motion" id="fresh-banner-motion" type="button" hidden>Play animation</button>
