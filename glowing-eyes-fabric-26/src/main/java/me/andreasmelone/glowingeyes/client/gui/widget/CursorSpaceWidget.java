@@ -2,7 +2,7 @@ package me.andreasmelone.glowingeyes.client.gui.widget;
 
 import me.andreasmelone.glowingeyes.client.util.TextureLocations;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -52,7 +52,7 @@ public class CursorSpaceWidget extends AbstractWidget implements GuiEventListene
     }
 
     @Override
-    protected void renderWidget(@NotNull GuiGraphics ctx, int mouseX, int mouseY, float partialTick) {
+    protected void extractWidgetRenderState(@NotNull GuiGraphicsExtractor ctx, int mouseX, int mouseY, float partialTick) {
         if(!this.isUsed()) return;
         ctx.pose().pushMatrix();
         ctx.pose().translate((float) this.cursorX, (float) this.cursorY);

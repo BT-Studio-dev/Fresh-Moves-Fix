@@ -1,7 +1,7 @@
 package me.andreasmelone.glowingeyes.client.gui.button;
 
 import me.andreasmelone.glowingeyes.client.util.GuiUtil;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.WidgetSprites;
@@ -32,7 +32,7 @@ public class TintedOverlayImageButton extends ImageButton {
     }
 
     @Override
-    public void renderContents(@NotNull GuiGraphics ctx, int mouseX, int mouseY, float partialTick) {
+    public void extractContents(@NotNull GuiGraphicsExtractor ctx, int mouseX, int mouseY, float partialTick) {
         Identifier sprite = this.sprites.get(this.isActive(), this.isHoveredOrFocused());
         ctx.blitSprite(
                 RenderPipelines.GUI_TEXTURED, sprite,

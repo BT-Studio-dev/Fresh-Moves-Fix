@@ -1,7 +1,7 @@
 package me.andreasmelone.glowingeyes.fabric.client.render;
 
 import me.andreasmelone.glowingeyes.client.render.GlowingEyesHeadLayer;
-import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
@@ -11,7 +11,7 @@ import net.minecraft.world.entity.player.Player;
 public class RenderManager {
     @SuppressWarnings("unchecked")
     public static void init() {
-        LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
+        LivingEntityRenderLayerRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
             if(entityType == EntityType.PLAYER) {
                 registrationHelper.register(
                         new GlowingEyesHeadLayer<>((LivingEntityRenderer<? extends Player, AvatarRenderState, EntityModel<AvatarRenderState>>) entityRenderer)

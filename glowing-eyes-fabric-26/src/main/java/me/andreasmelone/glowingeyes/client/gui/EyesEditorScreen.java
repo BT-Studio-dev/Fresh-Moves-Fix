@@ -24,7 +24,7 @@ import me.andreasmelone.glowingeyes.common.util.Color;
 import me.andreasmelone.glowingeyes.common.util.Point;
 import me.andreasmelone.glowingeyes.mixin.client.GpuTextureAccessor;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
@@ -194,14 +194,14 @@ public class EyesEditorScreen extends Screen {
     /**
      * The method that renders the screen
      *
-     * @param ctx       The GuiGraphics object which contains all rendering functions and the current context
+     * @param ctx       The GuiGraphicsExtractor object which contains all rendering functions and the current context
      * @param mouseX    The x position of the mouse
      * @param mouseY    The y position of the mouse
      * @param deltaTime The time since the last frame
      */
     @Override
-    public void render(@NotNull GuiGraphics ctx, int mouseX, int mouseY, float deltaTime) {
-        super.renderBackground(ctx, mouseX, mouseY, deltaTime);
+    public void extractRenderState(@NotNull GuiGraphicsExtractor ctx, int mouseX, int mouseY, float deltaTime) {
+        super.extractBackground(ctx, mouseX, mouseY, deltaTime);
 
         GuiUtil.drawBackground(ctx,
                 TextureLocations.UI_BACKGROUND_BROAD, this.guiLeft, this.guiTop, UI_WIDTH, UI_HEIGHT);
@@ -281,10 +281,10 @@ public class EyesEditorScreen extends Screen {
                     mouseX + COLOR_BOX_WIDTH / 2, mouseY + COLOR_BOX_HEIGHT / 2 + COLOR_BOX_OFFSET_Y,
                     color.getRGB()
             );
-            ctx.drawCenteredString(this.minecraft.font, text,
+            ctx.centeredText(this.minecraft.font, text,
                     mouseX, mouseY - COLOR_LABEL_OFFSET_Y, Color.WHITE.getRGB());
         }
-        super.render(ctx, mouseX, mouseY, deltaTime);
+        super.extractRenderState(ctx, mouseX, mouseY, deltaTime);
     }
 
     @Override
@@ -323,7 +323,7 @@ public class EyesEditorScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(@NotNull GuiGraphics ctx, int mouseX, int mouseY, float partialTick) {
+    public void extractBackground(@NotNull GuiGraphicsExtractor ctx, int mouseX, int mouseY, float partialTick) {
     }
 
     private Color getTexturePixelColor(Identifier texture, int texSizeX, int texSizeY, int x, int y) {

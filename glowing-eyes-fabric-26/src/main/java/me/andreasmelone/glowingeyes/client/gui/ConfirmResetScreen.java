@@ -7,7 +7,7 @@ import me.andreasmelone.glowingeyes.common.component.eyes.GlowingEyesComponent;
 import me.andreasmelone.glowingeyes.common.util.Color;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -81,18 +81,18 @@ public class ConfirmResetScreen extends Screen {
     }
 
     @Override
-    public void render(@NotNull GuiGraphics ctx, int mouseX, int mouseY, float partialTicks) {
+    public void extractRenderState(@NotNull GuiGraphicsExtractor ctx, int mouseX, int mouseY, float partialTicks) {
         if(this.parent != null) {
-            this.parent.render(ctx, 0, 0, partialTicks);
+            this.parent.extractRenderState(ctx, 0, 0, partialTicks);
             GuiUtil.drawTransparentBlack(ctx);
-        } else super.renderBackground(ctx, mouseX, mouseY, partialTicks);
+        } else super.extractBackground(ctx, mouseX, mouseY, partialTicks);
         GuiUtil.drawBackground(
                 ctx, TextureLocations.UI_BACKGROUND_SLIM,
                 this.guiLeft, this.guiTop,
                 UI_WIDTH, UI_HEIGHT
         );
 
-        ctx.drawCenteredString(
+        ctx.centeredText(
                 this.minecraft.font,
                 Component.translatable("gui.glowingeyes.warning").withStyle(ChatFormatting.BOLD),
                 this.middleX, this.guiTop + TEXT_PADDING / 2,
@@ -117,7 +117,7 @@ public class ConfirmResetScreen extends Screen {
                 Color.RED.getRGB()
         );
 
-        super.render(ctx, mouseX, mouseY, partialTicks);
+        super.extractRenderState(ctx, mouseX, mouseY, partialTicks);
     }
 
     @Override
@@ -128,6 +128,6 @@ public class ConfirmResetScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(@NotNull GuiGraphics ctx, int mouseX, int mouseY, float partialTicks) {
+    public void extractBackground(@NotNull GuiGraphicsExtractor ctx, int mouseX, int mouseY, float partialTicks) {
     }
 }

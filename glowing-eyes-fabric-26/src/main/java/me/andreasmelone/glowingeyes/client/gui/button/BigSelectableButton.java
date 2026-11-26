@@ -2,7 +2,7 @@ package me.andreasmelone.glowingeyes.client.gui.button;
 
 import me.andreasmelone.glowingeyes.client.util.TextureLocations;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
@@ -28,7 +28,7 @@ public class BigSelectableButton extends Button {
     }
 
     @Override
-    public void renderContents(@NotNull GuiGraphics ctx, int mouseX, int mouseY, float partialTicks) {
+    public void extractContents(@NotNull GuiGraphicsExtractor ctx, int mouseX, int mouseY, float partialTicks) {
         if(this.visible) {
             Minecraft mc = Minecraft.getInstance();
             Identifier sprite = TextureLocations.BIG_BUTTON.get(!this.isSelected() && this.isActive(), this.isHoveredOrFocused());
@@ -42,7 +42,7 @@ public class BigSelectableButton extends Button {
 
 //            Color color = new Color(this.active ? ACTIVE_COLOR : NOT_ACTIVE_COLOR);
 //            this.renderString(ctx, mc.font, color.withAlpha(this.alpha).getRGB());
-            this.renderDefaultLabel(ctx.textRendererForWidget(this, GuiGraphics.HoveredTextEffects.NONE));
+            this.extractDefaultLabel(ctx.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE));
         }
     }
 

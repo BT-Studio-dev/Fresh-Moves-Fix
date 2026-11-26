@@ -12,3 +12,8 @@ adapted the Fabric client command and key registration API, and disabled
 upstream Flashback, ReplayMod, and Wildfire Gender compat code,
 which still targets older Minecraft APIs. Further API and runtime porting is
 required. Nothing here asserts that the resulting mod compiles or works in game.
+
+Shared 26.1.2 GUI, shader and render-pipeline adaptations were taken from
+[steelsicarius/GlowingEyes-Neoforge-26.1.2-unofficial-port](https://github.com/steelsicarius/GlowingEyes-Neoforge-26.1.2-unofficial-port),
+commit 1ed7c611c7f552dca27a23c9e81825262971efaa, also LGPL-3.0-or-later.
+These changes are being adapted to Fabric and remain unverified in this port.

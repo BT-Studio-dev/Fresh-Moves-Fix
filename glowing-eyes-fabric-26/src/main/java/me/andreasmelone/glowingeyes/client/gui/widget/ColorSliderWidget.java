@@ -3,7 +3,7 @@ package me.andreasmelone.glowingeyes.client.gui.widget;
 import me.andreasmelone.glowingeyes.client.util.GuiUtil;
 import me.andreasmelone.glowingeyes.client.util.TextureLocations;
 import me.andreasmelone.glowingeyes.common.util.Color;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -46,7 +46,7 @@ public class ColorSliderWidget extends AbstractWidget implements GuiEventListene
     }
 
     @Override
-    public void renderWidget(@NotNull GuiGraphics ctx, int mouseX, int mouseY, float deltaTime) {
+    public void extractWidgetRenderState(@NotNull GuiGraphicsExtractor ctx, int mouseX, int mouseY, float deltaTime) {
         GuiUtil.drawHueBar(
                 ctx,
                 this.getX(), this.getY(),

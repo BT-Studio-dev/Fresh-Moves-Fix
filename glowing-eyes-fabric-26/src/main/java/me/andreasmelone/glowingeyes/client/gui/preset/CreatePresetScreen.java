@@ -6,7 +6,7 @@ import me.andreasmelone.glowingeyes.client.util.TextureLocations;
 import me.andreasmelone.glowingeyes.common.component.eyes.GlowingEyesComponent;
 import me.andreasmelone.glowingeyes.common.util.Color;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -78,16 +78,16 @@ public class CreatePresetScreen extends Screen {
     }
 
     @Override
-    public void render(@NotNull GuiGraphics ctx, int mouseX, int mouseY, float partialTicks) {
+    public void extractRenderState(@NotNull GuiGraphicsExtractor ctx, int mouseX, int mouseY, float partialTicks) {
         if (this.parent != null) {
-            this.parent.render(ctx, 0, 0, partialTicks);
+            this.parent.extractRenderState(ctx, 0, 0, partialTicks);
             GuiUtil.drawTransparentBlack(ctx);
-        } else super.renderBackground(ctx, mouseX, mouseY, partialTicks);
+        } else super.extractBackground(ctx, mouseX, mouseY, partialTicks);
         GuiUtil.drawBackground(ctx, TextureLocations.UI_BACKGROUND_SLIM, this.guiLeft, this.guiTop, UI_WIDTH, UI_HEIGHT);
 
-        ctx.drawCenteredString(this.font, Component.translatable("gui.glowingeyes.create.title"), this.width / 2, this.guiTop + TEXT_Y, Color.WHITE.getRGB());
+        ctx.centeredText(this.font, Component.translatable("gui.glowingeyes.create.title"), this.width / 2, this.guiTop + TEXT_Y, Color.WHITE.getRGB());
 
-        super.render(ctx, mouseX, mouseY, partialTicks);
+        super.extractRenderState(ctx, mouseX, mouseY, partialTicks);
     }
 
     @Override
@@ -98,6 +98,6 @@ public class CreatePresetScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(@NotNull GuiGraphics ctx, int mouseX, int mouseY, float partialTick) {
+    public void extractBackground(@NotNull GuiGraphicsExtractor ctx, int mouseX, int mouseY, float partialTick) {
     }
 }

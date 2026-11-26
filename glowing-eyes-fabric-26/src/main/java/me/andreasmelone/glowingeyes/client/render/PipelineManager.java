@@ -1,6 +1,7 @@
 package me.andreasmelone.glowingeyes.client.render;
 
 import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.blaze3d.pipeline.ColorTargetState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -14,14 +15,14 @@ public class PipelineManager {
     public static final RenderPipeline.Snippet COLOR_SQUARE_SNIPPET = RenderPipeline.builder(RenderPipelines.GUI_TEXTURED_SNIPPET)
             .withVertexShader(Util.id(GlowingEyes.MOD_ID, "core/color_square"))
             .withFragmentShader(Util.id(GlowingEyes.MOD_ID, "core/color_square"))
-            .withBlend(BlendFunction.TRANSLUCENT)
+            .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
             .withVertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS)
             .buildSnippet();
 
     public static final RenderPipeline.Snippet HUE_BAR_SNIPPET = RenderPipeline.builder(RenderPipelines.GUI_TEXTURED_SNIPPET)
             .withVertexShader(Util.id(GlowingEyes.MOD_ID, "core/hue_bar"))
             .withFragmentShader(Util.id(GlowingEyes.MOD_ID, "core/hue_bar"))
-            .withBlend(BlendFunction.TRANSLUCENT)
+            .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
             .withVertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS)
             .buildSnippet();
 

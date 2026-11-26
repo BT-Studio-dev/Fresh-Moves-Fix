@@ -5,7 +5,7 @@ import me.andreasmelone.glowingeyes.client.render.PipelineManager;
 import me.andreasmelone.glowingeyes.common.util.Color;
 import me.andreasmelone.glowingeyes.common.util.Util;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
@@ -22,12 +22,12 @@ public class GuiUtil {
      * @param width The width of the texture (usually named xSize)
      * @param height The height of the texture (usually named ySize)
      */
-    public static void drawBackground(GuiGraphics guiGraphics, Identifier backgroundTexture, int x, int y, int width, int height) {
+    public static void drawBackground(GuiGraphicsExtractor guiGraphics, Identifier backgroundTexture, int x, int y, int width, int height) {
         // Draw the background texture
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, backgroundTexture, x, y, 0, 0, width, height, 256, 256);
     }
 
-    public static void drawTransparentBlack(GuiGraphics ctx) {
+    public static void drawTransparentBlack(GuiGraphicsExtractor ctx) {
         ctx.fill(0, 0, ctx.guiWidth(), ctx.guiHeight(), 0xBB000000);
     }
 
@@ -43,22 +43,22 @@ public class GuiUtil {
         return new WidgetSprites(Util.id(namespace, enabled), Util.id(namespace, disabled), Util.id(namespace, enabledHighlighted), Util.id(namespace, disabledHighlighted));
     }
 
-    public static int drawWrappedText(GuiGraphics guiGraphics, Font font, Component text, int x, int y, int maxWidth, int color) {
+    public static int drawWrappedText(GuiGraphicsExtractor guiGraphics, Font font, Component text, int x, int y, int maxWidth, int color) {
         List<FormattedCharSequence> lines = font.split(text, maxWidth);
         int lineHeight = font.lineHeight;
 
         for (int i = 0; i < lines.size(); i++) {
-            guiGraphics.drawCenteredString(font, lines.get(i), x, y + (i * lineHeight), color);
+            guiGraphics.centeredText(font, lines.get(i), x, y + (i * lineHeight), color);
         }
 
         return lines.size();
     }
 
-    public static void drawCursorPos(GuiGraphics ctx, Font font, int mouseX, int mouseY) {
-        ctx.drawString(font, "x: " + mouseX + ", y: " + mouseY, 10, 10, Color.WHITE.getRGB());
+    public static void drawCursorPos(GuiGraphicsExtractor ctx, Font font, int mouseX, int mouseY) {
+        ctx.text(font, "x: " + mouseX + ", y: " + mouseY, 10, 10, Color.WHITE.getRGB());
     }
 
-    public static void blitTintedSprite(GuiGraphics ctx, RenderPipeline pipeline, Identifier spriteLocation, int x, int y, int width, int height, int color) {
+    public static void blitTintedSprite(GuiGraphicsExtractor ctx, RenderPipeline pipeline, Identifier spriteLocation, int x, int y, int width, int height, int color) {
         ctx.blitSprite(pipeline, spriteLocation, x, y, width, height, color);
     }
 
@@ -72,7 +72,7 @@ public class GuiUtil {
      * @implNote The colorSquare RenderType takes a texture, but this texture is never actually used by the shader.
      *           This is done in order to acquire the normalized coordinates of the current pass from the fragment shader.
      *
-     * @param ctx The {@link GuiGraphics} object
+     * @param ctx The {@link GuiGraphicsExtractor} object
      * @param x the x coordinate at which the top-left corner of the drawn square will be located
      * @param y the y coordinate at which the top-left corner of the drawn square will be located
      * @param width the width of the bar
@@ -80,7 +80,7 @@ public class GuiUtil {
      * @param color an ARGB color, from which the hue and alpha for the drawn square will be taken.
      *              The saturation and brightness are ignored.
      */
-    public static void drawColorSquare(GuiGraphics ctx, int x, int y, int width, int height, int color) {
+    public static void drawColorSquare(GuiGraphicsExtractor ctx, int x, int y, int width, int height, int color) {
         ctx.blit(
                 PipelineManager.COLOR_SQUARE_SHADER,
                 TextureLocations.CURSOR,    // random texture, it will never get rendered anyway
@@ -96,7 +96,7 @@ public class GuiUtil {
      * @implNote The hueBar RenderType takes a texture, but this texture is never actually used by the shader.
      *           This is done in order to acquire the normalized coordinates of the current pass from the fragment shader.
      *
-     * @param ctx The {@link GuiGraphics} object
+     * @param ctx The {@link GuiGraphicsExtractor} object
      * @param x the x coordinate at which the top-left corner of the drawn bar will be located
      * @param y the y coordinate at which the top-left corner of the drawn bar will be located
      * @param width the width of the bar
@@ -104,7 +104,7 @@ public class GuiUtil {
      * @param color an ARGB color, from which the saturation, brightness and alpha for the drawn bar will be taken.
      *              The hue of this color does not affect the final output, meaning that 0xFFFF0000 and 0xFF00FF00 draw the exact same thing.
      */
-    public static void drawHueBar(GuiGraphics ctx, int x, int y, int width, int height, int color) {
+    public static void drawHueBar(GuiGraphicsExtractor ctx, int x, int y, int width, int height, int color) {
         ctx.blit(
                 PipelineManager.HUE_BAR_SHADER,
                 TextureLocations.CURSOR, // similarly to the color square, just a random texture, never used or rendered by the actual shader
@@ -114,7 +114,7 @@ public class GuiUtil {
         );
     }
 
-    public static void drawOutline(GuiGraphics ctx, int x, int y, int width, int height, int color) {
+    public static void drawOutline(GuiGraphicsExtractor ctx, int x, int y, int width, int height, int color) {
         ctx.fill(x, y, x + width, y + 1, color);
         ctx.fill(x, y + height - 1, x + width, y + height, color);
         ctx.fill(x, y + 1, x + 1, y + height - 1, color);

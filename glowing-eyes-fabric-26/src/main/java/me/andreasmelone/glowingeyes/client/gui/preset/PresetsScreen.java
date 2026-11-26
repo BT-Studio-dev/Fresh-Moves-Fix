@@ -11,7 +11,7 @@ import me.andreasmelone.glowingeyes.common.component.eyes.GlowingEyesComponent;
 import me.andreasmelone.glowingeyes.common.util.Color;
 import me.andreasmelone.glowingeyes.common.util.Point;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -229,11 +229,11 @@ public class PresetsScreen extends Screen {
     }
 
     @Override
-    public void render(@NotNull GuiGraphics ctx, int mouseX, int mouseY, float partialTicks) {
+    public void extractRenderState(@NotNull GuiGraphicsExtractor ctx, int mouseX, int mouseY, float partialTicks) {
         if(this.parent != null) {
-            this.parent.render(ctx, 0, 0, partialTicks);
+            this.parent.extractRenderState(ctx, 0, 0, partialTicks);
             GuiUtil.drawTransparentBlack(ctx);
-        } else super.renderBackground(ctx, mouseX, mouseY, partialTicks);
+        } else super.extractBackground(ctx, mouseX, mouseY, partialTicks);
         GuiUtil.drawBackground(
                 ctx, TextureLocations.UI_BACKGROUND_BROAD,
                 this.guiLeft, this.guiTop,
@@ -256,7 +256,7 @@ public class PresetsScreen extends Screen {
                 64, 64
         );
 
-        InventoryScreen.renderEntityInInventoryFollowsMouse(
+        InventoryScreen.extractEntityInInventoryFollowsMouse(
                 ctx,
                 playerBoxX,                            // x1
                 playerBoxY,                            // y1
@@ -294,7 +294,7 @@ public class PresetsScreen extends Screen {
             GuiUtil.drawCursorPos(ctx, this.font, mouseX, mouseY);
         }
 
-        super.render(ctx, mouseX, mouseY, partialTicks);
+        super.extractRenderState(ctx, mouseX, mouseY, partialTicks);
     }
 
     @Override
@@ -360,7 +360,7 @@ public class PresetsScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(@NotNull GuiGraphics ctx, int mouseX, int mouseY, float partialTick) {
+    public void extractBackground(@NotNull GuiGraphicsExtractor ctx, int mouseX, int mouseY, float partialTick) {
     }
 
     private int calculateThumbHeight() {
