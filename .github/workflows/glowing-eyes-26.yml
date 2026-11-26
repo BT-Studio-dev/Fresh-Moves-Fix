@@ -111,7 +111,7 @@ jobs:
           python3 - <<'PY'
           import base64, hashlib, json, os, pathlib
           version = os.environ['MC_VERSION']
-          jar = pathlib.Path(f'glowing-eyes-26/build/libs/glowing-eyes-fmf-fabric-{version}-experimental.jar')
+          jar = pathlib.Path(f'glowing-eyes-fabric-26/build/libs/glowing-eyes-fmf-fabric-{version}-experimental.jar')
           data = jar.read_bytes()
           pathlib.Path(os.environ['RUNNER_TEMP'], 'blob.json').write_text(json.dumps({'content':base64.b64encode(data).decode(), 'encoding':'base64'}))
           pathlib.Path(os.environ['RUNNER_TEMP'], 'sha256.txt').write_text(hashlib.sha256(data).hexdigest())
