@@ -72,7 +72,7 @@ const ICON = {
 };
 function page({ title, body, depth = 0, description = "", active = "" }) {
   const up = "../".repeat(depth);
-  const nav = (id, href, label) => `<a${id === active ? ' class="on"' : ""} href="${href}">${label}</a>`;
+  const nav = (id, href, label) => `<a${id === active ? ' class="on" aria-current="page"' : ""} href="${href}">${label}</a>`;
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -115,7 +115,7 @@ document.documentElement.setAttribute("data-music-button",mb==="off"?"off":"on")
 <body${active === "account" ? ' class="account-page"' : ""}>
 <header class="top"><div class="bar">
   <a class="brand" href="${up || "./"}"><img src="${up}pack.png" alt=""><span>Fresh Moves Fix</span></a>
-  <nav>
+  <nav aria-label="Main navigation">
     ${nav("home", up || "./", ICON.home + " Home")}
     ${nav("guides", up + "guides/", ICON.book + " Guides")}
     ${nav("creations", up + "creations/", ICON.box + " Projects")}

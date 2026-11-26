@@ -3,9 +3,10 @@ const fs = require('node:fs');
 const { JSDOM } = require('../website/node_modules/jsdom');
 const html = fs.readFileSync('website/public/index.html', 'utf8');
 const code = fs.readFileSync('website/video-banner.js', 'utf8');
-function setup(reduced, reject = false) {
+function setup(reduced, reject = false, savedMotion = false) {
   const dom = new JSDOM(html, { url: 'https://example.test/', runScripts: 'outside-only' });
   const w = dom.window, d = w.document, video = d.getElementById('fresh-banner-video'), button = d.getElementById('fresh-banner-motion');
+  if (savedMotion) w.localStorage.setItem('fmf-extra-motion', '1');
   let listener, removed = false, plays = 0, pauses = 0;
   w.matchMedia = () => ({ matches: reduced, addEventListener(event, fn) { listener = fn; }, removeEventListener() { removed = true; } });
   video.play = () => { plays++; return reject ? Promise.reject(new Error('blocked')) : Promise.resolve(); };
@@ -32,6 +33,22 @@ function setup(reduced, reject = false) {
   assert.equal(reduced.button.textContent, 'Play animation'); assert(!reduced.d.querySelector('.fresh-video-banner').classList.contains('banner-motion-playing'));
   reduced.button.click(); assert.equal(reduced.plays, 1); assert(reduced.d.querySelector('.fresh-video-banner').classList.contains('banner-motion-playing')); reduced.dom.window.close();
   const blocked = setup(false, true); await Promise.resolve(); assert.equal(blocked.button.textContent, 'Play animation'); assert(!blocked.button.disabled); assert(!blocked.d.querySelector('.fresh-video-banner').classList.contains('banner-motion-playing')); blocked.dom.window.close();
+  const saved = setup(false, false, true);
+  assert.equal(saved.plays, 0); assert(!saved.video.hasAttribute('src')); assert(saved.button.disabled);
+  assert.equal(saved.button.textContent, 'Motion reduced in quick settings');
+  saved.d.dispatchEvent(new saved.w.CustomEvent('fmf-motion-change', { detail: { reduced: false } }));
+  assert(!saved.button.disabled); assert.equal(saved.button.textContent, 'Play animation');
+  saved.button.click(); assert.equal(saved.plays, 1);
+  saved.d.dispatchEvent(new saved.w.CustomEvent('fmf-motion-change', { detail: { reduced: true } }));
+  assert.equal(saved.pauses, 1); assert(saved.button.disabled); assert(!saved.d.querySelector('.fresh-video-banner').classList.contains('banner-motion-playing'));
+  saved.dom.window.close();
+  const integrated = setup(false); integrated.w.requestAnimationFrame = fn => fn(); integrated.w.scrollTo = () => {};
+  integrated.w.eval(fs.readFileSync('website/enhancements.js', 'utf8'));
+  const quickMotion = integrated.d.querySelector('[data-fmf-motion]');
+  quickMotion.checked = true; quickMotion.dispatchEvent(new integrated.w.Event('change', { bubbles:true }));
+  assert.equal(integrated.pauses, 1); assert(integrated.button.disabled); assert.equal(integrated.w.localStorage.getItem('fmf-extra-motion'), '1');
+  quickMotion.checked = false; quickMotion.dispatchEvent(new integrated.w.Event('change', { bubbles:true }));
+  assert(!integrated.button.disabled); assert.equal(integrated.button.textContent, 'Play animation'); integrated.dom.window.close();
   const css = fs.readFileSync('website/refresh-2027.css', 'utf8');
   assert.match(css, /@keyframes fresh-ingot-float/); assert.match(css, /\.fresh-banner-ingot[^}]*animation-play-state:\s*paused/); assert.match(css, /\.banner-motion-playing \.fresh-banner-ingot/);
   const mp4 = fs.readFileSync('website/public/fresh-moves-banner.mp4'); assert.equal(mp4.toString('ascii', 4, 8), 'ftyp');

@@ -107,6 +107,7 @@
   motion.addEventListener("change", function () {
     store("fmf-extra-motion", motion.checked ? "1" : "0");
     body.classList.toggle("fmf-motion-off", motion.checked);
+    document.dispatchEvent(new CustomEvent("fmf-motion-change", { detail: { reduced: motion.checked } }));
   });
 
   // Keep a working native select as the fallback, but use themed, keyboard-friendly
