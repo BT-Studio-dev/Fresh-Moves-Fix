@@ -1,0 +1,87 @@
+package me.andreasmelone.glowingeyes.neoforge.common.component.eyes;
+
+import me.andreasmelone.glowingeyes.common.component.eyes.GlowingEyesComponent;
+import me.andreasmelone.glowingeyes.common.component.eyes.IGlowingEyesComponent;
+import me.andreasmelone.glowingeyes.common.packet.ComponentUpdatePacket;
+import me.andreasmelone.glowingeyes.common.util.Color;
+import me.andreasmelone.glowingeyes.common.util.Point;
+import me.andreasmelone.glowingeyes.neoforge.common.packets.ServerPacketRegistrar;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.registries.DeferredHolder;
+
+import java.util.Map;
+import java.util.Optional;
+
+public class GlowingEyesComponentImpl implements IGlowingEyesComponent {
+    private final IGlowingEyes localComponent = new GlowingEyesImpl();
+    private final DeferredHolder<AttachmentType<?>, AttachmentType<IGlowingEyes>> attachmentType;
+
+    public GlowingEyesComponentImpl(DeferredHolder<AttachmentType<?>, AttachmentType<IGlowingEyes>> attachmentType) {
+        this.attachmentType = attachmentType;
+    }
+
+    /**
+     * Get the GlowingEyes attachment from a player
+     * @param player the player to get the attachment from
+     * @return the GlowingEyes attachment
+     */
+    public IGlowingEyes getComponent(Player player) {
+        if(player.isLocalPlayer()) return this.localComponent;
+        return Optional.of(player.getData(this.attachmentType))
+                .orElseThrow(() -> new IllegalStateException("Could not get GlowingEyes data attachment from player"));
+    }
+
+    @Override
+    public Map<Point, Color> getGlowingEyesMap(Player player) {
+        return this.getComponent(player).getGlowingEyesMap();
+    }
+
+    @Override
+    public void setGlowingEyesMap(Player player, Map<Point, Color> glowingEyesMap) {
+        glowingEyesMap.replaceAll((point, color) ->
+                new Color(color.getRed(), color.getGreen(), color.getBlue(), 200)
+        );
+        this.getComponent(player).setGlowingEyesMap(glowingEyesMap);
+    }
+
+    @Override
+    public boolean isToggledOn(Player player) {
+        return this.getComponent(player).isToggledOn();
+    }
+
+    @Override
+    public void setToggledOn(Player player, boolean toggledOn) {
+        this.getComponent(player).setToggledOn(toggledOn);
+    }
+
+    @Override
+    public void sendUpdate(ServerPlayer updatedPlayer) {
+        this.sendUpdate(updatedPlayer, updatedPlayer);
+    }
+
+    @Override
+    public void sendUpdate(ServerPlayer updatedPlayer, ServerPlayer receivingPlayer) {
+        ServerPacketRegistrar.sendTo(receivingPlayer, new ComponentUpdatePacket(updatedPlayer.getUUID(), GlowingEyesComponent.isToggledOn(updatedPlayer), GlowingEyesComponent.getGlowingEyesMap(updatedPlayer)));
+    }
+
+    @Override
+    public CompoundTag serialize(Player player, HolderLookup.Provider provider) {
+        TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, provider);
+        this.getComponent(player).serialize(output);
+        return output.buildResult();
+    }
+
+    @Override
+    public void load(Player player, HolderLookup.Provider provider, CompoundTag tag) {
+        ValueInput input = TagValueInput.create(ProblemReporter.DISCARDING, provider, tag);
+        this.getComponent(player).deserialize(input);
+    }
+}
