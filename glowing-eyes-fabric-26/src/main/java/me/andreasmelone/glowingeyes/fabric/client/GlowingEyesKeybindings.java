@@ -17,13 +17,13 @@ public class GlowingEyesKeybindings {
 
     public static final KeyMapping TOGGLE_MAPPING = KeyMappingHelper.registerKeyMapping(new KeyMapping(
             "key.glowingeyes.toggle",
-            InputConstants.Type.KEYBOARD,
+            InputConstants.Type.KEYSYM,
             InputConstants.KEY_G,
             CATEGORY
     ));
     public static final KeyMapping EYES_EDITOR_MAPPING = KeyMappingHelper.registerKeyMapping(new KeyMapping(
             "key.glowingeyes.editor.open",
-            InputConstants.Type.KEYBOARD,
+            InputConstants.Type.KEYSYM,
             InputConstants.KEY_H,
             CATEGORY
     ));

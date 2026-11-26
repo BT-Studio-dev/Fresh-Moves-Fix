@@ -66,7 +66,8 @@ jobs:
               elif line.startswith('* What went wrong:'):
                   interesting.append('\n'.join(lines[i:i+4]))
           detail = '\n---\n'.join(interesting[:60]) or '\n'.join(lines[-40:])
-          print('::error::' + detail[:60000].replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))
+          for start in range(0, len(detail), 3000):
+              print('::error::' + detail[start:start+3000].replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))
           PY
             exit "$result"
           fi

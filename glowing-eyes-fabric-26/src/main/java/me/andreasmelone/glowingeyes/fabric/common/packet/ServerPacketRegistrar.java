@@ -30,12 +30,12 @@ public class ServerPacketRegistrar {
     }
 
     public static <T extends CustomPacketPayload> void bidirectional(CustomPacketPayload.Type<T> type, StreamCodec<ByteBuf, T> streamCodec, BiConsumer<T, ServerPlayer> handler) {
-        PayloadTypeRegistry.playS2C().register(type, streamCodec);
+        PayloadTypeRegistry.clientboundPlay().register(type, streamCodec);
         server(type, streamCodec, handler);
     }
 
     public static <T extends CustomPacketPayload> void server(CustomPacketPayload.Type<T> type, StreamCodec<ByteBuf, T> streamCodec, BiConsumer<T, ServerPlayer> handler) {
-        PayloadTypeRegistry.playC2S().register(type, streamCodec);
+        PayloadTypeRegistry.serverboundPlay().register(type, streamCodec);
         ServerPlayNetworking.registerGlobalReceiver(type, (packet, ctx) -> {
             handler.accept(packet, ctx.player());
         });
