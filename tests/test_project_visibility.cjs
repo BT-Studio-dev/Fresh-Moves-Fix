@@ -1,0 +1,54 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const { JSDOM } = require('../website/node_modules/jsdom');
+const html = fs.readFileSync('website/public/creations/index.html', 'utf8');
+const code = fs.readFileSync('website/project-locks.js', 'utf8').replace("import { createClient } from '@supabase/supabase-js';", '');
+const tick = () => new Promise(resolve => setTimeout(resolve, 0));
+const allIds = ['pack','paint','editor','pfp','creator','title','animation','minecraft-skins'];
+const rows = lockedIds => allIds.map(project => ({ project, locked: lockedIds.includes(project) }));
+function setup(request, preference, blockedStorage = false) {
+  const dom = new JSDOM(html, { url: 'https://example.test/creations/', runScripts: 'outside-only' });
+  const w = dom.window;
+  if (preference) w.localStorage.setItem('fmf-show-locked-projects', preference);
+  if (blockedStorage) Object.defineProperty(w, 'localStorage', { get() { throw new Error('storage blocked'); } });
+  w.createClient = () => ({ from() { return { select() { return request(); } }; }, auth: {} });
+  assert(w.document.getElementById('project-visibility-controls').hidden, 'control is hidden without JavaScript');
+  w.eval(code);
+  return { dom, w, d: w.document, control: w.document.getElementById('show-locked-projects') };
+}
+function change(env, checked) { env.control.checked = checked; env.control.dispatchEvent(new env.w.Event('change', { bubbles: true })); }
+(async () => {
+  let resolve;
+  const loading = setup(() => new Promise(r => { resolve = r; }), 'off');
+  assert(!loading.d.getElementById('project-visibility-controls').hidden);
+  assert(!loading.control.checked);
+  assert([...loading.d.querySelectorAll('.project-card')].every(card => !card.hidden), 'no cards hidden before locks are known');
+  assert.match(loading.d.getElementById('project-visibility-status').textContent, /Checking/);
+  resolve({ data: rows(['pfp', 'title']), error: null }); await tick();
+  const pfp = loading.d.querySelector('[data-project-card="pfp"]'), title = loading.d.querySelector('[data-project-card="title"]'), pack = loading.d.querySelector('[data-project-card="pack"]');
+  assert(pfp.hidden && title.hidden && !pack.hidden); assert(!pfp.hasAttribute('href')); assert.equal(pfp.getAttribute('aria-disabled'), 'true');
+  assert.match(loading.d.getElementById('project-visibility-status').textContent, /2 locked projects are hidden/);
+  change(loading, true); assert(!pfp.hidden && !title.hidden); assert(!pfp.hasAttribute('href'), 'showing a locked card must not unlock it'); assert.equal(loading.w.localStorage.getItem('fmf-show-locked-projects'), 'on');
+  change(loading, false); assert(pfp.hidden && !pack.hidden); assert.equal(loading.w.localStorage.getItem('fmf-show-locked-projects'), 'off');
+  loading.dom.window.close();
+  const all = setup(() => Promise.resolve({data: rows(allIds), error: null}), 'off'); await tick();
+  assert([...all.d.querySelectorAll('.project-card')].every(card => card.hidden));
+  assert.match(all.d.getElementById('project-visibility-status').textContent, /All projects are locked/);
+  change(all, true); assert([...all.d.querySelectorAll('.project-card')].every(card => !card.hidden && !card.hasAttribute('href'))); all.dom.window.close();
+  const failure = setup(() => Promise.reject(new Error('offline')), 'off'); await tick();
+  assert([...failure.d.querySelectorAll('.project-card')].every(card => !card.hidden));
+  assert.match(failure.d.getElementById('project-visibility-status').textContent, /Lock status unavailable/);
+  assert.match(failure.d.getElementById('project-lock-status').textContent, /Could not load/); failure.dom.window.close();
+  const blocked = setup(() => Promise.resolve({data: rows(['pfp']), error: null}), null, true); await tick();
+  assert(blocked.control.checked); change(blocked, false); assert(blocked.d.querySelector('[data-project-card="pfp"]').hidden); blocked.dom.window.close();
+  const mods = setup(() => Promise.resolve({data: rows(['editor', 'minecraft-skins']), error: null}), 'off'); await tick();
+  const modCards = [...mods.d.querySelectorAll('#project-mods-grid .project-card')];
+  assert.equal(modCards.length, 3);
+  assert(modCards.every(card => card.hidden && !card.hasAttribute('href')), 'mod cards respect their destination locks');
+  change(mods, true);
+  assert(modCards.every(card => !card.hidden && !card.hasAttribute('href')), 'showing a locked mod card does not unlock it');
+  assert.match(mods.d.getElementById('project-mods-title').textContent, /Minecraft mods/);
+  mods.dom.window.close();
+  const css = fs.readFileSync('website/refresh-2027.css','utf8'); assert.match(css, /\.projects-grid \.project-card\[hidden\]\s*\{\s*display:\s*none\s*!important/);
+  console.log('Project show/hide preference, lock preservation, loading, all-locked, offline and storage fallback passed');
+})().catch(error => { console.error(error); process.exitCode = 1; });

@@ -1,0 +1,109 @@
+name: Build experimental Glowing Eyes NeoForge 26.x
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'glowing-eyes-neoforge-26/**'
+      - '.github/workflows/glowing-eyes-neoforge-26.yml'
+  push:
+    paths:
+      - 'glowing-eyes-neoforge-26/**'
+      - '.github/workflows/glowing-eyes-neoforge-26.yml'
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - minecraft: '26.1'
+            neo: '26.1.0.19-beta'
+          - minecraft: '26.1.1'
+            neo: '26.1.1.15-beta'
+          - minecraft: '26.1.2'
+            neo: '26.1.2.114'
+          - minecraft: '26.2'
+            neo: '26.2.0.88'
+          - minecraft: '26.3'
+            neo: '26.3.0.22-beta'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.8.2'
+      - name: Build experimental NeoForge port
+        working-directory: glowing-eyes-neoforge-26
+        shell: bash
+        env:
+          MC_VERSION: ${{ matrix.minecraft }}
+          NEO_VERSION: ${{ matrix.neo }}
+        run: |
+          set +e
+          # Maven Central occasionally throttles parallel matrix jobs. Retry only
+          # explicit HTTP 429 errors; compilation and all other failures still fail.
+          for attempt in 1 2 3; do
+            gradle build --no-daemon -Pminecraft_version="$MC_VERSION" -Pneo_version="$NEO_VERSION" > "$RUNNER_TEMP/glowing-eyes-neo.log" 2>&1
+            result=$?
+            cat "$RUNNER_TEMP/glowing-eyes-neo.log"
+            if [ "$result" -eq 0 ] || ! grep -q 'Received status code 429' "$RUNNER_TEMP/glowing-eyes-neo.log" || [ "$attempt" -eq 3 ]; then
+              break
+            fi
+            echo "Maven Central rate-limited attempt $attempt; retrying."
+            sleep $((attempt * 20))
+          done
+          if [ "$result" -ne 0 ]; then
+            python3 - "$RUNNER_TEMP/glowing-eyes-neo.log" <<'PY'
+          import sys
+          lines = open(sys.argv[1], errors='replace').read().splitlines()
+          interesting = []
+          for i, line in enumerate(lines):
+              if 'error:' in line:
+                  interesting.append('\n'.join(lines[i:i+5]))
+              elif line.startswith('* What went wrong:'):
+                  interesting.append('\n'.join(lines[i:i+12]))
+          detail = '\n---\n'.join(interesting[:60]) or '\n'.join(lines[-40:])
+          for start in range(0, len(detail), 3000):
+              print('::error::' + detail[start:start+3000].replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))
+          PY
+            exit "$result"
+          fi
+      - name: Check artifact metadata
+        env:
+          MC_VERSION: ${{ matrix.minecraft }}
+        run: |
+          python3 - <<'PY'
+          import os, zipfile
+          version = os.environ['MC_VERSION']
+          with zipfile.ZipFile(f'glowing-eyes-neoforge-26/build/libs/glowing-eyes-fmf-neoforge-{version}-experimental.jar') as jar:
+              assert jar.testzip() is None
+              meta = jar.read('META-INF/neoforge.mods.toml').decode()
+              assert f'[{version}]' in meta and 'experimental' in meta.lower()
+              assert 'NOTICE.md' in jar.namelist()
+              at = jar.read('META-INF/accesstransformer.cfg').decode()
+              pipeline = 'com/mojang/renderpearl/api/pipeline/RenderPipeline' if version == '26.3' else 'com/mojang/blaze3d/pipeline/RenderPipeline'
+              texture = 'com.mojang.renderpearl.backend.common.BaseGpuTexture' if version == '26.3' else 'com.mojang.blaze3d.textures.GpuTexture'
+              assert pipeline in at and texture in at
+              assert ('Minecraft$GameLoadCookie' in at) == version.startswith('26.1')
+              assert any(x.endswith('GlowingEyesNeoForge.class') for x in jar.namelist())
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: glowing-eyes-fmf-neoforge-${{ matrix.minecraft }}-experimental
+          path: glowing-eyes-neoforge-26/build/libs/glowing-eyes-fmf-neoforge-${{ matrix.minecraft }}-experimental.jar
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload failed build log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: glowing-eyes-neoforge-${{ matrix.minecraft }}-build-log
+          path: ${{ runner.temp }}/glowing-eyes-neo.log
+          if-no-files-found: ignore
+          retention-days: 7

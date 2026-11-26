@@ -11,6 +11,9 @@ const out = path.join(here, "public");
 const REPO = "https://github.com/BT-Studio-dev/Fresh-Moves-Fix";
 // The original mod has its own pinned prerelease; never expose the historical upstream HD Skins jars as ours.
 const skinRelease = JSON.parse(fs.readFileSync(path.join(root, "minecraft-skins/original-release-request.json"), "utf8"));
+// Official upstream metadata remains separate from our attributed experimental builds.
+const glowRelease = JSON.parse(fs.readFileSync(path.join(here, "glowing-eyes-release.json"), "utf8"));
+const glowExperimental = JSON.parse(fs.readFileSync(path.join(here, "glowing-eyes-experimental.json"), "utf8"));
 
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 const version = read("VERSION").trim();
@@ -70,7 +73,7 @@ const ICON = {
 };
 function page({ title, body, depth = 0, description = "", active = "" }) {
   const up = "../".repeat(depth);
-  const nav = (id, href, label) => `<a${id === active ? ' class="on"' : ""} href="${href}">${label}</a>`;
+  const nav = (id, href, label) => `<a${id === active ? ' class="on" aria-current="page"' : ""} href="${href}">${label}</a>`;
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -91,6 +94,8 @@ if(!t){try{var m=document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/);if(m)t=m[1]
 if(["system","light","dark","oled","glass","minecraft","nightsky","livesky"].indexOf(t)<0)t="dark";
 if(t==="system")t=window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
 document.documentElement.setAttribute("data-theme",t);
+var glass=t==="glass";try{var g=localStorage.getItem("fmf-glass-blur");if(g!==null)glass=g==="1"}catch(e){}
+document.documentElement.classList.toggle("fmf-glass-blur",glass);
 var bg="";try{bg=localStorage.getItem("fmf-background")||""}catch(e){}
 if(!bg){try{var b=document.cookie.match(/(?:^|; )fmf-background=(on|off)/);if(b)bg=b[1]}catch(e){}}
 document.documentElement.setAttribute("data-background",bg==="off"?"off":"on");
@@ -108,11 +113,12 @@ document.documentElement.setAttribute("data-music-button",mb==="off"?"off":"on")
 <meta name="apple-mobile-web-app-title" content="Fresh Moves Fix">
 <link rel="stylesheet" href="${up}style.css?v=${ver("style.css")}">
 <link rel="stylesheet" href="${up}refresh-2026.css?v=${ver("refresh-2026.css")}">
+<link rel="stylesheet" href="${up}refresh-2027.css?v=${ver("refresh-2027.css")}">
 </head>
 <body${active === "account" ? ' class="account-page"' : ""}>
 <header class="top"><div class="bar">
   <a class="brand" href="${up || "./"}"><img src="${up}pack.png" alt=""><span>Fresh Moves Fix</span></a>
-  <nav>
+  <nav aria-label="Main navigation">
     ${nav("home", up || "./", ICON.home + " Home")}
     ${nav("guides", up + "guides/", ICON.book + " Guides")}
     ${nav("creations", up + "creations/", ICON.box + " Projects")}
@@ -125,6 +131,7 @@ document.documentElement.setAttribute("data-music-button",mb==="off"?"off":"on")
       <span class="snd-head">${ICON.music} <b data-music-state>Music: off</b> <i data-music-time>0:00 / 3:34</i></span>
       <label class="snd-line"><input type="checkbox" data-music-check> Play music <i data-music-name>Calm</i></label>
       <label class="snd-line">Volume <input type="range" min="0" max="100" value="40" data-music-volume> <span data-music-volume-value>40%</span></label>
+      <button type="button" class="snd-more" data-music-mute aria-pressed="false">Mute music</button>
       <a class="snd-more" href="${up}settings/#music">${ICON.gear} Music settings</a>
     </span></span>
   </span>
@@ -162,9 +169,11 @@ ${body}
     </div>
   </div>
   <p class="legal">Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.</p>
+  <p class="design-edition">2027 design edition</p>
 </div></footer>
 <script src="${up}i18n.js?v=${ver("i18n.js")}"></script>
 <script src="${up}music.js?v=${ver("music.js")}"></script>
+<script src="${up}guide-video.js?v=${ver("guide-video.js")}"></script>
 <script src="${up}nav.js?v=${ver("nav.js")}"></script>
 <script src="${up}enhancements.js?v=${ver("enhancements.js")}"></script>
 <script src="${up}help.js?v=${ver("help.js")}"></script>
@@ -177,15 +186,27 @@ ${body}
 }
 
 const commentPages = new Set(["editor", "title", "paint", "model", "animation", "cape", "render", "pfp", "highlights", "banner-studio", "pfp-studio", "pose", "creator"]);
+// Only public content pages belong in the sitemap; account and utility pages
+// should not be search results. This is not an access-control mechanism.
+const noIndexPages = new Set(["404.html", "account/index.html", "messages/index.html", "profiles/index.html", "settings/index.html"]);
+const sitemapUrls = [];
 function write(rel, html) {
   const pageId = rel.endsWith("/index.html") ? rel.slice(0, -"/index.html".length) : "";
+  if (noIndexPages.has(rel)) {
+    html = html.replace("</head>", '<meta name="robots" content="noindex, follow">\n</head>');
+  } else {
+    const route = rel === "index.html" ? "" : rel.replace(/index\.html$/, "");
+    const canonical = new URL(route, SITE).href;
+    sitemapUrls.push(canonical);
+    html = html.replace("</head>", `<link rel="canonical" href="${esc(canonical)}">\n<meta property="og:url" content="${esc(canonical)}">\n</head>`);
+  }
   if (commentPages.has(pageId)) {
     const comments = `<div class="wrap comments-wrap"><section class="card comments-card" id="tool-comments" data-page="${pageId}" aria-labelledby="comments-title"><h2 id="comments-title">Comments</h2><p>Share your thoughts about this tool. Comments are public.</p><p data-comments-login>Want to join in? <a href="../account/">Sign in to comment</a>.</p><form hidden><label for="comment-body">Your comment</label><textarea id="comment-body" maxlength="1000" rows="3" required placeholder="Write a comment…"></textarea><div class="comment-image-field"><label for="comment-image">Add an image (optional)</label><input id="comment-image" type="file" accept="image/png,image/jpeg,image/webp"><small>PNG, JPEG or WebP, up to 2 MB. Images are resized before posting.</small><img data-comment-preview alt="Selected image preview" hidden></div><div class="comments-actions"><small>Up to 1,000 characters</small><button class="btn" type="submit">Post comment</button></div></form><p data-comments-status role="status" aria-live="polite"></p><div data-comments-list></div></section></div><script src="../comments.bundle.js?v=${ver("comments.js")}"></script>`;
     html = html.replace("<footer>", comments + "<footer>");
   }
   if (new Set(["paint", "editor", "pfp", "creator", "title", "animation", "minecraft-skins"]).has(pageId)) {
     html = html.replace("</head>", `<script>document.documentElement.classList.add("project-guard-active");</script></head>`);
-    const guard = `<div id="project-lock-screen" data-project-guard="${pageId}" role="status"><div class="project-lock-dialog"><h1>Checking project availability</h1><p>Please wait…</p><button type="button" class="btn" hidden>Try again</button><a class="btn ghost project-lock-back" href="../creations/">${ICON.left} Back to Projects</a></div></div><script src="../project-guard.js?v=${ver("project-guard.js")}"></script>`;
+    const guard = `<div id="project-lock-screen" data-project-guard="${pageId}" role="status"><div class="project-lock-dialog"><h1>Checking project availability</h1><p>Please wait…</p><button type="button" class="btn" hidden>Try again</button><a class="btn ghost project-lock-back" href="../creations/">${ICON.left} Back to Projects</a></div></div><script>(function(){var screen=document.getElementById("project-lock-screen"),retry=screen.querySelector("button");retry.addEventListener("click",function(){if(!screen.dataset.guardStarted)location.reload()});setTimeout(function(){if(!screen.isConnected||screen.dataset.guardStarted)return;screen.querySelector("h1").textContent="Unable to check project";screen.querySelector("p").textContent="The project check did not load. Please try again or return to Projects.";retry.hidden=false},10000)})()</script><script src="../project-guard.js?v=${ver("project-guard.js")}"></script>`;
     html = html.replace('<header class="top">', guard + '<header class="top">');
   }
   const file = path.join(out, rel);
@@ -195,6 +216,21 @@ function write(rel, html) {
 
 fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
+// Google Search Console requires this owner's supplied file at the site root,
+// byte for byte. Keep it deployed after verification succeeds.
+fs.copyFileSync(path.join(here, "google5091c15ca9dc0202.html"), path.join(out, "google5091c15ca9dc0202.html"));
+// Ship only verified, explicitly listed experimental JARs. A missing or altered
+// file must fail the build instead of producing a broken download link.
+const glowDownloads = path.join(here, "downloads/glowing-eyes");
+const glowOut = path.join(out, "downloads/glowing-eyes");
+fs.mkdirSync(glowOut, { recursive: true });
+for (const entry of glowExperimental) {
+  if (!/^glowing-eyes-fmf-(fabric|neoforge)-[\d.]+-experimental\.jar$/.test(entry.file)) throw new Error("Invalid experimental JAR filename");
+  const data = fs.readFileSync(path.join(glowDownloads, entry.file));
+  if (createHash("sha256").update(data).digest("hex") !== entry.sha256) throw new Error(`Experimental JAR checksum mismatch: ${entry.file}`);
+  fs.writeFileSync(path.join(glowOut, entry.file), data);
+}
+fs.copyFileSync(path.join(glowDownloads, "glowing-eyes-experimental-source.zip"), path.join(glowOut, "glowing-eyes-experimental-source.zip"));
 await bundle({ entryPoints: [path.join(here, "messages.js")], outfile: path.join(out, "messages.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
 await bundle({ entryPoints: [path.join(here, "profiles.js")], outfile: path.join(out, "profiles.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
 await bundle({ entryPoints: [path.join(here, "project-locks.js")], outfile: path.join(out, "project-locks.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
@@ -217,14 +253,18 @@ fs.writeFileSync(path.join(out, "tableau.json"), JSON.stringify({
 }));
 for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png", "icon-painted.png", "icon-painter-dummy.png", "icon-paint-pixel.svg", "icon-model-pixel.svg", "icon-anim-pixel.svg", "icon-cape-project-pixel.svg", "icon-lock-project-pixel.svg"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
-for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner-profile.png", "owner-skin.png", "emf-icon.png", "etf-icon.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
+for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner-profile.png", "owner-skin.png", "lie-kg-skin.png", "lie-kg-profile.png", "fresh-banner-character.png", "fresh-banner-head-poster.png", "fresh-banner-head.mp4", "emf-icon.png", "etf-icon.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "refresh-2026.css"), path.join(out, "refresh-2026.css"));
+fs.copyFileSync(path.join(here, "refresh-2027.css"), path.join(out, "refresh-2027.css"));
+fs.copyFileSync(path.join(here, "fresh-moves-banner.mp4"), path.join(out, "fresh-moves-banner.mp4"));
+fs.copyFileSync(path.join(here, "video-banner.js"), path.join(out, "video-banner.js"));
 fs.copyFileSync(path.join(here, "enhancements.js"), path.join(out, "enhancements.js"));
 fs.copyFileSync(path.join(here, "help.js"), path.join(out, "help.js"));
 fs.copyFileSync(path.join(here, "context-menu.js"), path.join(out, "context-menu.js"));
 await bundle({ entryPoints: [path.join(here, "livesky.js")], outfile: path.join(out, "livesky.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
+fs.copyFileSync(path.join(here, "guide-video.js"), path.join(out, "guide-video.js"));
 fs.copyFileSync(path.join(here, "nav.js"), path.join(out, "nav.js"));
 // flag pictures for the language list (flag-icons, MIT), so no flag emoji are needed
 fs.mkdirSync(path.join(out, "flags"), { recursive: true });
@@ -247,8 +287,8 @@ function renderDoc(md) {
   // and a plain link below in case it does not load
   md = md.replace(/^(https:\/\/github\.com\/\S+\/assets\/\S+)\s*$/gm, (m, url) =>
     `\n<figure class="video-card"><div class="video-head">${ICON.play}<span>Video</span></div>` +
-    `<video controls playsinline preload="metadata" src="${url}"></video>` +
-    `<figcaption>If the video does not play, <a href="${url}" target="_blank">open it on GitHub</a>. The website music pauses while the video plays.</figcaption></figure>\n`);
+    `<video controls playsinline preload="none" src="${url}" aria-label="Guide video"></video>` +
+    `<figcaption><span data-guide-video-status role="status" aria-live="polite" hidden></span> If the video does not play, <a href="${url}" target="_blank" rel="noopener noreferrer">open it on GitHub</a>. The website music pauses while the video plays.</figcaption></figure>\n`);
   let html = marked.parse(md);
   // links between docs -> links between pages
   html = html.replace(/href="<?([^"]+?\.md)>?"/g, (m, target) => {
@@ -414,6 +454,8 @@ write("keybinds/index.html", page({ title: "Keybinds - Fresh Moves Fix", active:
 // the two default skins are embedded in the page, so the editor needs no extra requests
 const skinData = (p) => "data:image/png;base64," + fs.readFileSync(path.join(root, "assets/minecraft/textures/entity/player", p)).toString("base64");
 fs.copyFileSync(path.join(here, "editor.js"), path.join(out, "editor.js"));
+fs.copyFileSync(path.join(here, "mod-eye-tools.js"), path.join(out, "mod-eye-tools.js"));
+fs.copyFileSync(path.join(here, "glowing-eyes-downloads.js"), path.join(out, "glowing-eyes-downloads.js"));
 fs.copyFileSync(path.join(here, "eye-detect.js"), path.join(out, "eye-detect.js"));
 fs.copyFileSync(path.join(here, "paint.js"), path.join(out, "paint.js"));
 fs.copyFileSync(path.join(here, "render.js"), path.join(out, "render.js"));
@@ -429,6 +471,7 @@ fs.copyFileSync(path.join(here, "painter-dummy.png"), path.join(out, "render-dum
 fs.copyFileSync(path.join(here, "pfp-default-skin.png"), path.join(out, "pfp-default-skin.png"));
 fs.copyFileSync(path.join(here, "backdrop.js"), path.join(out, "backdrop.js"));
 fs.copyFileSync(path.join(here, "player.js"), path.join(out, "player.js"));
+await bundle({ entryPoints: [path.join(here, "owner-profiles.js")], outfile: path.join(out, "owner-profiles.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
 fs.copyFileSync(path.join(here, "studio.js"), path.join(out, "studio.js"));
 fs.copyFileSync(path.join(here, "ui.js"), path.join(out, "ui.js"));
 fs.copyFileSync(path.join(here, "title.js"), path.join(out, "title.js"));
@@ -483,7 +526,7 @@ const jeEditorBody = `<div class="je-editor" id="je-editor" hidden>
 write("editor/index.html", page({
   title: "Skin eye editor - Fresh Moves Fix",
   active: "editor",
-  description: "Add the animated-eye pixels for Fresh Moves to your Minecraft skin and download the result.",
+  description: "Edit skins for Fresh Moves and Just Expressions, and prepare Glowing Eyes presets and Reactions settings.",
   depth: 1,
   body: `<div class="wrap editor-workspace-wrap"><article class="editor eye-workspace">
 <h1>${ICON.eye} Skin eye editor</h1>
@@ -514,7 +557,13 @@ write("editor/index.html", page({
   </section>
   <section class="panel ecard" id="fmf-eye-controls">
     <h3 class="ehead"><span class="tool-ic">${ICON.eye}</span><span><b>2. Eyes</b><small>Shape and place of the eyes, eyebrows, eyelashes, mouth</small></span></h3>
-    <div class="eye-mode-control"><label for="eye-editor-mode"><b>Resource pack / editor mode</b></label><select id="eye-editor-mode"><option value="fresh-moves">Fresh Moves 1.x</option><option value="just-expressions">Just Expressions 2.0</option></select><p id="eye-mode-note" role="status">Switching keeps your skin. Presets may overwrite overlapping markers.</p><div id="fmf-unlock-notice" hidden><p>1.x editing is paused to protect your 2.0 pixels. Enabling it can replace overlapping markers and face pixels; download a backup first.</p><button type="button" class="btn" id="fmf-unlock">Enable 1.x editing</button></div></div>
+    <div class="eye-mode-control"><label for="eye-editor-mode"><b>Resource pack / editor mode</b></label><select id="eye-editor-mode"><option value="fresh-moves">Fresh Moves 1.x</option><option value="just-expressions">Just Expressions 2.0</option><option value="mod-tools">Glowing Eyes / Reactions only</option></select><p id="eye-mode-note" role="status">Switching keeps your skin. Presets may overwrite overlapping markers.</p><div id="fmf-unlock-notice" hidden><p>1.x editing is paused to protect your current skin pixels. Enabling it can replace overlapping markers and face pixels; download a backup first.</p><button type="button" class="btn" id="fmf-unlock">Enable 1.x editing</button></div></div>
+    <p id="mod-mode-note" hidden>Mods-only mode keeps your current skin unchanged. Use the separate tools below; their settings are not stored in the skin PNG.</p>
+    <div class="eye-mod-shortcuts" aria-label="Extra mod tools">
+      <span>Extra mod tools · separate from the skin PNG</span>
+      <a href="#glow-card" data-open-mod-card="glow-card">Glowing Eyes <small>Glow preset</small></a>
+      <a href="#reactions-card" data-open-mod-card="reactions-card">Reactions <small>Eye settings</small></a>
+    </div>
     <div id="fmf-eye-options">
     <div class="eye-guide-links" aria-label="Eye and eyebrow guides">
       <a class="btn ghost" href="../guides/#eye-and-eyebrow-types">${ICON.book} Eye and eyebrow types</a>
@@ -650,6 +699,64 @@ write("editor/index.html", page({
   </div>
 </div>
 
+
+<section class="text-card mod-eye-tools ed" aria-labelledby="mod-tools-title">
+<h2 id="mod-tools-title">Reactions &amp; Glowing Eyes</h2>
+<p><a href="#glowing-eyes-downloads">Download the Glowing Eyes mod</a></p>
+<p>Use these tools alongside either skin editor mode. These mods use settings separate from your skin PNG; the tools do not add marker pixels or simulate the mods. Fresh Moves and Just Expressions can use overlapping skin pixels, so keep backups when switching. In-game rendering together is not verified.</p>
+<p><b>Version check:</b> Official Glowing Eyes 2.1.3 is listed for Minecraft 1.21.11, not 26.3. A separate unofficial experimental Fabric build for 26.3 is linked below, but has not been tested in Minecraft. Use matching mod and loader versions.</p>
+<div class="mod-card-list">
+<details class="mod-tool-card" id="reactions-card"><summary><span class="mod-card-icon" aria-hidden="true">${ICON.eye}</span><span><b>Reactions</b><small>Eye placement &amp; settings</small></span><span class="mod-card-badge">CONFIG</span></summary><div class="mod-card-body">
+<p>Choose a layer and click the top-left pixel of each eye. Use the matching face squares, layers and eye size in Reactions Settings in Minecraft, or import and update an existing Reactions configuration below.</p>
+<p class="mod-controls"><label>Skin layer <select id="rx-layer"><option value="base">Base (layer 1)</option><option value="outer">Outer (layer 2)</option></select></label> <label>Place <select id="rx-target"><option value="left">Left Eye</option><option value="right">Right Eye</option></select></label> <label>Width <select id="rx-width"><option>1</option><option selected>2</option><option>3</option></select></label> <label>Height <select id="rx-height"><option selected>1</option><option>2</option><option>3</option></select></label></p>
+<div id="rx-grid" class="mod-pixel-grid" aria-label="Reactions face placement"></div><p class="mod-grid-legend">Green: left eye · Blue: right eye · Both outlines: overlap</p><p id="rx-result" role="status"></p>
+<p><label>Import your existing <code>config/reactions.json</code> <input type="file" id="rx-import" accept="application/json,.json"></label> <button type="button" class="btn ghost" id="rx-reset-import">Remove imported file</button></p>
+<p id="rx-status" role="status">Import an existing configuration to enable export and preserve your other settings.</p><button type="button" class="btn" id="rx-export" disabled>Download updated reactions.json</button>
+<p>First back up your existing <code>config/reactions.json</code>. Import it to load its eye settings, then choose positions. Close Minecraft before replacing it with the download. This updates only eye position, size and layer settings, not the PNG; other settings are retained. You can also use the in-game settings instead.</p>
+<p>Reactions 0.9.2 for Minecraft 26.3: Fabric or NeoForge, Java 25; Fabric needs Fabric API. Open Reactions Settings via its keybinding in Minecraft Controls. Eye layers can be set separately in the mod. Multiplayer sharing may require its server relay. <a href="https://modrinth.com/mod/playereactions" rel="noopener">Reactions on Modrinth</a></p>
+</div></details>
+<details class="mod-tool-card" id="glow-card"><summary><span class="mod-card-icon" aria-hidden="true">${ICON.eye}</span><span><b>Glowing Eyes</b><small>Create or edit a glow preset</small></span><span class="mod-card-badge">PRESET</span></summary><div class="mod-card-body">
+<p>Pick a skin part, colour and tool, then click pixels to draw a separate glow map. Choose Copy skin pixel to use that pixel’s colour. Selected pixels appear in their glow colour. It is not baked into the downloaded PNG and this is not an in-game glow preview. Your map stays here when you change skins; clear it if needed.</p>
+<p class="mod-controls"><label>Skin part <select id="gl-part"><option value="8,8">Head front</option><option value="40,8">Head overlay front</option><option value="0,8">Head left</option><option value="16,8">Head back</option><option value="24,8">Head right</option><option value="8,0">Head top</option><option value="16,0">Head bottom</option><option value="32,8">Head overlay right</option><option value="48,8">Head overlay left</option><option value="56,8">Head overlay back</option><option value="40,0">Head overlay top</option><option value="48,0">Head overlay bottom</option><option value="0,0">Fresh Moves texture 1</option><option value="24,0">Fresh Moves texture 2</option><option value="32,0">Fresh Moves texture 3</option><option value="56,0">Fresh Moves texture 4</option></select></label> <label>Tool <select id="gl-tool"><option value="paint">Draw</option><option value="erase">Erase</option><option value="copy">Copy skin pixel</option><option value="pick">Pick skin colour</option></select></label> <label>Glow colour <input id="gl-color" type="color" value="#ff3333" aria-label="Glow colour" data-backdrop-custom></label></p>
+<div id="gl-grid" class="mod-pixel-grid" aria-label="Glowing Eyes preset pixels"></div><p id="gl-count" role="status"></p><p id="gl-feedback" role="status"></p>
+<p><button class="btn ghost" type="button" id="gl-undo">Undo glow edit</button> <button class="btn ghost" type="button" id="gl-clear">Clear glow map</button></p>
+<p><label>Preset name <input id="gl-name" maxlength="80" value="My glow"></label></p>
+<p><label>Optional: import your existing <code>presets.json</code> to keep its presets <input type="file" id="gl-import" accept="application/json,.json"></label></p>
+<button type="button" class="btn ghost" id="gl-reset-import">Remove imported file</button>
+<p><label>Imported preset <select id="gl-existing" disabled><option value="">Import a file first</option></select></label> <button type="button" class="btn ghost" id="gl-load-existing" disabled>Load as a new draft</button></p>
+<p>Loading replaces the current glow map (Undo restores it). Export appends the draft as a new preset; the imported preset remains unchanged. Pixels outside the head parts shown here are preserved but cannot be edited here.</p>
+<p id="gl-status" role="status">No file imported: export contains only this new preset.</p><button class="btn" type="button" id="gl-export">Download presets.json</button>
+<p><b>Install safely:</b> back up your Minecraft directory’s existing <code>presets.json</code> first. Import it above to append your preset; otherwise the download contains only the new one. Close Minecraft before replacing the file, then start Minecraft, open <code>/eyes</code> or press H, and apply the preset. The mod must be installed; other players need it, and multiplayer sync requires server support. Glowing Eyes 2.1.3 is published for Minecraft 1.21.11, Fabric/Quilt (Fabric API required) and NeoForge. <a href="https://modrinth.com/mod/glowing-eyes" rel="noopener">Glowing Eyes on Modrinth</a></p>
+</div></details>
+</div></section>
+
+
+<section class="text-card glow-downloads" id="glowing-eyes-downloads" aria-labelledby="glow-download-title" data-experimental-builds="${esc(JSON.stringify(glowExperimental))}">
+  <h2 id="glow-download-title">Download Glowing Eyes</h2>
+  <p><strong>Skin Eye Editor integration build ${esc(glowRelease.integrationBuild)}.</strong> The separate upstream mod is <strong>Glowing Eyes ${esc(glowRelease.modVersion)}</strong> for <strong>Minecraft Java ${esc(glowRelease.minecraftVersion)}</strong>. These files are hosted by Modrinth, not built or hosted by Fresh Moves Fix.</p>
+  <p>Filter official Modrinth releases and separately labeled experimental builds by Minecraft version and platform. Your browser requests official releases from Modrinth; your skin and presets are not sent.</p>
+  <aside class="glow-experimental" aria-labelledby="glow-experimental-title">
+    <h3 id="glow-experimental-title">Unofficial experimental builds</h3>
+    <p><strong>Fabric:</strong> Minecraft 1.20.5 and 1.20.6; 26.1, 26.1.1, 26.1.2, 26.2 and 26.3. <strong>NeoForge:</strong> Minecraft 26.1, 26.1.1, 26.1.2, 26.2 and 26.3. These unofficial builds passed compilation and basic metadata checks, but have not been tested in Minecraft. The ports are unfinished; back up your files. Filter below to find each build.</p>
+    <p>Choose your Minecraft version and platform below, then download the JAR directly. Install the matching loader and dependencies. Quilt and Forge builds, and NeoForge for 1.20.5/1.20.6, are not yet available from this project.</p>
+    <p><a href="../downloads/glowing-eyes/glowing-eyes-experimental-source.zip" download>Download experimental source and licenses</a> (LGPL-3.0-or-later).</p>
+  </aside>
+  <div class="glow-version-filters" id="glow-version-filters" data-project-game-versions="${esc(JSON.stringify(versions.map(v => v.mc)))}" hidden>
+    <label>Search game version <input type="search" id="glow-version-search" placeholder="e.g. 1.21.11" autocomplete="off"></label>
+    <label>Game version <select id="glow-game-version"><option value="">All game versions</option></select></label>
+    <label>Platform <select id="glow-loader"><option value="">All platforms</option><option value="fabric">Fabric</option><option value="quilt">Quilt</option><option value="neoforge">NeoForge</option><option value="forge">Forge</option></select></label>
+  </div>
+  <p id="glow-versions-status" role="status" aria-live="polite">Loading the Modrinth version list…</p>
+  <button type="button" class="btn ghost" id="glow-versions-retry" hidden>Retry version list</button>
+  <div id="glow-version-list" class="glow-version-list" tabindex="0" role="region" aria-label="Matching Glowing Eyes builds"></div>
+  <div id="glow-version-fallback"><p>Official 1.21.11 downloads (available even if the version list cannot load):</p><div class="glow-download-links">
+    ${glowRelease.artifacts.map(a => `<div class="glow-download-option" data-glow-fallback-loaders="${a.loader === "Fabric / Quilt" ? "fabric quilt" : "neoforge"}"><a class="btn" href="${esc(a.url)}" rel="noopener noreferrer">${ICON.down} ${esc(a.loader)} JAR</a><small>${esc(a.filename)}</small><a href="${esc(a.versionPage)}" rel="noopener noreferrer">Official version page ${ICON.ext}</a></div>`).join("")}
+  </div></div>
+  <p>Choose the JAR matching your loader and Minecraft version. For Minecraft 1.21.11, Fabric / Quilt needs <a href="https://modrinth.com/mod/fabric-api" rel="noopener noreferrer">Fabric API</a> and Java 21 or newer. Requirements and preset formats for older releases can differ; check the official version page. Put the JAR in your Minecraft <code>mods</code> folder. These are separate third-party mods and have not been tested in-game by this project.</p>
+  <p>These links do not install the mod or change your skin or presets. For multiplayer, follow the upstream requirements. <a href="${esc(glowRelease.project)}" rel="noopener noreferrer">Modrinth project</a> · <a href="${esc(glowRelease.source)}" rel="noopener noreferrer">Source used for format research</a></p>
+  <details><summary>SHA-512 checksums for the pinned 1.21.11 files</summary><p>Published by Modrinth; the files were not downloaded or independently verified in this build environment.</p>${glowRelease.artifacts.map(a => `<p><b>${esc(a.loader)}</b><br><code>${esc(a.sha512)}</code></p>`).join("")}</details>
+</section>
+
 <section class="text-card" id="fmf-testing">
 <h2 id="test">${ICON.info} How to test it in the game</h2>
 <p>A player confirmed that blinking and moving eyes worked in their game. Results may differ with other skins, eye shapes or versions. Use Minecraft Java Edition; the website preview cannot test the pack for you. Keep a copy of your original skin.</p>
@@ -687,7 +794,7 @@ write("editor/index.html", page({
 </article></div>
 <script src="../skinview3d.bundle.js"></script>
 <script src="../player.js?v=${ver("player.js")}"></script>
-<script src="../eye-detect.js?v=${ver("eye-detect.js")}"></script><script src="../je-thumbnails.js?v=${ver("je-thumbnails.js")}"></script><script src="../just-expressions-editor.js?v=${ver("just-expressions-editor.js")}"></script><script src="../editor.js?v=${ver("editor.js")}"></script>
+<script src="../glowing-eyes-downloads.js?v=${ver("glowing-eyes-downloads.js")}"></script><script src="../mod-eye-tools.js?v=${ver("mod-eye-tools.js")}"></script><script src="../eye-detect.js?v=${ver("eye-detect.js")}"></script><script src="../je-thumbnails.js?v=${ver("je-thumbnails.js")}"></script><script src="../just-expressions-editor.js?v=${ver("just-expressions-editor.js")}"></script><script src="../editor.js?v=${ver("editor.js")}"></script>
 <script src="../ui.js?v=${ver("ui.js")}"></script>
 <script src="../backdrop.js?v=${ver("backdrop.js")}"></script>`,
 }));
@@ -1102,7 +1209,7 @@ write("settings/index.html", page({
     <button type="button" class="tab" data-tab="music">${ICON.music} Music</button></div>
   <div class="box" id="tab-music" hidden>
     <h2 class="shead"><span class="tool-ic">${ICON.music}</span><span><b>Music</b><small>Background song for the website</small></span></h2>
-    <p>Original instrumental music generated in your browser. Playback is off by default. Your choices are saved on this device.</p>
+    <p>Original instrumental music generated in your browser. Playback starts only when you press play. Track, volume and mute are saved on this device.</p>
     <p class="elabel">Song</p>
     <div class="mtiles two">
       <label class="mtile"><input type="radio" name="song" value="calm" data-music-song checked><span><b>Calm</b><small>Soft and friendly</small></span></label>
@@ -1116,10 +1223,11 @@ write("settings/index.html", page({
     </div>
     <p class="elabel">Player</p>
     <div class="mtiles">
-      <label class="mtile"><input type="checkbox" data-music-check><span><b>Play music</b><small data-music-state>Music: off</small></span><i data-music-time>0:00 / 3:34</i></label>
+      <label class="mtile"><input type="checkbox" data-music-check><span><b>Play music</b><small data-music-state role="status" aria-live="polite">Music: off</small></span><i data-music-time>0:00 / 3:34</i></label>
       <label class="mtile"><input type="checkbox" id="music-button-visibility" checked><span><b>Show music button</b><small>Show the music control in the top bar</small></span></label><p id="music-button-status" role="status" aria-live="polite" hidden></p>
       <label class="mtile"><span><b>Song position</b></span><input type="range" min="0" max="214" value="0" step="1" data-music-seek aria-label="Song position"></label>
       <label class="mtile"><span class="mt-ic">${ICON.music}</span><span><b>Volume</b></span><input type="range" min="0" max="100" value="40" data-music-volume><span data-music-volume-value>40%</span></label>
+      <button type="button" class="btn ghost" data-music-mute aria-pressed="false">Mute music</button>
     </div>
     <p class="shint">${ICON.info} Music continues as you browse the site. The top-bar button can be hidden here.</p>
   </div>
@@ -1138,22 +1246,38 @@ write("settings/index.html", page({
       ${themeCard("dark", "Dark", "#121212", "#202020", "#383838", "#b0b0b0")}
       ${themeCard("oled", "OLED", "#000000", "#0d0f0e", "#222826", "#98a39d")}
       ${themeCard("glass", "Glass", "radial-gradient(circle at 20% 20%,#2fae78 0,transparent 55%),radial-gradient(circle at 85% 80%,#3b6fd0 0,transparent 55%),#0a1210", "rgba(255,255,255,.16)", "rgba(255,255,255,.34)", "#eef6f1")}
+      ${themeCard("minecraft", "Minecraft", "#354a32", "#252e22", "#819776", "#f2f1d9")}
       ${themeCard("nightsky", "Night Sky", "radial-gradient(circle at 78% 25%, #f0f2fa 0 9%, transparent 10%), #1a173f", "#252249", "#4b4a76", "#eef0ff")}
     </div>
     <div class="fmf-blur-setting">
-      <label for="settings-glass-blur"><span><b>Glass card blur</b><small>Turn the frosted-glass blur on or off. This only affects the Glass theme.</small></span><input type="checkbox" id="settings-glass-blur" checked></label>
+      <label for="settings-glass-blur"><span><b>Glass cards</b><small>Turn translucent cards and blur on or off for any theme.</small></span><input type="checkbox" id="settings-glass-blur"></label>
     </div>
     <p class="saved" id="theme-saved" role="status" hidden>${ICON.check || ""}<span></span></p>
+    <h3>Animation</h3>
+    <label class="background-toggle"><input type="checkbox" data-fmf-banner> <span><b>Banner animation</b><small>Play the silent head and banner videos on the home page.</small></span></label>
+    <label class="background-toggle"><input type="checkbox" data-fmf-guide-video> <span><b>Guide video playback</b><small>Enable the native controls on videos in guides.</small></span></label>
     <h3>Animated background</h3>
     <label class="background-toggle"><input type="checkbox" id="background-toggle"> <span><b>Show animated background</b><small>Turn off the night sky and moving clouds on all themes. Saved in this browser.</small></span></label>
     <p class="saved" id="background-saved" role="status" hidden></p>
     <h3>Page scrollbar</h3>
     <label class="background-toggle"><input type="checkbox" id="scrollbar-toggle"> <span><b>Show page scrollbar</b><small>When hidden, you can still scroll with the mouse wheel, keyboard or touch. Saved in this browser.</small></span></label>
     <p class="saved" id="scrollbar-saved" role="status" hidden></p>
+    <h3>Reset preferences</h3>
+    <p>Reset appearance, language, animation and music settings on this device. Your account, saved projects and skin data are not deleted.</p>
+    <button type="button" class="btn ghost" id="reset-site-preferences">Reset preferences</button><p id="reset-site-status" role="status" hidden></p>
   </div>
 </div>
 </article></div>
 <script>(function(){
+  var resetButton=document.getElementById("reset-site-preferences"), resetStatus=document.getElementById("reset-site-status");
+  resetButton.addEventListener("click",function(){
+    if(!window.confirm("Reset appearance, language, animation and music preferences on this device? Your account and saved projects will not be deleted.")) return;
+    try {
+      ["fmf-theme","fmf-glass-blur","fmf-background","fmf-scrollbar","fmf-extra-size","fmf-extra-contrast","fmf-extra-motion","fmf-banner-motion","fmf-guide-video","fmf-show-music-button","fmf-music","fmf-music-muted","fmf-volume","fmf-song","fmf-lang"].forEach(function(key){localStorage.removeItem(key)});
+      ["fmf-theme","fmf-background","fmf-scrollbar"].forEach(function(key){document.cookie=key+"=; path=/; max-age=0; SameSite=Lax"});
+      location.reload();
+    } catch(e) { resetStatus.textContent="Could not reset preferences in this browser."; resetStatus.hidden=false; }
+  });
   var musicButtonControl=document.getElementById("music-button-visibility"), musicButtonStatus=document.getElementById("music-button-status");
   musicButtonControl.checked=document.documentElement.getAttribute("data-music-button")!=="off";
   musicButtonControl.addEventListener("change",function(){
@@ -1169,8 +1293,8 @@ write("settings/index.html", page({
   function keep(v){ try{ document.cookie=key+"="+v+"; path=/; max-age=31536000"+(location.protocol==="https:"?"; SameSite=None; Secure":"; SameSite=Lax"); return document.cookie.indexOf(key+"="+v)>=0; }catch(e){ return false; } }
   function apply(t){ var r=t; if(t==="system") r=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"; document.documentElement.setAttribute("data-theme",r); applyBlur(); }
   var blurControl=document.getElementById("settings-glass-blur");
-  function applyBlur(){ var on=true; try{on=localStorage.getItem("fmf-glass-blur")!=="0"}catch(e){} if(blurControl) blurControl.checked=on; document.documentElement.classList.toggle("fmf-glass-blur", document.documentElement.getAttribute("data-theme")==="glass" && on); if(blurControl) blurControl.disabled=document.documentElement.getAttribute("data-theme")!=="glass"; }
-  if(blurControl) blurControl.addEventListener("change",function(){try{localStorage.setItem("fmf-glass-blur",blurControl.checked?"1":"0")}catch(e){} applyBlur();});
+  function applyBlur(){ var on=document.documentElement.classList.contains("fmf-glass-blur"); if(blurControl) blurControl.checked=on; }
+  if(blurControl) blurControl.addEventListener("change",function(){try{localStorage.setItem("fmf-glass-blur",blurControl.checked?"1":"0")}catch(e){} document.documentElement.classList.toggle("fmf-glass-blur",blurControl.checked);});
   var note=document.getElementById("theme-saved");
   function told(el, ok){ if(!note) return; var name=(el.closest("label").textContent||"").trim();
     note.querySelector("span").textContent = ok ? "Saved: " + name + ". It stays when you close the page." : "Could not save: this browser blocks saving. The theme lasts until you close the page.";
@@ -1472,7 +1596,12 @@ write("creations/index.html", page({
   body: `<div class="wrap projects-page">
 <header class="projects-heading"><span class="projects-heading-label">${ICON.box} FRESH MOVES FIX</span><h1>Projects</h1><p>Explore our projects and creative tools for Minecraft.</p></header>
 <p id="project-lock-status" role="status" aria-live="polite"></p>
-<div class="projects-grid">
+<div class="project-visibility-controls" id="project-visibility-controls" hidden>
+  <label for="show-locked-projects"><input type="checkbox" id="show-locked-projects" aria-controls="projects-grid project-mods-grid" checked> <span>Show locked projects</span></label>
+  <small>This only changes what you see; it does not unlock projects.</small>
+</div>
+<p id="project-visibility-status" role="status" aria-live="polite"></p>
+<div class="projects-grid" id="projects-grid">
   <a class="project-card" data-project-card="pack" href="../#download"><img class="project-pack-image" src="../pack.png" alt="" width="112" height="112"><h2>Fresh Moves Fix</h2><p>Player animations and animated eyes for Minecraft Java.</p><span class="project-link-label">View downloads ${ICON.right}</span></a>
   <a class="project-card" data-project-card="paint" href="../paint/"><img src="../icon-paint-pixel.svg" alt="" width="112" height="112"><h2>Skin Painter 3D</h2><p>Paint a skin pixel by pixel in your browser.</p><span class="project-link-label">Open painter ${ICON.right}</span></a>
   <a class="project-card" data-project-card="editor" href="../editor/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Skin eye editor</h2><p>Add animated eye markers to your skin.</p><span class="project-link-label">Open editor ${ICON.right}</span></a>
@@ -1480,8 +1609,17 @@ write("creations/index.html", page({
   <a class="project-card" data-project-card="creator" href="../creator/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Creator Studio</h2><p>Make a channel banner and explore creator tools.</p><span class="project-link-label">Open creator studio ${ICON.right}</span></a>
   <a class="project-card" data-project-card="title" href="../title/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Title</h2><p>Make and download a block-letter title picture.</p><span class="project-link-label">Open title maker ${ICON.right}</span></a>
   <a class="project-card" data-project-card="animation" href="../animation/"><img src="../icon-anim-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Animation</h2><p>Arrange movements and save an animation as a video.</p><span class="project-link-label">Open animation tool ${ICON.right}</span></a>
-  <a class="project-card" data-project-card="minecraft-skins" href="../minecraft-skins/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Minecraft Skins</h2><p>An experimental, separate client-only Fabric mod for local skins.</p><span class="project-link-label">Alpha downloads ${ICON.right}</span></a>
-</div></div><script src="../project-locks.bundle.js?v=${ver("project-locks.js")}"></script>`,
+</div>
+<section class="project-mods" aria-labelledby="project-mods-title">
+  <h2 id="project-mods-title">Minecraft mods</h2>
+  <p>Explore our experimental mod and tools for Glowing Eyes and Reactions, which are separate projects by their original creators.</p>
+  <div class="projects-grid" id="project-mods-grid">
+    <a class="project-card" data-project-card="minecraft-skins" href="../minecraft-skins/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Minecraft Skins</h2><p>An experimental, separate client-only Fabric mod for local skins.</p><span class="project-link-label">Alpha downloads ${ICON.right}</span></a>
+    <a class="project-card" data-project-card="editor" href="../editor/#glowing-eyes-downloads"><span class="project-mod-icon" aria-hidden="true">${ICON.eye}</span><h2>Glowing Eyes</h2><p>Official mod downloads and unofficial experimental builds. Minecraft testing is still needed.</p><span class="project-link-label">See mod downloads ${ICON.right}</span></a>
+    <a class="project-card" data-project-card="editor" href="../editor/#mod-tools-title"><span class="project-mod-icon" aria-hidden="true">${ICON.eye}</span><h2>Reactions</h2><p>Use the eye placement guide and find the original Reactions mod.</p><span class="project-link-label">Open mod tools ${ICON.right}</span></a>
+  </div>
+</section>
+</div><script src="../project-locks.bundle.js?v=${ver("project-locks.js")}"></script>`,
 }));
 
 // ---------- home ----------
@@ -1560,26 +1698,48 @@ write("index.html", page({
       <a class="btn" href="#download">${ICON.down} Choose a download</a>
       <a class="btn ghost" href="editor/">${ICON.eye} Open skin eye editor</a>
     </div>
-    <div class="hero-meta"><a class="btn ghost" href="${REPO}/releases/tag/v${encodeURIComponent(version)}" aria-label="View release v${esc(version)}">${ICON.tag} ${esc(version)}</a><a class="btn ghost" href="guides/">${ICON.book} Eye guides</a></div>
+    <div class="hero-meta"><a class="btn ghost" href="${REPO}/releases/tag/v${encodeURIComponent(version)}" aria-label="${esc(version)} — view release">${ICON.tag} ${esc(version)}</a><a class="btn ghost" href="guides/">${ICON.book} Eye guides</a></div>
   </div>
 </div>
 
+<section class="fresh-video-banner" aria-label="Fresh Moves Fix animated banner">
+  <video id="fresh-banner-video" data-src="fresh-moves-banner.mp4?v=${ver("fresh-moves-banner.mp4")}" muted loop playsinline preload="none" aria-hidden="true" data-music-ignore></video>
+  <div class="fresh-video-banner-content">
+    <div class="fresh-banner-art" aria-hidden="true">
+      <svg class="fresh-banner-ingot" viewBox="0 0 64 48" shape-rendering="crispEdges"><path fill="#252c32" d="M13 5h42v5h5v7l-7 24H5v-7L13 10z"/><path fill="#687982" d="M13 30h43l-3 9H7z"/><path fill="#9caeb5" d="M14 9h39l5 7-5 14H9l3-14z"/><path fill="#e1edef" d="M16 11h35l3 5-4 3H15l-3-3z"/><path fill="#bed0d4" d="M12 19h39l-3 8H10z"/><path class="fresh-ingot-shine" fill="#f5ffff" d="M17 12h24v3H16z"/></svg>
+      <div class="fresh-banner-head-frame">
+        <video id="fresh-banner-head" class="fresh-banner-head" data-src="fresh-banner-head.mp4?v=${ver("fresh-banner-head.mp4")}" poster="fresh-banner-head-poster.png?v=${ver("fresh-banner-head-poster.png")}" muted loop playsinline preload="none" data-music-ignore></video>
+        <svg class="fresh-banner-expression" viewBox="0 0 384 384" shape-rendering="crispEdges" focusable="false" aria-hidden="true">
+          <path class="fresh-brow fresh-brow-left" fill="#32180c" d="M77 140h49v-4h20v14H77z"/>
+          <path class="fresh-brow fresh-brow-right" fill="#32180c" d="M215 136h20v4h51v10h-71z"/>
+          <path class="fresh-mouth" fill="#32140f" d="M154 265h44v6h-5v8h-34v-8h-5z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="fresh-banner-copy"><span class="fresh-banner-kicker">A LITTLE MORE LIFE</span><h2>Fresh Moves <span>Fix</span></h2><p>Made for Minecraft. Built for expression.</p></div>
+  </div>
+  <button class="fresh-banner-motion" id="fresh-banner-motion" type="button" hidden>Play animation</button>
+</section>
+
 <div class="owner-profiles" aria-label="Owner profiles">
   <aside class="owner-profile" aria-label="lie_kg owner profile">
-    <img id="owner-fallback" class="owner-profile-image" src="owner-profile.png?v=${ver("owner-profile.png")}" alt="Minecraft skin for lie_kg" width="160" height="320">
-    <canvas id="owner-model" class="owner-profile-model" width="240" height="240" role="img" aria-label="lie_kg's Minecraft skin in a pose" hidden></canvas>
+    <img id="owner-fallback" class="owner-profile-image" src="lie-kg-profile.png?v=${ver("lie-kg-profile.png")}" alt="Custom Minecraft skin for lie_kg" width="160" height="320">
+    <canvas id="owner-model" class="owner-profile-model" width="240" height="240" role="img" aria-label="lie_kg's custom Minecraft skin in a pose" data-skin="lie-kg-skin.png?v=${ver("lie-kg-skin.png")}" hidden></canvas>
     <span class="home-eyebrow">OWNER PROFILE</span>
     <h2>lie_kg</h2>
     <p>Owner of Fresh Moves Fix</p>
+    <small id="owner-skin-status" class="owner-skin-status">Custom skin</small>
   </aside>
   <aside class="owner-profile" aria-label="dudualt co-owner profile">
-    <img id="dudualt-fallback" class="owner-profile-image owner-steve-fallback" src="pack.png" alt="Steve icon" width="120" height="120">
-    <canvas id="dudualt-model" class="owner-profile-model" width="240" height="240" role="img" aria-label="Steve skin for dudualt" hidden data-skin="${skinData("wide/steve.png")}"></canvas>
-    <span class="home-eyebrow">OWNER PROFILE</span>
+    <img id="dudualt-fallback" class="owner-profile-image owner-steve-fallback" src="pack.png" alt="Fresh Moves Fix pack icon" width="120" height="120">
+    <canvas id="dudualt-model" class="owner-profile-model" width="240" height="240" role="img" aria-label="Minecraft skin for dudualt in a pose" hidden data-skin="${skinData("wide/steve.png")}"></canvas>
+    <span class="home-eyebrow">CO-OWNER PROFILE</span>
     <h2>dudualt</h2>
     <p>Co-Owner</p>
+    <small id="dudualt-skin-status" class="owner-skin-status">Saved fallback image</small>
   </aside>
 </div>
+<p class="owner-skin-note">lie_kg uses a custom skin. dudualt's Minecraft Java skin is loaded from mc-heads.net when available; a saved fallback is shown otherwise. The service may cache skins.</p>
 
 <section class="home-section">
   <div class="note"><strong>Beta.</strong> Blinking and moving eyes have worked in a player’s game; other features and versions still need testing. On Minecraft 1.21.4 and newer the cape and elytra may not be animated.</div>
@@ -1671,28 +1831,12 @@ ${versionLinks}
 </section>
 </div>
 <script src="player.js?v=${ver("player.js")}"></script>
-<script>(function(){
-  if(!window.FMFPlayer) return;
-  function drawOwner(canvasId, fallbackId, skinUrl) {
-    var canvas=document.getElementById(canvasId), fallback=document.getElementById(fallbackId);
-    if(!canvas || !fallback || !skinUrl) return;
-    var image=new Image();
-    image.onload=function(){
-      try {
-        var source=document.createElement("canvas"); source.width=64; source.height=64;
-        source.getContext("2d").drawImage(image,0,0);
-        var viewer=new window.FMFPlayer.SoftViewer(canvas);
-        viewer.pose="cheer"; viewer.zoom=1.05; viewer.view(-0.45,0.12,0);
-        viewer.loadSkin(source,{model:"wide"}); viewer.render(); viewer.dispose();
-        canvas.hidden=false; fallback.hidden=true;
-      } catch(e) { /* Keep the static fallback. */ }
-    };
-    image.src=skinUrl;
-  }
-  drawOwner("owner-model", "owner-fallback", "owner-skin.png?v=${ver("owner-skin.png")}");
-  var steve=document.getElementById("dudualt-model");
-  if(steve) drawOwner("dudualt-model", "dudualt-fallback", steve.getAttribute("data-skin"));
-})()</script>`,
+<script src="owner-profiles.bundle.js?v=${ver("owner-profiles.js")}"></script>
+<script src="video-banner.js?v=${ver("video-banner.js")}"></script>`,
 }));
+
+// Build from the pages actually written, so guide additions stay in sync.
+fs.writeFileSync(path.join(out, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${SITE}sitemap.xml\n`);
+fs.writeFileSync(path.join(out, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapUrls.sort().map(url => `  <url><loc>${esc(url)}</loc></url>`).join("\n")}\n</urlset>\n`);
 
 console.log(`Built website: ${docs.length} guides, ${versions.length} Minecraft versions, release v${version}`);

@@ -1,0 +1,118 @@
+name: Build experimental Glowing Eyes 26.x
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'glowing-eyes-fabric-26/**'
+      - '.github/workflows/glowing-eyes-26.yml'
+  push:
+    paths:
+      - 'glowing-eyes-fabric-26/**'
+      - '.github/workflows/glowing-eyes-26.yml'
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - minecraft: '26.1'
+            fabric: '0.145.1+26.1'
+            cca: '8.0.1'
+          - minecraft: '26.1.1'
+            fabric: '0.145.4+26.1.1'
+            cca: '8.0.1'
+          - minecraft: '26.1.2'
+            fabric: '0.155.3+26.1.2'
+            cca: '8.0.1'
+          - minecraft: '26.2'
+            fabric: '0.161.0+26.2'
+            cca: '8.0.1'
+          - minecraft: '26.3'
+            fabric: '0.166.2+26.3'
+            cca: '8.1.0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.8.2'
+      - name: Build experimental Fabric port
+        working-directory: glowing-eyes-fabric-26
+        shell: bash
+        env:
+          MC_VERSION: ${{ matrix.minecraft }}
+          FABRIC_VERSION: ${{ matrix.fabric }}
+          CCA_VERSION: ${{ matrix.cca }}
+        run: |
+          set +e
+          # Retry only HTTP 429 rate limits; real build errors remain failures.
+          for attempt in 1 2 3; do
+            gradle build --no-daemon -Pminecraft_version="$MC_VERSION" -Pfabric_version="$FABRIC_VERSION" -Pcca_version="$CCA_VERSION" > "$RUNNER_TEMP/glowing-eyes-build.log" 2>&1
+            result=$?
+            cat "$RUNNER_TEMP/glowing-eyes-build.log"
+            if [ "$result" -eq 0 ] || ! grep -q 'Received status code 429' "$RUNNER_TEMP/glowing-eyes-build.log" || [ "$attempt" -eq 3 ]; then
+              break
+            fi
+            echo "Dependency server rate-limited attempt $attempt; retrying."
+            sleep $((attempt * 20))
+          done
+          if [ "$result" -ne 0 ]; then
+            python3 - "$RUNNER_TEMP/glowing-eyes-build.log" <<'PY'
+          import sys
+          lines = open(sys.argv[1], errors='replace').read().splitlines()
+          interesting = []
+          for i, line in enumerate(lines):
+              if 'error:' in line:
+                  interesting.append('\n'.join(lines[i:i+5]))
+              elif line.startswith('* What went wrong:'):
+                  interesting.append('\n'.join(lines[i:i+15]))
+          detail = '\n---\n'.join(interesting[:60]) or '\n'.join(lines[-40:])
+          for start in range(0, len(detail), 3000):
+              print('::error::' + detail[start:start+3000].replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))
+          PY
+            exit "$result"
+          fi
+      - name: Check artifact metadata
+        env:
+          MC_VERSION: ${{ matrix.minecraft }}
+        run: |
+          python3 - <<'PY'
+          import json, os, zipfile
+          version = os.environ['MC_VERSION']
+          path = f'glowing-eyes-fabric-26/build/libs/glowing-eyes-fmf-fabric-{version}-experimental.jar'
+          with zipfile.ZipFile(path) as jar:
+              assert jar.testzip() is None
+              meta = json.loads(jar.read('fabric.mod.json'))
+              assert meta['id'] == 'glowingeyes'
+              assert meta['depends']['minecraft'] == '=' + version
+              assert meta['depends']['java'] == '>=25'
+              assert 'experimental' in meta['name'].lower()
+              assert 'NOTICE.md' in jar.namelist()
+              assert any(x.endswith('GlowingEyesClient.class') for x in jar.namelist())
+              widener = jar.read(meta['accessWidener']).decode()
+              pipeline = 'com/mojang/renderpearl/api/pipeline/RenderPipeline' if version == '26.3' else 'com/mojang/blaze3d/pipeline/RenderPipeline'
+              texture = 'com/mojang/renderpearl/backend/common/BaseGpuTexture' if version == '26.3' else 'com/mojang/blaze3d/textures/GpuTexture'
+              assert pipeline in widener and texture in widener
+              assert ('Minecraft$GameLoadCookie' in widener) == (version.startswith('26.1'))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: glowing-eyes-fmf-fabric-${{ matrix.minecraft }}-experimental
+          path: glowing-eyes-fabric-26/build/libs/glowing-eyes-fmf-fabric-${{ matrix.minecraft }}-experimental.jar
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload failed build log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: glowing-eyes-fmf-${{ matrix.minecraft }}-build-log
+          path: ${{ runner.temp }}/glowing-eyes-build.log
+          if-no-files-found: ignore
+          retention-days: 7

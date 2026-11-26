@@ -8,18 +8,20 @@
   let original = null; // ImageData of the loaded skin
   let loaded = false, loadToken = 0, protectTransferredSkin = false;
   const modeSelect = $("eye-editor-mode");
-  let mode = modeSelect && new URLSearchParams(window.location.search).get("mode") === "just-expressions" ? "just-expressions" : "fresh-moves";
+  const requestedInitialMode = new URLSearchParams(window.location.search).get("mode");
+  let mode = modeSelect && ["just-expressions", "mod-tools"].includes(requestedInitialMode) ? requestedInitialMode : "fresh-moves";
   if (modeSelect) modeSelect.value = mode;
   function modeUI() {
     if (!modeSelect) return;
-    const je = mode === "just-expressions";
+    const je = mode === "just-expressions", fresh = mode === "fresh-moves";
     $("je-editor").hidden = !je;
-    $("fmf-eye-options").hidden = je || protectTransferredSkin;
-    $("fmf-colour-controls").hidden = je || protectTransferredSkin;
-    $("fmf-format-controls").hidden = je || protectTransferredSkin;
-    $("fmf-unlock-notice").hidden = je || !protectTransferredSkin;
-    $("fmf-testing").hidden = je;
-    $("fmf-info").hidden = je;
+    $("mod-mode-note").hidden = mode !== "mod-tools";
+    $("fmf-eye-options").hidden = !fresh || protectTransferredSkin;
+    $("fmf-colour-controls").hidden = !fresh || protectTransferredSkin;
+    $("fmf-format-controls").hidden = !fresh || protectTransferredSkin;
+    $("fmf-unlock-notice").hidden = !fresh || !protectTransferredSkin;
+    $("fmf-testing").hidden = !fresh;
+    $("fmf-info").hidden = !fresh;
   }
 
 
@@ -99,12 +101,12 @@
       sctx.drawImage(img, 0, 0);
       original = sctx.getImageData(0, 0, 64, 64);
       loaded = true;
-      if ((mode === "just-expressions" || requestedMode === "just-expressions") && window.JustExpressionsEditor) {
+      if (mode !== "fresh-moves" || requestedMode !== "fresh-moves") {
         protectTransferredSkin = true;
         origSlim = original.data[idx(54, 20) + 3] === 0;
         $("fmtslim").checked = origSlim; $("fmtwide").checked = !origSlim;
         current = new ImageData(new Uint8ClampedArray(original.data), 64, 64);
-        window.JustExpressionsEditor.setSkin(current.data, name, true);
+        if (window.JustExpressionsEditor && (mode === "just-expressions" || requestedMode === "just-expressions")) window.JustExpressionsEditor.setSkin(current.data, name, true);
         modeUI(); render(); return;
       }
       protectTransferredSkin = false; modeUI();
@@ -625,11 +627,12 @@
     syncExtras();
     if (!loaded) return;
     syncSwatches();
-    const protectedPixels = mode === "just-expressions" || protectTransferredSkin;
+    const protectedPixels = mode !== "fresh-moves" || protectTransferredSkin;
     const result = protectedPixels ? { out: current, c: choice() } : build();
     const { out, c } = result;
     if (!out) return;
     current = out;
+    if (window.ModEyeTools) window.ModEyeTools.setSkin(out.data);
     currentPreview = protectedPixels ? new ImageData(new Uint8ClampedArray(out.data), 64, 64) : previewSkin(out);
     try { // the small picture in the "1. Skin" heading shows the face of the skin being edited
       const ic = $("skinicon"), g = ic && ic.getContext && ic.getContext("2d");
@@ -881,7 +884,7 @@
     if (!current) return;
     const c = document.createElement("canvas"); c.width = c.height = 64;
     c.getContext("2d").putImageData(current, 0, 0);
-    const filename = mode === "just-expressions" ? "just-expressions-skin.png" : "skin-fresh-moves.png";
+    const filename = mode === "just-expressions" ? "just-expressions-skin.png" : mode === "mod-tools" ? "skin.png" : "skin-fresh-moves.png";
     c.toBlob((blob) => {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
@@ -905,7 +908,7 @@
         mode = next;
         if (current) window.JustExpressionsEditor.setSkin(current.data, "Current skin");
       } else {
-        const data = window.JustExpressionsEditor.getSkin();
+        const data = mode === "just-expressions" ? window.JustExpressionsEditor.getSkin() : current && current.data;
         mode = next;
         if (data) {
           original = new ImageData(new Uint8ClampedArray(data), 64, 64);

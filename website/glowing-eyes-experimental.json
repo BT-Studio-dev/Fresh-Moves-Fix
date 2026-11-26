@@ -1,0 +1,115 @@
+[
+  {
+    "game": "1.20.5",
+    "loader": "fabric",
+    "java": "21",
+    "file": "glowing-eyes-fmf-fabric-1.20.5-experimental.jar",
+    "sha256": "312290ec425c34b6b7895ba06ffc7d2f3d584716e30bb0b6655e97dc4bc8e9b5",
+    "sourceCommit": "d30a2af",
+    "buildRun": "45901161117"
+  },
+  {
+    "game": "1.20.6",
+    "loader": "fabric",
+    "java": "21",
+    "file": "glowing-eyes-fmf-fabric-1.20.6-experimental.jar",
+    "sha256": "520da83694a8a15c19361dea46872d3eecd307909b3afc0ddb698b6d363a0569",
+    "sourceCommit": "d30a2af",
+    "buildRun": "45901161117"
+  },
+  {
+    "game": "26.1",
+    "loader": "fabric",
+    "java": "25",
+    "file": "glowing-eyes-fmf-fabric-26.1-experimental.jar",
+    "sha256": "d1b39a2b29b63bd8f7a76a8dfe33fd57d22a339bd463ce59ec49402bde1e7acc",
+    "sourceCommit": "d30a2af",
+    "buildRun": "45901161080"
+  },
+  {
+    "game": "26.1.1",
+    "loader": "fabric",
+    "java": "25",
+    "file": "glowing-eyes-fmf-fabric-26.1.1-experimental.jar",
+    "sha256": "a30079c1f7372153aab872bd3a20e18d5188171ebaf0a6c383aff3a316e31aaf",
+    "sourceCommit": "d30a2af",
+    "buildRun": "45901161080"
+  },
+  {
+    "game": "26.1.2",
+    "loader": "fabric",
+    "java": "25",
+    "file": "glowing-eyes-fmf-fabric-26.1.2-experimental.jar",
+    "sha256": "795eb15f85bcdcfb076762ce205bdaf68f4debfa408e4cb6b435b9845e83b3ed",
+    "sourceCommit": "d30a2af",
+    "buildRun": "45901161080"
+  },
+  {
+    "game": "26.2",
+    "loader": "fabric",
+    "java": "25",
+    "file": "glowing-eyes-fmf-fabric-26.2-experimental.jar",
+    "sha256": "9a30bcd488357cd781d7a454d6a97109d649a3df5ed7aa927cc70e214574c56a",
+    "sourceCommit": "d30a2af",
+    "buildRun": "45901161080"
+  },
+  {
+    "game": "26.3",
+    "loader": "fabric",
+    "java": "25",
+    "file": "glowing-eyes-fmf-fabric-26.3-experimental.jar",
+    "sha256": "0ed1ff73027ce742238267077593cbe939c2a6d39423fef477125952b2c2dd02",
+    "sourceCommit": "d30a2af",
+    "buildRun": "45901161080"
+  },
+  {
+    "game": "26.1",
+    "loader": "neoforge",
+    "java": "25",
+    "file": "glowing-eyes-fmf-neoforge-26.1-experimental.jar",
+    "sha256": "41eacf89cb363c28ff90daae659d9585f7fe4dee633b0525498cf06df4d7eb68",
+    "sourceCommit": "ba087c0",
+    "buildRun": "45900946009",
+    "neo": "26.1.0.19-beta or newer"
+  },
+  {
+    "game": "26.1.1",
+    "loader": "neoforge",
+    "java": "25",
+    "file": "glowing-eyes-fmf-neoforge-26.1.1-experimental.jar",
+    "sha256": "2c4ac86b64d4d2d1537cba25bb25a2ff689027bacb55aa0460377f92e4b8fff1",
+    "sourceCommit": "ba087c0",
+    "buildRun": "45900946009",
+    "neo": "26.1.1.15-beta or newer"
+  },
+  {
+    "game": "26.1.2",
+    "loader": "neoforge",
+    "java": "25",
+    "file": "glowing-eyes-fmf-neoforge-26.1.2-experimental.jar",
+    "sha256": "09eea96e1aafb833f1dcb3a90ae3f13caa70a4880b149b4306c93fd83b483afe",
+    "sourceCommit": "ba087c0",
+    "buildRun": "45900946009",
+    "neo": "26.1.2.114 or newer"
+  },
+  {
+    "game": "26.2",
+    "loader": "neoforge",
+    "java": "25",
+    "file": "glowing-eyes-fmf-neoforge-26.2-experimental.jar",
+    "sha256": "071bb28da56b466dab3c0017a335488cedd59c170a8455683746c25568c54677",
+    "sourceCommit": "ba087c0",
+    "buildRun": "45900946009",
+    "neo": "26.2.0.88 or newer"
+  },
+  {
+    "game": "26.3",
+    "loader": "neoforge",
+    "java": "25",
+    "file": "glowing-eyes-fmf-neoforge-26.3-experimental.jar",
+    "sha256": "0487936803401a515370656bf6cbb3956e88ac3116117019359699dad790363a",
+    "sourceCommit": "ba087c0",
+    "buildRun": "45900946009",
+    "neo": "26.3.0.22-beta or newer"
+  }
+]

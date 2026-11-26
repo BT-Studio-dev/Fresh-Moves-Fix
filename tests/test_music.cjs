@@ -7,7 +7,7 @@ const songs = [
   ['end','The End',240,'4:00'], ['left','Player Left',200,'3:20'],
   ['horizon','Quiet Horizons',216,'3:36'], ['fading','Fading Lights',228,'3:48']
 ];
-function createPlayer(saved = {}) {
+function createPlayer(saved = {}, unsupported = false, broken = false) {
   const handlers = {}, storage = {...saved}, intervals = [], oscillators = [], gainNodes = [];
   class Param {
     constructor(){ this.value=0; this.target=null; }
@@ -29,15 +29,16 @@ function createPlayer(saved = {}) {
   }
   let context;
   class AudioContext {
-    constructor(){context=this;this.currentTime=0;this.state='running';this.destination={};}
+    constructor(){if(broken) throw new Error('audio unavailable');context=this;this.currentTime=0;this.state='running';this.destination={};}
     createGain(){return new Gain()} createOscillator(){return new Oscillator()}
     resume(){this.state='running'} suspend(){this.state='suspended'}
   }
   const radios=songs.map(([value])=>({value,checked:false,matches(s){return s==='[data-music-song]'}}));
   const volumes=[0,1].map(()=>({value:'',attributes:{},matches(s){return s==='[data-music-volume]'},setAttribute(k,v){this.attributes[k]=v}}));
-  const outputs=[{textContent:''},{textContent:''}], name={textContent:''}, time={textContent:''}, check={checked:false}, seekControl={value:'0',setAttribute(){},matches(s){return s==='[data-music-seek]'}};
-  const document={readyState:'complete', addEventListener(k,f){(handlers[k] ||= []).push(f)}, removeEventListener(){},querySelectorAll(s){return ({'[data-music-song]':radios,'[data-music-volume]':volumes,'[data-music-volume-value]':outputs,'[data-music-name]':[name],'[data-music-time]':[time],'[data-music-check]':[check],'[data-music-seek]':[seekControl]})[s]||[]}};
-  const sandbox={window:{AudioContext},document,localStorage:{getItem:k=>Object.hasOwn(storage,k)?storage[k]:null,setItem:(k,v)=>storage[k]=v},setInterval(f,ms){intervals.push({f,ms,active:true});return intervals.length},clearInterval(id){if(intervals[id-1]) intervals[id-1].active=false},setTimeout(){},Math,Set,isFinite};
+  const outputs=[{textContent:''},{textContent:''}], name={textContent:''}, time={textContent:''}, state={textContent:''}, check={checked:false}, seekControl={value:'0',setAttribute(){},matches(s){return s==='[data-music-seek]'}};
+  const mute={textContent:'',attrs:{},setAttribute(k,v){this.attrs[k]=v},closest(s){return s==='[data-music-mute]' ? this : null},matches(){return false}};
+  const document={readyState:'complete', addEventListener(k,f){(handlers[k] ||= []).push(f)}, removeEventListener(){},querySelectorAll(s){return ({'[data-music-song]':radios,'[data-music-volume]':volumes,'[data-music-volume-value]':outputs,'[data-music-name]':[name],'[data-music-time]':[time],'[data-music-check]':[check],'[data-music-seek]':[seekControl],'[data-music-mute]':[mute],'[data-music-state]':[state]})[s]||[]}};
+  const sandbox={window:{AudioContext:unsupported?undefined:AudioContext},document,localStorage:{getItem:k=>Object.hasOwn(storage,k)?storage[k]:null,setItem:(k,v)=>storage[k]=v},setInterval(f,ms){intervals.push({f,ms,active:true});return intervals.length},clearInterval(id){if(intervals[id-1]) intervals[id-1].active=false},setTimeout(){},Math,Set,isFinite};
   vm.runInNewContext(source,sandbox);
   function fire(type,target){(handlers[type]||[]).forEach(f=>f({target}));}
   function choose(id){ const r=radios.find(r=>r.value===id); r.checked=true; fire('click',r); fire('change',r); }
@@ -47,7 +48,7 @@ function createPlayer(saved = {}) {
   function seek(v){seekControl.value=String(v);fire('input',seekControl);}
   function gesture(){fire('pointerdown',{});}
   function tick(ms){intervals.filter(i=>i.ms===ms && i.active).forEach(i=>i.f())}
-  return {storage,oscillators,gainNodes,volumes,outputs,name,time,check,choose,volume,play,navigate,seek,gesture,tick,get context(){return context}};
+  return {storage,oscillators,gainNodes,volumes,outputs,name,time,state,check,mute,choose,volume,play,navigate,seek,gesture,tick,fire,get context(){return context}};
 }
 for (const [id, name, seconds, duration] of songs) {
   const p=createPlayer({ 'fmf-volume':'50' });
@@ -82,7 +83,7 @@ for (const [id, name, seconds, duration] of songs) {
   assert.equal(oldBus.gain.ramp.value,0); assert.equal(oldBus.gain.ramp.time,switchTime+.04);
   assert(p.oscillators.at(-1).started>=switchTime+.04,`${name}: new song starts after fade`);
   const reload=createPlayer({'fmf-song':id,'fmf-volume':'50','fmf-music':'on'});
-  assert.equal(reload.name.textContent,name,`${name}: restored song`); assert(!reload.context,`${name}: no autoplay before gesture`); reload.gesture(); assert.equal(reload.gainNodes[0].gain.target,.5,`${name}: restored volume`); assert(reload.oscillators.length>0,`${name}: restored playback`);
+  assert.equal(reload.name.textContent,name,`${name}: restored song`); assert(!reload.context,`${name}: no autoplay before gesture`); reload.gesture(); assert(!reload.context,`${name}: an unrelated gesture must not start audio`); reload.play(true); assert.equal(reload.gainNodes[0].gain.target,.5,`${name}: restored volume`); assert(reload.oscillators.length>0,`${name}: explicit playback`);
   const q=createPlayer(); q.choose(id); q.play(true); q.context.currentTime=30.1; q.play(false); assert.equal(q.time.textContent,`0:30 / ${duration}`,`${name}: pause preserves position`);
   q.context.currentTime=45; q.play(true); q.tick(500); assert.equal(q.time.textContent,`0:30 / ${duration}`,`${name}: resume preserves position`);
   q.seek(seconds-5); q.tick(500); assert.equal(q.time.textContent,`${Math.floor((seconds-5)/60)}:${String((seconds-5)%60).padStart(2,'0')} / ${duration}`,`${name}: seeking updates position`);
@@ -91,3 +92,19 @@ for (const [id, name, seconds, duration] of songs) {
 }
 const restored=createPlayer({'fmf-song':'left','fmf-volume':'0'}); restored.choose('left'); restored.play(true); assert.equal(restored.gainNodes[0].gain.target,0,'saved zero volume is restored');
 console.log('PASS saved zero volume');
+const videoMusic = createPlayer(); videoMusic.play(true);
+const decorative = { tagName:'VIDEO', hasAttribute(name){ return name === 'data-music-ignore'; } };
+const normalVideo = { tagName:'VIDEO', hasAttribute(){ return false; } };
+videoMusic.fire('play', decorative); assert.equal(videoMusic.context.state, 'running', 'decorative muted banner must not pause music');
+videoMusic.fire('play', normalVideo); assert.equal(videoMusic.context.state, 'suspended', 'normal video still pauses music');
+videoMusic.fire('pause', decorative); assert.equal(videoMusic.context.state, 'suspended', 'decorative video must not release a normal video hold');
+videoMusic.fire('pause', normalVideo); assert.equal(videoMusic.context.state, 'running');
+console.log('Decorative video leaves music playing; regular video hold remains intact');
+const mutedPlayer = createPlayer({'fmf-volume':'37'}); mutedPlayer.play(true);
+mutedPlayer.fire('click', mutedPlayer.mute); assert.equal(mutedPlayer.gainNodes[0].gain.target, 0); assert.equal(mutedPlayer.mute.attrs['aria-pressed'], 'true'); assert.equal(mutedPlayer.storage['fmf-music-muted'],'1');
+mutedPlayer.volume(60); assert.equal(mutedPlayer.gainNodes[0].gain.target, 0); mutedPlayer.fire('click', mutedPlayer.mute); assert.equal(mutedPlayer.gainNodes[0].gain.target, .6); assert.equal(mutedPlayer.storage['fmf-music-muted'],'0');
+const mutedReload = createPlayer({'fmf-music-muted':'1','fmf-volume':'60'}); mutedReload.play(true); assert.equal(mutedReload.gainNodes[0].gain.target,0);
+console.log('Mute, unmute, stored preference and explicit music start passed');
+const unsupportedPlayer=createPlayer({},true); assert.match(unsupportedPlayer.state.textContent,/not supported/); assert(unsupportedPlayer.check.disabled);
+const brokenPlayer=createPlayer({},false,true); brokenPlayer.play(true); assert.match(brokenPlayer.state.textContent,/could not start/); assert.equal(brokenPlayer.storage['fmf-music'],'off');
+console.log('Unsupported and failed audio start are reported');

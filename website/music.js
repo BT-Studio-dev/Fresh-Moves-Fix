@@ -7,8 +7,11 @@
   var on = false, vol = 40, song = "calm";
   var INFO = { calm: { name: "Calm", len: 214, bars: 64 }, minecraft: { name: "Minecraft", len: 360, bars: 96 }, fresh: { name: "Fresh Moves Fix", len: 160, bars: 64 }, night: { name: "Night Sky", len: 192, bars: 48 }, end: { name: "The End", len: 240, bars: 48 }, left: { name: "Player Left", len: 200, bars: 40 }, horizon: { name: "Quiet Horizons", len: 216, bars: 48 }, fading: { name: "Fading Lights", len: 228, bars: 48 } };
   try { var saved = localStorage.getItem("fmf-song"); if (INFO[saved]) song = saved; } catch (e) {}
-  try { on = localStorage.getItem("fmf-music") === "on"; var v = parseInt(localStorage.getItem("fmf-volume"), 10); if (v >= 0 && v <= 100) vol = v; } catch (e) {}
+  var muted = false;
+  // Always require an explicit play action after a full page load; retain track and volume.
+  try { var v = parseInt(localStorage.getItem("fmf-volume"), 10); if (v >= 0 && v <= 100) vol = v; muted = localStorage.getItem("fmf-music-muted") === "1"; localStorage.setItem("fmf-music", "off"); } catch (e) {}
   var AC = window.AudioContext || window.webkitAudioContext;
+  var audioError = "";
   var ctx = null, master = null, songBus = null, timer = null, step = 0, nextTime = 0, songStart = 0, playhead = 0, voices = new Set();
   // ---- the calm song: 64 bars, exactly 3:34 long ----
   // the "Minecraft" song is 96 bars and exactly 6:00 long (a slower beat)
@@ -183,11 +186,12 @@
     var gain = master.gain, now = ctx.currentTime;
     if (gain.cancelAndHoldAtTime) gain.cancelAndHoldAtTime(now);
     else if (gain.cancelScheduledValues) gain.cancelScheduledValues(now);
-    gain.setTargetAtTime(on ? vol / 100 : 0, now, 0.04);
+    gain.setTargetAtTime(on && !muted ? vol / 100 : 0, now, 0.04);
   }
   function paintVolume() {
     document.querySelectorAll("[data-music-volume]").forEach(function (r) { r.value = vol; r.setAttribute("aria-valuetext", vol + "%"); });
     document.querySelectorAll("[data-music-volume-value]").forEach(function (e) { e.textContent = vol + "%"; });
+    document.querySelectorAll("[data-music-mute]").forEach(function (b) { b.setAttribute("aria-pressed", String(muted)); b.textContent = muted ? "Unmute music" : "Mute music"; });
   }
   function changeVolume(input) {
     var value = Number(input.value);
@@ -197,13 +201,13 @@
     setGain(); paintVolume();
   }
   function start() {
-    if (!AC) return false;
+    if (!AC) { audioError = "Music is not supported in this browser."; return false; }
     try {
       if (!ctx) { ctx = new AC(); master = ctx.createGain(); master.gain.value = 0; master.connect(ctx.destination); }
       if (!songBus) createSongBus();
       if (ctx.state === "suspended") {
         var resumed = ctx.resume();
-        if (resumed && resumed.catch) resumed.catch(function () { set(false); });
+        if (resumed && resumed.catch) resumed.catch(function () { if (on) { set(false); audioError = "Music could not start. Please try again."; paint(); } });
       }
       if (!timer) {
         songStart = ctx.currentTime + 0.1 - playhead;
@@ -212,7 +216,7 @@
       }
       setGain();
       return true;
-    } catch (e) { return false; }
+    } catch (e) { audioError = "Music could not start. Please try again."; return false; }
   }
   function stop() {
     if (timer) { playhead = position(); clearInterval(timer); timer = null; }
@@ -226,8 +230,8 @@
       b.removeAttribute("title"); // the card under the button shows this instead
       b.setAttribute("aria-label", on ? "Music: on" : "Music: off");
     });
-    document.querySelectorAll("[data-music-state]").forEach(function (e) { e.textContent = on ? (timer ? "Music: on" : "Music: waiting for a click") : (playhead ? "Music: paused" : "Music: off"); });
-    document.querySelectorAll("[data-music-check]").forEach(function (c) { c.checked = on; });
+    document.querySelectorAll("[data-music-state]").forEach(function (e) { e.textContent = audioError || (!AC ? "Music is not supported in this browser." : on ? (timer ? "Music: on" : "Music: waiting for a click") : (playhead ? "Music: paused" : "Music: off")); });
+    document.querySelectorAll("[data-music-check]").forEach(function (c) { c.checked = on; c.disabled = !AC; });
     paintVolume();
     document.querySelectorAll("[data-music-song]").forEach(function (r) { r.checked = r.value === song; });
     document.querySelectorAll("[data-music-name]").forEach(function (e) { e.textContent = INFO[song].name; });
@@ -279,6 +283,7 @@
     paintTime();
   }
   function set(next) {
+    audioError = "";
     on = next; try { localStorage.setItem("fmf-music", on ? "on" : "off"); } catch (e) {}
     if (on) {
       if (!start()) { on = false; try { localStorage.setItem("fmf-music", "off"); } catch (e) {} stop(); }
@@ -290,6 +295,8 @@
     document.addEventListener("click", function (e) {
       var b = e.target.closest && e.target.closest("[data-music-toggle]");
       if (b) set(!on);
+      var mute = e.target.closest && e.target.closest("[data-music-mute]");
+      if (mute) { muted = !muted; try { localStorage.setItem("fmf-music-muted", muted ? "1" : "0"); } catch (err) {} setGain(); paintVolume(); }
       // Selecting a song does not turn on music without the play control.
       if (e.target.matches && e.target.matches("[data-music-song]") && e.target.value !== song) setSong(e.target.value);
     });
@@ -307,19 +314,14 @@
     var held = false;
     function release() { if (held) { held = false; if (on && ctx) ctx.resume(); } }
     document.addEventListener("play", function (e) {
-      if (e.target.tagName === "VIDEO" && on && ctx && ctx.state === "running") { held = true; ctx.suspend(); }
+      if (e.target.tagName === "VIDEO" && !e.target.hasAttribute("data-music-ignore") && on && ctx && ctx.state === "running") { held = true; ctx.suspend(); }
     }, true);
-    document.addEventListener("pause", function (e) { if (e.target.tagName === "VIDEO") release(); }, true);
-    document.addEventListener("ended", function (e) { if (e.target.tagName === "VIDEO") release(); }, true);
+    document.addEventListener("pause", function (e) { if (e.target.tagName === "VIDEO" && !e.target.hasAttribute("data-music-ignore")) release(); }, true);
+    document.addEventListener("ended", function (e) { if (e.target.tagName === "VIDEO" && !e.target.hasAttribute("data-music-ignore")) release(); }, true);
     document.addEventListener("fmf-nav", release);
     document.addEventListener("fmf-nav", paint);
     if (!AC) document.querySelectorAll("[data-music-toggle]").forEach(function (b) { b.hidden = true; });
     paint();
-    // browsers only allow sound after a click or key press, so after a full page load the music resumes on the first one
-    if (on) {
-      var kick = function () { if (on && !timer) { start(); paint(); paintTime(); } document.removeEventListener("pointerdown", kick); document.removeEventListener("keydown", kick); };
-      document.addEventListener("pointerdown", kick); document.addEventListener("keydown", kick);
-    }
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();

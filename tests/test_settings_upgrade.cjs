@@ -1,0 +1,27 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const { JSDOM, VirtualConsole } = require('../website/node_modules/jsdom');
+const html=fs.readFileSync('website/public/settings/index.html','utf8');
+const dom=new JSDOM(html,{url:'https://example.test/settings/',runScripts:'outside-only',virtualConsole:new VirtualConsole()});
+const w=dom.window,d=w.document,root=d.documentElement;
+w.matchMedia=()=>({matches:false,addEventListener(){},removeEventListener(){}}); w.requestAnimationFrame=fn=>fn(); w.scrollTo=()=>{};
+root.setAttribute('data-theme','dark'); root.setAttribute('data-background','on'); root.setAttribute('data-scrollbar','on'); root.setAttribute('data-music-button','on');
+const script=[...d.querySelectorAll('script:not([src])')].find(el=>el.textContent.includes('reset-site-preferences'));
+assert(script); w.eval(script.textContent); w.eval(fs.readFileSync('website/enhancements.js','utf8'));
+const change=el=>el.dispatchEvent(new w.Event('change',{bubbles:true}));
+const full=d.getElementById('settings-glass-blur'), quick=d.querySelector('[data-fmf-glass-blur]');
+assert(!full.disabled && !quick.disabled); full.checked=true; change(full);
+assert(root.classList.contains('fmf-glass-blur') && quick.checked); assert.equal(w.localStorage.getItem('fmf-glass-blur'),'1');
+quick.checked=false; change(quick); assert(!root.classList.contains('fmf-glass-blur') && !full.checked); assert.equal(w.localStorage.getItem('fmf-glass-blur'),'0');
+for(const theme of ['light','dark','minecraft']) { const radio=d.querySelector('input[name="theme"][value="'+theme+'"]'); assert(radio,theme); radio.checked=true; change(radio); assert.equal(root.getAttribute('data-theme'),theme); }
+const banner=d.querySelector('#tab-appearance [data-fmf-banner]'), guide=d.querySelector('#tab-appearance [data-fmf-guide-video]');
+banner.checked=false; change(banner); assert.equal(w.localStorage.getItem('fmf-banner-motion'),'off'); assert(!d.querySelector('.fmf-settings [data-fmf-banner]').checked);
+guide.checked=false; change(guide); assert.equal(w.localStorage.getItem('fmf-guide-video'),'off'); assert(!d.querySelector('.fmf-settings [data-fmf-guide-video]').checked);
+w.localStorage.setItem('fmf-song','left'); w.localStorage.setItem('my-saved-project','keep'); w.localStorage.setItem('fmf-live-sky-location-v1','private');
+d.cookie='fmf-theme=minecraft; path=/';
+w.confirm=()=>false; d.getElementById('reset-site-preferences').click(); assert.equal(w.localStorage.getItem('fmf-song'),'left');
+w.confirm=()=>true; d.getElementById('reset-site-preferences').click();
+assert.equal(w.localStorage.getItem('fmf-song'),null); assert.equal(w.localStorage.getItem('fmf-theme'),null); assert.equal(w.localStorage.getItem('fmf-banner-motion'),null); assert(!d.cookie.includes('fmf-theme='));
+assert.equal(w.localStorage.getItem('my-saved-project'),'keep'); assert.equal(w.localStorage.getItem('fmf-live-sky-location-v1'),'private');
+const css=fs.readFileSync('website/refresh-2027.css','utf8'); assert.match(css,/html\.fmf-glass-blur :is/); assert.match(css,/prefers-reduced-transparency/); assert.match(css,/not\(\.fmf-glass-blur\)/);
+dom.window.close(); console.log('Global glass, themes, video preferences and scoped reset passed (DOM simulation)');

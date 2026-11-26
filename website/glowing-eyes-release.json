@@ -1,0 +1,24 @@
+{
+  "integrationBuild": "1.16.0",
+  "modName": "Glowing Eyes",
+  "modVersion": "2.1.3",
+  "minecraftVersion": "1.21.11",
+  "source": "https://github.com/RaydanOMGr/GlowingEyes/tree/d8d0d0243d4e50ad6dadabae9c63a6ff704bcccb",
+  "project": "https://modrinth.com/mod/glowing-eyes",
+  "artifacts": [
+    {
+      "loader": "Fabric / Quilt",
+      "filename": "glowingeyes-fabric-1.21.11-2.1.3.jar",
+      "url": "https://cdn.modrinth.com/data/9i2aYUyi/versions/5PH01A1M/glowingeyes-fabric-1.21.11-2.1.3.jar",
+      "versionPage": "https://modrinth.com/mod/glowing-eyes/version/5PH01A1M",
+      "sha512": "82f2a3bcacb5e16909d0cde6259f89fbf6791a1e0caf6d0203402c89f23be76d5de01efdc5b46522859f9a67aa92eed4dd8f1c067dbe262a37d4d2717fdb7e8e"
+    },
+    {
+      "loader": "NeoForge",
+      "filename": "glowingeyes-neoforge-1.21.11-2.1.3.jar",
+      "url": "https://cdn.modrinth.com/data/9i2aYUyi/versions/1Yqjp5ie/glowingeyes-neoforge-1.21.11-2.1.3.jar",
+      "versionPage": "https://modrinth.com/mod/glowing-eyes/version/1Yqjp5ie",
+      "sha512": "2338e498391fb9c7473b65f561e3bb2c578bd1b818a9ae46a4c2004eaf87bfbb235e847e1a02980198ba4ac43d77378aeba09c393376c91cdffdc4d9dfdd4061"
+    }
+  ]
+}

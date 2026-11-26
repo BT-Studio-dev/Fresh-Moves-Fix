@@ -1,24 +1,80 @@
 # Fresh-Moves-Fix
 
-![Fresh Moves Fix](docs/images/banner.png)
+![Fresh Moves Fix: player animations, expressive eyes and creative tools. Artwork is a project preview, not gameplay.](.github/page/banner.png)
+
+A Minecraft Java resource pack fork with player animations, animated eyes and browser-based skin tools.
+
+## Get started
+
+![Choose where to go: downloads, editor and guides](.github/page/head-download.png)
+
+| Download | Create | Learn |
+| :---: | :---: | :---: |
+| [![GitHub releases: choose a pack ZIP](.github/page/tile-github.png)](https://github.com/BT-Studio-dev/Fresh-Moves-Fix/releases) | [![Open the Skin Eye Editor](.github/page/tile-editor.png)](https://fresh-moves-fix.vercel.app/editor/) | [![Read guides and help](.github/page/tile-guides.png)](docs/Home.md) |
+
+[Download releases](https://github.com/BT-Studio-dev/Fresh-Moves-Fix/releases) · [Open the website](https://fresh-moves-fix.vercel.app/) · [Skin Eye Editor](https://fresh-moves-fix.vercel.app/editor/) · [Guides](docs/Home.md)
 
 ## Requirements
 
-![EMF and ETF are required](docs/images/requirements.png)
+| Entity Model Features | Entity Texture Features |
+| :---: | :---: |
+| [![Open Entity Model Features on Modrinth](.github/page/required-emf.png)](https://modrinth.com/mod/entity-model-features) | [![Open Entity Texture Features on Modrinth](.github/page/required-etf.png)](https://modrinth.com/mod/entitytexturefeatures) |
 
-You need the **LATEST** versions of [Entity Model Features](https://modrinth.com/mod/entity-model-features) (+v2.0.2) and [Entity Texture Features](https://modrinth.com/mod/entitytexturefeatures) (+v6.0.1) to use this pack.
+You need compatible versions of [Entity Model Features (EMF)](https://modrinth.com/mod/entity-model-features) (v2.0.2 or newer) and [Entity Texture Features (ETF)](https://modrinth.com/mod/entitytexturefeatures) (v6.0.1 or newer) to use this pack. Choose releases that match your Minecraft version and mod loader.
 These are client-side mods that are available for Fabric, Forge and NeoForge.
 
 On Minecraft 1.21.9 and newer use EMF 3.0.12 or newer, otherwise armour does not follow the animations.
 
 On Minecraft 26.1, 26.1.1 and 26.1.2 use EMF 3.3.2 or newer (older versions do not start or crash there). On 26.3 use EMF 3.3.6 or newer. EMF for 26.x exists for Fabric and NeoForge.
 
+## Installation
+
+![Set up in three steps](.github/page/head-install.png)
+
+![Install compatible EMF and ETF, put the ZIP in resourcepacks, and enable it in Minecraft](.github/page/install-steps.png)
+
+1. Install EMF and ETF for your Minecraft version and mod loader.
+2. Download a pack ZIP and place it, without unzipping, in your Minecraft `resourcepacks` folder.
+3. In Minecraft, open **Options → Resource Packs**, move the pack to the selected side and choose **Done**.
+
+See [INSTALL.txt](INSTALL.txt) for more details.
+
 ## Guides
 
 - [All guides (wiki home)](docs/Home.md)
 - [All releases and Minecraft versions](docs/Versions.md)
 
+## Preview
+
+![Made for more expression: explore the pack and browser tools](.github/page/head-features.png)
+
+| Animated eyes | Player animation | Browser tools |
+| :---: | :---: | :---: |
+| [![Animated eyes: make a skin with expressive eye pixels](.github/page/feature-eyes.png)](docs/Home.md) | [![Player animation: walking, swimming and more](.github/page/feature-animation.png)](#changes-from-the-original-pack) | [![Browser tools: edit and preview your skin](.github/page/feature-tools.png)](https://fresh-moves-fix.vercel.app/editor/) |
+
+These illustrations were made with the website tools; they are not in-game screenshots. Features and compatibility can vary by Minecraft version and skin.
+
+### Animated eyes
+
+![Illustration of open, looking left, looking right and blinking eyes](docs/images/gallery-2-eyes.png)
+
+Use the [Skin Eye Editor](https://fresh-moves-fix.vercel.app/editor/) and [eye guides](docs/Home.md) to prepare your skin.
+
+### Player animations
+
+![Illustrated examples of player movements and animations](docs/images/gallery-3-animations.png)
+
+The graphic shows examples of the pack's intended animations; see the testing notes below before installing.
+
+### Animation maker
+
+![Examples of poses in the browser-based Minecraft Animation maker](docs/images/gallery-5-animation-maker.png)
+
+Try the separate [Minecraft Animation maker](https://fresh-moves-fix.vercel.app/animation/) in your browser.
+
 ## Changes from the original pack
+
+![What this fork changes: fixes, experiments and compatibility notes](.github/page/head-changes.png)
 
 - Eyes stay closed while sleeping and after death (upstream issue #360).
 - `v1_21_2/` overlay (loaded automatically on Minecraft 1.21.2+): the second skin layer (hat, jacket, sleeves, pants) no longer moves twice (upstream issues #211, #309).

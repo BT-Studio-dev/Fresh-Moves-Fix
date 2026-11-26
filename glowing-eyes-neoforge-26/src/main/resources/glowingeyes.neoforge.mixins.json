@@ -1,0 +1,10 @@
+{
+  "package": "me.andreasmelone.glowingeyes.neoforge.mixin",
+  "client": [],
+  "required": true,
+  "plugin": "me.andreasmelone.glowingeyes.GlowingEyesMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

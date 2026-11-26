@@ -10,11 +10,35 @@ function setup(query = '', withViewer = false) {
  w.Image=class {constructor(){this.width=64;this.height=64;this.data=fixture;}set src(v){imageQueue.push(this)}};
  w.FileReader=class {readAsDataURL(f){this.result=f.data;f.reader=this}};
  w.FMFPlayer={EMOTES:{},MOVES:{},moveOf(){},LOOP:{},buildGltf(){},SoftViewer:withViewer ? class{constructor(){this.soft=true;}loadSkin(canvas){frames.push(new Uint8ClampedArray(canvas.getContext('2d').state.data));}dispose(){}} : class{constructor(){throw Error('no preview')}}};
- w.confirm=()=>true;w.eval(fs.readFileSync('website/eye-detect.js','utf8'));w.eval(fs.readFileSync('website/je-thumbnails.js','utf8'));w.eval(fs.readFileSync('website/just-expressions-editor.js','utf8'));w.eval(fs.readFileSync('website/editor.js','utf8'));
+ w.confirm=()=>true;w.eval(fs.readFileSync('website/mod-eye-tools.js','utf8'));w.eval(fs.readFileSync('website/eye-detect.js','utf8'));w.eval(fs.readFileSync('website/je-thumbnails.js','utf8'));w.eval(fs.readFileSync('website/just-expressions-editor.js','utf8'));w.eval(fs.readFileSync('website/editor.js','utf8'));
  const finish=()=>{let img=imageQueue.shift();assert(img);img.onload()};
  const switchTo=(mode)=>{let e=d.getElementById('eye-editor-mode');e.value=mode;e.dispatchEvent(new w.Event('change'))};
  const upload=(file)=>{let input=d.getElementById('file');Object.defineProperty(input,'files',{value:[file],configurable:true});input.dispatchEvent(new w.Event('change'))};
  return {dom,w,d,fixture,finish,switchTo,upload,getExport:()=>exported,getDownload:()=>download, imageQueue, fireEye:(time)=>{clock=time;tickEye()}, frames};
+}
+{
+ const {dom,w,d,fixture,finish,switchTo,upload,getExport,getDownload}=setup('?mode=mod-tools'); finish();
+ assert(!d.getElementById('mod-mode-note').hidden); assert(d.getElementById('fmf-eye-options').hidden); assert(d.getElementById('je-editor').hidden);
+ d.getElementById('gl-grid').children[0].click(); d.getElementById('rx-grid').children[0].click();
+ d.getElementById('save').click(); assert.equal(getDownload(),'skin.png'); assert.deepEqual(Array.from(getExport()),Array.from(fixture),'mods-only starts with original pixels');
+ switchTo('fresh-moves'); assert(!d.getElementById('fmf-unlock-notice').hidden); d.getElementById('save').click(); assert.deepEqual(Array.from(getExport()),Array.from(fixture),'1.x requires explicit unlock');
+ switchTo('mod-tools'); const pending={name:'new.png',data:'test'}; upload(pending); pending.reader.onload(); switchTo('fresh-moves'); finish();
+ assert(!d.getElementById('fmf-unlock-notice').hidden,'pending mods-only upload remains protected'); d.getElementById('save').click(); assert.deepEqual(Array.from(getExport()),Array.from(fixture));
+ switchTo('just-expressions'); assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),Array.from(fixture));
+ const shape=d.getElementById('je-eye-shape'); shape.value='standard'; shape.dispatchEvent(new w.Event('change')); const edited=Array.from(w.JustExpressionsEditor.getSkin());
+ switchTo('mod-tools'); d.getElementById('save').click(); assert.deepEqual(Array.from(getExport()),edited,'JE edits survive transfer to mods-only');
+ switchTo('fresh-moves'); d.getElementById('save').click(); assert.deepEqual(Array.from(getExport()),edited,'mods-only to 1.x keeps current skin');
+ switchTo('just-expressions'); assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),edited,'round trip preserves JE edits');
+ dom.window.close();
+}
+{
+ const {dom,w,d,finish,getExport}=setup('?mode=just-expressions'); finish();
+ const shape=d.getElementById('je-eye-shape'); shape.value='standard'; shape.dispatchEvent(new w.Event('change'));
+ d.getElementById('save').click(); const before=Array.from(getExport());
+ d.getElementById('rx-grid').children[0].click(); d.getElementById('gl-grid').children[0].click();
+ d.getElementById('save').click(); assert.deepEqual(Array.from(getExport()),before,'mod tools do not modify JE PNG');
+ assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),before,'mod tools do not modify JE state');
+ dom.window.close();
 }
 {
  let {dom,w,d,fixture,finish,switchTo,upload,getExport,getDownload,imageQueue}=setup('?mode=just-expressions');finish();
@@ -156,7 +180,12 @@ function setup(query = '', withViewer = false) {
  };
  edit('je-eye-white','#f0f1f2','input');edit('je-eye-pupil','#123abc','input');edit('je-brow-color','#a14725','input');edit('je-mouth-color','#cc6688','input');
  pick('je-eye-shape','standard');pick('je-brow','regular-upper');pick('je-mouth','top-short');
- const before=Array.from(skin());pick('je-brow','regular-lower');assert.equal(d.getElementById('je-eye-position').value,'lower');assert.match(d.getElementById('je-eye-position').nextElementSibling.querySelector('.dd-btn').textContent,/Lower middle/);assert.match(d.getElementById('je-status').textContent,/Adjusted eye position to Lower middle/);
+ const withFeatures=Array.from(skin());
+ edit('rx-layer','outer');d.getElementById('rx-grid').children[10].click();edit('gl-part','0,0');d.getElementById('gl-grid').children[2].click();edit('gl-part','8,8');d.getElementById('gl-grid').children[34].click();
+ assert.deepEqual(Array.from(skin()),withFeatures,'Reactions and glow map do not change JE face, mask or markers');
+ assert.match(d.getElementById('gl-count').textContent,/2 glowing/);assert.match(d.getElementById('rx-result').textContent,/layer 2/);
+ d.getElementById('save').click();assert.deepEqual(Array.from(getExport()),withFeatures,'mod tools do not enter skin PNG');
+ const before=Array.from(skin());pick('je-brow','regular-lower');assert.match(d.getElementById('gl-count').textContent,/2 glowing/,'glow map survives live JE changes');assert.match(d.getElementById('rx-result').textContent,/layer 2/,'Reactions placements survive JE updates');assert.equal(d.getElementById('je-eye-position').value,'lower');assert.match(d.getElementById('je-eye-position').nextElementSibling.querySelector('.dd-btn').textContent,/Lower middle/);assert.match(d.getElementById('je-status').textContent,/Adjusted eye position to Lower middle/);
  assert.deepEqual(pixel(9,12),[161,71,37,255]);assert.deepEqual(pixel(9,13),[240,241,242,255]);assert.deepEqual(pixel(11,14),[204,102,136,255]);
  assert.deepEqual(pixel(4,4),[10,20,30,255],'eye marker samples skin beneath brow');assert.deepEqual(pixel(28,50),[161,71,37,255]);assert.deepEqual(pixel(17,50),[204,102,136,255]);
  assert.deepEqual(Array.from(frames.at(-1)),Array.from(skin()),'3D shows all three features');const face=d.getElementById('face').getContext('2d').state.data;assert.deepEqual(Array.from(face.slice(at(9,13),at(9,13)+4)),[240,241,242,255],'Face preview shows adjusted eye');
