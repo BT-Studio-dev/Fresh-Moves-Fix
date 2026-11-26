@@ -83,3 +83,6 @@ a.card:focus-visible, a.tool:focus-visible, a.project-card:focus-visible, .versi
 .projects-grid .project-card[hidden] { display: none !important; }
 [data-theme="minecraft"] .project-visibility-controls { border-radius: 3px; }
 @media (max-width: 560px) { .project-visibility-controls { align-items: flex-start; flex-direction: column; } }
+
+.owner-skin-note { text-align: center; color: var(--muted); font-size: .8rem; margin: 12px auto 0; max-width: 650px; }
+.owner-profile .owner-skin-status { color: var(--muted); font-size: .75rem; }

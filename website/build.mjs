@@ -436,6 +436,7 @@ fs.copyFileSync(path.join(here, "painter-dummy.png"), path.join(out, "render-dum
 fs.copyFileSync(path.join(here, "pfp-default-skin.png"), path.join(out, "pfp-default-skin.png"));
 fs.copyFileSync(path.join(here, "backdrop.js"), path.join(out, "backdrop.js"));
 fs.copyFileSync(path.join(here, "player.js"), path.join(out, "player.js"));
+await bundle({ entryPoints: [path.join(here, "owner-profiles.js")], outfile: path.join(out, "owner-profiles.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
 fs.copyFileSync(path.join(here, "studio.js"), path.join(out, "studio.js"));
 fs.copyFileSync(path.join(here, "ui.js"), path.join(out, "ui.js"));
 fs.copyFileSync(path.join(here, "title.js"), path.join(out, "title.js"));
@@ -1647,15 +1648,18 @@ write("index.html", page({
     <span class="home-eyebrow">OWNER PROFILE</span>
     <h2>lie_kg</h2>
     <p>Owner of Fresh Moves Fix</p>
+    <small id="owner-skin-status" class="owner-skin-status">Saved fallback image</small>
   </aside>
   <aside class="owner-profile" aria-label="dudualt co-owner profile">
-    <img id="dudualt-fallback" class="owner-profile-image owner-steve-fallback" src="pack.png" alt="Steve icon" width="120" height="120">
-    <canvas id="dudualt-model" class="owner-profile-model" width="240" height="240" role="img" aria-label="Steve skin for dudualt" hidden data-skin="${skinData("wide/steve.png")}"></canvas>
-    <span class="home-eyebrow">OWNER PROFILE</span>
+    <img id="dudualt-fallback" class="owner-profile-image owner-steve-fallback" src="pack.png" alt="Fresh Moves Fix pack icon" width="120" height="120">
+    <canvas id="dudualt-model" class="owner-profile-model" width="240" height="240" role="img" aria-label="Minecraft skin for dudualt in a pose" hidden data-skin="${skinData("wide/steve.png")}"></canvas>
+    <span class="home-eyebrow">CO-OWNER PROFILE</span>
     <h2>dudualt</h2>
     <p>Co-Owner</p>
+    <small id="dudualt-skin-status" class="owner-skin-status">Saved fallback image</small>
   </aside>
 </div>
+<p class="owner-skin-note">Minecraft Java skins are loaded from mc-heads.net when available; otherwise saved fallback images are shown. Skins may be cached by the service.</p>
 
 <section class="home-section">
   <div class="note"><strong>Beta.</strong> Blinking and moving eyes have worked in a player’s game; other features and versions still need testing. On Minecraft 1.21.4 and newer the cape and elytra may not be animated.</div>
@@ -1747,28 +1751,7 @@ ${versionLinks}
 </section>
 </div>
 <script src="player.js?v=${ver("player.js")}"></script>
-<script>(function(){
-  if(!window.FMFPlayer) return;
-  function drawOwner(canvasId, fallbackId, skinUrl) {
-    var canvas=document.getElementById(canvasId), fallback=document.getElementById(fallbackId);
-    if(!canvas || !fallback || !skinUrl) return;
-    var image=new Image();
-    image.onload=function(){
-      try {
-        var source=document.createElement("canvas"); source.width=64; source.height=64;
-        source.getContext("2d").drawImage(image,0,0);
-        var viewer=new window.FMFPlayer.SoftViewer(canvas);
-        viewer.pose="cheer"; viewer.zoom=1.05; viewer.view(-0.45,0.12,0);
-        viewer.loadSkin(source,{model:"wide"}); viewer.render(); viewer.dispose();
-        canvas.hidden=false; fallback.hidden=true;
-      } catch(e) { /* Keep the static fallback. */ }
-    };
-    image.src=skinUrl;
-  }
-  drawOwner("owner-model", "owner-fallback", "owner-skin.png?v=${ver("owner-skin.png")}");
-  var steve=document.getElementById("dudualt-model");
-  if(steve) drawOwner("dudualt-model", "dudualt-fallback", steve.getAttribute("data-skin"));
-})()</script>`,
+<script src="owner-profiles.bundle.js?v=${ver("owner-profiles.js")}"></script>`,
 }));
 
 console.log(`Built website: ${docs.length} guides, ${versions.length} Minecraft versions, release v${version}`);
