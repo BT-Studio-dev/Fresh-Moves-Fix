@@ -23,7 +23,8 @@ function setup(reduced, reject = false, savedMotion = false) {
   assert.match(normal.d.querySelector('.fresh-video-banner h2').textContent, /Fresh Moves Fix/);
   const banner = normal.d.querySelector('.fresh-video-banner');
   assert(banner.querySelector('.fresh-banner-ingot .fresh-ingot-shine'));
-  assert(banner.classList.contains('banner-motion-playing'), 'ingot animation starts with the banner');
+  assert(banner.querySelector('.fresh-banner-art[aria-hidden="true"] .fresh-banner-head .fresh-banner-eyes'), 'decorative blinking head is next to the ingot');
+  assert(banner.classList.contains('banner-motion-playing'), 'ingot and head animation start with the banner');
   normal.button.click(); assert.equal(normal.pauses, 1); assert.equal(normal.button.textContent, 'Play animation'); assert(!banner.classList.contains('banner-motion-playing'));
   normal.button.click(); assert.equal(normal.plays, 2); assert(banner.classList.contains('banner-motion-playing'));
   normal.reduce(); assert.equal(normal.button.textContent, 'Play animation'); assert(!banner.classList.contains('banner-motion-playing'));
@@ -51,6 +52,7 @@ function setup(reduced, reject = false, savedMotion = false) {
   assert(!integrated.button.disabled); assert.equal(integrated.button.textContent, 'Play animation'); integrated.dom.window.close();
   const css = fs.readFileSync('website/refresh-2027.css', 'utf8');
   assert.match(css, /@keyframes fresh-ingot-float/); assert.match(css, /\.fresh-banner-ingot[^}]*animation-play-state:\s*paused/); assert.match(css, /\.banner-motion-playing \.fresh-banner-ingot/);
+  assert.match(css, /@keyframes fresh-head-blink/); assert.match(css, /\.fresh-banner-eyes[^}]*animation-play-state:\s*paused/); assert.match(css, /\.banner-motion-playing \.fresh-banner-eyes/); assert.match(css, /\.fresh-video-banner-content[^}]*flex-wrap:\s*wrap/);
   const mp4 = fs.readFileSync('website/public/fresh-moves-banner.mp4'); assert.equal(mp4.toString('ascii', 4, 8), 'ftyp');
   console.log('Silent banner, text, icon, playback, reduced motion, errors and navigation passed (mocked media)');
 })().catch(error => { console.error(error); process.exitCode = 1; });
