@@ -89,6 +89,12 @@ a.card:focus-visible, a.tool:focus-visible, a.project-card:focus-visible, .versi
 #project-visibility-status { margin: 0 0 14px; }
 #project-visibility-status:empty { display: none; }
 .projects-grid .project-card[hidden] { display: none !important; }
+.project-mods { margin-top: 36px; }
+.project-mods > h2 { margin: 0 0 8px; }
+.project-mods > p { margin: 0 0 18px; color: var(--muted); }
+.project-mod-icon { display: grid; place-items: center; width: 84px; height: 84px; border: 1px solid var(--edition-border); border-radius: 8px; color: var(--accent); background: var(--edition-surface); }
+.project-mod-icon svg { width: 42px; height: 42px; }
+[data-theme="minecraft"] .project-mod-icon { border-radius: 3px; }
 [data-theme="minecraft"] .project-visibility-controls { border-radius: 3px; }
 @media (max-width: 560px) { .project-visibility-controls { align-items: flex-start; flex-direction: column; } }
 

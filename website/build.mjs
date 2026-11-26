@@ -1582,7 +1582,7 @@ write("creations/index.html", page({
 <header class="projects-heading"><span class="projects-heading-label">${ICON.box} FRESH MOVES FIX</span><h1>Projects</h1><p>Explore our projects and creative tools for Minecraft.</p></header>
 <p id="project-lock-status" role="status" aria-live="polite"></p>
 <div class="project-visibility-controls" id="project-visibility-controls" hidden>
-  <label for="show-locked-projects"><input type="checkbox" id="show-locked-projects" aria-controls="projects-grid" checked> <span>Show locked projects</span></label>
+  <label for="show-locked-projects"><input type="checkbox" id="show-locked-projects" aria-controls="projects-grid project-mods-grid" checked> <span>Show locked projects</span></label>
   <small>This only changes what you see; it does not unlock projects.</small>
 </div>
 <p id="project-visibility-status" role="status" aria-live="polite"></p>
@@ -1594,8 +1594,17 @@ write("creations/index.html", page({
   <a class="project-card" data-project-card="creator" href="../creator/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Creator Studio</h2><p>Make a channel banner and explore creator tools.</p><span class="project-link-label">Open creator studio ${ICON.right}</span></a>
   <a class="project-card" data-project-card="title" href="../title/"><img src="../icon-title.png" alt="" width="112" height="112"><h2>Minecraft Title</h2><p>Make and download a block-letter title picture.</p><span class="project-link-label">Open title maker ${ICON.right}</span></a>
   <a class="project-card" data-project-card="animation" href="../animation/"><img src="../icon-anim-pixel.svg" alt="" width="112" height="112"><h2>Minecraft Animation</h2><p>Arrange movements and save an animation as a video.</p><span class="project-link-label">Open animation tool ${ICON.right}</span></a>
-  <a class="project-card" data-project-card="minecraft-skins" href="../minecraft-skins/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Minecraft Skins</h2><p>An experimental, separate client-only Fabric mod for local skins.</p><span class="project-link-label">Alpha downloads ${ICON.right}</span></a>
-</div></div><script src="../project-locks.bundle.js?v=${ver("project-locks.js")}"></script>`,
+</div>
+<section class="project-mods" aria-labelledby="project-mods-title">
+  <h2 id="project-mods-title">Minecraft mods</h2>
+  <p>Explore our experimental mod and tools for Glowing Eyes and Reactions, which are separate projects by their original creators.</p>
+  <div class="projects-grid" id="project-mods-grid">
+    <a class="project-card" data-project-card="minecraft-skins" href="../minecraft-skins/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Minecraft Skins</h2><p>An experimental, separate client-only Fabric mod for local skins.</p><span class="project-link-label">Alpha downloads ${ICON.right}</span></a>
+    <a class="project-card" data-project-card="editor" href="../editor/#glowing-eyes-downloads"><span class="project-mod-icon" aria-hidden="true">${ICON.eye}</span><h2>Glowing Eyes</h2><p>Official mod downloads and unofficial experimental builds. Minecraft testing is still needed.</p><span class="project-link-label">See mod downloads ${ICON.right}</span></a>
+    <a class="project-card" data-project-card="editor" href="../editor/#mod-tools-title"><span class="project-mod-icon" aria-hidden="true">${ICON.eye}</span><h2>Reactions</h2><p>Use the eye placement guide and find the original Reactions mod.</p><span class="project-link-label">Open mod tools ${ICON.right}</span></a>
+  </div>
+</section>
+</div><script src="../project-locks.bundle.js?v=${ver("project-locks.js")}"></script>`,
 }));
 
 // ---------- home ----------

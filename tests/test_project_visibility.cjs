@@ -41,6 +41,14 @@ function change(env, checked) { env.control.checked = checked; env.control.dispa
   assert.match(failure.d.getElementById('project-lock-status').textContent, /Could not load/); failure.dom.window.close();
   const blocked = setup(() => Promise.resolve({data: rows(['pfp']), error: null}), null, true); await tick();
   assert(blocked.control.checked); change(blocked, false); assert(blocked.d.querySelector('[data-project-card="pfp"]').hidden); blocked.dom.window.close();
+  const mods = setup(() => Promise.resolve({data: rows(['editor', 'minecraft-skins']), error: null}), 'off'); await tick();
+  const modCards = [...mods.d.querySelectorAll('#project-mods-grid .project-card')];
+  assert.equal(modCards.length, 3);
+  assert(modCards.every(card => card.hidden && !card.hasAttribute('href')), 'mod cards respect their destination locks');
+  change(mods, true);
+  assert(modCards.every(card => !card.hidden && !card.hasAttribute('href')), 'showing a locked mod card does not unlock it');
+  assert.match(mods.d.getElementById('project-mods-title').textContent, /Minecraft mods/);
+  mods.dom.window.close();
   const css = fs.readFileSync('website/refresh-2027.css','utf8'); assert.match(css, /\.projects-grid \.project-card\[hidden\]\s*\{\s*display:\s*none\s*!important/);
   console.log('Project show/hide preference, lock preservation, loading, all-locked, offline and storage fallback passed');
 })().catch(error => { console.error(error); process.exitCode = 1; });
