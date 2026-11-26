@@ -4,17 +4,19 @@
 (function () {
   if (!window.fetch || !window.DOMParser || !history.pushState) return;
   var KEEP = /(^|\/)(nav|music|i18n)\.js(\?|$)/; // already running; must not be loaded twice
-  var busy = false;
+  var busy = false, pageGeneration = 0;
 
-  function runScripts(list, i) {
-    if (i >= list.length) return;
+  function runScripts(list, i, generation) {
+    // A slow script from a previous page must not continue its script chain on
+    // the new page after another navigation has already replaced the body.
+    if (generation !== pageGeneration || i >= list.length) return;
     var old = list[i], s = document.createElement("script");
     if (old.src) {
-      if (KEEP.test(old.src) || (/skinview3d/.test(old.src) && window.skinview3d)) return runScripts(list, i + 1);
-      s.src = old.src; s.onload = s.onerror = function () { runScripts(list, i + 1); };
+      if (KEEP.test(old.src) || (/skinview3d/.test(old.src) && window.skinview3d)) return runScripts(list, i + 1, generation);
+      s.src = old.src; s.onload = s.onerror = function () { runScripts(list, i + 1, generation); };
       document.body.appendChild(s);
     } else {
-      s.textContent = old.textContent; document.body.appendChild(s); runScripts(list, i + 1);
+      s.textContent = old.textContent; document.body.appendChild(s); runScripts(list, i + 1, generation);
     }
   }
 
@@ -42,7 +44,7 @@
       window.fmfProjectGuardToken = (window.fmfProjectGuardToken || 0) + 1;
       document.documentElement.classList.toggle("project-guard-active", !!doc.getElementById("project-lock-screen"));
       document.body.innerHTML = doc.body.innerHTML;
-      runScripts(scripts, 0);
+      runScripts(scripts, 0, ++pageGeneration);
       var el = target.hash && document.getElementById(decodeURIComponent(target.hash.slice(1)));
       if (el) el.scrollIntoView(); else window.scrollTo(0, 0);
       busy = false;
@@ -66,8 +68,11 @@
       }
       window.scrollTo(0, 0); return;
     }
+    // Do not swallow a second click while a fetch is in flight; let the browser
+    // navigate normally instead. Back/forward needs the same safe fallback.
+    if (busy) return;
     e.preventDefault();
     load(u.href, true);
   });
-  window.addEventListener("popstate", function () { load(location.href, false); });
+  window.addEventListener("popstate", function () { if (busy) { location.reload(); return; } load(location.href, false); });
 })();

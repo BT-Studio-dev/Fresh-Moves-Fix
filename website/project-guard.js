@@ -1,6 +1,7 @@
 // Presentation-only lock: the static tool files are still publicly accessible.
 (function(){
   var screen=document.getElementById('project-lock-screen');if(!screen)return;
+  screen.dataset.guardStarted='1';
   var root=document.documentElement, id=screen.dataset.projectGuard;
   var heading=screen.querySelector('h1'),message=screen.querySelector('p'),retry=screen.querySelector('button');
   var token=window.fmfProjectGuardToken=(window.fmfProjectGuardToken||0)+1;

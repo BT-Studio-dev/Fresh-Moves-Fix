@@ -193,7 +193,7 @@ function write(rel, html) {
   }
   if (new Set(["paint", "editor", "pfp", "creator", "title", "animation", "minecraft-skins"]).has(pageId)) {
     html = html.replace("</head>", `<script>document.documentElement.classList.add("project-guard-active");</script></head>`);
-    const guard = `<div id="project-lock-screen" data-project-guard="${pageId}" role="status"><div class="project-lock-dialog"><h1>Checking project availability</h1><p>Please wait…</p><button type="button" class="btn" hidden>Try again</button><a class="btn ghost project-lock-back" href="../creations/">${ICON.left} Back to Projects</a></div></div><script src="../project-guard.js?v=${ver("project-guard.js")}"></script>`;
+    const guard = `<div id="project-lock-screen" data-project-guard="${pageId}" role="status"><div class="project-lock-dialog"><h1>Checking project availability</h1><p>Please wait…</p><button type="button" class="btn" hidden>Try again</button><a class="btn ghost project-lock-back" href="../creations/">${ICON.left} Back to Projects</a></div></div><script>(function(){var screen=document.getElementById("project-lock-screen"),retry=screen.querySelector("button");retry.addEventListener("click",function(){if(!screen.dataset.guardStarted)location.reload()});setTimeout(function(){if(!screen.isConnected||screen.dataset.guardStarted)return;screen.querySelector("h1").textContent="Unable to check project";screen.querySelector("p").textContent="The project check did not load. Please try again or return to Projects.";retry.hidden=false},10000)})()</script><script src="../project-guard.js?v=${ver("project-guard.js")}"></script>`;
     html = html.replace('<header class="top">', guard + '<header class="top">');
   }
   const file = path.join(out, rel);

@@ -1072,7 +1072,10 @@ header.top nav { flex: 0 0 auto; overflow: visible; }
   header.top .bar { gap: 6px; }
   header.top nav a { padding: 7px 9px; }
 }
-html.project-guard-active body > :not(#project-lock-screen) { display: none !important; }
+/* Only hide page content while the guard screen is actually present. A stale
+   guard class after navigation must not turn unrelated pages blank. */
+html.project-guard-active body > #project-lock-screen ~ * { display: none !important; }
+html.project-guard-active body:has(> #project-lock-screen) > .fmf-skip { display: none !important; }
 #project-lock-screen { position: fixed; inset: 0; z-index: 100000; display: grid; place-items: center; padding: 20px; background: var(--bg); color: var(--text); }
 .project-lock-dialog { width: min(100%, 460px); padding: 28px; border: 1px solid var(--line); border-top: 3px solid var(--accent); border-radius: 14px; background: var(--panel); }
 .project-lock-dialog h1 { margin-top: 0; }
