@@ -77,7 +77,11 @@ jobs:
               meta = jar.read('META-INF/neoforge.mods.toml').decode()
               assert f'[{version}]' in meta and 'experimental' in meta.lower()
               assert 'NOTICE.md' in jar.namelist()
-              assert 'META-INF/accesstransformer.cfg' in jar.namelist()
+              at = jar.read('META-INF/accesstransformer.cfg').decode()
+              pipeline = 'com/mojang/renderpearl/api/pipeline/RenderPipeline' if version == '26.3' else 'com/mojang/blaze3d/pipeline/RenderPipeline'
+              texture = 'com.mojang.renderpearl.backend.common.BaseGpuTexture' if version == '26.3' else 'com.mojang.blaze3d.textures.GpuTexture'
+              assert pipeline in at and texture in at
+              assert ('Minecraft$GameLoadCookie' in at) == version.startswith('26.1')
               assert any(x.endswith('GlowingEyesNeoForge.class') for x in jar.namelist())
           PY
       - uses: actions/upload-artifact@v4

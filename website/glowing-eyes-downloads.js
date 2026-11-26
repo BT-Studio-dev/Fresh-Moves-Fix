@@ -17,7 +17,12 @@
     { game: '26.1.1', run: '45896822544', artifact: '15154810001', expires: '2026-12-03T21:15:46Z', java: '25', workflow: '26' },
     { game: '26.1.2', run: '45896822544', artifact: '15154281481', expires: '2026-12-03T21:15:47Z', java: '25', workflow: '26' },
     { game: '26.2', run: '45896822544', artifact: '15154535769', expires: '2026-12-03T21:15:53Z', java: '25', workflow: '26' },
-    { game: '26.3', run: '45896822544', artifact: '15153847832', expires: '2026-12-03T21:16:04Z', java: '25', workflow: '26' }
+    { game: '26.3', run: '45896822544', artifact: '15153847832', expires: '2026-12-03T21:16:04Z', java: '25', workflow: '26' },
+    { game: '26.1', run: '45898373636', artifact: '15154169529', expires: '2026-12-03T21:29:18Z', java: '25', workflow: 'neoforge-26', loader: 'neoforge', neo: '26.1.0.19-beta or newer' },
+    { game: '26.1.1', run: '45898373636', artifact: '15153883922', expires: '2026-12-03T21:29:37Z', java: '25', workflow: 'neoforge-26', loader: 'neoforge', neo: '26.1.1.15-beta or newer' },
+    { game: '26.1.2', run: '45898373636', artifact: '15153868901', expires: '2026-12-03T21:29:22Z', java: '25', workflow: 'neoforge-26', loader: 'neoforge', neo: '26.1.2.114 or newer' },
+    { game: '26.2', run: '45898373636', artifact: '15154956728', expires: '2026-12-03T21:29:21Z', java: '25', workflow: 'neoforge-26', loader: 'neoforge', neo: '26.2.0.88 or newer' },
+    { game: '26.3', run: '45898373636', artifact: '15154742297', expires: '2026-12-03T21:29:47Z', java: '25', workflow: 'neoforge-26', loader: 'neoforge', neo: '26.3.0.22-beta or newer' }
   ];
   let versions = [], games = [], supportedGames = new Set(), request = 0, state = 'loading';
   let projectGames = [];
@@ -55,9 +60,12 @@
     sel.replaceChildren(); const all=make('option','All game versions'); all.value=''; sel.appendChild(all);
     const shown=games.filter(g=>g.toLowerCase().includes(query));
     for (const game of shown) {
-      const build=experimental.find(v=>v.game===game);
+      const builds=experimental.filter(v=>v.game===game);
       let label=game;
-      if (build) label += artifactAvailable(build) ? ' — experimental Fabric build' : ' — experimental artifact expired';
+      if (builds.length) {
+        const available=builds.filter(artifactAvailable);
+        label += available.length ? ` — experimental ${available.map(v=>loaders[v.loader || 'fabric']).join(' / ')} build${available.length === 1 ? '' : 's'}` : ' — experimental artifacts expired';
+      }
       if (state === 'ready' && !supportedGames.has(game)) label += ' (no official release)';
       const option=make('option',label); option.value=game; sel.appendChild(option);
     }
@@ -70,14 +78,16 @@
     const noGame=updateGameOptions(), search=$('glow-version-search').value.trim().toLowerCase(), selected=$('glow-game-version').value, loader=$('glow-loader').value;
     const matchesGame = gs => (!selected || gs.includes(selected)) && (!search || gs.some(g=>g.toLowerCase().includes(search)));
     const matching=versions.filter(v => matchesGame(v.gameVersions) && (!loader || v.platforms.includes(loader)));
-    const builds=experimental.filter(v => matchesGame([v.game]) && (!loader || loader === 'fabric'));
+    const builds=experimental.filter(v => matchesGame([v.game]) && (!loader || loader === (v.loader || 'fabric')));
     const list=$('glow-version-list'); list.replaceChildren();
     for (const v of builds) {
+      const platform=loaders[v.loader || 'fabric'];
       const card=make('article',null,'glow-version-row glow-version-experimental');
-      card.append(make('strong','Unofficial experimental Glowing Eyes'), make('span',`${v.game} · Fabric · Java ${v.java}`, 'glow-version-meta'), make('small','Compiled and checked for basic metadata only. Not tested in Minecraft; back up your files.'));
+      card.append(make('strong','Unofficial experimental Glowing Eyes'), make('span',`${v.game} · ${platform} · Java ${v.java}`, 'glow-version-meta'), make('small','Compiled and checked for basic metadata only. Not tested in Minecraft; back up your files.'));
+      if (v.neo) card.append(make('small',`Requires NeoForge ${v.neo} for Minecraft ${v.game}.`));
       const actions=make('div',null,'glow-version-actions');
       if (artifactAvailable(v)) {
-        const download=make('a','Open artifact ZIP','btn'); download.href=`${repo}/actions/runs/${v.run}/artifacts/${v.artifact}`; download.rel='noopener noreferrer'; download.setAttribute('aria-label',`Open experimental Fabric artifact ZIP for Minecraft ${v.game}`); actions.append(download);
+        const download=make('a','Open artifact ZIP','btn'); download.href=`${repo}/actions/runs/${v.run}/artifacts/${v.artifact}`; download.rel='noopener noreferrer'; download.setAttribute('aria-label',`Open experimental ${platform} artifact ZIP for Minecraft ${v.game}`); actions.append(download);
         card.append(make('small','GitHub sign-in may be required. Extract the JAR from the ZIP; artifacts expire after 7 days.'));
       } else card.append(make('small','This temporary artifact has expired. Check the workflow for a newer successful build.'));
       const details=make('a',artifactAvailable(v) ? 'Build details' : 'Find a newer build'); details.href=artifactAvailable(v) ? `${repo}/actions/runs/${v.run}` : `${repo}/actions/workflows/glowing-eyes-${v.workflow}.yml`; details.rel='noopener noreferrer'; actions.append(details);

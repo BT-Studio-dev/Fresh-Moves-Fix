@@ -41,10 +41,12 @@ const experimental = editor.getElementById('glow-experimental-title').parentElem
 assert.match(experimental.textContent, /Unofficial experimental builds/);
 assert.match(experimental.textContent, /1\.20\.5 and 1\.20\.6/);
 assert.match(experimental.textContent, /not been tested in Minecraft/);
-assert.match(experimental.textContent, /port is unfinished/);
+assert.match(experimental.textContent, /ports are unfinished/);
 assert.match(experimental.textContent, /26\.1, 26\.1\.1, 26\.1\.2/);
 assert.match(experimental.textContent, /26\.2 and 26\.3/);
 assert(experimental.querySelector('a[href="https://github.com/BT-Studio-dev/Fresh-Moves-Fix/actions/runs/45896822544"]'));
+assert(experimental.querySelector('a[href="https://github.com/BT-Studio-dev/Fresh-Moves-Fix/actions/runs/45898373636"]'));
+assert.match(experimental.textContent, /Quilt and Forge builds.*not yet available/);
 assert.match(experimental.textContent, /expire after 7 days/);
 assert(experimental.querySelector('a[href="https://github.com/BT-Studio-dev/Fresh-Moves-Fix/actions/runs/45853964289"]'));
 console.log(`2027 design shell and ${cards} card links across ${pages.length} pages passed; experimental status is clearly labeled`);
