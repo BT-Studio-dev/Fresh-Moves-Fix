@@ -93,6 +93,22 @@ jobs:
               assert ('Minecraft$GameLoadCookie' in at) == version.startswith('26.1')
               assert any(x.endswith('GlowingEyesNeoForge.class') for x in jar.namelist())
           PY
+      - name: Export build bytes for direct-site packaging
+        if: github.event_name == 'push'
+        env:
+          MC_VERSION: ${{ matrix.minecraft }}
+        run: |
+          python3 - <<'PY'
+          import base64, os, pathlib
+          version = os.environ['MC_VERSION']
+          jar = pathlib.Path(f'glowing-eyes-neoforge-26/build/libs/glowing-eyes-fmf-neoforge-{version}-experimental.jar')
+          data = base64.b64encode(jar.read_bytes()).decode()
+          parts = [data[i:i+58000] for i in range(0, len(data), 58000)]
+          if len(parts) > 10:
+              raise SystemExit(f'JAR too large for annotation export: {len(parts)} parts')
+          for index, part in enumerate(parts):
+              print(f'::notice title=jar-neoforge-{version}-{index+1}-of-{len(parts)}::{part}')
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: glowing-eyes-fmf-neoforge-${{ matrix.minecraft }}-experimental

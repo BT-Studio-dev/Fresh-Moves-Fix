@@ -102,6 +102,22 @@ jobs:
               assert pipeline in widener and texture in widener
               assert ('Minecraft$GameLoadCookie' in widener) == (version.startswith('26.1'))
           PY
+      - name: Export build bytes for direct-site packaging
+        if: github.event_name == 'push'
+        env:
+          MC_VERSION: ${{ matrix.minecraft }}
+        run: |
+          python3 - <<'PY'
+          import base64, os, pathlib
+          version = os.environ['MC_VERSION']
+          jar = pathlib.Path(f'glowing-eyes-26/build/libs/glowing-eyes-fmf-fabric-{version}-experimental.jar')
+          data = base64.b64encode(jar.read_bytes()).decode()
+          parts = [data[i:i+58000] for i in range(0, len(data), 58000)]
+          if len(parts) > 10:
+              raise SystemExit(f'JAR too large for annotation export: {len(parts)} parts')
+          for index, part in enumerate(parts):
+              print(f'::notice title=jar-fabric-{version}-{index+1}-of-{len(parts)}::{part}')
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: glowing-eyes-fmf-fabric-${{ matrix.minecraft }}-experimental
