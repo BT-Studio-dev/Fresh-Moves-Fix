@@ -150,6 +150,17 @@ resetDefault();data=save();data.set([33,44,55,255],(11*64+8)*4);data.set([66,77,
 resetDefault();const beforeEye=Array.from(save());change('je-eye-shape','standard');const activeEye=Array.from(save());change('je-eye-shape','keep');assert.deepEqual(Array.from(save()),beforeEye);assert(!w.JustExpressionsEditor.hasEye());undo();assert.deepEqual(Array.from(save()),activeEye);assert(w.JustExpressionsEditor.hasEye());
 // Overlapping features must not resurrect a removed older feature when the newer one is removed.
 resetDefault();const overlapBase=Array.from(save());change('je-eye-shape','standard');change('je-brow','regular-lower');const overlapBoth=Array.from(save());change('je-eye-shape','keep');assert.deepEqual(px(save(),9,12),[0,0,1,255],'newer brow survives eye removal');change('je-brow','keep');assert.deepEqual(Array.from(save()),overlapBase,'removing both restores original without ghost eyes');undo();undo();assert.deepEqual(Array.from(save()),overlapBoth,'undo restores overlapping layers');
+// Equal-colour overlaps still belong to the newer feature. Removing the older
+// feature must not erase it or resurrect it when the newer one is removed.
+for (const older of ['eye','brow']) {
+ resetDefault();const base=Array.from(save());change('je-eye-white','#234567','input');change('je-eye-pupil','#234567','input');change('je-brow-color','#234567','input');
+ if (older==='eye') {change('je-eye-shape','standard');change('je-brow','regular-lower');}
+ else {change('je-brow','regular-lower');change('je-eye-shape','standard');}
+ const both=Array.from(save());change(older==='eye'?'je-eye-shape':'je-brow','keep');
+ assert.deepEqual(px(save(),9,12),[35,69,103,255],older+' removal preserves identical-colour newer feature');
+ change(older==='eye'?'je-brow':'je-eye-shape','keep');assert.deepEqual(Array.from(save()),base,'removing both restores original');
+ undo();undo();assert.deepEqual(Array.from(save()),both,'undo restores both overlapping features');
+}
 // Removing a feature does not undo manual work performed afterwards on that pixel.
 resetDefault();change('je-mouth','top-short');$('je-view').value='full';$('je-color').value='#55aa33';d.querySelector('[data-je-tool="brush"]').click();pointer('pointerdown',115,145);pointer('pointerup',115,145);assert.deepEqual(px(save(),11,14),[85,170,51,255]);change('je-mouth','keep');assert.deepEqual(px(save(),11,14),[85,170,51,255]);
 // A manually regenerated mask before selection remains the baseline when a feature is removed.

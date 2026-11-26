@@ -33,7 +33,7 @@
   const controlIds = ['je-eye-shape','je-eye-position','je-toon-position','je-curious-position','je-dot-position','je-brow','je-mouth','je-brow-color','je-mouth-color','je-eye-white','je-eye-pupil','je-mask-toggle','je-mask-dots','je-mask-mode','je-mask-color'];
   let originalEyes = null;
   let active = { brow: null, mouth: null }, ownership = new Uint8Array(4096), patches = { eye: [], brow: [], mouth: [] }, maskBackup = null;
-  let committed = controls(), otherMarkers = false;
+  let committed = controls(), otherMarkers = false, featureTouches = null;
   function controls() { const result = {}; for (const id of controlIds) { const e = $(id); result[id] = e.type === 'checkbox' ? e.checked : e.value; } return result; }
   function restoreControls(values) { for (const id of controlIds) { const e = $(id); if (e.type === 'checkbox') e.checked = values[id]; else e.value = values[id]; } syncOptions(); document.dispatchEvent(new Event('je-controls-sync')); }
   function snapshot() { return { pixels: new Uint8ClampedArray(pixels), ownership: new Uint8Array(ownership), patches: JSON.parse(JSON.stringify(patches)), maskBackup: maskBackup && JSON.parse(JSON.stringify(maskBackup)), active: { ...active }, controls: { ...committed } }; }
@@ -83,12 +83,17 @@
     const before = snapshot(); otherMarkers = false;
     if (group) release(group);
     const baseline = new Uint8ClampedArray(pixels), baselineOwnership = new Uint8Array(ownership);
-    if (apply && !apply()) { restore(before); draw(); return; }
+    featureTouches = group ? new Set() : null;
+    const applied = !apply || apply();
+    const touched = featureTouches; featureTouches = null;
+    if (!applied) { restore(before); draw(); return; }
     if (group) {
       const id = { eye: 1, brow: 2, mouth: 3 }[group];
       for (let i=0;i<4096;i++) {
         const offset=i*4, previous=baseline.slice(offset,offset+4), next=pixels.slice(offset,offset+4);
-        if (previous.some((v,k)=>v!==next[k])) { patches[group].push({index:i,before:Array.from(previous),after:Array.from(next),beforeOwner:baselineOwnership[i]}); ownership[i]=id; }
+        // Even unchanged colours must be layered over an existing feature so
+        // removing the older feature cannot accidentally remove the newer one.
+        if (previous.some((v,k)=>v!==next[k]) || (baselineOwnership[i] && touched && touched.has(i))) { patches[group].push({index:i,before:Array.from(previous),after:Array.from(next),beforeOwner:baselineOwnership[i]}); ownership[i]=id; }
       }
     }
     if (mask === 'auto') { if (maskNeeded()) generateMask(); else restoreMask(); }
@@ -126,6 +131,16 @@
         data.set(p.before, p.index*4); owners[p.index] = p.beforeOwner || 0;
       }
       if (replace) clearOriginalEyes(data, owners);
+      return data;
+    },
+    featureThumbnailData(group, value) {
+      if (!pixels || !['brow','mouth'].includes(group)) return null;
+      // A selected option is a no-op unless selecting it must re-enable the mask.
+      if (value === $(group === 'brow' ? 'je-brow' : 'je-mouth').value && (value === 'keep' || $('je-mask-toggle').checked)) return new Uint8ClampedArray(pixels);
+      const data = new Uint8ClampedArray(pixels), id = group === 'brow' ? 2 : 3;
+      for (const p of patches[group]) if (ownership[p.index] === id && p.after.every((v,k) => data[p.index*4+k] === v)) data.set(p.before,p.index*4);
+      if (value !== 'keep') paintFeature(group === 'brow' ? 'je-brow' : 'je-mouth', value,
+        $(group === 'brow' ? 'je-brow-color' : 'je-mouth-color').value, group === 'brow' && value.startsWith('layer-'), data);
       return data;
     },
     hasEye() { return !!pixels && $('je-eye-shape').value !== 'keep' && patches.eye.length > 0; },
@@ -187,12 +202,18 @@
       data.set(fill,i);
     }
   }
-  function paintFeature(id, value, color, layer) {
+  function paintFeature(id, value, color, layer, data = pixels) {
     for (const cell of featureCells(id, value)) {
       const face=at(8+cell.x,8+cell.y), hat=at(40+cell.x,8+cell.y);
       const chosen = id === 'je-eye-shape' ? (cell.role === 'white' ? $('je-eye-white').value : $('je-eye-pupil').value) : color;
-      if (layer) pixels.set(colour(chosen),hat);
-      else { pixels.set(colour(chosen),face); if (pixels[hat+3]) pixels.fill(0,hat,hat+4); }
+      if (layer) {
+        if (featureTouches && data === pixels) featureTouches.add(hat/4);
+        data.set(colour(chosen),hat);
+      } else {
+        if (featureTouches && data === pixels) featureTouches.add(face/4);
+        data.set(colour(chosen),face);
+        if (data[hat+3]) { if (featureTouches && data === pixels) featureTouches.add(hat/4); data.fill(0,hat,hat+4); }
+      }
     }
   }
   // Coordinates are transcribed from the Just Expressions 2.0 guide diagrams.
