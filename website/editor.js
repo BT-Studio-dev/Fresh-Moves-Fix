@@ -647,7 +647,7 @@
     const added = $("top");
     if (mode === "just-expressions") {
       added.width = 384; added.height = 384;
-      $("eye-pixels-caption").textContent = "Changed pixels only; red shows removed pixels";
+      $("eye-pixels-caption").textContent = "Changed pixels only; red shows removed pixels. Top-right is the mask.";
       const baseline = window.JustExpressionsEditor && window.JustExpressionsEditor.getOriginal();
       const diff = new ImageData(new Uint8ClampedArray(64*64*4),64,64);
       if (baseline) for (let i=0;i<baseline.length;i+=4) {
@@ -697,7 +697,9 @@
       if (current) {
         const isEyeOption = ["je-eye-shape", "je-eye-position", "je-toon-position", "je-curious-position", "je-dot-position"].includes(sel.id);
         const replace = sel.id === "je-eye-shape" ? value !== "keep" : $("je-eye-shape").value !== "keep";
-        const base = isEyeOption && window.JustExpressionsEditor ? window.JustExpressionsEditor.eyeThumbnailBase(replace) : null;
+        const featureGroup = sel.id === "je-brow" ? "brow" : sel.id === "je-mouth" ? "mouth" : null;
+        const base = window.JustExpressionsEditor ? (isEyeOption ? window.JustExpressionsEditor.eyeThumbnailBase(replace) :
+          featureGroup ? window.JustExpressionsEditor.featureThumbnailData(featureGroup, value) : null) : null;
         const face = faceComposite(base ? new ImageData(base, 64, 64) : current);
         for (let y=0;y<8;y++) for (let x=0;x<8;x++) {
           const from=idx(8+x,8+y), to=(y*8+x)*4;
@@ -709,7 +711,10 @@
         toon: $("je-toon-position").value, curious: $("je-curious-position").value, dot: $("je-dot-position").value,
         white: $("je-eye-white").value, pupil: $("je-eye-pupil").value, lid: (detected && detected.lid) || $("lid").value,
         brow: $("je-brow-color").value, mouth: $("je-mouth-color").value, oldCells: [] };
-      image.data.set(window.FMFJEThumbnail.pixels(image.data, sel.id, value, state));
+      // Brow and mouth candidates are already painted on their actual skin layer
+      // before compositing, so restored and translucent hat pixels are accurate.
+      if (!["je-brow", "je-mouth"].includes(sel.id) || !current || !window.JustExpressionsEditor)
+        image.data.set(window.FMFJEThumbnail.pixels(image.data, sel.id, value, state));
       g.putImageData(image,0,0); return;
     }
     const type=sel.id === "type" ? value : $("type").value, t=TYPES[type]; if (!t) return;

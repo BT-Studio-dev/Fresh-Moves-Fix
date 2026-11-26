@@ -84,4 +84,34 @@ function setup(query = '', withViewer = false) {
  pick('dots-close');d.getElementById('je-mask-toggle').click();assert(!d.getElementById('je-mask-toggle').checked);const hiddenOff=Array.from(w.JustExpressionsEditor.getSkin());pick('dots-close');assert(d.getElementById('je-mask-toggle').checked,'reselecting dots enables hiding');d.getElementById('je-undo').click();assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),hiddenOff);
  pick('keep');assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),Array.from(skin),'keep restores uploaded eyes');dom.window.close();
 }
+{
+ // Every eyebrow and mouth option previews the exact resulting composite,
+ // including existing face details, the other feature and a translucent hat.
+ const {dom,w,d,fixture,finish,frames,getExport}=setup('?mode=just-expressions',true);finish();const at=(x,y)=>(y*64+x)*4;
+ const original=new Uint8ClampedArray(fixture);for(let y=8;y<16;y++)for(let x=8;x<16;x++)original.set([110+(x%4)*7,80+(y%3)*9,60,255],at(x,y));
+ for(const [x,y,color] of [[41,10,[30,60,90,128]],[42,11,[200,10,90,255]],[43,14,[50,200,100,160]],[45,15,[100,20,30,255]]])original.set(color,at(x,y));
+ original.set([11,22,33,255],at(56,0));original.set([77,88,99,255],at(28,51));original.set([20,30,40,255],at(17,50));
+ w.JustExpressionsEditor.setSkin(original,'Layered skin',true);
+ const select=(id,value)=>{const el=d.getElementById(id),menu=el.nextElementSibling, before=Array.from(w.JustExpressionsEditor.getSkin());menu.querySelector('.dd-btn').click();
+  const option=[...menu.querySelectorAll('.dd-opt')].find(b=>b.querySelector('canvas').dataset.value===value),candidate=Array.from(option.querySelector('canvas').getContext('2d').state.data);
+  assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),before,'opening '+id+' does not alter skin');option.click();assert.equal(el.value,value);
+  const skin=w.JustExpressionsEditor.getSkin();for(let y=0;y<8;y++)for(let x=0;x<8;x++) {const face=at(8+x,8+y),hat=at(40+x,8+y),alpha=skin[hat+3]/255;
+   const expected=alpha?[0,1,2].map(k=>Math.round(skin[hat+k]*alpha+skin[face+k]*(1-alpha))).concat(255):Array.from(skin.slice(face,face+4));
+   assert.deepEqual(candidate.slice((y*8+x)*4,(y*8+x)*4+4),expected,id+' '+value+' thumbnail '+x+','+y);
+  }
+  assert.deepEqual(Array.from(frames[frames.length-1]),Array.from(skin),id+' '+value+' 3D preview');d.getElementById('save').click();assert.deepEqual(Array.from(getExport()),Array.from(skin),id+' '+value+' download');return Array.from(skin);
+ };
+ select('je-mouth','top-short');const otherFeature=Array.from(w.JustExpressionsEditor.getSkin());
+ for(const value of Array.from(d.getElementById('je-brow').options).map(o=>o.value).filter(v=>v!=='keep')) select('je-brow',value);
+ select('je-brow','keep');assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),otherFeature,'removing brows preserves mouth and its mask');
+ select('je-brow','regular-top');const browFeature=Array.from(w.JustExpressionsEditor.getSkin());
+ for(const value of Array.from(d.getElementById('je-mouth').options).map(o=>o.value).filter(v=>v!=='keep')) select('je-mouth',value);
+ select('je-mouth','keep');assert.notDeepEqual(Array.from(w.JustExpressionsEditor.getSkin()),browFeature,'brow remains, not its formerly selected mouth');
+ select('je-brow','keep');assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),Array.from(original),'removing both restores original face, layers, markers and mask');
+ const set=(id,value,type='change')=>{const el=d.getElementById(id);el.value=value;el.dispatchEvent(new w.Event(type,{bubbles:true}));};
+ set('je-eye-white','#234567','input');set('je-eye-pupil','#234567','input');set('je-brow-color','#234567','input');set('je-eye-shape','standard');const eyes=Array.from(w.JustExpressionsEditor.getSkin());
+ for(const value of Array.from(d.getElementById('je-brow').options).map(o=>o.value).filter(v=>v!=='keep')) select('je-brow',value);
+ select('je-brow','keep');assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),eyes,'removing overlapping brows preserves eyes');
+ set('je-eye-shape','keep');assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),Array.from(original));dom.window.close();
+}
 console.log('Unified editor mode transfer, download, undo, overwrite safety, validation and async races passed');
