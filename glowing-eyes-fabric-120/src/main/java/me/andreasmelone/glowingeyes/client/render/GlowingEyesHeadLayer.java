@@ -29,7 +29,7 @@ public class GlowingEyesHeadLayer<T extends Player, Q extends HumanoidModel<T>> 
             VertexConsumer vertexBuilderEye = multiBufferSource.getBuffer(eyeRenderType);
 
             int packerOverlay = LivingEntityRenderer.getOverlayCoords(player, 0);
-            this.getParentModel().renderToBuffer(poseStack, vertexBuilderEye, i, packerOverlay);
+            this.getParentModel().renderToBuffer(poseStack, vertexBuilderEye, i, packerOverlay, 1.0f, 1.0f, 1.0f, 1.0f);
         }
     }
 }

@@ -226,6 +226,6 @@ public class PresetManager {
         builder.addFixer(new IdRemovedFix(schemaV3, true));
         Schema schemaV4 = builder.addSchema(4, same);
 
-        return builder.build().fixer();
+        return builder.buildUnoptimized();
     }
 }
