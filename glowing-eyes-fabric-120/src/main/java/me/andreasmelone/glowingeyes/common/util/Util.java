@@ -72,7 +72,7 @@ public class Util {
     }
 
     public static ResourceLocation id(String namespace, String path) {
-        return ResourceLocation.fromNamespaceAndPath(namespace, path);
+        return new ResourceLocation(namespace, path);
     }
 
     public static <T, U> StreamCodec<T, U> emptyStreamCodec(Supplier<U> constructor) {
