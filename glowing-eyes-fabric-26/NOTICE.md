@@ -1,4 +1,4 @@
-# Glowing Eyes: experimental Fabric 26.3 port
+# Glowing Eyes: experimental Fabric 26.x port
 
 This is an unofficial modified work based on AndreasMelone / RaydanOMGr's
 [Glowing Eyes](https://github.com/RaydanOMGr/GlowingEyes), 1.21.11 branch,
@@ -7,7 +7,7 @@ The upstream license is in LICENSE. This directory contains the corresponding
 modified source; it is not an official upstream release.
 
 Changes: merged upstream common and Fabric sources into a Fabric-only build,
-updated the build target/dependencies and metadata to Minecraft 26.3 / Java 25,
+updated the build target/dependencies and metadata to Minecraft 26.x / Java 25,
 adapted the Fabric client command and key registration API, and disabled
 upstream Flashback, ReplayMod, and Wildfire Gender compat code,
 which still targets older Minecraft APIs. Further API and runtime porting is

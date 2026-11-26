@@ -1,4 +1,4 @@
-name: Build experimental Glowing Eyes 26.3
+name: Build experimental Glowing Eyes 26.x
 on:
   workflow_dispatch:
   pull_request:
@@ -15,6 +15,25 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - minecraft: '26.1'
+            fabric: '0.145.1+26.1'
+            cca: '8.0.1'
+          - minecraft: '26.1.1'
+            fabric: '0.145.4+26.1.1'
+            cca: '8.0.1'
+          - minecraft: '26.1.2'
+            fabric: '0.155.3+26.1.2'
+            cca: '8.0.1'
+          - minecraft: '26.2'
+            fabric: '0.161.0+26.2'
+            cca: '8.0.1'
+          - minecraft: '26.3'
+            fabric: '0.166.2+26.3'
+            cca: '8.1.0'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -27,9 +46,13 @@ jobs:
       - name: Build experimental Fabric port
         working-directory: glowing-eyes-fabric-26
         shell: bash
+        env:
+          MC_VERSION: ${{ matrix.minecraft }}
+          FABRIC_VERSION: ${{ matrix.fabric }}
+          CCA_VERSION: ${{ matrix.cca }}
         run: |
           set +e
-          gradle build --no-daemon > "$RUNNER_TEMP/glowing-eyes-build.log" 2>&1
+          gradle build --no-daemon -Pminecraft_version="$MC_VERSION" -Pfabric_version="$FABRIC_VERSION" -Pcca_version="$CCA_VERSION" > "$RUNNER_TEMP/glowing-eyes-build.log" 2>&1
           result=$?
           cat "$RUNNER_TEMP/glowing-eyes-build.log"
           if [ "$result" -ne 0 ]; then
@@ -42,21 +65,24 @@ jobs:
                   interesting.append('\n'.join(lines[i:i+5]))
               elif line.startswith('* What went wrong:'):
                   interesting.append('\n'.join(lines[i:i+4]))
-          for detail in interesting[:60]:
-              print('::error::' + detail.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))
+          detail = '\n---\n'.join(interesting[:60]) or '\n'.join(lines[-40:])
+          print('::error::' + detail[:60000].replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))
           PY
             exit "$result"
           fi
       - name: Check artifact metadata
+        env:
+          MC_VERSION: ${{ matrix.minecraft }}
         run: |
           python3 - <<'PY'
-          import json, zipfile
-          path = 'glowing-eyes-fabric-26/build/libs/glowing-eyes-fmf-fabric-26.3-experimental.jar'
+          import json, os, zipfile
+          version = os.environ['MC_VERSION']
+          path = f'glowing-eyes-fabric-26/build/libs/glowing-eyes-fmf-fabric-{version}-experimental.jar'
           with zipfile.ZipFile(path) as jar:
               assert jar.testzip() is None
               meta = json.loads(jar.read('fabric.mod.json'))
               assert meta['id'] == 'glowingeyes'
-              assert meta['depends']['minecraft'] == '=26.3'
+              assert meta['depends']['minecraft'] == '=' + version
               assert meta['depends']['java'] == '>=25'
               assert 'experimental' in meta['name'].lower()
               assert 'NOTICE.md' in jar.namelist()
@@ -64,7 +90,7 @@ jobs:
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: glowing-eyes-fmf-fabric-26.3-experimental
-          path: glowing-eyes-fabric-26/build/libs/glowing-eyes-fmf-fabric-26.3-experimental.jar
+          name: glowing-eyes-fmf-fabric-${{ matrix.minecraft }}-experimental
+          path: glowing-eyes-fabric-26/build/libs/glowing-eyes-fmf-fabric-${{ matrix.minecraft }}-experimental.jar
           if-no-files-found: error
           retention-days: 7
