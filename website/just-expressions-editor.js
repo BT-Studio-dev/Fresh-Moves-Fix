@@ -35,7 +35,9 @@
   let active = { brow: null, mouth: null }, ownership = new Uint8Array(4096), patches = { eye: [], brow: [], mouth: [] }, maskBackup = null;
   let committed = controls(), otherMarkers = false, featureTouches = null;
   function controls() { const result = {}; for (const id of controlIds) { const e = $(id); result[id] = e.type === 'checkbox' ? e.checked : e.value; } return result; }
-  function restoreControls(values) { for (const id of controlIds) { const e = $(id); if (e.type === 'checkbox') e.checked = values[id]; else e.value = values[id]; } syncOptions(); document.dispatchEvent(new Event('je-controls-sync')); }
+  const colourPairs = [['je-eye-white','je-advanced-eye-white'], ['je-eye-pupil','je-advanced-eye-pupil'], ['je-brow-color','je-advanced-brow-color'], ['je-mouth-color','je-advanced-mouth-color']];
+  function syncColourCopies() { for (const [main, copy] of colourPairs) $(copy).value = $(main).value; }
+  function restoreControls(values) { for (const id of controlIds) { const e = $(id); if (e.type === 'checkbox') e.checked = values[id]; else e.value = values[id]; } syncColourCopies(); syncOptions(); document.dispatchEvent(new Event('je-controls-sync')); }
   function snapshot() { return { pixels: new Uint8ClampedArray(pixels), ownership: new Uint8Array(ownership), patches: JSON.parse(JSON.stringify(patches)), maskBackup: maskBackup && JSON.parse(JSON.stringify(maskBackup)), active: { ...active }, controls: { ...committed } }; }
   function restore(entry) { pixels = new Uint8ClampedArray(entry.pixels); ownership = new Uint8Array(entry.ownership); patches = JSON.parse(JSON.stringify(entry.patches)); maskBackup = entry.maskBackup && JSON.parse(JSON.stringify(entry.maskBackup)); active = { ...entry.active }; restoreControls(entry.controls); committed = controls(); }
   function remember(entry = snapshot()) { history.push(entry); if (history.length > 30) history.shift(); }
@@ -116,7 +118,7 @@
         $('je-eye-shape').value = $('je-brow').value = $('je-mouth').value = 'keep';
         $('je-eye-position').value = 'upper'; $('je-toon-position').value = $('je-curious-position').value = 'bottom'; $('je-dot-position').value = '6';
         $('je-mask-toggle').checked = true; $('je-mask-dots').checked = false;
-        syncOptions(); committed = controls(); document.dispatchEvent(new Event('je-controls-sync'));
+        syncOptions(); syncColourCopies(); committed = controls(); document.dispatchEvent(new Event('je-controls-sync'));
       }
       $('je-copy-mask').disabled = false;
       draw(); status((name || 'Skin') + ' ready. Choose a preset or open the manual tools.');
@@ -434,6 +436,13 @@
     const update = () => { if ($(id).value === committed[id]) return; if ($(select).value !== 'keep') transact(group, apply, 'auto'); else committed = controls(); };
     $(id).addEventListener('input', update); $(id).addEventListener('change', update);
   }
+  // Both sets share the primary inputs, so all edits use the same transaction,
+  // preview, export and Undo path. Dispatch the native event only once.
+  for (const [main, copy] of colourPairs) for (const type of ['input','change']) {
+    $(main).addEventListener(type, () => { $(copy).value = $(main).value; });
+    $(copy).addEventListener(type, () => { $(main).value = $(copy).value; $(main).dispatchEvent(new Event(type, {bubbles:true})); });
+  }
+  syncColourCopies();
   for (const id of ['je-mask-toggle','je-mask-dots','je-mask-mode','je-mask-color']) {
     const update = () => { if (controls()[id] === committed[id]) return; if (active.brow || active.mouth || $('je-mask-dots').checked) transact(null, null, true); else committed = controls(); };
     $(id).addEventListener('input', update); $(id).addEventListener('change', update);

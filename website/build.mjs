@@ -463,6 +463,10 @@ const jeEditorBody = `<div class="je-editor" id="je-editor" hidden>
 <p>Presets automatically update the mask and can replace its existing pixels. Undo restores the previous skin. Do not change restores the pixels from before that feature was chosen. Other selected features stay in place. Mask hiding uses selected preset positions, not feature detection. Sampling approximates shading and can pick up hair or other features; use a solid colour if needed. Check and edit the mask, including eyes and eyelashes. The face and overlapping outer-layer pixels are changed; use Undo to restore them.</p>
 </div></details>
 <details class="je-details" id="je-pixel-tools"><summary>Advanced / Manual pixel tools</summary><div class="je-details-content je-extra-controls">
+<h4>Colours</h4>
+<p class="je-hint">These controls match the colours above. Changes apply to the selected preset and downloaded skin. With Do not change selected, the colour is kept for a future preset without changing the skin.</p>
+<div class="je-color-action"><div class="je-color-choice"><label for="je-advanced-eye-white">Eye white</label><input id="je-advanced-eye-white" type="color" value="#ffffff"></div><div class="je-color-choice"><label for="je-advanced-eye-pupil">Pupil / eye</label><input id="je-advanced-eye-pupil" type="color" value="#383838"></div></div>
+<div class="je-color-action"><div class="je-color-choice"><label for="je-advanced-brow-color">Eyebrows</label><input id="je-advanced-brow-color" type="color" value="#463124"></div><div class="je-color-choice"><label for="je-advanced-mouth-color">Mouth</label><input id="je-advanced-mouth-color" type="color" value="#c4826a"></div></div>
 <p class="je-hint">Automatic masks replace the mask area. Sampling can pick up hair; review and use Undo if needed.</p>
 <label><input id="je-mask-dots" type="checkbox"> Hide selected dots / short / long eyes on mask</label>
 <label for="je-mask-mode">Mask fill</label><select id="je-mask-mode"><option value="sample">Sample adjacent pixels on each row</option><option value="solid">Use a solid colour</option></select>
