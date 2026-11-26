@@ -93,6 +93,8 @@ if(!t){try{var m=document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/);if(m)t=m[1]
 if(["system","light","dark","oled","glass","minecraft","nightsky","livesky"].indexOf(t)<0)t="dark";
 if(t==="system")t=window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
 document.documentElement.setAttribute("data-theme",t);
+var glass=t==="glass";try{var g=localStorage.getItem("fmf-glass-blur");if(g!==null)glass=g==="1"}catch(e){}
+document.documentElement.classList.toggle("fmf-glass-blur",glass);
 var bg="";try{bg=localStorage.getItem("fmf-background")||""}catch(e){}
 if(!bg){try{var b=document.cookie.match(/(?:^|; )fmf-background=(on|off)/);if(b)bg=b[1]}catch(e){}}
 document.documentElement.setAttribute("data-background",bg==="off"?"off":"on");
@@ -128,6 +130,7 @@ document.documentElement.setAttribute("data-music-button",mb==="off"?"off":"on")
       <span class="snd-head">${ICON.music} <b data-music-state>Music: off</b> <i data-music-time>0:00 / 3:34</i></span>
       <label class="snd-line"><input type="checkbox" data-music-check> Play music <i data-music-name>Calm</i></label>
       <label class="snd-line">Volume <input type="range" min="0" max="100" value="40" data-music-volume> <span data-music-volume-value>40%</span></label>
+      <button type="button" class="snd-more" data-music-mute aria-pressed="false">Mute music</button>
       <a class="snd-more" href="${up}settings/#music">${ICON.gear} Music settings</a>
     </span></span>
   </span>
@@ -169,6 +172,7 @@ ${body}
 </div></footer>
 <script src="${up}i18n.js?v=${ver("i18n.js")}"></script>
 <script src="${up}music.js?v=${ver("music.js")}"></script>
+<script src="${up}guide-video.js?v=${ver("guide-video.js")}"></script>
 <script src="${up}nav.js?v=${ver("nav.js")}"></script>
 <script src="${up}enhancements.js?v=${ver("enhancements.js")}"></script>
 <script src="${up}help.js?v=${ver("help.js")}"></script>
@@ -232,6 +236,7 @@ fs.copyFileSync(path.join(here, "context-menu.js"), path.join(out, "context-menu
 await bundle({ entryPoints: [path.join(here, "livesky.js")], outfile: path.join(out, "livesky.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
 fs.copyFileSync(path.join(here, "i18n.js"), path.join(out, "i18n.js"));
 fs.copyFileSync(path.join(here, "music.js"), path.join(out, "music.js"));
+fs.copyFileSync(path.join(here, "guide-video.js"), path.join(out, "guide-video.js"));
 fs.copyFileSync(path.join(here, "nav.js"), path.join(out, "nav.js"));
 // flag pictures for the language list (flag-icons, MIT), so no flag emoji are needed
 fs.mkdirSync(path.join(out, "flags"), { recursive: true });
@@ -254,8 +259,8 @@ function renderDoc(md) {
   // and a plain link below in case it does not load
   md = md.replace(/^(https:\/\/github\.com\/\S+\/assets\/\S+)\s*$/gm, (m, url) =>
     `\n<figure class="video-card"><div class="video-head">${ICON.play}<span>Video</span></div>` +
-    `<video controls playsinline preload="metadata" src="${url}"></video>` +
-    `<figcaption>If the video does not play, <a href="${url}" target="_blank">open it on GitHub</a>. The website music pauses while the video plays.</figcaption></figure>\n`);
+    `<video controls playsinline preload="none" src="${url}" aria-label="Guide video"></video>` +
+    `<figcaption><span data-guide-video-status role="status" aria-live="polite" hidden></span> If the video does not play, <a href="${url}" target="_blank" rel="noopener noreferrer">open it on GitHub</a>. The website music pauses while the video plays.</figcaption></figure>\n`);
   let html = marked.parse(md);
   // links between docs -> links between pages
   html = html.replace(/href="<?([^"]+?\.md)>?"/g, (m, target) => {
@@ -1176,7 +1181,7 @@ write("settings/index.html", page({
     <button type="button" class="tab" data-tab="music">${ICON.music} Music</button></div>
   <div class="box" id="tab-music" hidden>
     <h2 class="shead"><span class="tool-ic">${ICON.music}</span><span><b>Music</b><small>Background song for the website</small></span></h2>
-    <p>Original instrumental music generated in your browser. Playback is off by default. Your choices are saved on this device.</p>
+    <p>Original instrumental music generated in your browser. Playback starts only when you press play. Track, volume and mute are saved on this device.</p>
     <p class="elabel">Song</p>
     <div class="mtiles two">
       <label class="mtile"><input type="radio" name="song" value="calm" data-music-song checked><span><b>Calm</b><small>Soft and friendly</small></span></label>
@@ -1190,10 +1195,11 @@ write("settings/index.html", page({
     </div>
     <p class="elabel">Player</p>
     <div class="mtiles">
-      <label class="mtile"><input type="checkbox" data-music-check><span><b>Play music</b><small data-music-state>Music: off</small></span><i data-music-time>0:00 / 3:34</i></label>
+      <label class="mtile"><input type="checkbox" data-music-check><span><b>Play music</b><small data-music-state role="status" aria-live="polite">Music: off</small></span><i data-music-time>0:00 / 3:34</i></label>
       <label class="mtile"><input type="checkbox" id="music-button-visibility" checked><span><b>Show music button</b><small>Show the music control in the top bar</small></span></label><p id="music-button-status" role="status" aria-live="polite" hidden></p>
       <label class="mtile"><span><b>Song position</b></span><input type="range" min="0" max="214" value="0" step="1" data-music-seek aria-label="Song position"></label>
       <label class="mtile"><span class="mt-ic">${ICON.music}</span><span><b>Volume</b></span><input type="range" min="0" max="100" value="40" data-music-volume><span data-music-volume-value>40%</span></label>
+      <button type="button" class="btn ghost" data-music-mute aria-pressed="false">Mute music</button>
     </div>
     <p class="shint">${ICON.info} Music continues as you browse the site. The top-bar button can be hidden here.</p>
   </div>
@@ -1212,22 +1218,38 @@ write("settings/index.html", page({
       ${themeCard("dark", "Dark", "#121212", "#202020", "#383838", "#b0b0b0")}
       ${themeCard("oled", "OLED", "#000000", "#0d0f0e", "#222826", "#98a39d")}
       ${themeCard("glass", "Glass", "radial-gradient(circle at 20% 20%,#2fae78 0,transparent 55%),radial-gradient(circle at 85% 80%,#3b6fd0 0,transparent 55%),#0a1210", "rgba(255,255,255,.16)", "rgba(255,255,255,.34)", "#eef6f1")}
+      ${themeCard("minecraft", "Minecraft", "#354a32", "#252e22", "#819776", "#f2f1d9")}
       ${themeCard("nightsky", "Night Sky", "radial-gradient(circle at 78% 25%, #f0f2fa 0 9%, transparent 10%), #1a173f", "#252249", "#4b4a76", "#eef0ff")}
     </div>
     <div class="fmf-blur-setting">
-      <label for="settings-glass-blur"><span><b>Glass card blur</b><small>Turn the frosted-glass blur on or off. This only affects the Glass theme.</small></span><input type="checkbox" id="settings-glass-blur" checked></label>
+      <label for="settings-glass-blur"><span><b>Glass cards</b><small>Turn translucent cards and blur on or off for any theme.</small></span><input type="checkbox" id="settings-glass-blur"></label>
     </div>
     <p class="saved" id="theme-saved" role="status" hidden>${ICON.check || ""}<span></span></p>
+    <h3>Animation</h3>
+    <label class="background-toggle"><input type="checkbox" data-fmf-banner> <span><b>Banner animation</b><small>Play the silent head and banner videos on the home page.</small></span></label>
+    <label class="background-toggle"><input type="checkbox" data-fmf-guide-video> <span><b>Guide video playback</b><small>Enable the native controls on videos in guides.</small></span></label>
     <h3>Animated background</h3>
     <label class="background-toggle"><input type="checkbox" id="background-toggle"> <span><b>Show animated background</b><small>Turn off the night sky and moving clouds on all themes. Saved in this browser.</small></span></label>
     <p class="saved" id="background-saved" role="status" hidden></p>
     <h3>Page scrollbar</h3>
     <label class="background-toggle"><input type="checkbox" id="scrollbar-toggle"> <span><b>Show page scrollbar</b><small>When hidden, you can still scroll with the mouse wheel, keyboard or touch. Saved in this browser.</small></span></label>
     <p class="saved" id="scrollbar-saved" role="status" hidden></p>
+    <h3>Reset preferences</h3>
+    <p>Reset appearance, language, animation and music settings on this device. Your account, saved projects and skin data are not deleted.</p>
+    <button type="button" class="btn ghost" id="reset-site-preferences">Reset preferences</button><p id="reset-site-status" role="status" hidden></p>
   </div>
 </div>
 </article></div>
 <script>(function(){
+  var resetButton=document.getElementById("reset-site-preferences"), resetStatus=document.getElementById("reset-site-status");
+  resetButton.addEventListener("click",function(){
+    if(!window.confirm("Reset appearance, language, animation and music preferences on this device? Your account and saved projects will not be deleted.")) return;
+    try {
+      ["fmf-theme","fmf-glass-blur","fmf-background","fmf-scrollbar","fmf-extra-size","fmf-extra-contrast","fmf-extra-motion","fmf-banner-motion","fmf-guide-video","fmf-show-music-button","fmf-music","fmf-music-muted","fmf-volume","fmf-song","fmf-lang"].forEach(function(key){localStorage.removeItem(key)});
+      ["fmf-theme","fmf-background","fmf-scrollbar"].forEach(function(key){document.cookie=key+"=; path=/; max-age=0; SameSite=Lax"});
+      location.reload();
+    } catch(e) { resetStatus.textContent="Could not reset preferences in this browser."; resetStatus.hidden=false; }
+  });
   var musicButtonControl=document.getElementById("music-button-visibility"), musicButtonStatus=document.getElementById("music-button-status");
   musicButtonControl.checked=document.documentElement.getAttribute("data-music-button")!=="off";
   musicButtonControl.addEventListener("change",function(){
@@ -1243,8 +1265,8 @@ write("settings/index.html", page({
   function keep(v){ try{ document.cookie=key+"="+v+"; path=/; max-age=31536000"+(location.protocol==="https:"?"; SameSite=None; Secure":"; SameSite=Lax"); return document.cookie.indexOf(key+"="+v)>=0; }catch(e){ return false; } }
   function apply(t){ var r=t; if(t==="system") r=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"; document.documentElement.setAttribute("data-theme",r); applyBlur(); }
   var blurControl=document.getElementById("settings-glass-blur");
-  function applyBlur(){ var on=true; try{on=localStorage.getItem("fmf-glass-blur")!=="0"}catch(e){} if(blurControl) blurControl.checked=on; document.documentElement.classList.toggle("fmf-glass-blur", document.documentElement.getAttribute("data-theme")==="glass" && on); if(blurControl) blurControl.disabled=document.documentElement.getAttribute("data-theme")!=="glass"; }
-  if(blurControl) blurControl.addEventListener("change",function(){try{localStorage.setItem("fmf-glass-blur",blurControl.checked?"1":"0")}catch(e){} applyBlur();});
+  function applyBlur(){ var on=document.documentElement.classList.contains("fmf-glass-blur"); if(blurControl) blurControl.checked=on; }
+  if(blurControl) blurControl.addEventListener("change",function(){try{localStorage.setItem("fmf-glass-blur",blurControl.checked?"1":"0")}catch(e){} document.documentElement.classList.toggle("fmf-glass-blur",blurControl.checked);});
   var note=document.getElementById("theme-saved");
   function told(el, ok){ if(!note) return; var name=(el.closest("label").textContent||"").trim();
     note.querySelector("span").textContent = ok ? "Saved: " + name + ". It stays when you close the page." : "Could not save: this browser blocks saving. The theme lasts until you close the page.";
@@ -1639,7 +1661,7 @@ write("index.html", page({
       <a class="btn" href="#download">${ICON.down} Choose a download</a>
       <a class="btn ghost" href="editor/">${ICON.eye} Open skin eye editor</a>
     </div>
-    <div class="hero-meta"><a class="btn ghost" href="${REPO}/releases/tag/v${encodeURIComponent(version)}" aria-label="View release v${esc(version)}">${ICON.tag} ${esc(version)}</a><a class="btn ghost" href="guides/">${ICON.book} Eye guides</a></div>
+    <div class="hero-meta"><a class="btn ghost" href="${REPO}/releases/tag/v${encodeURIComponent(version)}" aria-label="${esc(version)} — view release">${ICON.tag} ${esc(version)}</a><a class="btn ghost" href="guides/">${ICON.book} Eye guides</a></div>
   </div>
 </div>
 

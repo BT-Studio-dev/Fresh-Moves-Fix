@@ -3,18 +3,21 @@ const fs = require('node:fs');
 const { JSDOM } = require('../website/node_modules/jsdom');
 const html = fs.readFileSync('website/public/index.html', 'utf8');
 const code = fs.readFileSync('website/video-banner.js', 'utf8');
-function setup(reduced, reject = false, savedMotion = false) {
+function setup(reduced, reject = false, savedMotion = false, observe = false) {
   const dom = new JSDOM(html, { url: 'https://example.test/', runScripts: 'outside-only' });
   const w = dom.window, d = w.document, video = d.getElementById('fresh-banner-video'), head = d.getElementById('fresh-banner-head'), button = d.getElementById('fresh-banner-motion');
   if (savedMotion) w.localStorage.setItem('fmf-extra-motion', '1');
-  let listener, removed = false, plays = 0, pauses = 0, headPlays = 0, headPauses = 0;
+  d.querySelector('.fresh-video-banner').getBoundingClientRect = () => ({top:10,bottom:100,left:10,right:200});
+  let listener, removed = false, plays = 0, pauses = 0, headPlays = 0, headPauses = 0, intersection, disconnected = false, hidden = false;
+  Object.defineProperty(d, 'hidden', { get() { return hidden; } });
+  if (observe) w.IntersectionObserver = class { constructor(fn) { intersection = fn; } observe() {} disconnect() { disconnected = true; } };
   w.matchMedia = () => ({ matches: reduced, addEventListener(event, fn) { listener = fn; }, removeEventListener() { removed = true; } });
   video.play = () => { plays++; return reject === true ? Promise.reject(new Error('blocked')) : Promise.resolve(); };
   video.pause = () => { pauses++; };
   head.play = () => { headPlays++; return reject === 'head' ? Promise.reject(new Error('blocked head')) : Promise.resolve(); };
   head.pause = () => { headPauses++; };
   w.eval(code);
-  return {dom, w, d, video, head, button, get plays(){return plays}, get pauses(){return pauses}, get headPlays(){return headPlays}, get headPauses(){return headPauses}, get removed(){return removed}, reduce(){listener({matches:true})}};
+  return {dom, w, d, video, head, button, get plays(){return plays}, get pauses(){return pauses}, get headPlays(){return headPlays}, get headPauses(){return headPauses}, get removed(){return removed}, get disconnected(){return disconnected}, reduce(){listener({matches:true})}, intersect(value){intersection([{target:d.querySelector('.fresh-video-banner'),isIntersecting:value}])}, hide(value){hidden=value;d.dispatchEvent(new w.Event('visibilitychange'))}};
 }
 (async function () {
   const normal = setup(false);
@@ -58,6 +61,19 @@ function setup(reduced, reject = false, savedMotion = false) {
   assert.equal(integrated.pauses, 1); assert(integrated.button.disabled); assert.equal(integrated.w.localStorage.getItem('fmf-extra-motion'), '1');
   quickMotion.checked = false; quickMotion.dispatchEvent(new integrated.w.Event('change', { bubbles:true }));
   assert(!integrated.button.disabled); assert.equal(integrated.button.textContent, 'Play animation'); integrated.dom.window.close();
+  const observed = setup(false, false, false, true);
+  assert.equal(observed.plays, 0); assert(!observed.head.hasAttribute('src'), 'off-screen banner does not load videos');
+  observed.intersect(true); assert.equal(observed.plays, 1); assert.equal(observed.headPlays, 1);
+  observed.intersect(false); assert.equal(observed.pauses, 1); assert.equal(observed.button.textContent, 'Pause animation');
+  observed.intersect(true); assert.equal(observed.plays, 2);
+  observed.hide(true); assert.equal(observed.pauses, 2); observed.hide(false); assert.equal(observed.plays, 3);
+  observed.button.click(); observed.intersect(false); observed.intersect(true); assert.equal(observed.plays, 3, 'manual pause is respected after scrolling');
+  observed.d.dispatchEvent(new observed.w.CustomEvent('fmf-banner-motion-change', {detail:{enabled:false}})); assert(observed.button.disabled);
+  observed.d.dispatchEvent(new observed.w.CustomEvent('fmf-banner-motion-change', {detail:{enabled:true}})); assert.equal(observed.plays, 4);
+  observed.video.remove(); observed.d.dispatchEvent(new observed.w.Event('fmf-nav')); assert(observed.disconnected); observed.dom.window.close();
+  const fallback = setup(false), fallbackBanner = fallback.d.querySelector('.fresh-video-banner');
+  fallbackBanner.getBoundingClientRect = () => ({top:900,bottom:1000,left:10,right:200}); fallback.w.dispatchEvent(new fallback.w.Event('scroll')); assert.equal(fallback.pauses,1);
+  fallbackBanner.getBoundingClientRect = () => ({top:10,bottom:100,left:10,right:200}); fallback.w.dispatchEvent(new fallback.w.Event('scroll')); assert.equal(fallback.plays,2); fallback.dom.window.close();
   const css = fs.readFileSync('website/refresh-2027.css', 'utf8');
   assert.match(css, /@keyframes fresh-ingot-float/); assert.match(css, /\.fresh-banner-ingot[^}]*animation-play-state:\s*paused/); assert.match(css, /\.banner-motion-playing \.fresh-banner-ingot/);
   assert.match(css, /#fresh-banner-video\s*\{/); assert.match(css, /\.fresh-video-banner-content[^}]*flex-wrap:\s*wrap/);

@@ -95,9 +95,10 @@ a.card:focus-visible, a.tool:focus-visible, a.project-card:focus-visible, .versi
 .fresh-banner-art { display: flex; align-items: center; gap: clamp(7px, 1.5vw, 14px); flex: none; }
 .fresh-banner-copy { flex: 1 1 165px; min-width: 0; }
 .fresh-banner-ingot { width: clamp(58px, 9vw, 100px); flex: none; filter: drop-shadow(0 8px 0 rgba(0,0,0,.3)); animation: fresh-ingot-float 4s steps(20, end) infinite; animation-play-state: paused; }
-.fresh-banner-head { display: block; width: clamp(72px, 10vw, 110px); aspect-ratio: 1; object-fit: cover; flex: none; border-radius: 50%; overflow: hidden; filter: drop-shadow(0 6px 0 rgba(0,0,0,.3)); pointer-events: none; }
+.fresh-banner-head { display: block; width: clamp(72px, 10vw, 110px); aspect-ratio: 1; object-fit: cover; flex: none; border-radius: 50%; overflow: hidden; filter: drop-shadow(0 6px 0 rgba(0,0,0,.3)); pointer-events: none; animation: fresh-head-drift 8s ease-in-out infinite; animation-play-state: paused; }
 .fresh-ingot-shine { animation: fresh-ingot-shine 4s ease-in-out infinite; animation-play-state: paused; }
-.banner-motion-playing .fresh-banner-ingot, .banner-motion-playing .fresh-ingot-shine { animation-play-state: running; }
+.banner-motion-playing .fresh-banner-ingot, .banner-motion-playing .fresh-ingot-shine, .banner-motion-playing .fresh-banner-head { animation-play-state: running; }
+@keyframes fresh-head-drift { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-3px) rotate(2deg); } }
 @keyframes fresh-ingot-float { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-7px) rotate(2deg); } }
 @keyframes fresh-ingot-shine { 0%, 100% { opacity: .65; } 50% { opacity: 1; } }
 .fresh-banner-kicker { color: #7ee9ad; font-size: .72rem; font-weight: 800; letter-spacing: .18em; }
@@ -110,3 +111,22 @@ a.card:focus-visible, a.tool:focus-visible, a.project-card:focus-visible, .versi
 .fresh-banner-motion:disabled { cursor: default; opacity: .8; }
 [data-theme="minecraft"] .fresh-video-banner, [data-theme="minecraft"] .fresh-banner-motion { border-radius: 3px; }
 @media (max-width: 560px) { .fresh-video-banner { padding: 24px 20px 56px; } .fresh-video-banner-content { gap: 16px; } .fresh-video-banner p { font-size: .86rem; } }
+
+/* Glass is an independent, global card preference, not a separate theme. */
+html.fmf-glass-blur :is(.card, a.tool, .project-card, .text-card, .owner-profile, .home-heading, .projects-heading, .home-hero, .ed .panel.ecard, .set .menu, .set .box, .versions a.ver, .editor-info-card) {
+  background: var(--panel);
+  background: color-mix(in srgb, var(--panel) 85%, transparent);
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
+  backdrop-filter: blur(12px) saturate(130%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 10px 26px rgba(0,0,0,.14);
+}
+html[data-theme="glass"].fmf-glass-blur :is(.card, a.tool, .project-card, .text-card, .owner-profile, .home-heading, .projects-heading, .home-hero, .ed .panel.ecard, .set .menu, .set .box, .versions a.ver, .editor-info-card) { background: rgba(18,30,27,.82); }
+html[data-theme="glass"]:not(.fmf-glass-blur) { --panel: #202f28; --bg: #0a1210; }
+@media (prefers-reduced-transparency: reduce) {
+  html.fmf-glass-blur :is(.card, a.tool, .project-card, .text-card, .owner-profile, .home-heading, .projects-heading, .home-hero, .ed .panel.ecard, .set .menu, .set .box, .versions a.ver, .editor-info-card) { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--panel); }
+  html[data-theme="glass"].fmf-glass-blur :is(.card, a.tool, .project-card, .text-card, .owner-profile, .home-heading, .projects-heading, .home-hero, .ed .panel.ecard, .set .menu, .set .box, .versions a.ver, .editor-info-card) { background: #202f28; }
+}
+header.top button.snd-more { width: 100%; background: var(--fmf-popup-control, var(--bg)); text-align: start; }
+[data-guide-video-status]:not([hidden]) { display: block; margin-bottom: 6px; }
+/* Version labels need a little more room on narrow phones. */
+@media (max-width: 380px) { .home-page .versions { grid-template-columns: minmax(0, 1fr); } }

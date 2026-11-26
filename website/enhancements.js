@@ -47,11 +47,13 @@
   panel.innerHTML =
     '<button class="fmf-close" type="button" aria-label="Close settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button>' +
     '<h2>Quick settings</h2>' +
-    '<div class="fmf-setting-row fmf-option"><span><b>Theme</b><small>Choose your look</small></span><select aria-label="Theme" data-fmf-theme><option value="" disabled hidden>Current theme</option><option value="glass">Glass</option><option value="dark">Dark</option><option value="light">Light</option><option value="oled">OLED</option><option value="system">System</option></select></div>' +
-    '<label class="fmf-option fmf-switch"><span><b>Glass card blur</b><small>Available with Glass theme</small></span><input type="checkbox" data-fmf-glass-blur></label>' +
+    '<div class="fmf-setting-row fmf-option"><span><b>Theme</b><small>Choose your look</small></span><select aria-label="Theme" data-fmf-theme><option value="" disabled hidden>Current theme</option><option value="glass">Glass</option><option value="dark">Dark</option><option value="light">Light</option><option value="oled">OLED</option><option value="minecraft">Minecraft</option><option value="system">System</option></select></div>' +
+    '<label class="fmf-option fmf-switch"><span><b>Glass cards</b><small>Translucent cards and blur</small></span><input type="checkbox" data-fmf-glass-blur></label>' +
     '<div class="fmf-setting-row fmf-option"><span><b>Text size</b><small>Make text easier to read</small></span><select aria-label="Text size" data-fmf-size><option value="normal">Normal</option><option value="large">Large</option></select></div>' +
     '<label class="fmf-option fmf-switch"><span><b>High contrast</b><small>Stronger text and borders</small></span><input type="checkbox" data-fmf-contrast></label>' +
     '<label class="fmf-option fmf-switch"><span><b>Reduce motion</b><small>Minimize animations</small></span><input type="checkbox" data-fmf-motion></label>' +
+    '<label class="fmf-option fmf-switch"><span><b>Banner animation</b><small>Play the silent head and banner videos</small></span><input type="checkbox" data-fmf-banner></label>' +
+    '<label class="fmf-option fmf-switch"><span><b>Guide video playback</b><small>Enable video controls in guides</small></span><input type="checkbox" data-fmf-guide-video></label>' +
     '<p class="fmf-hint">Settings are saved on this device. Your existing site settings remain available.</p>';
   body.appendChild(panel);
 
@@ -67,17 +69,34 @@
   if (!savedTheme) {
     try { var themeCookie = document.cookie.match(/(?:^|; )fmf-theme=([a-z]+)/); if (themeCookie) savedTheme = themeCookie[1]; } catch (e) {}
   }
-  themeSelect.value = ["glass","dark","light","oled","system"].indexOf(savedTheme) >= 0 ? savedTheme : (["minecraft","nightsky","livesky"].indexOf(savedTheme) >= 0 ? "" : "dark");
+  themeSelect.value = ["glass","dark","light","oled","minecraft","system"].indexOf(savedTheme) >= 0 ? savedTheme : (["nightsky","livesky"].indexOf(savedTheme) >= 0 ? "" : "dark");
   var savedSize = saved("fmf-extra-size","normal");
   sizeSelect.value = savedSize === "large" ? "large" : "normal";
   contrast.checked = saved("fmf-extra-contrast","0") === "1";
   motion.checked = saved("fmf-extra-motion", reduce ? "1" : "0") === "1";
-  glassBlur.checked = saved("fmf-glass-blur", "1") === "1";
+  var bannerControls = document.querySelectorAll("[data-fmf-banner]");
+  bannerControls.forEach(function (control) {
+    control.checked = saved("fmf-banner-motion", "on") !== "off";
+    control.addEventListener("change", function () {
+      var enabled = control.checked;
+      store("fmf-banner-motion", enabled ? "on" : "off");
+      bannerControls.forEach(function (other) { other.checked = enabled; });
+      document.dispatchEvent(new CustomEvent("fmf-banner-motion-change", { detail: { enabled: enabled } }));
+    });
+  });
+  var videoControls = document.querySelectorAll("[data-fmf-guide-video]");
+  videoControls.forEach(function (control) {
+    control.checked = saved("fmf-guide-video", "on") !== "off";
+    control.addEventListener("change", function () {
+      var enabled = control.checked;
+      store("fmf-guide-video", enabled ? "on" : "off");
+      videoControls.forEach(function (other) { other.checked = enabled; });
+      document.dispatchEvent(new CustomEvent("fmf-guide-video-change", { detail: { enabled: enabled } }));
+    });
+  });
+  glassBlur.checked = saved("fmf-glass-blur", root.getAttribute("data-theme") === "glass" ? "1" : "0") === "1";
   function syncGlassBlur() {
-    var isGlass = root.getAttribute("data-theme") === "glass";
-    root.classList.toggle("fmf-glass-blur", isGlass && glassBlur.checked);
-    glassBlur.disabled = !isGlass;
-    glassBlur.parentElement.style.opacity = isGlass ? "1" : ".55";
+    root.classList.toggle("fmf-glass-blur", glassBlur.checked);
   }
   syncGlassBlur();
   glassBlur.addEventListener("change", function () {
@@ -139,7 +158,7 @@
   window.__fmfSettingsSync = function (event) {
     var target = event.target;
     if (target.matches('input[name="theme"]')) {
-      themeSelect.value = ["glass","dark","light","oled","system"].indexOf(target.value) >= 0 ? target.value : "";
+      themeSelect.value = ["glass","dark","light","oled","minecraft","system"].indexOf(target.value) >= 0 ? target.value : "";
       if (themeSelect.fmfSyncChoice) themeSelect.fmfSyncChoice();
       syncGlassBlur();
     } else if (target.id === "settings-glass-blur") {
@@ -150,8 +169,6 @@
         radio.checked = radio.value === themeSelect.value;
         radio.closest("label").classList.toggle("selected", radio.checked);
       });
-      var blur = document.getElementById("settings-glass-blur");
-      if (blur) blur.disabled = root.getAttribute("data-theme") !== "glass";
     } else if (target === glassBlur) {
       var fullBlur = document.getElementById("settings-glass-blur");
       if (fullBlur) fullBlur.checked = glassBlur.checked;
@@ -159,18 +176,19 @@
   };
   document.addEventListener("change", window.__fmfSettingsSync);
   panel.id = "fmf-quick-settings";
-  panel.querySelector(".fmf-close").addEventListener("click", closePanel);
-  function closePanel() {
+  panel.querySelector(".fmf-close").addEventListener("click", function () { closePanel(true); });
+  function closePanel(restoreFocus) {
     panel.hidden = true; root.classList.remove("fmf-quick-open");
     panel.querySelectorAll(".fmf-choice").forEach(function (d) { d.open = false; });
-    var button = document.querySelector(".fmf-settings-toggle"); if (button) button.setAttribute("aria-expanded", "false");
+    var button = document.querySelector(".fmf-settings-toggle");
+    if (button) { button.setAttribute("aria-expanded", "false"); if (restoreFocus) button.focus(); }
   }
   function openPanel() {
     panel.hidden = false; root.classList.add("fmf-quick-open");
     var button = document.querySelector(".fmf-settings-toggle"); if (button) button.setAttribute("aria-expanded", "true");
     panel.querySelector(".fmf-close").focus();
   }
-  window.__fmfKeyHandler = function (e) { if (e.key === "Escape") closePanel(); };
+  window.__fmfKeyHandler = function (e) { if (e.key === "Escape" && !panel.hidden) closePanel(true); };
   document.addEventListener("keydown", window.__fmfKeyHandler);
 
   var oldToggle = document.querySelector(".fmf-settings-toggle");
