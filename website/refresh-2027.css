@@ -71,3 +71,15 @@ a.card:focus-visible, a.tool:focus-visible, a.project-card:focus-visible, .versi
 @media (prefers-reduced-motion: reduce) {
   header.top nav a, a.card, a.tool, a.project-card, .versions a.ver { transition: none; }
 }
+/* The filter only affects the Projects view, never the lock or access controls. */
+.project-visibility-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; margin: 0 0 14px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+.project-visibility-controls[hidden] { display: none; }
+.project-visibility-controls label { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer; }
+.project-visibility-controls input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
+.project-visibility-controls input:focus-visible { outline: 3px solid var(--fmf-focus); outline-offset: 3px; }
+.project-visibility-controls small, #project-visibility-status { color: var(--muted); }
+#project-visibility-status { margin: 0 0 14px; }
+#project-visibility-status:empty { display: none; }
+.projects-grid .project-card[hidden] { display: none !important; }
+[data-theme="minecraft"] .project-visibility-controls { border-radius: 3px; }
+@media (max-width: 560px) { .project-visibility-controls { align-items: flex-start; flex-direction: column; } }

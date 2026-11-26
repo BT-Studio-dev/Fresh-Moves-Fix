@@ -1543,7 +1543,12 @@ write("creations/index.html", page({
   body: `<div class="wrap projects-page">
 <header class="projects-heading"><span class="projects-heading-label">${ICON.box} FRESH MOVES FIX</span><h1>Projects</h1><p>Explore our projects and creative tools for Minecraft.</p></header>
 <p id="project-lock-status" role="status" aria-live="polite"></p>
-<div class="projects-grid">
+<div class="project-visibility-controls" id="project-visibility-controls" hidden>
+  <label for="show-locked-projects"><input type="checkbox" id="show-locked-projects" aria-controls="projects-grid" checked> <span>Show locked projects</span></label>
+  <small>This only changes what you see; it does not unlock projects.</small>
+</div>
+<p id="project-visibility-status" role="status" aria-live="polite"></p>
+<div class="projects-grid" id="projects-grid">
   <a class="project-card" data-project-card="pack" href="../#download"><img class="project-pack-image" src="../pack.png" alt="" width="112" height="112"><h2>Fresh Moves Fix</h2><p>Player animations and animated eyes for Minecraft Java.</p><span class="project-link-label">View downloads ${ICON.right}</span></a>
   <a class="project-card" data-project-card="paint" href="../paint/"><img src="../icon-paint-pixel.svg" alt="" width="112" height="112"><h2>Skin Painter 3D</h2><p>Paint a skin pixel by pixel in your browser.</p><span class="project-link-label">Open painter ${ICON.right}</span></a>
   <a class="project-card" data-project-card="editor" href="../editor/"><img src="../icon-skin.png" alt="" width="112" height="112"><h2>Skin eye editor</h2><p>Add animated eye markers to your skin.</p><span class="project-link-label">Open editor ${ICON.right}</span></a>
