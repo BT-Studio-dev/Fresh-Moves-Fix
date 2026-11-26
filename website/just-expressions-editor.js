@@ -80,31 +80,104 @@
     }
     maskBackup = null;
   }
-  function transact(group, apply, mask) {
-    if (!pixels) { committed = controls(); return; }
-    const before = snapshot(); otherMarkers = false;
-    if (group) release(group);
-    const baseline = new Uint8ClampedArray(pixels), baselineOwnership = new Uint8Array(ownership);
-    featureTouches = group ? new Set() : null;
-    const applied = !apply || apply();
-    const touched = featureTouches; featureTouches = null;
-    if (!applied) { restore(before); draw(); return; }
-    if (group) {
-      const id = { eye: 1, brow: 2, mouth: 3 }[group];
-      for (let i=0;i<4096;i++) {
-        const offset=i*4, previous=baseline.slice(offset,offset+4), next=pixels.slice(offset,offset+4);
-        // Even unchanged colours must be layered over an existing feature so
-        // removing the older feature cannot accidentally remove the newer one.
-        if (previous.some((v,k)=>v!==next[k]) || (baselineOwnership[i] && touched && touched.has(i))) { patches[group].push({index:i,before:Array.from(previous),after:Array.from(next),beforeOwner:baselineOwnership[i]}); ownership[i]=id; }
+  // A preset owns its visible face cells, regardless of which head layer holds
+  // them. Prefer the requested feature and make the fewest compatible moves.
+  function resolveFeatures(preferred) {
+    const originalState = {shape:$('je-eye-shape').value, position:$('je-eye-position').value,
+      toon:$('je-toon-position').value, curious:$('je-curious-position').value, dot:$('je-dot-position').value,
+      brow:$('je-brow').value, mouth:$('je-mouth').value};
+    const shape = originalState.shape;
+    let eyeKey = null, eyeValues = [];
+    if (['standard','derp','far','far-derp','square','wide','flat'].includes(shape)) {
+      eyeKey='position'; eyeValues=shape === 'square' ? ['top','upper','lower','bottom'] : ['super','top','upper','lower','bottom'];
+    } else if (shape === 'toon') { eyeKey='toon'; eyeValues=['top','mid','bottom']; }
+    else if (shape === 'curious' || shape === 'cyclops') { eyeKey='curious'; eyeValues=['top','bottom']; }
+    else if (/^(dots|short|long)-(close|far)$/.test(shape)) {
+      eyeKey='dot'; const min=shape.startsWith('long-') ? (shape.endsWith('-far') ? 4 : 3) : shape.startsWith('short-') ? 2 : 1;
+      eyeValues=Array.from({length:7-min},(_,i)=>String(i+min));
+    }
+    const eyeChoices = !eyeKey || preferred === 'eye' ? [eyeKey ? originalState[eyeKey] : null] : eyeValues;
+    const brows = originalState.brow === 'keep' || preferred === 'brow' ? [originalState.brow] : Array.from($('je-brow').options, o=>o.value).filter(v=>v!=='keep');
+    const mouths = originalState.mouth === 'keep' || preferred === 'mouth' ? [originalState.mouth] : Array.from($('je-mouth').options, o=>o.value).filter(v=>v!=='keep');
+    const set = cells => new Set(cells.map(c=>c.y*8+c.x));
+    const intersects = (a,b) => [...a].some(v=>b.has(v));
+    const above = (a,b) => !a.size || !b.size || Math.max(...[...a].map(i=>Math.floor(i/8))) < Math.min(...[...b].map(i=>Math.floor(i/8)));
+    let best=null, bestCost=Infinity;
+    for (const eye of eyeChoices) {
+      const state={...originalState}; if (eyeKey) state[eyeKey]=eye;
+      const eyeCells=set(featureCells('je-eye-shape',shape,state));
+      for (const brow of brows) {
+        const browCells=set(featureCells('je-brow',brow,state));
+        if (intersects(eyeCells,browCells) || !above(browCells,eyeCells)) continue;
+        for (const mouth of mouths) {
+          const mouthCells=set(featureCells('je-mouth',mouth,state));
+          if (intersects(eyeCells,mouthCells) || intersects(browCells,mouthCells) || !above(eyeCells,mouthCells) || !above(browCells,mouthCells)) continue;
+          let cost=0;
+          if (eyeKey && eye!==originalState[eyeKey]) cost += 100 + Math.abs(eyeValues.indexOf(eye)-eyeValues.indexOf(originalState[eyeKey]));
+          if (brow!==originalState.brow) {
+            const [layer,pos]=brow.split('-'), [oldLayer,oldPos]=originalState.brow.split('-');
+            const rows=['super','top','upper','lower','bottom'];
+            cost += 100 + (layer!==oldLayer ? 30 : 0) + Math.abs(rows.indexOf(pos)-rows.indexOf(oldPos));
+          }
+          if (mouth!==originalState.mouth) cost += 100 + (mouth.split('-')[1]!==originalState.mouth.split('-')[1] ? 30 : 0) + 1;
+          if (cost<bestCost) {best={eyeKey,eye,brow,mouth};bestCost=cost;}
+        }
       }
     }
+    if (!best) return null;
+    const moved=[];
+    if (best.eyeKey && best.eye!==originalState[best.eyeKey]) {
+      const ids={position:'je-eye-position',toon:'je-toon-position',curious:'je-curious-position',dot:'je-dot-position'};
+      $(ids[best.eyeKey]).value=best.eye; moved.push('eye');
+    }
+    if (best.brow!==originalState.brow) {$('je-brow').value=best.brow;moved.push('brow');}
+    if (best.mouth!==originalState.mouth) {$('je-mouth').value=best.mouth;moved.push('mouth');}
+    return moved;
+  }
+  function transact(group, apply, mask, preview = false) {
+    if (!pixels) { committed = controls(); return; }
+    const before = snapshot(); otherMarkers = false;
+    let moved = group && apply ? resolveFeatures(group) : [];
+    // If the exact requested position cannot fit even after moving other
+    // features, find a compatible position for the requested feature too.
+    if (moved === null) moved = resolveFeatures(null);
+    if (moved === null) { if (!preview) { restore(before); draw(); status('These presets cannot fit together. Choose a different position or shape.'); } return false; }
+    const groups = group ? [group, ...moved.filter(g=>g!==group)] : [];
+    for (const name of groups) release(name);
+    let markerWarning=false;
+    for (const name of groups.length ? groups : [null]) {
+      const baseline = new Uint8ClampedArray(pixels), baselineOwnership = new Uint8Array(ownership);
+      featureTouches = name ? new Set() : null;
+      const fn = name === group ? apply : ({eye:applyEye,brow:applyBrow,mouth:applyMouth}[name]);
+      const applied = !fn || fn();
+      const touched = featureTouches; featureTouches = null;
+      markerWarning = markerWarning || otherMarkers;
+      if (!applied) { if (!preview) { restore(before); draw(); } return false; }
+      if (name) {
+        const id = {eye:1,brow:2,mouth:3}[name];
+        for (let i=0;i<4096;i++) {
+          const offset=i*4, previous=baseline.slice(offset,offset+4), next=pixels.slice(offset,offset+4);
+          if (previous.some((v,k)=>v!==next[k]) || (baselineOwnership[i] && touched && touched.has(i))) { patches[name].push({index:i,before:Array.from(previous),after:Array.from(next),beforeOwner:baselineOwnership[i]}); ownership[i]=id; }
+        }
+      }
+    }
+    const selection = {eye:'je-eye-shape',brow:'je-brow',mouth:'je-mouth'};
+    if (group && apply && $(selection[group]).value !== 'keep' && (active.brow || active.mouth)) $('je-mask-toggle').checked=true;
     if (mask === 'auto') { if (maskNeeded()) generateMask(); else restoreMask(); }
     else if (mask) generateMask();
+    if (preview) return true;
     const changed = before.pixels.some((v,i)=>v!==pixels[i]);
     const nextControls = controls(), controlChanged = Object.keys(nextControls).some(id => nextControls[id] !== before.controls[id]);
     if (changed || controlChanged) remember(before);
-    committed = nextControls; draw();
-    if (changed || controlChanged) status('Updated automatically. Undo restores the previous skin. ' + (otherMarkers ? 'Other marker-area pixels were preserved; review them. ' : '') + 'Review the mask and test in-game.');
+    committed = nextControls;
+    if (moved.length) { syncOptions(); document.dispatchEvent(new Event('je-controls-sync')); }
+    draw();
+    if (changed || controlChanged) {
+      const shape=$('je-eye-shape').value, eyeId=['standard','derp','far','far-derp','square','wide','flat'].includes(shape) ? 'je-eye-position' : shape==='toon' ? 'je-toon-position' : ['curious','cyclops'].includes(shape) ? 'je-curious-position' : 'je-dot-position';
+      const label = id => $(id).selectedOptions[0]?.textContent || $(id).value;
+      const labels = moved.map(g=>g === 'eye' ? 'eye position to ' + label(eyeId) : g === 'brow' ? 'eyebrows to ' + label('je-brow') : 'mouth to ' + label('je-mouth'));
+      status((labels.length ? 'Adjusted ' + labels.join(' and ') + ' to fit the face. ' : '') + 'Updated automatically. Undo restores the previous skin. ' + (markerWarning ? 'Other marker-area pixels were preserved; review them. ' : '') + 'Review the mask and test in-game.');
+    }
   }
   // Loading a new skin never applies presets implicitly; returning unchanged keeps undo.
   window.JustExpressionsEditor = {
@@ -125,6 +198,40 @@
     },
     getSkin() { return pixels && new Uint8ClampedArray(pixels); },
     getOriginal() { return original && new Uint8ClampedArray(original); },
+    candidateSkin(id, value) {
+      if (!pixels) return null;
+      const eyeIds=['je-eye-shape','je-eye-position','je-toon-position','je-curious-position','je-dot-position'];
+      const group=eyeIds.includes(id) ? 'eye' : id==='je-brow' ? 'brow' : id==='je-mouth' ? 'mouth' : null;
+      if (!group) return null;
+      const reenable=(group==='brow'||group==='mouth') && value!=='keep' && !$('je-mask-toggle').checked ||
+        id==='je-eye-shape' && /^(dots|short|long)-(close|far)$/.test(value) && (!$('je-mask-toggle').checked || !$('je-mask-dots').checked) ||
+        id==='je-eye-shape' && value!=='keep' && !$('je-mask-toggle').checked && (active.brow || active.mouth);
+      if ($(id).value===value && !reenable) return new Uint8ClampedArray(pixels);
+      const saved={pixels,ownership,patches,maskBackup,active,committed,otherMarkers,featureTouches,values:controls(),status:$('je-status').textContent};
+      pixels=new Uint8ClampedArray(pixels); ownership=new Uint8Array(ownership);
+      patches=JSON.parse(JSON.stringify(patches)); maskBackup=maskBackup && JSON.parse(JSON.stringify(maskBackup)); active={...active};
+      try {
+        $(id).value=value; if (id==='je-eye-shape') syncOptions();
+        let apply=null;
+        if (group==='eye' && $('je-eye-shape').value!=='keep') apply=() => {
+          if (!applyEye()) return false;
+          if (id==='je-eye-shape' && /^(dots|short|long)-(close|far)$/.test(value)) { $('je-mask-dots').checked=true; $('je-mask-toggle').checked=true; }
+          return true;
+        };
+        if (group==='brow'||group==='mouth') apply=() => {
+          if (value==='keep') {active[group]=null;return true;}
+          if (!(group==='brow'?applyBrow():applyMouth())) return false;
+          $('je-mask-toggle').checked=true; return true;
+        };
+        const ok = group==='eye' && id!=='je-eye-shape' && $('je-eye-shape').value==='keep' ? true : transact(group, apply, 'auto', true);
+        return new Uint8ClampedArray(ok ? pixels : saved.pixels);
+      } finally {
+        pixels=saved.pixels; ownership=saved.ownership; patches=saved.patches; maskBackup=saved.maskBackup; active=saved.active;
+        committed=saved.committed; otherMarkers=saved.otherMarkers; featureTouches=saved.featureTouches;
+        for (const key of controlIds) {const e=$(key);if (e.type==='checkbox') e.checked=saved.values[key];else e.value=saved.values[key];}
+        syncOptions(); $('je-status').textContent=saved.status;
+      }
+    },
     eyeThumbnailBase(replace) {
       if (!pixels) return null;
       const data = new Uint8ClampedArray(pixels), owners = new Uint8Array(ownership);
@@ -177,12 +284,13 @@
     return zones.some(([zx,zy,zw,zh]) => { for (let j=zy;j<zy+zh;j++) for (let i=zx;i<zx+zw;i++) if (!(i>=x && i<x+width && j>=y && j<y+height) && pixels[at(i,j)+3]) return true; return false; });
   }
   function colour(hex) { return [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)).concat(255); }
-  function featureCells(id, value) {
+  function featureCells(id, value, override = {}) {
     if (!window.FMFJEThumbnail || value === 'keep') return [];
     // Distinct sentinel colours preserve the geometry even when chosen colours match.
     const state = { shape: $('je-eye-shape').value, position: $('je-eye-position').value,
       toon: $('je-toon-position').value, curious: $('je-curious-position').value, dot: $('je-dot-position').value,
-      white: '#112233', pupil: '#445566', brow: '#778899', mouth: '#aabbcc', oldCells: [] };
+      white: '#112233', pupil: '#445566', brow: '#778899', mouth: '#aabbcc', oldCells: [], ...override };
+    state.white='#112233'; state.pupil='#445566'; state.brow='#778899'; state.mouth='#aabbcc';
     const layout = window.FMFJEThumbnail.pixels(new Uint8ClampedArray(256), id, value, state), cells=[];
     for (let i=0;i<64;i++) if (layout[i*4+3]) cells.push({x:i%8, y:Math.floor(i/8), role:layout[i*4]===17?'white':layout[i*4]===68?'pupil':'feature'});
     return cells;
@@ -217,6 +325,17 @@
         if (data[hat+3]) { if (featureTouches && data === pixels) featureTouches.add(hat/4); data.fill(0,hat,hat+4); }
       }
     }
+  }
+  // Eyelid/skin source pixels must not accidentally sample an added brow or
+  // mouth. Read the skin underneath that feature so marker colours do not
+  // depend on the order in which the three presets were selected.
+  function eyeSource(x, y) {
+    const i=at(x,y), index=i/4, owner=ownership[index];
+    if (x>=8 && x<16 && y>=8 && y<16 && (owner===2 || owner===3)) {
+      const patch=patches[owner===2?'brow':'mouth'].find(p=>p.index===index && p.after.every((v,k)=>pixels[i+k]===v));
+      if (patch) return patch.before;
+    }
+    return pixels.subarray(i,i+4);
   }
   // Coordinates are transcribed from the Just Expressions 2.0 guide diagrams.
   // Selected facial features are painted first; marker sources are sampled afterward.
@@ -276,10 +395,10 @@
         target = [xs[0], markerY, xs[1] - xs[0] + 1, 1];
         zones = kind === 'dots' ? [[60, 42, 4, 6]] : kind === 'short' ? [[56, 43, 4, 5]] : [[60, 38, 4, 4]];
       }
-      if (copies.some(([, , x, y]) => pixels[at(x, y) + 3] !== 255)) { status('The eye pixels at this position are transparent. Paint them on the face first.'); return; }
+      if (copies.some(([, , x, y]) => eyeSource(x, y)[3] !== 255)) { status('The eye pixels at this position are transparent. Paint them on the face first.'); return; }
       const [tx, ty, tw, th] = target;
       otherMarkers = otherPixels(zones, tx, ty, tw, th);
-      const values = copies.map(([x, y, fromX, fromY]) => [x, y, new Uint8ClampedArray(pixels.subarray(at(fromX, fromY), at(fromX, fromY) + 4))]);
+      const values = copies.map(([x, y, fromX, fromY]) => [x, y, new Uint8ClampedArray(eyeSource(fromX, fromY))]);
       clearArea(tx, ty, tw, th); for (const [x, y, value] of values) pixels.set(value, at(x, y));
       return true;
     }
@@ -294,9 +413,9 @@
       } else {
         [8, 9, 14, 15].forEach((x, i) => copies.push([markerX + i, markerY + 1, x, 8 + row]));
       }
-      if (copies.some(([, , x, y]) => pixels[at(x, y) + 3] !== 255)) { status('The eye or eyelid pixels at this position are transparent. Paint them on the face first.'); return; }
+      if (copies.some(([, , x, y]) => eyeSource(x, y)[3] !== 255)) { status('The eye or eyelid pixels at this position are transparent. Paint them on the face first.'); return; }
       otherMarkers = otherPixels([[32,0,8,8]], markerX, markerY, 4, 2);
-      const values = copies.map(([x, y, fromX, fromY]) => [x, y, new Uint8ClampedArray(pixels.subarray(at(fromX, fromY), at(fromX, fromY) + 4))]);
+      const values = copies.map(([x, y, fromX, fromY]) => [x, y, new Uint8ClampedArray(eyeSource(fromX, fromY))]);
       clearArea(markerX, markerY, 4, 2);
       for (const [x, y, value] of values) pixels.set(value, at(x, y));
       return true;
@@ -314,10 +433,10 @@
       const rows = shape === 'square' ? 2 : 1;
       for (let r = 0; r < rows; r++) faceX.forEach((x, k) => copies.push([markerX + k, markerY + 1 + r, x, 8 + row + r]));
     }
-    if (copies.some(entry => pixels[at(entry[2], entry[3]) + 3] !== 255)) { status('The eye or eyelid pixels at this position are transparent. Paint them on the face first.'); return; }
+    if (copies.some(entry => eyeSource(entry[2], entry[3])[3] !== 255)) { status('The eye or eyelid pixels at this position are transparent. Paint them on the face first.'); return; }
     const zones = shape === 'square' ? [[24,2,8,6]] : [[isFar ? 0 : 4,0,4,8],[isFar ? 28 : 24,0,4,2]];
     otherMarkers = otherPixels(zones, markerX, markerY, 4, height);
-    const values = copies.map(([x, y, fromX, fromY]) => [x, y, new Uint8ClampedArray(pixels.subarray(at(fromX, fromY), at(fromX, fromY) + 4))]);
+    const values = copies.map(([x, y, fromX, fromY]) => [x, y, new Uint8ClampedArray(eyeSource(fromX, fromY))]);
     clearArea(markerX, markerY, 4, height);
     for (const [x, y, value] of values) pixels.set(value, at(x, y));
     return true;
@@ -364,12 +483,13 @@
     if ($('je-mask-toggle').checked && $('je-mask-dots').checked && !missingDotSelection) for (let row = dotRow - height + 1; row <= dotRow; row++) hide(row, spacing === 'far' ? [1, 6] : [2, 5]);
     // Sample only the original copy, excluding all selected feature pixels, so results don't depend on iteration order.
     const originalCopy = new Uint8ClampedArray(copy);
+    const eyeCells = new Set(featureCells('je-eye-shape', $('je-eye-shape').value).map(c=>c.y*8+c.x));
     for (const index of hidden) {
       const row = Math.floor(index / 8), x = index % 8;
       let value = fill;
       if ($('je-mask-mode').value === 'sample') {
         const candidates = Array.from({ length: 8 }, (_, col) => col)
-          .filter(col => !hidden.has(row * 8 + col) && originalCopy[(row * 8 + col) * 4 + 3] === 255)
+          .filter(col => !hidden.has(row * 8 + col) && !eyeCells.has(row * 8 + col) && originalCopy[(row * 8 + col) * 4 + 3] === 255)
           .sort((a, b) => Math.abs(a - x) - Math.abs(b - x) || a - b);
         if (candidates.length) value = originalCopy.subarray((row * 8 + candidates[0]) * 4, (row * 8 + candidates[0]) * 4 + 4);
       }

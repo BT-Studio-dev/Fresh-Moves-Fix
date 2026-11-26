@@ -173,4 +173,64 @@ d.querySelector('[data-je-tool="eraser"]').click();pointer('pointerdown',105,105
 resetDefault();$('je-pixel-tools').open=false;$('je-copy-mask').click();assert($('je-pixel-tools').open);assert.equal($('je-view').value,'top-right');undo();assert.equal(px(save(),56,0)[3],0);
 change('je-guide','cyclops-eye');assert.equal($('je-guide-link').href,'https://example.com/guides/just-expressions/cyclops-eye/');
 const projects=new JSDOM(fs.readFileSync('website/public/creations/index.html','utf8'),{url:'https://example.com/creations/'}).window.document;assert(![...projects.querySelectorAll('.project-card')].some(a=>a.textContent.includes('Just Expressions skin eye editor')));
+// Combined non-overlapping features are independent of selection order, including
+// eye marker sources adjacent to an eyebrow and the Universal Mask.
+{
+ const permutations=[['eye','brow','mouth'],['eye','mouth','brow'],['brow','eye','mouth'],['brow','mouth','eye'],['mouth','eye','brow'],['mouth','brow','eye']];let expected;
+ for(const order of permutations) {
+  resetDefault();change('je-eye-white','#f0f1f2','input');change('je-eye-pupil','#123abc','input');change('je-brow-color','#a14725','input');change('je-mouth-color','#cc6688','input');
+  change('je-mask-mode','solid');change('je-mask-color','#102030','input');
+  for(const item of order)change({eye:'je-eye-shape',brow:'je-brow',mouth:'je-mouth'}[item],{eye:'standard',brow:'regular-upper',mouth:'top-short'}[item]);
+  const result=Array.from(save());if(expected)assert.deepEqual(result,expected,'combined PNG must not depend on selection order');else expected=result;
+  assert.deepEqual(px(save(),4,2),[10,20,30,255],'eye eyelid marker samples underneath brow');
+  assert.deepEqual(px(save(),9,12),[240,241,242,255]);assert.deepEqual(px(save(),9,11),[161,71,37,255]);assert.deepEqual(px(save(),11,14),[204,102,136,255]);
+  assert.deepEqual(px(save(),5,3),[18,58,188,255]);assert.deepEqual(px(save(),28,49),[161,71,37,255]);assert.deepEqual(px(save(),17,50),[204,102,136,255]);
+  assert.deepEqual(px(save(),57,3),[16,32,48,255]);assert.deepEqual(px(save(),59,6),[16,32,48,255]);
+ }
+}
+// Conflicting choices move other selected features in the same undoable action.
+{
+ resetDefault();change('je-eye-shape','standard');change('je-brow','regular-upper');change('je-mouth','top-short');const before=Array.from(save());
+ change('je-brow','regular-lower');assert.equal($('je-brow').value,'regular-lower');assert.equal($('je-eye-position').value,'lower');assert.equal($('je-mouth').value,'top-short');
+ assert.match($('je-status').textContent,/Adjusted eye position/);assert.deepEqual(px(save(),9,12),[161,71,37,255]);assert.deepEqual(px(save(),9,13),[240,241,242,255]);assert.deepEqual(px(save(),11,14),[204,102,136,255]);
+ undo();assert.deepEqual(Array.from(save()),before,'one undo restores every adjusted feature, markers and mask');assert.equal($('je-brow').value,'regular-upper');assert.equal($('je-eye-position').value,'upper');assert.equal($('je-mouth').value,'top-short');
+ $('je-mask-toggle').click();assert(!$('je-mask-toggle').checked);change('je-eye-pupil','#456789','input');assert($('je-mask-toggle').checked,'editing an eye re-enables mask for selected brow and mouth');
+ undo();assert(!$('je-mask-toggle').checked,'undo restores mask visibility and colour');
+}
+function eyeMarker(shape) {
+ const pos=$('je-eye-position').value;
+ if(shape==='square')return {top:[28,2],upper:[28,5],lower:[24,2],bottom:[24,5]}[pos];
+ if(['standard','derp','far','far-derp'].includes(shape)){const far=shape.startsWith('far');return [pos==='super'?(far?28:24):(far?0:4),{super:0,top:0,upper:2,lower:4,bottom:6}[pos]];}
+ if(shape==='wide'||shape==='flat')return [pos==='super'?36:32,{super:0,top:0,upper:2,lower:4,bottom:6}[pos]];
+ if(shape==='toon')return {top:[12,32],mid:[36,2],bottom:[36,5]}[$('je-toon-position').value];
+ if(shape==='curious'||shape==='cyclops')return [shape==='curious'?16:52,$('je-curious-position').value==='top'?32:34];
+ const fixed={'square-far':[48,48],rectangle:[36,32],big:[36,32],lateral:[40,34],'single-big':[44,48],'single-small':[45,49]};if(fixed[shape])return fixed[shape];
+ const [kind,spacing]=shape.split('-'),base=kind==='short'?56:60;return [base+(spacing==='far'?0:1),(kind==='long'?35:41)+Number($('je-dot-position').value)];
+}
+// A representative range of 2.0 eyes, both brow layers and both mouth widths
+// must all remain visible after the solver adjusts conflicting positions.
+for(const shape of shapes)for(const brow of ['regular-super','regular-lower','layer-bottom'])for(const mouth of ['top-long','bottom-short']) {
+ resetDefault();change('je-eye-white','#f0f1f2','input');change('je-eye-pupil','#123abc','input');change('je-brow-color','#a14725','input');change('je-mouth-color','#cc6688','input');change('je-mask-mode','solid');change('je-mask-color','#102030','input');
+ const originalCombined=Array.from(save());change('je-eye-shape',shape);change('je-brow',brow);change('je-mouth',mouth);
+ assert.equal($('je-eye-shape').value,shape,'preserve selected '+shape);assert.equal($('je-mouth').value,mouth,'preserve requested mouth');
+ const state={shape,position:$('je-eye-position').value,toon:$('je-toon-position').value,curious:$('je-curious-position').value,dot:$('je-dot-position').value,white:'#112233',pupil:'#445566',brow:'#778899',mouth:'#aabbcc',oldCells:[]};
+ const layout=(id,value)=>w.FMFJEThumbnail.pixels(new Uint8ClampedArray(256),id,value,state);
+ for(const [id,value] of [['je-eye-shape',shape],['je-brow',$('je-brow').value],['je-mouth',mouth]]) {
+  const cells=layout(id,value);for(let i=0;i<64;i++)if(cells[i*4+3]) {
+   const x=i%8,y=Math.floor(i/8),layer=id==='je-brow' && value.startsWith('layer-');
+   const want=id==='je-eye-shape'?(cells[i*4]===17?[240,241,242,255]:[18,58,188,255]):id==='je-brow'?[161,71,37,255]:[204,102,136,255];
+   assert.deepEqual(px(save(),(layer?40:8)+x,8+y),want,`${shape}, ${brow}, ${mouth} visible ${id}`);
+   if(id!=='je-eye-shape')assert.deepEqual(px(save(),56+x,y),[16,32,48,255],`${shape} mask hides ${id}`);
+  }
+ }
+ const [eyeX,eyeY]=eyeMarker(shape);assert.equal(px(save(),eyeX,eyeY)[3],255,shape+' eye marker preserved beside brow and mouth');
+ const [layer,pos]=$('je-brow').value.split('-'),browY={super:48,top:48,upper:49,lower:50,bottom:51}[pos],browX=pos==='super'?14:layer==='layer'?34:28;
+ assert.deepEqual(px(save(),browX,browY),[161,71,37,255],shape+' '+brow+' '+mouth+' actual '+$('je-brow').value+' eyebrow marker');
+ const [mp,mw]=mouth.split('-'),mouthY=mp==='top'?50:51,mouthX=mw==='short'?17:16;
+ assert.deepEqual(px(save(),mouthX,mouthY),[204,102,136,255],shape+' mouth marker');
+ const oldEyeMarker=px(save(),eyeX,eyeY), oldMouthMarker=px(save(),mouthX,mouthY);
+ change('je-brow-color','#445566','input');assert.deepEqual(px(save(),eyeX,eyeY),oldEyeMarker,shape+' eye marker survives eyebrow colour');assert.deepEqual(px(save(),mouthX,mouthY),oldMouthMarker,shape+' mouth marker survives eyebrow colour');
+ const newBrowMarker=px(save(),browX,browY);change('je-mouth-color','#ccbbaa','input');assert.deepEqual(px(save(),eyeX,eyeY),oldEyeMarker,shape+' eye marker survives mouth colour');assert.deepEqual(px(save(),browX,browY),newBrowMarker,shape+' brow marker survives mouth colour');
+ assert($('je-mask-toggle').checked);change('je-eye-shape','keep');change('je-brow','keep');change('je-mouth','keep');assert.deepEqual(Array.from(save()),originalCombined,shape+' restoring all features restores original');
+}
 console.log('Automatic 2.0 presets, mask, undo, manual tools, geometry and guide passed');dom.window.close();
