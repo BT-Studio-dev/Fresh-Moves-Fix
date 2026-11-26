@@ -1,10 +1,10 @@
 import { loadSkinToCanvas, inferModelType } from 'skinview-utils';
 
-// Render the saved skin first, then replace it only if the live lookup succeeds.
-// A failed network request, CORS failure, or unsupported image keeps the fallback.
+// Render the saved skin first. Profiles with a live username can replace it
+// after a successful lookup; failures keep the saved fallback.
 (function () {
   if (!window.FMFPlayer) return;
-  function setup(name, canvasId, fallbackId, statusId, savedSkin) {
+  function setup(name, canvasId, fallbackId, statusId, savedSkin, savedLabel) {
     const canvas = document.getElementById(canvasId);
     const fallback = document.getElementById(fallbackId);
     const status = document.getElementById(statusId);
@@ -31,7 +31,7 @@ import { loadSkinToCanvas, inferModelType } from 'skinview-utils';
           context.clearRect(0, 0, canvas.width, canvas.height);
           context.drawImage(output, 0, 0);
           canvas.hidden = false; fallback.hidden = true;
-          status.textContent = live ? 'Skin from mc-heads.net' : 'Saved fallback skin';
+          status.textContent = live ? 'Skin from mc-heads.net' : savedLabel;
           if (live) liveRendered = true;
         } catch (_) {
           if (viewer) viewer.dispose();
@@ -40,9 +40,10 @@ import { loadSkinToCanvas, inferModelType } from 'skinview-utils';
       image.src = url;
     }
     load(savedSkin, false);
-    load('https://mc-heads.net/skin/' + encodeURIComponent(name), true);
+    if (name) load('https://mc-heads.net/skin/' + encodeURIComponent(name), true);
   }
+  const owner = document.getElementById('owner-model');
   const steve = document.getElementById('dudualt-model');
-  setup('lie_kg', 'owner-model', 'owner-fallback', 'owner-skin-status', 'owner-skin.png');
-  if (steve) setup('dudualt', 'dudualt-model', 'dudualt-fallback', 'dudualt-skin-status', steve.getAttribute('data-skin'));
+  if (owner) setup(null, 'owner-model', 'owner-fallback', 'owner-skin-status', owner.getAttribute('data-skin'), 'Custom skin');
+  if (steve) setup('dudualt', 'dudualt-model', 'dudualt-fallback', 'dudualt-skin-status', steve.getAttribute('data-skin'), 'Saved fallback skin');
 })();

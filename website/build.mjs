@@ -221,7 +221,7 @@ fs.writeFileSync(path.join(out, "tableau.json"), JSON.stringify({
 }));
 for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy.png", "icon-dummy2.png", "icon-anim.png", "icon-model.png", "icon-paint.png", "icon-painted.png", "icon-painter-dummy.png", "icon-paint-pixel.svg", "icon-model-pixel.svg", "icon-anim-pixel.svg", "icon-cape-project-pixel.svg", "icon-lock-project-pixel.svg"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
-for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner-profile.png", "owner-skin.png", "emf-icon.png", "etf-icon.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
+for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner-profile.png", "owner-skin.png", "lie-kg-skin.png", "lie-kg-profile.png", "emf-icon.png", "etf-icon.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "refresh-2026.css"), path.join(out, "refresh-2026.css"));
 fs.copyFileSync(path.join(here, "refresh-2027.css"), path.join(out, "refresh-2027.css"));
 fs.copyFileSync(path.join(here, "fresh-moves-banner.mp4"), path.join(out, "fresh-moves-banner.mp4"));
@@ -1654,12 +1654,12 @@ write("index.html", page({
 
 <div class="owner-profiles" aria-label="Owner profiles">
   <aside class="owner-profile" aria-label="lie_kg owner profile">
-    <img id="owner-fallback" class="owner-profile-image" src="owner-profile.png?v=${ver("owner-profile.png")}" alt="Minecraft skin for lie_kg" width="160" height="320">
-    <canvas id="owner-model" class="owner-profile-model" width="240" height="240" role="img" aria-label="lie_kg's Minecraft skin in a pose" hidden></canvas>
+    <img id="owner-fallback" class="owner-profile-image" src="lie-kg-profile.png?v=${ver("lie-kg-profile.png")}" alt="Custom Minecraft skin for lie_kg" width="160" height="320">
+    <canvas id="owner-model" class="owner-profile-model" width="240" height="240" role="img" aria-label="lie_kg's custom Minecraft skin in a pose" data-skin="lie-kg-skin.png?v=${ver("lie-kg-skin.png")}" hidden></canvas>
     <span class="home-eyebrow">OWNER PROFILE</span>
     <h2>lie_kg</h2>
     <p>Owner of Fresh Moves Fix</p>
-    <small id="owner-skin-status" class="owner-skin-status">Saved fallback image</small>
+    <small id="owner-skin-status" class="owner-skin-status">Custom skin</small>
   </aside>
   <aside class="owner-profile" aria-label="dudualt co-owner profile">
     <img id="dudualt-fallback" class="owner-profile-image owner-steve-fallback" src="pack.png" alt="Fresh Moves Fix pack icon" width="120" height="120">
@@ -1670,7 +1670,7 @@ write("index.html", page({
     <small id="dudualt-skin-status" class="owner-skin-status">Saved fallback image</small>
   </aside>
 </div>
-<p class="owner-skin-note">Minecraft Java skins are loaded from mc-heads.net when available; otherwise saved fallback images are shown. Skins may be cached by the service.</p>
+<p class="owner-skin-note">lie_kg uses a custom skin. dudualt's Minecraft Java skin is loaded from mc-heads.net when available; a saved fallback is shown otherwise. The service may cache skins.</p>
 
 <section class="home-section">
   <div class="note"><strong>Beta.</strong> Blinking and moving eyes have worked in a player’s game; other features and versions still need testing. On Minecraft 1.21.4 and newer the cape and elytra may not be animated.</div>
