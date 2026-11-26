@@ -414,6 +414,7 @@ write("keybinds/index.html", page({ title: "Keybinds - Fresh Moves Fix", active:
 // the two default skins are embedded in the page, so the editor needs no extra requests
 const skinData = (p) => "data:image/png;base64," + fs.readFileSync(path.join(root, "assets/minecraft/textures/entity/player", p)).toString("base64");
 fs.copyFileSync(path.join(here, "editor.js"), path.join(out, "editor.js"));
+fs.copyFileSync(path.join(here, "mod-eye-tools.js"), path.join(out, "mod-eye-tools.js"));
 fs.copyFileSync(path.join(here, "eye-detect.js"), path.join(out, "eye-detect.js"));
 fs.copyFileSync(path.join(here, "paint.js"), path.join(out, "paint.js"));
 fs.copyFileSync(path.join(here, "render.js"), path.join(out, "render.js"));
@@ -483,7 +484,7 @@ const jeEditorBody = `<div class="je-editor" id="je-editor" hidden>
 write("editor/index.html", page({
   title: "Skin eye editor - Fresh Moves Fix",
   active: "editor",
-  description: "Add the animated-eye pixels for Fresh Moves to your Minecraft skin and download the result.",
+  description: "Edit skins for Fresh Moves and Just Expressions, and prepare Glowing Eyes presets and Reactions settings.",
   depth: 1,
   body: `<div class="wrap editor-workspace-wrap"><article class="editor eye-workspace">
 <h1>${ICON.eye} Skin eye editor</h1>
@@ -514,7 +515,13 @@ write("editor/index.html", page({
   </section>
   <section class="panel ecard" id="fmf-eye-controls">
     <h3 class="ehead"><span class="tool-ic">${ICON.eye}</span><span><b>2. Eyes</b><small>Shape and place of the eyes, eyebrows, eyelashes, mouth</small></span></h3>
-    <div class="eye-mode-control"><label for="eye-editor-mode"><b>Resource pack / editor mode</b></label><select id="eye-editor-mode"><option value="fresh-moves">Fresh Moves 1.x</option><option value="just-expressions">Just Expressions 2.0</option></select><p id="eye-mode-note" role="status">Switching keeps your skin. Presets may overwrite overlapping markers.</p><div id="fmf-unlock-notice" hidden><p>1.x editing is paused to protect your 2.0 pixels. Enabling it can replace overlapping markers and face pixels; download a backup first.</p><button type="button" class="btn" id="fmf-unlock">Enable 1.x editing</button></div></div>
+    <div class="eye-mode-control"><label for="eye-editor-mode"><b>Resource pack / editor mode</b></label><select id="eye-editor-mode"><option value="fresh-moves">Fresh Moves 1.x</option><option value="just-expressions">Just Expressions 2.0</option><option value="mod-tools">Glowing Eyes / Reactions only</option></select><p id="eye-mode-note" role="status">Switching keeps your skin. Presets may overwrite overlapping markers.</p><div id="fmf-unlock-notice" hidden><p>1.x editing is paused to protect your current skin pixels. Enabling it can replace overlapping markers and face pixels; download a backup first.</p><button type="button" class="btn" id="fmf-unlock">Enable 1.x editing</button></div></div>
+    <p id="mod-mode-note" hidden>Mods-only mode keeps your current skin unchanged. Use the separate tools below; their settings are not stored in the skin PNG.</p>
+    <div class="eye-mod-shortcuts" aria-label="Extra mod tools">
+      <span>Extra mod tools · separate from the skin PNG</span>
+      <a href="#glow-card" data-open-mod-card="glow-card">Glowing Eyes <small>Glow preset</small></a>
+      <a href="#reactions-card" data-open-mod-card="reactions-card">Reactions <small>Eye settings</small></a>
+    </div>
     <div id="fmf-eye-options">
     <div class="eye-guide-links" aria-label="Eye and eyebrow guides">
       <a class="btn ghost" href="../guides/#eye-and-eyebrow-types">${ICON.book} Eye and eyebrow types</a>
@@ -650,6 +657,36 @@ write("editor/index.html", page({
   </div>
 </div>
 
+
+<section class="text-card mod-eye-tools ed" aria-labelledby="mod-tools-title">
+<h2 id="mod-tools-title">Reactions &amp; Glowing Eyes</h2>
+<p>Use these tools alongside either skin editor mode. These mods use settings separate from your skin PNG; the tools do not add marker pixels or simulate the mods. Fresh Moves and Just Expressions can use overlapping skin pixels, so keep backups when switching. In-game rendering together is not verified.</p>
+<p><b>Version check:</b> Glowing Eyes 2.1.3 is listed for Minecraft 1.21.11, not 26.3. Use matching mod and loader versions; a Reactions 26.3 build does not make Glowing Eyes available for 26.3.</p>
+<div class="mod-card-list">
+<details class="mod-tool-card" id="reactions-card"><summary><span class="mod-card-icon" aria-hidden="true">${ICON.eye}</span><span><b>Reactions</b><small>Eye placement &amp; settings</small></span><span class="mod-card-badge">CONFIG</span></summary><div class="mod-card-body">
+<p>Choose a layer and click the top-left pixel of each eye. Use the matching face squares, layers and eye size in Reactions Settings in Minecraft, or import and update an existing Reactions configuration below.</p>
+<p class="mod-controls"><label>Skin layer <select id="rx-layer"><option value="base">Base (layer 1)</option><option value="outer">Outer (layer 2)</option></select></label> <label>Place <select id="rx-target"><option value="left">Left Eye</option><option value="right">Right Eye</option></select></label> <label>Width <select id="rx-width"><option>1</option><option selected>2</option><option>3</option></select></label> <label>Height <select id="rx-height"><option selected>1</option><option>2</option><option>3</option></select></label></p>
+<div id="rx-grid" class="mod-pixel-grid" aria-label="Reactions face placement"></div><p class="mod-grid-legend">Green: left eye · Blue: right eye · Both outlines: overlap</p><p id="rx-result" role="status"></p>
+<p><label>Import your existing <code>config/reactions.json</code> <input type="file" id="rx-import" accept="application/json,.json"></label> <button type="button" class="btn ghost" id="rx-reset-import">Remove imported file</button></p>
+<p id="rx-status" role="status">Import an existing configuration to enable export and preserve your other settings.</p><button type="button" class="btn" id="rx-export" disabled>Download updated reactions.json</button>
+<p>First back up your existing <code>config/reactions.json</code>. Import it to load its eye settings, then choose positions. Close Minecraft before replacing it with the download. This updates only eye position, size and layer settings, not the PNG; other settings are retained. You can also use the in-game settings instead.</p>
+<p>Reactions 0.9.2 for Minecraft 26.3: Fabric or NeoForge, Java 25; Fabric needs Fabric API. Open Reactions Settings via its keybinding in Minecraft Controls. Eye layers can be set separately in the mod. Multiplayer sharing may require its server relay. <a href="https://modrinth.com/mod/playereactions" rel="noopener">Reactions on Modrinth</a></p>
+</div></details>
+<details class="mod-tool-card" id="glow-card"><summary><span class="mod-card-icon" aria-hidden="true">${ICON.eye}</span><span><b>Glowing Eyes</b><small>Create or edit a glow preset</small></span><span class="mod-card-badge">PRESET</span></summary><div class="mod-card-body">
+<p>Pick a skin part, colour and tool, then click pixels to draw a separate glow map. Choose Copy skin pixel to use that pixel’s colour. Selected pixels appear in their glow colour. It is not baked into the downloaded PNG and this is not an in-game glow preview. Your map stays here when you change skins; clear it if needed.</p>
+<p class="mod-controls"><label>Skin part <select id="gl-part"><option value="8,8">Head front</option><option value="40,8">Head overlay front</option><option value="0,8">Head left</option><option value="16,8">Head back</option><option value="24,8">Head right</option><option value="8,0">Head top</option><option value="16,0">Head bottom</option><option value="32,8">Head overlay right</option><option value="48,8">Head overlay left</option><option value="56,8">Head overlay back</option><option value="40,0">Head overlay top</option><option value="48,0">Head overlay bottom</option><option value="0,0">Fresh Moves texture 1</option><option value="24,0">Fresh Moves texture 2</option><option value="32,0">Fresh Moves texture 3</option><option value="56,0">Fresh Moves texture 4</option></select></label> <label>Tool <select id="gl-tool"><option value="paint">Draw</option><option value="erase">Erase</option><option value="copy">Copy skin pixel</option><option value="pick">Pick skin colour</option></select></label> <label>Glow colour <input id="gl-color" type="color" value="#ff3333" aria-label="Glow colour" data-backdrop-custom></label></p>
+<div id="gl-grid" class="mod-pixel-grid" aria-label="Glowing Eyes preset pixels"></div><p id="gl-count" role="status"></p><p id="gl-feedback" role="status"></p>
+<p><button class="btn ghost" type="button" id="gl-undo">Undo glow edit</button> <button class="btn ghost" type="button" id="gl-clear">Clear glow map</button></p>
+<p><label>Preset name <input id="gl-name" maxlength="80" value="My glow"></label></p>
+<p><label>Optional: import your existing <code>presets.json</code> to keep its presets <input type="file" id="gl-import" accept="application/json,.json"></label></p>
+<button type="button" class="btn ghost" id="gl-reset-import">Remove imported file</button>
+<p><label>Imported preset <select id="gl-existing" disabled><option value="">Import a file first</option></select></label> <button type="button" class="btn ghost" id="gl-load-existing" disabled>Load as a new draft</button></p>
+<p>Loading replaces the current glow map (Undo restores it). Export appends the draft as a new preset; the imported preset remains unchanged. Pixels outside the head parts shown here are preserved but cannot be edited here.</p>
+<p id="gl-status" role="status">No file imported: export contains only this new preset.</p><button class="btn" type="button" id="gl-export">Download presets.json</button>
+<p><b>Install safely:</b> back up your Minecraft directory’s existing <code>presets.json</code> first. Import it above to append your preset; otherwise the download contains only the new one. Close Minecraft before replacing the file, then start Minecraft, open <code>/eyes</code> or press H, and apply the preset. The mod must be installed; other players need it, and multiplayer sync requires server support. Glowing Eyes 2.1.3 is published for Minecraft 1.21.11, Fabric/Quilt (Fabric API required) and NeoForge. <a href="https://modrinth.com/mod/glowing-eyes" rel="noopener">Glowing Eyes on Modrinth</a></p>
+</div></details>
+</div></section>
+
 <section class="text-card" id="fmf-testing">
 <h2 id="test">${ICON.info} How to test it in the game</h2>
 <p>A player confirmed that blinking and moving eyes worked in their game. Results may differ with other skins, eye shapes or versions. Use Minecraft Java Edition; the website preview cannot test the pack for you. Keep a copy of your original skin.</p>
@@ -687,7 +724,7 @@ write("editor/index.html", page({
 </article></div>
 <script src="../skinview3d.bundle.js"></script>
 <script src="../player.js?v=${ver("player.js")}"></script>
-<script src="../eye-detect.js?v=${ver("eye-detect.js")}"></script><script src="../je-thumbnails.js?v=${ver("je-thumbnails.js")}"></script><script src="../just-expressions-editor.js?v=${ver("just-expressions-editor.js")}"></script><script src="../editor.js?v=${ver("editor.js")}"></script>
+<script src="../mod-eye-tools.js?v=${ver("mod-eye-tools.js")}"></script><script src="../eye-detect.js?v=${ver("eye-detect.js")}"></script><script src="../je-thumbnails.js?v=${ver("je-thumbnails.js")}"></script><script src="../just-expressions-editor.js?v=${ver("just-expressions-editor.js")}"></script><script src="../editor.js?v=${ver("editor.js")}"></script>
 <script src="../ui.js?v=${ver("ui.js")}"></script>
 <script src="../backdrop.js?v=${ver("backdrop.js")}"></script>`,
 }));

@@ -16,6 +16,8 @@
     if (sel.classList.contains("vh")) return;
     const wrap = document.createElement("span"); wrap.className = "dd";
     const btn = document.createElement("button"); btn.type = "button"; btn.className = "dd-btn"; btn.setAttribute("aria-haspopup", "listbox");
+    const modControl = !!sel.closest(".mod-eye-tools");
+    if (modControl) { const label = sel.closest("label"); if (label) btn.setAttribute("aria-label", label.firstChild.textContent.trim()); }
     const list = document.createElement("span"); list.className = "dd-list"; list.setAttribute("role", "listbox"); list.hidden = true;
     wrap.appendChild(btn); wrap.appendChild(list);
     sel.classList.add("vh"); sel.tabIndex = -1; sel.after(wrap);
@@ -24,10 +26,11 @@
       sync() {
         const opts = Array.from(sel.options), cur = opts.find((o) => o.value === sel.value) || opts[0];
         btn.textContent = cur ? cur.textContent : "";
+        if (modControl) { btn.disabled = sel.disabled; if (sel.disabled) m.close(); }
         list.innerHTML = "";
         for (const o of opts) {
           const b = document.createElement("button");
-          b.type = "button"; b.className = "dd-opt" + (o === cur ? " on" : ""); b.textContent = o.textContent;
+          b.type = "button"; b.disabled = o.disabled; b.className = "dd-opt" + (o === cur ? " on" : ""); b.textContent = o.textContent;
           b.setAttribute("role", "option"); b.setAttribute("aria-selected", o === cur ? "true" : "false");
           b.addEventListener("click", (e) => {
             e.preventDefault(); m.close(); btn.focus();
@@ -41,18 +44,27 @@
     btn.addEventListener("click", (e) => {
       e.preventDefault();
       const open = list.hidden; closeAll(); m.sync(); list.hidden = !open; btn.setAttribute("aria-expanded", String(open)); raise();
-      if (open) { const on = list.querySelector(".on"); if (on) on.focus(); }
+      if (open) {
+        if (modControl) {
+          list.style.left = "0px";
+          const rect = list.getBoundingClientRect(), margin = 12;
+          const shift = rect.right > window.innerWidth - margin ? window.innerWidth - margin - rect.right : rect.left < margin ? margin - rect.left : 0;
+          if (shift) list.style.left = shift + "px";
+        }
+        const on = list.querySelector(".on:not(:disabled)"); if (on) on.focus();
+      }
     });
     wrap.addEventListener("keydown", (e) => {
       if (e.key === "Escape") { m.close(); btn.focus(); }
       if ((e.key === "ArrowDown" || e.key === "ArrowUp") && !list.hidden) {
         e.preventDefault();
-        const items = Array.from(list.children), i = items.indexOf(document.activeElement);
+        const items = Array.from(list.children).filter(item => !item.disabled), i = items.indexOf(document.activeElement);
         const n = items[Math.max(0, Math.min(items.length - 1, i + (e.key === "ArrowDown" ? 1 : -1)))];
         if (n) n.focus();
       }
     });
     watchValue(sel, () => m.sync());
+    if (modControl) new MutationObserver(() => m.sync()).observe(sel, { attributes: true, attributeFilter: ["disabled"], childList: true, subtree: true, characterData: true });
     menus.push(m); m.close(); m.sync();
   }
 
