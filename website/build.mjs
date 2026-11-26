@@ -11,8 +11,9 @@ const out = path.join(here, "public");
 const REPO = "https://github.com/BT-Studio-dev/Fresh-Moves-Fix";
 // The original mod has its own pinned prerelease; never expose the historical upstream HD Skins jars as ours.
 const skinRelease = JSON.parse(fs.readFileSync(path.join(root, "minecraft-skins/original-release-request.json"), "utf8"));
-// Official upstream download metadata; no third-party binaries are bundled with this website.
+// Official upstream metadata remains separate from our attributed experimental builds.
 const glowRelease = JSON.parse(fs.readFileSync(path.join(here, "glowing-eyes-release.json"), "utf8"));
+const glowExperimental = JSON.parse(fs.readFileSync(path.join(here, "glowing-eyes-experimental.json"), "utf8"));
 
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 const version = read("VERSION").trim();
@@ -203,6 +204,18 @@ function write(rel, html) {
 
 fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
+// Ship only verified, explicitly listed experimental JARs. A missing or altered
+// file must fail the build instead of producing a broken download link.
+const glowDownloads = path.join(here, "downloads/glowing-eyes");
+const glowOut = path.join(out, "downloads/glowing-eyes");
+fs.mkdirSync(glowOut, { recursive: true });
+for (const entry of glowExperimental) {
+  if (!/^glowing-eyes-fmf-(fabric|neoforge)-[\d.]+-experimental\.jar$/.test(entry.file)) throw new Error("Invalid experimental JAR filename");
+  const data = fs.readFileSync(path.join(glowDownloads, entry.file));
+  if (createHash("sha256").update(data).digest("hex") !== entry.sha256) throw new Error(`Experimental JAR checksum mismatch: ${entry.file}`);
+  fs.writeFileSync(path.join(glowOut, entry.file), data);
+}
+fs.copyFileSync(path.join(glowDownloads, "glowing-eyes-experimental-source.zip"), path.join(glowOut, "glowing-eyes-experimental-source.zip"));
 await bundle({ entryPoints: [path.join(here, "messages.js")], outfile: path.join(out, "messages.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
 await bundle({ entryPoints: [path.join(here, "profiles.js")], outfile: path.join(out, "profiles.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
 await bundle({ entryPoints: [path.join(here, "project-locks.js")], outfile: path.join(out, "project-locks.bundle.js"), bundle: true, minify: true, format: "iife", target: "es2020" });
@@ -703,14 +716,15 @@ write("editor/index.html", page({
 </div></section>
 
 
-<section class="text-card glow-downloads" id="glowing-eyes-downloads" aria-labelledby="glow-download-title">
+<section class="text-card glow-downloads" id="glowing-eyes-downloads" aria-labelledby="glow-download-title" data-experimental-builds="${esc(JSON.stringify(glowExperimental))}">
   <h2 id="glow-download-title">Download Glowing Eyes</h2>
   <p><strong>Skin Eye Editor integration build ${esc(glowRelease.integrationBuild)}.</strong> The separate upstream mod is <strong>Glowing Eyes ${esc(glowRelease.modVersion)}</strong> for <strong>Minecraft Java ${esc(glowRelease.minecraftVersion)}</strong>. These files are hosted by Modrinth, not built or hosted by Fresh Moves Fix.</p>
-  <p>Filter official Modrinth releases and separately labeled experimental Fabric builds by Minecraft version and platform. Your browser requests official releases from Modrinth; your skin and presets are not sent.</p>
+  <p>Filter official Modrinth releases and separately labeled experimental builds by Minecraft version and platform. Your browser requests official releases from Modrinth; your skin and presets are not sent.</p>
   <aside class="glow-experimental" aria-labelledby="glow-experimental-title">
     <h3 id="glow-experimental-title">Unofficial experimental builds</h3>
     <p><strong>Fabric:</strong> Minecraft 1.20.5 and 1.20.6; 26.1, 26.1.1, 26.1.2, 26.2 and 26.3. <strong>NeoForge:</strong> Minecraft 26.1, 26.1.1, 26.1.2, 26.2 and 26.3. These unofficial builds passed compilation and basic metadata checks, but have not been tested in Minecraft. The ports are unfinished; back up your files. Filter below to find each build.</p>
-    <p>Quilt and Forge builds, and NeoForge for 1.20.5/1.20.6, are not yet available from this project. GitHub Actions artifacts expire after 7 days and may require sign-in. Open the artifact ZIP and extract its JAR. <a href="${REPO}/actions/runs/45853964289" rel="noopener noreferrer">Fabric 1.20.x build ${ICON.ext}</a> · <a href="${REPO}/actions/runs/45896822544" rel="noopener noreferrer">Fabric 26.x build ${ICON.ext}</a> · <a href="${REPO}/actions/runs/45898373636" rel="noopener noreferrer">NeoForge 26.x build ${ICON.ext}</a>.</p>
+    <p>Choose your Minecraft version and platform below, then download the JAR directly. Install the matching loader and dependencies. Quilt and Forge builds, and NeoForge for 1.20.5/1.20.6, are not yet available from this project.</p>
+    <p><a href="../downloads/glowing-eyes/glowing-eyes-experimental-source.zip" download>Download experimental source and licenses</a> (LGPL-3.0-or-later).</p>
   </aside>
   <div class="glow-version-filters" id="glow-version-filters" data-project-game-versions="${esc(JSON.stringify(versions.map(v => v.mc)))}" hidden>
     <label>Search game version <input type="search" id="glow-version-search" placeholder="e.g. 1.21.11" autocomplete="off"></label>

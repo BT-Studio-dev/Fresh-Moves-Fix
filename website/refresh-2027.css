@@ -63,7 +63,7 @@ a.card:focus-visible, a.tool:focus-visible, a.project-card:focus-visible, .versi
 .glow-experimental p { margin: 8px 0; }
 .glow-experimental a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 .glow-version-experimental { border-color: var(--note-line); background: var(--note-bg); color: var(--note-text); }
-.glow-version-experimental .glow-version-meta, .glow-version-experimental small { color: inherit; }
+.glow-version-experimental .glow-version-meta, .glow-version-experimental small { color: inherit; overflow-wrap: anywhere; }
 .glow-version-list:focus-visible { outline: 3px solid var(--fmf-focus); outline-offset: 3px; }
 [data-theme="minecraft"] .glow-experimental { border-radius: 3px; }
 /* The 3D library sets inline canvas dimensions; keep its aspect ratio inside

@@ -1,4 +1,4 @@
-// Official Modrinth releases and separately labeled, temporary FMF artifacts.
+// Official Modrinth releases and separately labeled FMF experimental JARs.
 // This browser never reads or changes the editor's skin or presets.
 (function () {
   const $ = id => document.getElementById(id);
@@ -6,30 +6,18 @@
   if (!root || !$('glow-version-list')) return;
   const isCurrent = () => $('glowing-eyes-downloads') === root;
   const endpoint = 'https://api.modrinth.com/v2/project/9i2aYUyi/version';
-  const repo = 'https://github.com/BT-Studio-dev/Fresh-Moves-Fix';
   const loaders = { fabric: 'Fabric', quilt: 'Quilt', neoforge: 'NeoForge', forge: 'Forge' };
-  // These are Actions artifacts, not published releases. They may require GitHub
-  // sign-in and expire; never offer an expired artifact as a download.
-  const experimental = [
-    { game: '1.20.5', run: '45853964289', artifact: '15135286464', expires: '2026-12-03T15:57:38Z', java: '21', workflow: '120' },
-    { game: '1.20.6', run: '45853964289', artifact: '15135276716', expires: '2026-12-03T15:57:38Z', java: '21', workflow: '120' },
-    { game: '26.1', run: '45896822544', artifact: '15153852633', expires: '2026-12-03T21:15:42Z', java: '25', workflow: '26' },
-    { game: '26.1.1', run: '45896822544', artifact: '15154810001', expires: '2026-12-03T21:15:46Z', java: '25', workflow: '26' },
-    { game: '26.1.2', run: '45896822544', artifact: '15154281481', expires: '2026-12-03T21:15:47Z', java: '25', workflow: '26' },
-    { game: '26.2', run: '45896822544', artifact: '15154535769', expires: '2026-12-03T21:15:53Z', java: '25', workflow: '26' },
-    { game: '26.3', run: '45896822544', artifact: '15153847832', expires: '2026-12-03T21:16:04Z', java: '25', workflow: '26' },
-    { game: '26.1', run: '45898373636', artifact: '15154169529', expires: '2026-12-03T21:29:18Z', java: '25', workflow: 'neoforge-26', loader: 'neoforge', neo: '26.1.0.19-beta or newer' },
-    { game: '26.1.1', run: '45898373636', artifact: '15153883922', expires: '2026-12-03T21:29:37Z', java: '25', workflow: 'neoforge-26', loader: 'neoforge', neo: '26.1.1.15-beta or newer' },
-    { game: '26.1.2', run: '45898373636', artifact: '15153868901', expires: '2026-12-03T21:29:22Z', java: '25', workflow: 'neoforge-26', loader: 'neoforge', neo: '26.1.2.114 or newer' },
-    { game: '26.2', run: '45898373636', artifact: '15154956728', expires: '2026-12-03T21:29:21Z', java: '25', workflow: 'neoforge-26', loader: 'neoforge', neo: '26.2.0.88 or newer' },
-    { game: '26.3', run: '45898373636', artifact: '15154742297', expires: '2026-12-03T21:29:47Z', java: '25', workflow: 'neoforge-26', loader: 'neoforge', neo: '26.3.0.22-beta or newer' }
-  ];
+  // Build metadata is embedded in the generated page after checksum verification.
+  let experimental = [];
+  try {
+    const data = JSON.parse(root.dataset.experimentalBuilds || '[]');
+    if (Array.isArray(data)) experimental = data.filter(v => v && /^(fabric|neoforge)$/.test(v.loader) && /^\d+(?:\.\d+){1,2}$/.test(v.game) && v.file === `glowing-eyes-fmf-${v.loader}-${v.game}-experimental.jar` && /^[a-f0-9]{64}$/.test(v.sha256));
+  } catch (_) {}
   let versions = [], games = [], supportedGames = new Set(), request = 0, state = 'loading';
   let projectGames = [];
   try { const data = JSON.parse($('glow-version-filters').dataset.projectGameVersions || '[]'); if (Array.isArray(data)) projectGames = data.filter(x => typeof x === 'string' && /^\d+(?:\.\d+){1,2}$/.test(x)); } catch (_) {}
   const status = message => { $('glow-versions-status').textContent = message; };
   const make = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; };
-  const artifactAvailable = build => Date.now() < Date.parse(build.expires);
   function trustedFile(version) {
     if (!/^[a-zA-Z0-9]+$/.test(version.id || '')) return null;
     const file = Array.isArray(version.files) && version.files.find(f => f && f.primary === true);
@@ -62,10 +50,7 @@
     for (const game of shown) {
       const builds=experimental.filter(v=>v.game===game);
       let label=game;
-      if (builds.length) {
-        const available=builds.filter(artifactAvailable);
-        label += available.length ? ` — experimental ${available.map(v=>loaders[v.loader || 'fabric']).join(' / ')} build${available.length === 1 ? '' : 's'}` : ' — experimental artifacts expired';
-      }
+      if (builds.length) label += ` — experimental ${builds.map(v=>loaders[v.loader]).join(' / ')} build${builds.length === 1 ? '' : 's'}`;
       if (state === 'ready' && !supportedGames.has(game)) label += ' (no official release)';
       const option=make('option',label); option.value=game; sel.appendChild(option);
     }
@@ -86,11 +71,12 @@
       card.append(make('strong','Unofficial experimental Glowing Eyes'), make('span',`${v.game} · ${platform} · Java ${v.java}`, 'glow-version-meta'), make('small','Compiled and checked for basic metadata only. Not tested in Minecraft; back up your files.'));
       if (v.neo) card.append(make('small',`Requires NeoForge ${v.neo} for Minecraft ${v.game}.`));
       const actions=make('div',null,'glow-version-actions');
-      if (artifactAvailable(v)) {
-        const download=make('a','Open artifact ZIP','btn'); download.href=`${repo}/actions/runs/${v.run}/artifacts/${v.artifact}`; download.rel='noopener noreferrer'; download.setAttribute('aria-label',`Open experimental ${platform} artifact ZIP for Minecraft ${v.game}`); actions.append(download);
-        card.append(make('small','GitHub sign-in may be required. Extract the JAR from the ZIP; artifacts expire after 7 days.'));
-      } else card.append(make('small','This temporary artifact has expired. Check the workflow for a newer successful build.'));
-      const details=make('a',artifactAvailable(v) ? 'Build details' : 'Find a newer build'); details.href=artifactAvailable(v) ? `${repo}/actions/runs/${v.run}` : `${repo}/actions/workflows/glowing-eyes-${v.workflow}.yml`; details.rel='noopener noreferrer'; actions.append(details);
+      const download=make('a','Download JAR','btn');
+      download.href=`../downloads/glowing-eyes/${v.file}`;
+      download.download=v.file;
+      download.setAttribute('aria-label',`Download experimental ${platform} JAR for Minecraft ${v.game}`);
+      actions.append(download);
+      card.append(make('small', `SHA-256: ${v.sha256}`));
       card.append(actions); list.append(card);
     }
     for (const v of matching) {
