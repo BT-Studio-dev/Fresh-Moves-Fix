@@ -10,8 +10,9 @@ Changes: merged upstream common and Fabric sources into a Fabric-only build,
 updated the build target/dependencies and metadata to Minecraft 26.x / Java 25,
 adapted the Fabric client command and key registration API, and disabled
 upstream Flashback, ReplayMod, and Wildfire Gender compat code,
-which still targets older Minecraft APIs. Further API and runtime porting is
-required. Nothing here asserts that the resulting mod compiles or works in game.
+which still targets older Minecraft APIs. The 26.1, 26.1.1 and 26.1.2 targets
+have compiled in GitHub Actions; further API porting is required for 26.2 and
+26.3. No target has been verified to work in game.
 
 Shared 26.1.2 GUI, shader and render-pipeline adaptations were taken from
 [steelsicarius/GlowingEyes-Neoforge-26.1.2-unofficial-port](https://github.com/steelsicarius/GlowingEyes-Neoforge-26.1.2-unofficial-port),

@@ -711,7 +711,9 @@ write("editor/index.html", page({
     <h3 id="glow-experimental-title">Unofficial experimental builds</h3>
     <p><strong>Fabric · Minecraft 1.20.5 and 1.20.6:</strong> Fresh Moves Fix builds have passed compilation and basic metadata checks, but have not been tested in Minecraft. Back up your files before trying them.</p>
     <p><a href="${REPO}/actions/runs/45853964289" rel="noopener noreferrer">View successful build and temporary artifacts on GitHub ${ICON.ext}</a> (GitHub sign-in may be required; artifacts expire after 7 days).</p>
-    <p><strong>Minecraft 26.1–26.3:</strong> the port is unfinished and does not currently build. No 26.x JAR is available. <a href="${REPO}/pull/77" rel="noopener noreferrer">See development status ${ICON.ext}</a>.</p>
+    <p><strong>Fabric · Minecraft 26.1, 26.1.1 and 26.1.2:</strong> unofficial builds compiled and passed basic metadata checks, but have <strong>not been tested in Minecraft</strong>. Back up your files; they are not official releases.</p>
+    <p>Temporary GitHub Actions artifacts (sign-in may be required; artifacts expire after 7 days): <a href="${REPO}/actions/runs/45891971875/artifacts/15151434010" rel="noopener noreferrer">26.1 ${ICON.ext}</a> · <a href="${REPO}/actions/runs/45891971875/artifacts/15151852156" rel="noopener noreferrer">26.1.1 ${ICON.ext}</a> · <a href="${REPO}/actions/runs/45891971875/artifacts/15151697873" rel="noopener noreferrer">26.1.2 ${ICON.ext}</a>. Download the ZIP and extract its JAR. <a href="${REPO}/actions/runs/45891971875" rel="noopener noreferrer">View build run ${ICON.ext}</a>.</p>
+    <p><strong>Minecraft 26.2 and 26.3:</strong> the port is unfinished and does not currently compile; no project-built JAR is available for either. <a href="${REPO}/pull/77" rel="noopener noreferrer">See development status ${ICON.ext}</a>.</p>
   </aside>
   <div class="glow-version-filters" id="glow-version-filters" data-project-game-versions="${esc(JSON.stringify(versions.map(v => v.mc)))}" hidden>
     <label>Search game version <input type="search" id="glow-version-search" placeholder="e.g. 1.21.11" autocomplete="off"></label>
