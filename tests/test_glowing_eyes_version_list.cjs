@@ -8,7 +8,7 @@ const tick=()=>new Promise(resolve=>setTimeout(resolve,0));
  w.fetch=async url=>{called=url;if(fail)throw Error('offline');return {ok:true,json:async()=>sample}};
  w.eval(script);await tick();await tick();
  assert.equal(called,'https://api.modrinth.com/v2/project/9i2aYUyi/version');assert(!$('glow-version-filters').hidden);assert($('glow-version-fallback').hidden);assert.equal(d.querySelectorAll('.glow-version-row').length,4,'untrusted downloads excluded');
- const options=[...$('glow-game-version').options]; assert(options.find(x=>x.value==='26.3').textContent.includes('no Glowing Eyes release')); assert(options.find(x=>x.value==='1.21.11').textContent==='1.21.11'); assert(options.find(x=>x.value==='1.12.2')); assert(options.findIndex(x=>x.value==='26.3')<options.findIndex(x=>x.value==='1.21.11'));
+ const options=[...$('glow-game-version').options]; assert(options.find(x=>x.value==='26.3').textContent.includes('no official Glowing Eyes release')); assert(options.find(x=>x.value==='1.21.11').textContent==='1.21.11'); assert(options.find(x=>x.value==='1.12.2')); assert(options.findIndex(x=>x.value==='26.3')<options.findIndex(x=>x.value==='1.21.11'));
  const set=(id,value,event='change')=>{$(id).value=value;$(id).dispatchEvent(new w.Event(event,{bubbles:true}));};
  set('glow-game-version','1.21.11');set('glow-loader','fabric');assert.equal(d.querySelectorAll('.glow-version-row').length,1);assert.match($('glow-version-list').textContent,/Fabric \/ Quilt/);
  assert.equal(d.querySelector('.glow-version-row a.btn').href,'https://cdn.modrinth.com/data/9i2aYUyi/versions/FAB121/glowingeyes.jar');

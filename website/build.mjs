@@ -110,6 +110,7 @@ document.documentElement.setAttribute("data-music-button",mb==="off"?"off":"on")
 <meta name="apple-mobile-web-app-title" content="Fresh Moves Fix">
 <link rel="stylesheet" href="${up}style.css?v=${ver("style.css")}">
 <link rel="stylesheet" href="${up}refresh-2026.css?v=${ver("refresh-2026.css")}">
+<link rel="stylesheet" href="${up}refresh-2027.css?v=${ver("refresh-2027.css")}">
 </head>
 <body${active === "account" ? ' class="account-page"' : ""}>
 <header class="top"><div class="bar">
@@ -164,6 +165,7 @@ ${body}
     </div>
   </div>
   <p class="legal">Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.</p>
+  <p class="design-edition">2027 design edition</p>
 </div></footer>
 <script src="${up}i18n.js?v=${ver("i18n.js")}"></script>
 <script src="${up}music.js?v=${ver("music.js")}"></script>
@@ -221,6 +223,7 @@ for (const f of ["icon-skin.png", "icon-title.png", "icon-alex.png", "icon-dummy
 fs.copyFileSync(path.join(here, "style.css"), path.join(out, "style.css"));
 for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner-profile.png", "owner-skin.png", "emf-icon.png", "etf-icon.png"]) fs.copyFileSync(path.join(here, f), path.join(out, f));
 fs.copyFileSync(path.join(here, "refresh-2026.css"), path.join(out, "refresh-2026.css"));
+fs.copyFileSync(path.join(here, "refresh-2027.css"), path.join(out, "refresh-2027.css"));
 fs.copyFileSync(path.join(here, "enhancements.js"), path.join(out, "enhancements.js"));
 fs.copyFileSync(path.join(here, "help.js"), path.join(out, "help.js"));
 fs.copyFileSync(path.join(here, "context-menu.js"), path.join(out, "context-menu.js"));
@@ -695,7 +698,13 @@ write("editor/index.html", page({
 <section class="text-card glow-downloads" id="glowing-eyes-downloads" aria-labelledby="glow-download-title">
   <h2 id="glow-download-title">Download Glowing Eyes</h2>
   <p><strong>Skin Eye Editor integration build ${esc(glowRelease.integrationBuild)}.</strong> The separate upstream mod is <strong>Glowing Eyes ${esc(glowRelease.modVersion)}</strong> for <strong>Minecraft Java ${esc(glowRelease.minecraftVersion)}</strong>. These files are hosted by Modrinth, not built or hosted by Fresh Moves Fix.</p>
-  <p>Browse versions and platforms from Modrinth. Project game versions without a Glowing Eyes release are labeled. Your browser requests the release list from Modrinth; your skin and presets are not sent.</p>
+  <p>Browse official versions and platforms from Modrinth. Project game versions without an official Glowing Eyes release are labeled. Your browser requests the release list from Modrinth; your skin and presets are not sent.</p>
+  <aside class="glow-experimental" aria-labelledby="glow-experimental-title">
+    <h3 id="glow-experimental-title">Unofficial experimental builds</h3>
+    <p><strong>Fabric · Minecraft 1.20.5 and 1.20.6:</strong> Fresh Moves Fix builds have passed compilation and basic metadata checks, but have not been tested in Minecraft. Back up your files before trying them.</p>
+    <p><a href="${REPO}/actions/runs/45853964289" rel="noopener noreferrer">View successful build and temporary artifacts on GitHub ${ICON.ext}</a> (GitHub sign-in may be required; artifacts expire after 7 days).</p>
+    <p><strong>Minecraft 26.1–26.3:</strong> the port is unfinished and does not currently build. No 26.x JAR is available. <a href="${REPO}/pull/77" rel="noopener noreferrer">See development status ${ICON.ext}</a>.</p>
+  </aside>
   <div class="glow-version-filters" id="glow-version-filters" data-project-game-versions="${esc(JSON.stringify(versions.map(v => v.mc)))}" hidden>
     <label>Search game version <input type="search" id="glow-version-search" placeholder="e.g. 1.21.11" autocomplete="off"></label>
     <label>Game version <select id="glow-game-version"><option value="">All game versions</option></select></label>

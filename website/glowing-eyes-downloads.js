@@ -38,7 +38,7 @@
     const sel=$('glow-game-version'), selected=sel.value, query=$('glow-version-search').value.trim().toLowerCase();
     sel.replaceChildren(); const all=make('option','All game versions'); all.value=''; sel.appendChild(all);
     const shown=games.filter(g=>g.toLowerCase().includes(query));
-    for (const game of shown) { const option=make('option',supportedGames.has(game) ? game : `${game} — no Glowing Eyes release`); option.value=game; sel.appendChild(option); }
+    for (const game of shown) { const option=make('option',supportedGames.has(game) ? game : `${game} — no official Glowing Eyes release`); option.value=game; sel.appendChild(option); }
     if (shown.includes(selected)) sel.value=selected;
     return query && !shown.length;
   }

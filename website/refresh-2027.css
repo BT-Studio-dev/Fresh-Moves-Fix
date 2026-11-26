@@ -1,0 +1,73 @@
+/* 2027 design edition: theme-aware surfaces; functionality stays in the existing scripts. */
+:root {
+  --edition-surface: color-mix(in srgb, var(--panel) 95%, var(--accent) 5%);
+  --edition-border: color-mix(in srgb, var(--line) 80%, var(--accent) 20%);
+  --edition-shadow: 0 12px 32px rgba(0, 0, 0, .10);
+}
+
+/* Shared shell */
+header.top { border-bottom: 1px solid var(--edition-border); }
+header.top .brand img { border: 1px solid var(--edition-border); }
+header.top nav a { transition: color .16s ease, background-color .16s ease; }
+header.top nav a.on { box-shadow: inset 0 -2px 0 var(--accent); }
+footer { border-color: var(--edition-border); }
+footer .design-edition { color: var(--muted); font-size: .8rem; letter-spacing: .02em; margin: 12px 0 0; }
+
+/* Hero and section headings */
+.home-hero, .projects-heading, .tool-page-intro, .profile-welcome {
+  background: linear-gradient(135deg, var(--edition-surface), var(--panel) 60%);
+  border-color: var(--edition-border);
+  box-shadow: var(--edition-shadow);
+}
+.home-hero { border-radius: 20px; }
+.home-hero .hero-kicker, .home-eyebrow { letter-spacing: .14em; }
+.home-hero .hero-lead { letter-spacing: -.025em; }
+.home-heading { background: var(--edition-surface); border-color: var(--edition-border); }
+
+/* A consistent visual language for navigational and workspace cards. No clipping
+   or transforms on editor panels, so menus, canvases and colour pickers work. */
+.card, a.tool, .project-card, .text-card, .ed .panel.ecard,
+.set .menu, .set .box, .editor-info-card, .versions a.ver,
+.versions .ver.locked, .glow-version-row, .glow-download-option {
+  border-color: var(--edition-border);
+  box-shadow: var(--edition-shadow);
+}
+.card, a.tool, .project-card, .text-card, .ed .panel.ecard,
+.set .menu, .set .box, .editor-info-card { border-radius: 16px; }
+.cards, .tools { gap: 16px; }
+a.card, a.tool, a.project-card, .versions a.ver {
+  transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
+}
+a.card:hover, a.tool:hover, a.project-card:hover, .versions a.ver:hover {
+  border-color: var(--accent);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+a.card:focus-visible, a.tool:focus-visible, a.project-card:focus-visible, .versions a.ver:focus-visible {
+  outline: 3px solid var(--fmf-focus); outline-offset: 3px; border-color: var(--accent);
+}
+.ed .panel.ecard:focus-within, .set .box:focus-within { border-color: var(--accent); }
+.card h3, .tool-head b, .project-card h2 { letter-spacing: -.015em; }
+.tool-ic { border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); }
+.btn { border-radius: 10px; }
+.btn:focus-visible { outline: 3px solid var(--fmf-focus); outline-offset: 3px; }
+
+/* Keep the deliberately square Minecraft theme and its existing pixel styling. */
+[data-theme="minecraft"] :is(.home-hero, .projects-heading, .tool-page-intro,
+.profile-welcome, .home-heading, .card, a.tool, .project-card, .text-card,
+.ed .panel.ecard, .set .menu, .set .box, .editor-info-card, .versions a.ver,
+.versions .ver.locked, .glow-version-row, .glow-download-option, .btn) { border-radius: 3px; }
+
+/* Unofficial builds remain separate from upstream releases. */
+.glow-experimental { margin: 20px 0; padding: 16px; border: 1px solid var(--note-line); border-radius: 12px; background: var(--note-bg); color: var(--note-text); }
+.glow-experimental h3 { margin: 0 0 8px; font-size: 1rem; }
+.glow-experimental p { margin: 8px 0; }
+.glow-experimental a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+[data-theme="minecraft"] .glow-experimental { border-radius: 3px; }
+
+@media (max-width: 560px) {
+  .home-hero { border-radius: 14px; }
+  .card, a.tool, .project-card, .text-card, .ed .panel.ecard { border-radius: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  header.top nav a, a.card, a.tool, a.project-card, .versions a.ver { transition: none; }
+}
