@@ -1530,3 +1530,13 @@ body footer .cols a .ic { opacity: 1; }
 .glow-downloads details code { overflow-wrap: anywhere; word-break: break-all; }
 .glow-downloads summary { cursor: pointer; }
 @media (max-width: 650px) { .glow-download-links { grid-template-columns: minmax(0, 1fr); } }
+.glow-version-filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 16px 0; }
+.glow-version-filters[hidden] { display: none; }
+.glow-version-filters label { display: flex; flex-direction: column; gap: 5px; min-width: 0; color: var(--muted); font-size: .9rem; }
+.glow-version-filters input, .glow-version-filters select { width: 100%; min-width: 0; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); font: inherit; }
+.glow-version-list { display: grid; gap: 8px; max-height: 560px; overflow-y: auto; }
+.glow-version-row { display: grid; gap: 4px; padding: 12px; border: 1px solid var(--line); border-radius: 9px; }
+.glow-version-meta, .glow-version-row small { color: var(--muted); overflow-wrap: anywhere; }
+.glow-version-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 6px; }
+.glow-downloads [hidden] { display: none !important; }
+@media (max-width: 650px) { .glow-version-filters { grid-template-columns: minmax(0, 1fr); } }

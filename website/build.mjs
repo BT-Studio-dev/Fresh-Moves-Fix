@@ -417,6 +417,7 @@ write("keybinds/index.html", page({ title: "Keybinds - Fresh Moves Fix", active:
 const skinData = (p) => "data:image/png;base64," + fs.readFileSync(path.join(root, "assets/minecraft/textures/entity/player", p)).toString("base64");
 fs.copyFileSync(path.join(here, "editor.js"), path.join(out, "editor.js"));
 fs.copyFileSync(path.join(here, "mod-eye-tools.js"), path.join(out, "mod-eye-tools.js"));
+fs.copyFileSync(path.join(here, "glowing-eyes-downloads.js"), path.join(out, "glowing-eyes-downloads.js"));
 fs.copyFileSync(path.join(here, "eye-detect.js"), path.join(out, "eye-detect.js"));
 fs.copyFileSync(path.join(here, "paint.js"), path.join(out, "paint.js"));
 fs.copyFileSync(path.join(here, "render.js"), path.join(out, "render.js"));
@@ -694,12 +695,21 @@ write("editor/index.html", page({
 <section class="text-card glow-downloads" id="glowing-eyes-downloads" aria-labelledby="glow-download-title">
   <h2 id="glow-download-title">Download Glowing Eyes</h2>
   <p><strong>Skin Eye Editor integration build ${esc(glowRelease.integrationBuild)}.</strong> The separate upstream mod is <strong>Glowing Eyes ${esc(glowRelease.modVersion)}</strong> for <strong>Minecraft Java ${esc(glowRelease.minecraftVersion)}</strong>. These files are hosted by Modrinth, not built or hosted by Fresh Moves Fix.</p>
-  <div class="glow-download-links">
-    ${glowRelease.artifacts.map(a => `<div class="glow-download-option"><a class="btn" href="${esc(a.url)}" rel="noopener noreferrer">${ICON.down} ${esc(a.loader)} JAR</a><small>${esc(a.filename)}</small><a href="${esc(a.versionPage)}" rel="noopener noreferrer">Official version page ${ICON.ext}</a></div>`).join("")}
+  <p>Browse versions and platforms from Modrinth. Project game versions without a Glowing Eyes release are labeled. Your browser requests the release list from Modrinth; your skin and presets are not sent.</p>
+  <div class="glow-version-filters" id="glow-version-filters" data-project-game-versions="${esc(JSON.stringify(versions.map(v => v.mc)))}" hidden>
+    <label>Search game version <input type="search" id="glow-version-search" placeholder="e.g. 1.21.11" autocomplete="off"></label>
+    <label>Game version <select id="glow-game-version"><option value="">All game versions</option></select></label>
+    <label>Platform <select id="glow-loader"><option value="">All platforms</option><option value="fabric">Fabric</option><option value="quilt">Quilt</option><option value="neoforge">NeoForge</option><option value="forge">Forge</option></select></label>
   </div>
-  <p>Choose the JAR matching your loader and Minecraft version. Fabric / Quilt also needs <a href="https://modrinth.com/mod/fabric-api" rel="noopener noreferrer">Fabric API</a>; NeoForge requires NeoForge. Use Java 21 or newer. Put the JAR in your Minecraft <code>mods</code> folder. This is not a resource pack or a skin PNG, and has not been tested in-game by this project.</p>
+  <p id="glow-versions-status" role="status" aria-live="polite">Loading the Modrinth version list…</p>
+  <button type="button" class="btn ghost" id="glow-versions-retry" hidden>Retry version list</button>
+  <div id="glow-version-list" class="glow-version-list"></div>
+  <div id="glow-version-fallback"><p>Official 1.21.11 downloads (available even if the version list cannot load):</p><div class="glow-download-links">
+    ${glowRelease.artifacts.map(a => `<div class="glow-download-option"><a class="btn" href="${esc(a.url)}" rel="noopener noreferrer">${ICON.down} ${esc(a.loader)} JAR</a><small>${esc(a.filename)}</small><a href="${esc(a.versionPage)}" rel="noopener noreferrer">Official version page ${ICON.ext}</a></div>`).join("")}
+  </div></div>
+  <p>Choose the JAR matching your loader and Minecraft version. For Minecraft 1.21.11, Fabric / Quilt needs <a href="https://modrinth.com/mod/fabric-api" rel="noopener noreferrer">Fabric API</a> and Java 21 or newer. Requirements and preset formats for older releases can differ; check the official version page. Put the JAR in your Minecraft <code>mods</code> folder. These are separate third-party mods and have not been tested in-game by this project.</p>
   <p>These links do not install the mod or change your skin or presets. For multiplayer, follow the upstream requirements. <a href="${esc(glowRelease.project)}" rel="noopener noreferrer">Modrinth project</a> · <a href="${esc(glowRelease.source)}" rel="noopener noreferrer">Source used for format research</a></p>
-  <details><summary>SHA-512 checksums from Modrinth</summary><p>Published by Modrinth; the files were not downloaded or independently verified in this build environment.</p>${glowRelease.artifacts.map(a => `<p><b>${esc(a.loader)}</b><br><code>${esc(a.sha512)}</code></p>`).join("")}</details>
+  <details><summary>SHA-512 checksums for the pinned 1.21.11 files</summary><p>Published by Modrinth; the files were not downloaded or independently verified in this build environment.</p>${glowRelease.artifacts.map(a => `<p><b>${esc(a.loader)}</b><br><code>${esc(a.sha512)}</code></p>`).join("")}</details>
 </section>
 
 <section class="text-card" id="fmf-testing">
@@ -739,7 +749,7 @@ write("editor/index.html", page({
 </article></div>
 <script src="../skinview3d.bundle.js"></script>
 <script src="../player.js?v=${ver("player.js")}"></script>
-<script src="../mod-eye-tools.js?v=${ver("mod-eye-tools.js")}"></script><script src="../eye-detect.js?v=${ver("eye-detect.js")}"></script><script src="../je-thumbnails.js?v=${ver("je-thumbnails.js")}"></script><script src="../just-expressions-editor.js?v=${ver("just-expressions-editor.js")}"></script><script src="../editor.js?v=${ver("editor.js")}"></script>
+<script src="../glowing-eyes-downloads.js?v=${ver("glowing-eyes-downloads.js")}"></script><script src="../mod-eye-tools.js?v=${ver("mod-eye-tools.js")}"></script><script src="../eye-detect.js?v=${ver("eye-detect.js")}"></script><script src="../je-thumbnails.js?v=${ver("je-thumbnails.js")}"></script><script src="../just-expressions-editor.js?v=${ver("just-expressions-editor.js")}"></script><script src="../editor.js?v=${ver("editor.js")}"></script>
 <script src="../ui.js?v=${ver("ui.js")}"></script>
 <script src="../backdrop.js?v=${ver("backdrop.js")}"></script>`,
 }));
