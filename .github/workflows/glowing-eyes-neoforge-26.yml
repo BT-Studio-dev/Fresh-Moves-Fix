@@ -10,7 +10,7 @@ on:
       - 'glowing-eyes-neoforge-26/**'
       - '.github/workflows/glowing-eyes-neoforge-26.yml'
 permissions:
-  contents: read
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -97,18 +97,18 @@ jobs:
         if: github.event_name == 'push'
         env:
           MC_VERSION: ${{ matrix.minecraft }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           python3 - <<'PY'
-          import base64, os, pathlib
+          import base64, hashlib, json, os, pathlib
           version = os.environ['MC_VERSION']
           jar = pathlib.Path(f'glowing-eyes-neoforge-26/build/libs/glowing-eyes-fmf-neoforge-{version}-experimental.jar')
-          data = base64.b64encode(jar.read_bytes()).decode()
-          parts = [data[i:i+58000] for i in range(0, len(data), 58000)]
-          if len(parts) > 10:
-              raise SystemExit(f'JAR too large for annotation export: {len(parts)} parts')
-          for index, part in enumerate(parts):
-              print(f'::notice title=jar-neoforge-{version}-{index+1}-of-{len(parts)}::{part}')
+          data = jar.read_bytes()
+          pathlib.Path(os.environ['RUNNER_TEMP'], 'blob.json').write_text(json.dumps({'content':base64.b64encode(data).decode(), 'encoding':'base64'}))
+          pathlib.Path(os.environ['RUNNER_TEMP'], 'sha256.txt').write_text(hashlib.sha256(data).hexdigest())
           PY
+          blob=$(gh api --method POST "repos/$GITHUB_REPOSITORY/git/blobs" --input "$RUNNER_TEMP/blob.json" --jq .sha)
+          echo "::notice title=jar-neoforge-$MC_VERSION::$blob $(cat "$RUNNER_TEMP/sha256.txt")"
       - uses: actions/upload-artifact@v4
         with:
           name: glowing-eyes-fmf-neoforge-${{ matrix.minecraft }}-experimental
