@@ -4,9 +4,7 @@
   if (!$('glow-version-list')) return;
   const endpoint = 'https://api.modrinth.com/v2/project/9i2aYUyi/version';
   const loaders = { fabric: 'Fabric', quilt: 'Quilt', neoforge: 'NeoForge', forge: 'Forge' };
-  let versions = [], games = [], supportedGames = new Set(), request = 0;
-  let projectGames = [];
-  try { const data = JSON.parse($('glow-version-filters').dataset.projectGameVersions || '[]'); if (Array.isArray(data)) projectGames = data.filter(x => typeof x === 'string' && /^\d+(?:\.\d+){1,2}$/.test(x)); } catch (_) {}
+  let versions = [], games = [], request = 0;
   const status = message => { $('glow-versions-status').textContent = message; };
   const make = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; };
   function trustedFile(version) {
@@ -38,7 +36,7 @@
     const sel=$('glow-game-version'), selected=sel.value, query=$('glow-version-search').value.trim().toLowerCase();
     sel.replaceChildren(); const all=make('option','All game versions'); all.value=''; sel.appendChild(all);
     const shown=games.filter(g=>g.toLowerCase().includes(query));
-    for (const game of shown) { const option=make('option',supportedGames.has(game) ? game : `${game} — no Glowing Eyes release`); option.value=game; sel.appendChild(option); }
+    for (const game of shown) { const option=make('option',game); option.value=game; sel.appendChild(option); }
     if (shown.includes(selected)) sel.value=selected;
     return query && !shown.length;
   }
@@ -66,7 +64,7 @@
       if (!response.ok) throw new Error('Request failed');
       const result=normalize(await response.json()); if (token!==request) return;
       if (!result.length) throw new Error('No usable releases');
-      versions=result; supportedGames=new Set(result.flatMap(v=>v.gameVersions)); games=[...new Set([...supportedGames,...projectGames])].sort(compareGame);
+      versions=result; games=[...new Set(result.flatMap(v=>v.gameVersions))].sort(compareGame);
       $('glow-version-fallback').hidden=true; $('glow-version-filters').hidden=false; render();
     } catch (_) {
       if (token!==request) return;

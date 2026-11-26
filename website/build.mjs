@@ -695,8 +695,8 @@ write("editor/index.html", page({
 <section class="text-card glow-downloads" id="glowing-eyes-downloads" aria-labelledby="glow-download-title">
   <h2 id="glow-download-title">Download Glowing Eyes</h2>
   <p><strong>Skin Eye Editor integration build ${esc(glowRelease.integrationBuild)}.</strong> The separate upstream mod is <strong>Glowing Eyes ${esc(glowRelease.modVersion)}</strong> for <strong>Minecraft Java ${esc(glowRelease.minecraftVersion)}</strong>. These files are hosted by Modrinth, not built or hosted by Fresh Moves Fix.</p>
-  <p>Browse versions and platforms from Modrinth. Project game versions without a Glowing Eyes release are labeled. Your browser requests the release list from Modrinth; your skin and presets are not sent.</p>
-  <div class="glow-version-filters" id="glow-version-filters" data-project-game-versions="${esc(JSON.stringify(versions.map(v => v.mc)))}" hidden>
+  <p>Browse versions and platforms from Modrinth. Only game versions with an official Glowing Eyes download are listed. Your browser requests the release list from Modrinth; your skin and presets are not sent.</p>
+  <div class="glow-version-filters" id="glow-version-filters" hidden>
     <label>Search game version <input type="search" id="glow-version-search" placeholder="e.g. 1.21.11" autocomplete="off"></label>
     <label>Game version <select id="glow-game-version"><option value="">All game versions</option></select></label>
     <label>Platform <select id="glow-loader"><option value="">All platforms</option><option value="fabric">Fabric</option><option value="quilt">Quilt</option><option value="neoforge">NeoForge</option><option value="forge">Forge</option></select></label>
