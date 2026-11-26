@@ -88,6 +88,11 @@ jobs:
               assert 'experimental' in meta['name'].lower()
               assert 'NOTICE.md' in jar.namelist()
               assert any(x.endswith('GlowingEyesClient.class') for x in jar.namelist())
+              widener = jar.read(meta['accessWidener']).decode()
+              pipeline = 'com/mojang/renderpearl/api/pipeline/RenderPipeline' if version == '26.3' else 'com/mojang/blaze3d/pipeline/RenderPipeline'
+              texture = 'com/mojang/renderpearl/backend/common/BaseGpuTexture' if version == '26.3' else 'com/mojang/blaze3d/textures/GpuTexture'
+              assert pipeline in widener and texture in widener
+              assert ('Minecraft$GameLoadCookie' in widener) == (version.startswith('26.1'))
           PY
       - uses: actions/upload-artifact@v4
         with:

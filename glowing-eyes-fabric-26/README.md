@@ -8,12 +8,10 @@ skin editor. Do not use on worlds or servers without backups.
 The GitHub Actions workflow `Build experimental Glowing Eyes 26.x` attempts to
 build 26.1, 26.1.1, 26.1.2, 26.2 and 26.3 separately from this directory
 with Java 25 and uploads each experimental JAR only if compilation and basic
-metadata checks pass. [This run](https://github.com/BT-Studio-dev/Fresh-Moves-Fix/actions/runs/45891971875)
-built 26.1, 26.1.1 and 26.1.2; its artifacts expire after 7 days and may require
-GitHub sign-in. The 26.2 and 26.3 targets still fail compilation; no project-built
-JAR is available for either. In particular 26.2 changed Minecraft's GUI, entity
-and graphics APIs, and 26.3 additionally moved graphics and input APIs. These
-still need porting. **None of the 26.x builds has been tested in Minecraft.**
+metadata checks pass. [This run](https://github.com/BT-Studio-dev/Fresh-Moves-Fix/actions/runs/45896822544)
+built all five targets; its artifacts expire after 7 days and may require GitHub
+sign-in. The 26.2 and 26.3 versions use version-specific adaptations for GUI,
+entity, graphics and input APIs. **None of the 26.x builds has been tested in Minecraft.**
 Client, dedicated-server, preset, rendering, mixin and multiplayer tests are
 still needed; a successful build alone does not prove the mod works. No
 Modrinth publication or GitHub release is performed by this workflow.

@@ -13,9 +13,11 @@
   const experimental = [
     { game: '1.20.5', run: '45853964289', artifact: '15135286464', expires: '2026-12-03T15:57:38Z', java: '21', workflow: '120' },
     { game: '1.20.6', run: '45853964289', artifact: '15135276716', expires: '2026-12-03T15:57:38Z', java: '21', workflow: '120' },
-    { game: '26.1', run: '45891971875', artifact: '15151434010', expires: '2026-12-03T20:34:45Z', java: '25', workflow: '26' },
-    { game: '26.1.1', run: '45891971875', artifact: '15151852156', expires: '2026-12-03T20:34:43Z', java: '25', workflow: '26' },
-    { game: '26.1.2', run: '45891971875', artifact: '15151697873', expires: '2026-12-03T20:34:40Z', java: '25', workflow: '26' }
+    { game: '26.1', run: '45896822544', artifact: '15153852633', expires: '2026-12-03T21:15:42Z', java: '25', workflow: '26' },
+    { game: '26.1.1', run: '45896822544', artifact: '15154810001', expires: '2026-12-03T21:15:46Z', java: '25', workflow: '26' },
+    { game: '26.1.2', run: '45896822544', artifact: '15154281481', expires: '2026-12-03T21:15:47Z', java: '25', workflow: '26' },
+    { game: '26.2', run: '45896822544', artifact: '15154535769', expires: '2026-12-03T21:15:53Z', java: '25', workflow: '26' },
+    { game: '26.3', run: '45896822544', artifact: '15153847832', expires: '2026-12-03T21:16:04Z', java: '25', workflow: '26' }
   ];
   let versions = [], games = [], supportedGames = new Set(), request = 0, state = 'loading';
   let projectGames = [];

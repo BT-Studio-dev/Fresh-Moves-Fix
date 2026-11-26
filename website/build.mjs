@@ -676,7 +676,7 @@ write("editor/index.html", page({
 <h2 id="mod-tools-title">Reactions &amp; Glowing Eyes</h2>
 <p><a href="#glowing-eyes-downloads">Download the Glowing Eyes mod</a></p>
 <p>Use these tools alongside either skin editor mode. These mods use settings separate from your skin PNG; the tools do not add marker pixels or simulate the mods. Fresh Moves and Just Expressions can use overlapping skin pixels, so keep backups when switching. In-game rendering together is not verified.</p>
-<p><b>Version check:</b> Glowing Eyes 2.1.3 is listed for Minecraft 1.21.11, not 26.3. Use matching mod and loader versions; a Reactions 26.3 build does not make Glowing Eyes available for 26.3.</p>
+<p><b>Version check:</b> Official Glowing Eyes 2.1.3 is listed for Minecraft 1.21.11, not 26.3. A separate unofficial experimental Fabric build for 26.3 is linked below, but has not been tested in Minecraft. Use matching mod and loader versions.</p>
 <div class="mod-card-list">
 <details class="mod-tool-card" id="reactions-card"><summary><span class="mod-card-icon" aria-hidden="true">${ICON.eye}</span><span><b>Reactions</b><small>Eye placement &amp; settings</small></span><span class="mod-card-badge">CONFIG</span></summary><div class="mod-card-body">
 <p>Choose a layer and click the top-left pixel of each eye. Use the matching face squares, layers and eye size in Reactions Settings in Minecraft, or import and update an existing Reactions configuration below.</p>
@@ -709,9 +709,8 @@ write("editor/index.html", page({
   <p>Filter official Modrinth releases and separately labeled experimental Fabric builds by Minecraft version and platform. Your browser requests official releases from Modrinth; your skin and presets are not sent.</p>
   <aside class="glow-experimental" aria-labelledby="glow-experimental-title">
     <h3 id="glow-experimental-title">Unofficial experimental builds</h3>
-    <p><strong>Fabric · Minecraft 1.20.5 and 1.20.6; 26.1, 26.1.1 and 26.1.2:</strong> these unofficial builds passed compilation and basic metadata checks, but have not been tested in Minecraft. Back up your files before trying them. Filter below to find each build.</p>
-    <p>GitHub Actions artifacts expire after 7 days and may require sign-in. Open the artifact ZIP and extract its JAR. <a href="${REPO}/actions/runs/45853964289" rel="noopener noreferrer">1.20.x build run ${ICON.ext}</a> · <a href="${REPO}/actions/runs/45891971875" rel="noopener noreferrer">26.1.x build run ${ICON.ext}</a>.</p>
-    <p><strong>Minecraft 26.2 and 26.3:</strong> the port is unfinished and does not currently compile; no project-built JAR is available for either. <a href="${REPO}/pull/77" rel="noopener noreferrer">See development status ${ICON.ext}</a>.</p>
+    <p><strong>Fabric · Minecraft 1.20.5 and 1.20.6; 26.1, 26.1.1, 26.1.2, 26.2 and 26.3:</strong> these unofficial builds passed compilation and basic metadata checks, but have not been tested in Minecraft. The port is unfinished. Back up your files before trying them. Filter below to find each build.</p>
+    <p>GitHub Actions artifacts expire after 7 days and may require sign-in. Open the artifact ZIP and extract its JAR. <a href="${REPO}/actions/runs/45853964289" rel="noopener noreferrer">1.20.x build run ${ICON.ext}</a> · <a href="${REPO}/actions/runs/45896822544" rel="noopener noreferrer">26.x build run ${ICON.ext}</a>.</p>
   </aside>
   <div class="glow-version-filters" id="glow-version-filters" data-project-game-versions="${esc(JSON.stringify(versions.map(v => v.mc)))}" hidden>
     <label>Search game version <input type="search" id="glow-version-search" placeholder="e.g. 1.21.11" autocomplete="off"></label>
