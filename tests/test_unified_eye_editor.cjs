@@ -111,7 +111,7 @@ function setup(query = '', withViewer = false) {
  const set=(id,value,type='change')=>{const el=d.getElementById(id);el.value=value;el.dispatchEvent(new w.Event(type,{bubbles:true}));};
  set('je-eye-white','#234567','input');set('je-eye-pupil','#234567','input');set('je-brow-color','#234567','input');set('je-eye-shape','standard');const eyes=Array.from(w.JustExpressionsEditor.getSkin());
  for(const value of Array.from(d.getElementById('je-brow').options).map(o=>o.value).filter(v=>v!=='keep')) select('je-brow',value);
- select('je-brow','keep');assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),eyes,'removing overlapping brows preserves eyes');
+ select('je-brow','keep');assert.equal(d.getElementById('je-eye-shape').value,'standard','removing brows preserves the adjusted eye selection');assert(w.JustExpressionsEditor.hasEye());
  set('je-eye-shape','keep');assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),Array.from(original));dom.window.close();
 }
 {
@@ -144,5 +144,29 @@ function setup(query = '', withViewer = false) {
  let result=w.JustExpressionsEditor.getSkin();assert.deepEqual(Array.from(result.slice(at(9,12),at(9,12)+4)),[240,241,242,255]);assert.deepEqual(Array.from(result.slice(at(10,12),at(10,12)+4)),[18,58,188,255]);assert.equal(result[at(41,12)+3],0,'overlapping opaque glasses cleared for visible eye');
  assert.deepEqual(Array.from(frames.at(-1)),Array.from(result));d.getElementById('save').click();assert.deepEqual(Array.from(getExport()),Array.from(result));
  shape.value='keep';shape.dispatchEvent(new w.Event('change'));assert.deepEqual(Array.from(w.JustExpressionsEditor.getSkin()),Array.from(skin),'keep restores original glasses');dom.window.close();
+}
+{
+ const {dom,w,d,fixture,finish,frames,getExport}=setup('?mode=just-expressions',true);finish();w.confirm=()=>{throw Error('combined presets must not prompt');};
+ const at=(x,y)=>(y*64+x)*4, skin=()=>w.JustExpressionsEditor.getSkin(), pixel=(x,y)=>Array.from(skin().slice(at(x,y),at(x,y)+4));
+ const edit=(id,value,type='change')=>{const el=d.getElementById(id);el.value=value;el.dispatchEvent(new w.Event(type,{bubbles:true}));};
+ const pick=(id,value)=>{const el=d.getElementById(id),menu=el.nextElementSibling,before=Array.from(skin()),previousStatus=d.getElementById('je-status').textContent;menu.querySelector('.dd-btn').click();
+  const option=[...menu.querySelectorAll('.dd-opt')].find(b=>b.querySelector('canvas').dataset.value===value),thumb=Array.from(option.querySelector('canvas').getContext('2d').state.data);
+  assert.deepEqual(Array.from(skin()),before,'thumbnails do not mutate combined skin');assert.equal(d.getElementById('je-status').textContent,previousStatus);
+  option.click();const after=skin();for(let y=0;y<8;y++)for(let x=0;x<8;x++)assert.deepEqual(thumb.slice((y*8+x)*4,(y*8+x)*4+4),Array.from(after.slice(at(8+x,8+y),at(8+x,8+y)+4)),id+' candidate includes all adjusted features');
+ };
+ edit('je-eye-white','#f0f1f2','input');edit('je-eye-pupil','#123abc','input');edit('je-brow-color','#a14725','input');edit('je-mouth-color','#cc6688','input');
+ pick('je-eye-shape','standard');pick('je-brow','regular-upper');pick('je-mouth','top-short');
+ const before=Array.from(skin());pick('je-brow','regular-lower');assert.equal(d.getElementById('je-eye-position').value,'lower');assert.match(d.getElementById('je-eye-position').nextElementSibling.querySelector('.dd-btn').textContent,/Lower middle/);assert.match(d.getElementById('je-status').textContent,/Adjusted eye position to Lower middle/);
+ assert.deepEqual(pixel(9,12),[161,71,37,255]);assert.deepEqual(pixel(9,13),[240,241,242,255]);assert.deepEqual(pixel(11,14),[204,102,136,255]);
+ assert.deepEqual(pixel(4,4),[10,20,30,255],'eye marker samples skin beneath brow');assert.deepEqual(pixel(28,50),[161,71,37,255]);assert.deepEqual(pixel(17,50),[204,102,136,255]);
+ assert.deepEqual(Array.from(frames.at(-1)),Array.from(skin()),'3D shows all three features');const face=d.getElementById('face').getContext('2d').state.data;assert.deepEqual(Array.from(face.slice(at(9,13),at(9,13)+4)),[240,241,242,255],'Face preview shows adjusted eye');
+ d.getElementById('save').click();assert.deepEqual(Array.from(getExport()),Array.from(skin()),'download has combined face, markers and mask');
+ d.getElementById('je-undo').click();assert.deepEqual(Array.from(skin()),before,'undo restores all automatic adjustments');assert.equal(d.getElementById('je-brow').value,'regular-upper');assert.equal(d.getElementById('je-eye-position').value,'upper');
+ d.getElementById('je-mask-toggle').click();assert(!d.getElementById('je-mask-toggle').checked);pick('je-eye-shape','standard');assert(d.getElementById('je-mask-toggle').checked,'reselecting eyes re-enables hiding for selected brow and mouth');
+ for(const [id,value,faceXY,markerXY,expected] of [['je-advanced-eye-pupil','#355677',[10,12],[5,3],[53,86,119,255]],['je-advanced-brow-color','#334455',[9,11],[28,49],[51,68,85,255]],['je-advanced-mouth-color','#ddeeaa',[11,14],[17,50],[221,238,170,255]]]) {
+  const other=Array.from(skin());edit(id,value,'input');assert.deepEqual(pixel(...faceXY),expected,id+' paints face');assert.deepEqual(pixel(...markerXY),expected,id+' writes its marker');assert(d.getElementById('je-mask-toggle').checked);
+  assert.deepEqual(Array.from(frames.at(-1)),Array.from(skin()),'live 3D after '+id);d.getElementById('je-undo').click();assert.deepEqual(Array.from(skin()),other,'undo colour leaves other features intact');
+ }
+ pick('je-mouth','keep');assert.equal(d.getElementById('je-brow').value,'regular-upper');assert.equal(d.getElementById('je-eye-shape').value,'standard');pick('je-brow','keep');pick('je-eye-shape','keep');assert.deepEqual(Array.from(skin()),Array.from(fixture),'all Do not change choices restore uploaded skin');dom.window.close();
 }
 console.log('Unified editor mode transfer, download, undo, overwrite safety, validation and async races passed');
