@@ -19,8 +19,68 @@ dependencies {
     include implementation("org.ladysnake.cardinal-components-api:cardinal-components-entity:${project.cca_version}")
 }
 
-loom { accessWidenerPath = file('src/main/resources/glowingeyes.accesswidener') }
+// Minecraft 26.2 changed several APIs without preserving the 26.1 names.
+// Generate version-specific source from the shared port; do not mutate the
+// checked-in sources or the independent 1.20.x backport.
+def newerApi = project.minecraft_version in ['26.2', '26.3']
+def versionJava = layout.buildDirectory.dir('generated/versioned-java')
+tasks.register('generateVersionJava', Sync) {
+    from('src/main/java')
+    into(versionJava)
+    filteringCharset = 'UTF-8'
+    if (newerApi) {
+        filter { String line ->
+            [
+                ['Minecraft.getInstance().setScreen(', 'Minecraft.getInstance().gui.setScreen('],
+                ['this.minecraft.setScreen(', 'this.minecraft.gui.setScreen('],
+                ['client.setScreen(', 'client.gui.setScreen('],
+                ['mc.setScreen(', 'mc.gui.setScreen('],
+                ['client.screen != null', 'client.gui.screen() != null'],
+                ['EntityType.PLAYER', 'net.minecraft.world.entity.EntityTypes.PLAYER'],
+                ['Minecraft$GameLoadCookie', 'GameLoadCookie'],
+                ['Minecraft.GameLoadCookie', 'net.minecraft.client.GameLoadCookie'],
+                ['getFormat().pixelSize()', 'getFormat().blockSize()'],
+                ['GpuBuffer.MappedView', 'com.mojang.blaze3d.buffers.GpuBufferSlice.MappedView'],
+                ['commandEncoder.mapBuffer(gpuBuffer, true, false)', 'gpuBuffer.map(true, false)'],
+                ['RenderSystem.getDevice().getRenderer()', 'RenderSystem.getDevice().getDeviceInfo().name()'],
+                ['.withVertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS)', '.withVertexBinding(0, DefaultVertexFormat.POSITION_TEX_COLOR).withPrimitiveTopology(com.mojang.blaze3d.PrimitiveTopology.QUADS)']
+            ].each { pair -> line = line.replace(pair[0], pair[1]) }
+            if (project.minecraft_version == '26.3') {
+                [
+                    ['com.mojang.blaze3d.pipeline.', 'com.mojang.renderpearl.api.pipeline.'],
+                    ['com.mojang.blaze3d.buffers.', 'com.mojang.renderpearl.api.buffers.'],
+                    ['com.mojang.blaze3d.textures.GpuTexture', 'com.mojang.renderpearl.api.textures.GpuTexture'],
+                    ['com.mojang.blaze3d.systems.CommandEncoder', 'com.mojang.renderpearl.api.commands.CommandEncoder'],
+                    ['com.mojang.blaze3d.vertex.VertexFormat', 'com.mojang.renderpearl.api.vertex.VertexFormat'],
+                    ['com.mojang.blaze3d.PrimitiveTopology', 'com.mojang.renderpearl.api.pipeline.PrimitiveTopology'],
+                    ['@Mixin(GpuTexture.class)', '@Mixin(com.mojang.renderpearl.backend.common.BaseGpuTexture.class)'],
+                    ['InputConstants.Type.KEYSYM', 'InputConstants.Type.KEYBOARD'],
+                    ['import com.mojang.blaze3d.platform.GLX;', ''],
+                    ['GLX._getCpuInfo()', 'System.getProperty("os.arch")'],
+                    ['import org.lwjgl.glfw.GLFW;', 'import org.lwjgl.sdl.SDLKeycode;\nimport org.lwjgl.sdl.SDLScancode;'],
+                    ['GLFW.GLFW_MOD_CONTROL', 'SDLKeycode.SDL_KMOD_CTRL'],
+                    ['GLFW.GLFW_MOD_ALT', 'SDLKeycode.SDL_KMOD_ALT'],
+                    ['GLFW.GLFW_KEY_LEFT_SHIFT', 'SDLScancode.SDL_SCANCODE_LSHIFT'],
+                    ['GLFW.GLFW_KEY_ENTER', 'SDLScancode.SDL_SCANCODE_RETURN'],
+                    ['GLFW.GLFW_KEY_SPACE', 'SDLScancode.SDL_SCANCODE_SPACE'],
+                    ['GLFW.GLFW_KEY_UP', 'SDLScancode.SDL_SCANCODE_UP'],
+                    ['GLFW.GLFW_KEY_DOWN', 'SDLScancode.SDL_SCANCODE_DOWN'],
+                    ['GLFW.GLFW_KEY_LEFT', 'SDLScancode.SDL_SCANCODE_LEFT'],
+                    ['GLFW.GLFW_KEY_RIGHT', 'SDLScancode.SDL_SCANCODE_RIGHT']
+                ].each { pair -> line = line.replace(pair[0], pair[1]) }
+            }
+            return line
+        }
+    }
+}
+sourceSets.main.java.setSrcDirs([versionJava])
+tasks.named('compileJava') { dependsOn 'generateVersionJava' }
+def widener = project.minecraft_version == '26.3' ? file('src/compat/26.3.accesswidener') :
+    newerApi ? file('src/compat/26.2.accesswidener') : file('src/main/resources/glowingeyes.accesswidener')
+loom { accessWidenerPath = widener }
+sourceSets.main.resources.exclude('glowingeyes.accesswidener')
 processResources {
+    from(widener) { rename { 'glowingeyes.accesswidener' } }
     inputs.properties(version: project.version, minecraft_version: project.minecraft_version,
         loader_version: project.loader_version, fabric_version: project.fabric_version)
     filesMatching(['fabric.mod.json', '*.mixins.json', 'pack.mcmeta']) {
