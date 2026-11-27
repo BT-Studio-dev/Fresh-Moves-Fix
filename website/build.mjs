@@ -146,22 +146,22 @@ ${body}
       <p>Fresh Moves Fix is <a rel="noopener" href="${REPO}">open source</a>.</p>
       <p>CC0 1.0 · a fork of <a rel="noopener" href="https://github.com/IthanMendoza/Fresh-Moves">Fresh Moves</a> by IthanMendoza, based on Fresh Animations by FreshLX.</p>
     </div>
-    <div><h4>${ICON.box} Pack</h4>
+    <div><h2>${ICON.box} Pack</h2>
       <a href="${up}#download">${ICON.down} Download</a>
       <a rel="noopener" href="${REPO}/releases">${ICON.tag} Releases</a>
       <a rel="noopener" href="${REPO}#changes-from-the-original-pack">${ICON.star} Changes</a>
     </div>
-    <div><h4>${ICON.eye} Skins</h4>
+    <div><h2>${ICON.eye} Skins</h2>
       <a href="${up}guides/">${ICON.book} Eye guides</a>
       <a href="${up}editor/">${ICON.eye} Eye editor</a>
       <a href="${up}title/">${ICON.tag} Title</a>
       <a href="${up}guides/fix-black-eyes/">${ICON.wrench} Fix black eyes</a>
     </div>
-    <div><h4>${ICON.wrench} Required mods</h4>
+    <div><h2>${ICON.wrench} Required mods</h2>
       <a class="footer-mod" rel="noopener" href="https://modrinth.com/mod/entity-model-features"><img src="${up}emf-icon.png" alt="" width="36" height="36" loading="lazy"><span>Entity Model Features</span></a>
       <a class="footer-mod" rel="noopener" href="https://modrinth.com/mod/entitytexturefeatures"><img src="${up}etf-icon.png" alt="" width="36" height="36" loading="lazy"><span>Entity Texture Features</span></a>
     </div>
-    <div><h4>${ICON.list} Resources</h4>
+    <div><h2>${ICON.list} Resources</h2>
       <a rel="noopener" href="${REPO}">${ICON.code} GitHub</a>
       <a rel="noopener" href="${REPO}/issues">${ICON.bug} Report issues</a>
       <a href="${up}settings/">${ICON.gear} Settings</a>
@@ -257,6 +257,7 @@ for (const f of ["night-stars.svg", "night-clouds.svg", "night-moon.svg", "owner
 fs.copyFileSync(path.join(here, "refresh-2026.css"), path.join(out, "refresh-2026.css"));
 fs.copyFileSync(path.join(here, "refresh-2027.css"), path.join(out, "refresh-2027.css"));
 fs.copyFileSync(path.join(here, "fresh-moves-banner.mp4"), path.join(out, "fresh-moves-banner.mp4"));
+fs.copyFileSync(path.join(here, "fresh-moves-banner-poster.png"), path.join(out, "fresh-moves-banner-poster.png"));
 fs.copyFileSync(path.join(here, "video-banner.js"), path.join(out, "video-banner.js"));
 fs.copyFileSync(path.join(here, "enhancements.js"), path.join(out, "enhancements.js"));
 fs.copyFileSync(path.join(here, "help.js"), path.join(out, "help.js"));
@@ -1665,6 +1666,20 @@ write("minecraft-skins/index.html", page({
 </main>`,
 }));
 
+// A standalone watch page for the existing background video. The character and
+// lettering on the homepage are separate layers, not part of this silent clip.
+write("watch/banner/index.html", page({
+  title: "Fresh Moves Fix banner background animation",
+  active: "home", depth: 2,
+  description: "Watch the short, silent animated background used in the Fresh Moves Fix website banner.",
+  body: `<main class="wrap watch-page" id="main">
+    <header class="watch-heading"><span class="home-eyebrow">FRESH MOVES FIX VIDEO</span><h1>Banner background animation</h1><p>Watch the short, silent background animation used in the Fresh Moves Fix website banner.</p></header>
+    <video class="watch-video" controls playsinline preload="metadata" width="960" height="360" poster="../../fresh-moves-banner-poster.png" src="../../fresh-moves-banner.mp4" data-music-ignore aria-label="Fresh Moves Fix banner background animation">Your browser cannot play this video. <a href="../../fresh-moves-banner.mp4">Download the silent MP4</a>.</video>
+    <p class="watch-caption">An eight-second silent loop of moving squares. The character, iron ingot and text on the homepage are separate layers and are not part of this video.</p>
+    <p><a class="btn ghost" href="../../">${ICON.home} Back to Fresh Moves Fix</a></p>
+  </main>`,
+}));
+
 // "Page not found" page. Vercel shows 404.html for every address that does not exist,
 // at any depth, so all its links are made to start from the top of the site (<base href="/">).
 write("404.html", page({
@@ -1686,7 +1701,7 @@ write("index.html", page({
   title: "Fresh Moves Fix - player animations for Minecraft",
   active: "home",
   description: "A fork of the Fresh Moves resource pack: smoother player animations and animated eyes, with builds for Minecraft 1.20 to 26.3.",
-  body: `<div class="wrap home-page">
+  body: `<main id="main" class="wrap home-page">
 <div class="hero home-hero">
   <div class="hero-art"><img src="pack.png" alt="Fresh Moves Fix pack icon" width="180" height="180"><span class="hero-art-caption">JAVA EDITION</span></div>
   <div class="txt">
@@ -1720,6 +1735,7 @@ write("index.html", page({
   </div>
   <button class="fresh-banner-motion" id="fresh-banner-motion" type="button" hidden>Play animation</button>
 </section>
+<p class="banner-watch-link"><a href="watch/banner/">Watch the banner background animation</a></p>
 
 <div class="owner-profiles" aria-label="Owner profiles">
   <aside class="owner-profile" aria-label="lie_kg owner profile">
@@ -1829,7 +1845,7 @@ ${versionLinks}
     <a class="card install-link" href="guides/fix-black-eyes/"><span class="install-icon">${ICON.eye}</span><span><b>Fix Black Eyes</b><small>Open the troubleshooting guide</small></span><span aria-hidden="true">${ICON.right}</span></a>
   </div>
 </section>
-</div>
+</main>
 <script src="player.js?v=${ver("player.js")}"></script>
 <script src="owner-profiles.bundle.js?v=${ver("owner-profiles.js")}"></script>
 <script src="video-banner.js?v=${ver("video-banner.js")}"></script>`,
@@ -1837,6 +1853,9 @@ ${versionLinks}
 
 // Build from the pages actually written, so guide additions stay in sync.
 fs.writeFileSync(path.join(out, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${SITE}sitemap.xml\n`);
-fs.writeFileSync(path.join(out, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapUrls.sort().map(url => `  <url><loc>${esc(url)}</loc></url>`).join("\n")}\n</urlset>\n`);
+fs.writeFileSync(path.join(out, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">\n${sitemapUrls.sort().map(url => {
+  const video = url === SITE + "watch/banner/" ? `<video:video><video:thumbnail_loc>${SITE}fresh-moves-banner-poster.png</video:thumbnail_loc><video:title>Fresh Moves Fix banner background animation</video:title><video:description>Short silent animated background used in the Fresh Moves Fix website banner.</video:description><video:content_loc>${SITE}fresh-moves-banner.mp4</video:content_loc><video:duration>8</video:duration></video:video>` : "";
+  return `  <url><loc>${esc(url)}</loc>${video}</url>`;
+}).join("\n")}\n</urlset>\n`);
 
 console.log(`Built website: ${docs.length} guides, ${versions.length} Minecraft versions, release v${version}`);

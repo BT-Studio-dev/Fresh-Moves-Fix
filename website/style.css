@@ -121,7 +121,8 @@ article img { margin: 6px 0 14px; border: 1px solid var(--line); }
 footer { border-top: 1px solid var(--line); background: var(--header); color: var(--muted); font-size: 15px; padding: 40px 0 28px; margin-top: 24px; }
 footer .cols { display: grid; grid-template-columns: 1.5fr repeat(4, 1fr); gap: 28px; }
 footer .about p { margin: 12px 0 0; }
-footer h4 { color: var(--text); font-size: 15px; margin: 0 0 10px; }
+footer h2 { color: var(--text); font-size: 15px; margin: 0 0 10px; }
+footer h2 .ic { width: 18px; height: 18px; color: inherit; vertical-align: baseline; }
 footer .cols > div:not(.about) a { display: block; color: var(--muted); text-decoration: none; margin-bottom: 8px; }
 footer .cols > div:not(.about) a:hover { color: var(--text); }
 footer .cols > div:not(.about) a.footer-mod { display: flex; align-items: center; gap: 8px; }
@@ -261,7 +262,7 @@ a.card.go:hover .ic { color: var(--accent); }
 .langs .lang .flag { width: 28px; height: 21px; border-radius: 3px; object-fit: cover; box-shadow: 0 0 0 1px var(--line); flex: none; }
 
 /* icons next to texts and links */
-header.top nav a .ic, footer .cols a .ic, footer h4 .ic, .btn .ic, h2 .ic, h3 .ic { margin-inline-end: 6px; }
+header.top nav a .ic, footer .cols a .ic, footer h2 .ic, .btn .ic, h2 .ic, h3 .ic { margin-inline-end: 6px; }
 header.top nav a .ic { width: 16px; height: 16px; }
 footer .cols a .ic { width: 15px; height: 15px; opacity: .8; }
 h2 .ic { width: 22px; height: 22px; color: var(--accent); vertical-align: -3px; }

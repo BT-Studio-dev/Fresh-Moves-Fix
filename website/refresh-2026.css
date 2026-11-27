@@ -1153,7 +1153,7 @@ a.card:hover, a.tool:hover, a.project-card:hover { border-color: var(--accent); 
 .project-card > span:last-child { display: inline-flex; align-items: center; padding: 7px 10px; border: 1px solid var(--line); border-radius: 7px; }
 .projects-grid a.project-card:hover { transform: none; }
 footer { border-top: 2px solid var(--line); }
-footer h4 { color: var(--accent); }
+footer h2 { color: var(--accent); }
 [data-theme="minecraft"] .home-hero, [data-theme="minecraft"] .home-heading, [data-theme="minecraft"] .card, [data-theme="minecraft"] .ed .panel, [data-theme="minecraft"] .set .menu, [data-theme="minecraft"] .set .box, [data-theme="minecraft"] .projects-heading, [data-theme="minecraft"] .project-card { border-radius: 3px; }
 @media (max-width: 760px) {
   .home-hero { grid-template-columns: 1fr; }
