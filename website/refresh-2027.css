@@ -130,6 +130,15 @@ a.card:focus-visible, a.tool:focus-visible, a.project-card:focus-visible, .versi
 .fresh-banner-motion { position: absolute; right: 16px; bottom: 14px; padding: 7px 10px; border: 1px solid #8fae9c; border-radius: 7px; background: #122f2a; color: #fff; font: inherit; font-size: .75rem; cursor: pointer; }
 .fresh-banner-motion:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 .fresh-banner-motion[hidden] { display: none; }
+.banner-watch-link { margin: 10px 0 0; text-align: right; font-size: .9rem; }
+.watch-page { max-width: 1000px; }
+.watch-heading { margin: 28px 0 20px; }
+.watch-heading h1 { margin: 8px 0; }
+.watch-heading p, .watch-caption { color: var(--muted); }
+.watch-video { display: block; width: 100%; height: auto; aspect-ratio: 8 / 3; background: #061e1b; border: 1px solid var(--edition-border); border-radius: 12px; }
+.watch-video:focus-visible { outline: 3px solid var(--fmf-focus); outline-offset: 3px; }
+.watch-caption { margin: 14px 0 20px; }
+[data-theme="minecraft"] .watch-video { border-radius: 3px; }
 .fresh-banner-motion:disabled { cursor: default; opacity: .8; }
 [data-theme="minecraft"] .fresh-video-banner, [data-theme="minecraft"] .fresh-banner-motion { border-radius: 3px; }
 @media (max-width: 560px) { .fresh-video-banner { padding: 24px 20px 56px; } .fresh-video-banner-content { gap: 16px; } .fresh-video-banner p { font-size: .86rem; } }
