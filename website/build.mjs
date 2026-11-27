@@ -146,22 +146,22 @@ ${body}
       <p>Fresh Moves Fix is <a rel="noopener" href="${REPO}">open source</a>.</p>
       <p>CC0 1.0 · a fork of <a rel="noopener" href="https://github.com/IthanMendoza/Fresh-Moves">Fresh Moves</a> by IthanMendoza, based on Fresh Animations by FreshLX.</p>
     </div>
-    <div><h4>${ICON.box} Pack</h4>
+    <div><h2>${ICON.box} Pack</h2>
       <a href="${up}#download">${ICON.down} Download</a>
       <a rel="noopener" href="${REPO}/releases">${ICON.tag} Releases</a>
       <a rel="noopener" href="${REPO}#changes-from-the-original-pack">${ICON.star} Changes</a>
     </div>
-    <div><h4>${ICON.eye} Skins</h4>
+    <div><h2>${ICON.eye} Skins</h2>
       <a href="${up}guides/">${ICON.book} Eye guides</a>
       <a href="${up}editor/">${ICON.eye} Eye editor</a>
       <a href="${up}title/">${ICON.tag} Title</a>
       <a href="${up}guides/fix-black-eyes/">${ICON.wrench} Fix black eyes</a>
     </div>
-    <div><h4>${ICON.wrench} Required mods</h4>
+    <div><h2>${ICON.wrench} Required mods</h2>
       <a class="footer-mod" rel="noopener" href="https://modrinth.com/mod/entity-model-features"><img src="${up}emf-icon.png" alt="" width="36" height="36" loading="lazy"><span>Entity Model Features</span></a>
       <a class="footer-mod" rel="noopener" href="https://modrinth.com/mod/entitytexturefeatures"><img src="${up}etf-icon.png" alt="" width="36" height="36" loading="lazy"><span>Entity Texture Features</span></a>
     </div>
-    <div><h4>${ICON.list} Resources</h4>
+    <div><h2>${ICON.list} Resources</h2>
       <a rel="noopener" href="${REPO}">${ICON.code} GitHub</a>
       <a rel="noopener" href="${REPO}/issues">${ICON.bug} Report issues</a>
       <a href="${up}settings/">${ICON.gear} Settings</a>
@@ -1686,7 +1686,7 @@ write("index.html", page({
   title: "Fresh Moves Fix - player animations for Minecraft",
   active: "home",
   description: "A fork of the Fresh Moves resource pack: smoother player animations and animated eyes, with builds for Minecraft 1.20 to 26.3.",
-  body: `<div class="wrap home-page">
+  body: `<main id="main" class="wrap home-page">
 <div class="hero home-hero">
   <div class="hero-art"><img src="pack.png" alt="Fresh Moves Fix pack icon" width="180" height="180"><span class="hero-art-caption">JAVA EDITION</span></div>
   <div class="txt">
@@ -1829,7 +1829,7 @@ ${versionLinks}
     <a class="card install-link" href="guides/fix-black-eyes/"><span class="install-icon">${ICON.eye}</span><span><b>Fix Black Eyes</b><small>Open the troubleshooting guide</small></span><span aria-hidden="true">${ICON.right}</span></a>
   </div>
 </section>
-</div>
+</main>
 <script src="player.js?v=${ver("player.js")}"></script>
 <script src="owner-profiles.bundle.js?v=${ver("owner-profiles.js")}"></script>
 <script src="video-banner.js?v=${ver("video-banner.js")}"></script>`,
